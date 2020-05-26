@@ -28,8 +28,6 @@ class PPO:
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) +
                                           list(self.critic.parameters()), lr=ppo_config['lr'])
 
-        # self.actor_old = copy.deepcopy(self.actor)
-        # self.critic_old = copy.deepcopy(self.critic)
         self.actor_old = Actor(state_dim, action_dim, config).to(device)
         self.critic_old = Critic_V(state_dim, config).to(device)
         self.actor_old.load_state_dict(self.actor.state_dict())

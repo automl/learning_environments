@@ -49,15 +49,13 @@ def run_TD3(config):
 
             # state-action transition
             next_state, reward, done, _ = env.step(action)
-            if done and t < env._max_episode_steps-1:
-                print('done')
             done_bool = float(done) if t < env._max_episode_steps-1 else 0
             replay_buffer.add(state, action, next_state, reward, done_bool)
             state = next_state
 
             episode_reward += reward
 
-            # training
+            # train
             if episode > init_episodes:
                 td3.train(replay_buffer)
             if done:

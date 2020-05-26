@@ -50,7 +50,7 @@ def run_PPO(config):
 
             episode_reward += reward
 
-            # update after certain amount of timesteps
+            # train after certain amount of timesteps
             if time_step/env._max_episode_steps > update_episodes:
                 ppo.train(replay_buffer)
                 replay_buffer.clear()

@@ -32,9 +32,7 @@ class Actor(nn.Module):
                         nn.Linear(hidden_size, action_dim),
                         nn.Tanh())
 
-        print(action_std)
         self.action_std = torch.nn.Parameter(torch.ones(action_dim)*action_std).to(device)
-        #self.action_std = torch.full((action_dim,), action_std).to(device)
 
     def forward(self, state, with_noise=True):
         action_mean = self.net(state)
