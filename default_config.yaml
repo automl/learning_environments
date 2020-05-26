@@ -1,4 +1,4 @@
-env_name: !!str HalfCheetah-v2   # used gym environment like Pendulum-v0,
+env_name: !!str Pendulum-v0      # used gym environment like Pendulum-v0,
 seed: !!int 0                    # random initialization seed
 
 model:
