@@ -34,14 +34,11 @@ class Actor(nn.Module):
 
         self.action_std = torch.nn.Parameter(torch.ones(action_dim)*action_std).to(device)
 
-    def forward(self, state, with_noise=True):
+    def forward(self, state):
         action_mean = self.net(state)
-        if with_noise:
-            dist = Normal(action_mean, self.action_std)
-            action = dist.rsample()
-            return action
-        else:
-            return action_mean
+        dist = Normal(action_mean, self.action_std)
+        action = dist.rsample()
+        return action
 
     def evaluate(self, state, action):
         action_mean = self.net(state)

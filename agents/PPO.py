@@ -66,9 +66,6 @@ class PPO:
             logprobs, dist_entropy = self.actor.evaluate(old_states, old_actions)
             state_values = self.critic(old_states)
 
-            if it == 0:
-                print(torch.sum(dist_entropy))
-
             # Finding the ratio (pi_theta / pi_theta__old):
             ratios = torch.exp(logprobs - old_logprobs)
 
