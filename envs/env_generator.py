@@ -8,13 +8,10 @@ from envs.virtual import VirtualEnv
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class EnvWrapper:
-    def __init__
-
-
 class EnvGenerator:
     def __init__(self, config):
         self.env_name = config['env_name']
+        self.seed = config['seed']
 
         self.env_config = {}
         if self.env_name in config['envs'].keys():
@@ -45,9 +42,12 @@ class EnvGenerator:
 
     def env_factory(self, kwargs):
         if self.env_name == 'PendulumEnv':
-            return PendulumEnv(**kwargs)
+            print('Generating environment "{}" with parameters {}'.format(self.env_name, kwargs))
+            env = PendulumEnv(**kwargs)
         else:
-            return gym.make(self.env_name)
+            env = gym.make(self.env_name)
+        env.seed(self.seed)
+        return env
 
 
 if __name__ == "__main__":

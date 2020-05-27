@@ -1,19 +1,25 @@
-from utils import Actor, Critic_Q
-import copy
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
+from utils import Actor, Critic_Q, ReplayBuffer, AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class TD3(object):
+class TD3(nn.Module):
     def __init__(self, state_dim, action_dim, config):
+        super(TD3, self).__init__()
 
         td3_config = config['agents']['td3']
 
+        self.state_dim = state_dim
+        self.action_dim = action_dim
         self.gamma = td3_config['gamma']
         self.tau = td3_config['tau']
         self.policy_delay = td3_config['policy_delay']
         self.batch_size = td3_config['batch_size']
+        self.init_episodes = td3_config['init_episodes']
+        self.max_episodes = td3_config['max_episodes']
+        self.rb_size = td3_config['rb_size']
 
         self.device = device
         self.actor = Actor(state_dim, action_dim, config).to(device)
@@ -33,7 +39,44 @@ class TD3(object):
         self.total_it = 0
 
 
-    def run(self, ):
+    def run(self, env):
+        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
+        avg_meter_reward = AverageMeter(buffer_size=10,
+                                        update_rate=10,
+                                        print_str='Average reward: ')
+
+        time_step = 0
+
+        # training loop
+        for episode in range(self.max_episodes):
+            state = env.reset()
+            episode_reward = 0
+
+            for t in range(env._max_episode_steps):
+                time_step += 1
+
+                # fill replay buffer at beginning
+                if episode < self.init_episodes:
+                    action = env.action_space.sample()
+                else:
+                    action = self.select_action(state)
+
+                # state-action transition
+                next_state, reward, done, _ = env.step(action)
+                done_bool = float(done) if t < env._max_episode_steps - 1 else 0
+                replay_buffer.add(state, action, next_state, reward, done_bool)
+                state = next_state
+
+                episode_reward += reward
+
+                # train
+                if episode > self.init_episodes:
+                    self.train(replay_buffer)
+                if done:
+                    break
+
+            # logging
+            avg_meter_reward.update(episode_reward)
 
 
     def select_action(self, state):

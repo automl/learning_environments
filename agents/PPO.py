@@ -1,15 +1,13 @@
-from utils import Actor, Critic_V
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
-from utils import AverageMeter
+from utils import Actor, Critic_V, ReplayBuffer, AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class PPO:
-    def __init__(self,
-                 state_dim,
-                 action_dim,
-                 config):
+class PPO(nn.Module):
+    def __init__(self, state_dim, action_dim, config):
+        super(PPO, self).__init__()
 
         ppo_config = config['agents']['ppo']
 
@@ -18,6 +16,8 @@ class PPO:
         self.ent_coef = ppo_config['ent_coef']
         self.eps_clip = ppo_config['eps_clip']
         self.ppo_epochs = ppo_config['ppo_epochs']
+        self.max_episodes = ppo_config['max_episodes']
+        self.update_episodes = ppo_config['update_episodes']
 
         self.actor = Actor(state_dim, action_dim, config).to(device)
         self.critic = Critic_V(state_dim, config).to(device)
@@ -28,6 +28,42 @@ class PPO:
         self.critic_old = Critic_V(state_dim, config).to(device)
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
+
+
+    def run(self, env):
+        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
+        avg_meter_reward = AverageMeter(buffer_size=100,
+                                        update_rate=100,
+                                        print_str='Average reward: ')
+
+        time_step = 0
+
+        # training loop
+        for episode in range(self.max_episodes):
+            state = env.reset()
+            episode_reward = 0
+
+            for t in range(env._max_episode_steps):
+                time_step += 1
+
+                # run old policy
+                action = self.select_action(state)
+                next_state, reward, done, _ = env.step(action)
+                replay_buffer.add(state, action, next_state, reward, done)
+                state = next_state
+
+                episode_reward += reward
+
+                # train after certain amount of timesteps
+                if time_step / env._max_episode_steps > self.update_episodes:
+                    self.train(replay_buffer)
+                    replay_buffer.clear()
+                    time_step = 0
+                if done:
+                    break
+
+            # logging
+            avg_meter_reward.update(episode_reward)
 
 
     def select_action(self, state):

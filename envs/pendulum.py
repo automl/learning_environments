@@ -18,6 +18,7 @@ class PendulumEnv(gym.Env):
         self.m = kwargs["m"]
         self.l = kwargs["l"]
         self.dt = .05
+        self._max_episode_steps=200
         self.viewer = None
 
         high = np.array([1., 1., self.max_speed], dtype=np.float32)

@@ -1,15 +1,20 @@
-env_name: !!str Pendulum-v0      # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
-seed: !!int 0                    # random initialization seed
+env_name: !!str PendulumEnv        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
+seed: !!int 0                      # random initialization seed
 
 ac_model:
-  hidden_size: !!int 128         # size of the hidden layer
-  activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
-  action_std: !!float 0.5        # action noise standard deviation
+  hidden_size: !!int 128           # size of the hidden layer
+  activation_fn: !!str relu        # activation function for actor/critic ('tanh' or 'relu')
+  action_std: !!float 0.5          # action noise standard deviation
 
 agents:
+  reptile:
+    max_iterations: !!int 10000    # maximum number of REPTILE iteration
+    step_size: !!float 0.1         # step size when updating the model parameters
+    agent_name: !!str TD3          # which RL agent to use for meta-training
+
   td3:
     init_episodes: !!int 100       # number of episodes to fill the replay buffer
-    max_episodes: !!int 100000     # maximum number of episodes to optimize
+    max_episodes: !!int 150        # maximum number of episodes to optimize
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
     lr: !!float 2e-4               # learning rate
@@ -29,9 +34,9 @@ agents:
 
 envs:
   PendulumEnv:
-    max_speed: [5, 8, 10]        # maximum joint speed [min, default, max]
-    max_torque: [1, 2, 3]        # maximum joint torque [min, default, max]
-    g: [5, 10, 20]               # gravitational constant [min, default, max]
+    max_speed: [5, 8, 10]          # maximum joint speed [min, default, max]
+    max_torque: [1, 2, 3]          # maximum joint torque [min, default, max]
+    g: [5, 10, 15]                 # gravitational constant [min, default, max]
     m: [0.5, 1, 2]               # joint mass [min, default, max]
     l: [0.5, 1, 2]               # joint length [min, default, max]
 

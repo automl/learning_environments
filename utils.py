@@ -130,7 +130,7 @@ class AverageMeter:
         self.vals = np.zeros(buffer_size)
         self.ptr = 0
         self.size = 0
-        self.it = 0
+        self.it = 1
 
     def update(self, val):
         self.vals[self.ptr] = val
