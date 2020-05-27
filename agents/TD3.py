@@ -8,7 +8,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class TD3(object):
     def __init__(self, state_dim, action_dim, config):
 
-        td3_config = config['td3']
+        td3_config = config['agents']['td3']
 
         self.gamma = td3_config['gamma']
         self.tau = td3_config['tau']
@@ -31,6 +31,9 @@ class TD3(object):
                                                  list(self.critic_2.parameters()), lr=td3_config['lr'])
 
         self.total_it = 0
+
+
+    def run(self, ):
 
 
     def select_action(self, state):

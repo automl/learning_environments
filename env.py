@@ -1,14 +1,15 @@
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.distributions import MultivariateNormal
 from torch.distributions.normal import Normal
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def build_nn_from_config(input_dim, output_dim, config):
-    hidden_size = config['ac_model']['hidden_size']
-    activation_fn = config['ac_model']['activation_fn']
+    hidden_size = config['model']['hidden_size']
+    activation_fn = config['model']['activation_fn']
 
     if activation_fn == 'relu':
         act_fn = nn.ReLU()
@@ -31,12 +32,13 @@ class Actor(nn.Module):
                                         output_dim = action_dim,
                                         config = config)
         self.action_std = torch.nn.Parameter(
-            torch.ones(action_dim, device=device)*config['ac_model']['action_std'])
+            torch.ones(action_dim, device=device)*config['model']['action_std'])
 
     def forward(self, state):
         action_mean = self.net(state)
         dist = Normal(action_mean, self.action_std)
-        return dist.rsample()
+        action = dist.rsample()
+        return action
 
     def evaluate(self, state, action):
         action_mean = self.net(state)
@@ -70,7 +72,7 @@ class Critic_V(nn.Module):
         return torch.squeeze(self.net(state))
 
 
-class ReplayBuffer:
+class ReplayBuffer(object):
     def __init__(self, state_dim, action_dim, max_size=int(1e6)):
         self.max_size = max_size
         self.state_dim = state_dim
@@ -122,7 +124,7 @@ class ReplayBuffer:
         self.__init__(self.state_dim, self.action_dim, self.max_size)
 
 
-class AverageMeter:
+class AverageMeter(object):
     def __init__(self, buffer_size, update_rate, print_str):
         self.buffer_size = buffer_size
         self.update_rate = update_rate

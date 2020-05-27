@@ -10,7 +10,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def run_TD3(config):
     env_name = config['env_name']
     seed = config['seed']
-    td3_config = config['td3']
+    td3_config = config['agents']['td3']
     init_episodes = td3_config['init_episodes']
     max_episodes = td3_config['max_episodes']
     rb_size = td3_config['rb_size']

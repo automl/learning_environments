@@ -9,9 +9,9 @@ from agents.PPO import PPO
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def run_PPO(config):
-    ppo_config = config['ppo']
     env_name = config['env_name']
     seed = config['seed']
+    ppo_config = config['agents']['ppo']
     max_episodes = ppo_config['max_episodes']
     update_episodes = ppo_config['update_episodes']
 
@@ -31,9 +31,9 @@ def run_PPO(config):
               config = config)
 
     replay_buffer = ReplayBuffer(state_dim, action_dim)
-    avg_meter = AverageMeter(buffer_size = 100,
-                             update_rate = 100,
-                             print_str = 'Average reward: ')
+    avg_meter_reward = AverageMeter(buffer_size = 100,
+                                    update_rate = 100,
+                                     print_str = 'Average reward: ')
 
     time_step = 0
 
@@ -62,8 +62,7 @@ def run_PPO(config):
                 break
 
         # logging
-        avg_meter.update(episode_reward)
-        #print('Episode {} \t Reward: {}'.format(episode, episode_reward))
+        avg_meter_reward.update(episode_reward)
 
 
 if __name__ == "__main__":

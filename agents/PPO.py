@@ -1,11 +1,7 @@
 from utils import Actor, Critic_V
 import torch
-import torch.nn as nn
-import copy
 import torch.nn.functional as F
-from torch.distributions import MultivariateNormal
-import gym
-import numpy as np
+from utils import AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -15,7 +11,7 @@ class PPO:
                  action_dim,
                  config):
 
-        ppo_config = config['ppo']
+        ppo_config = config['agents']['ppo']
 
         self.gamma = ppo_config['gamma']
         self.vf_coef = ppo_config['vf_coef']
