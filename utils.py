@@ -7,32 +7,32 @@ from torch.distributions.normal import Normal
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def get_nn_config(config):
+def build_nn_from_config(input_dim, output_dim, config):
     hidden_size = config['model']['hidden_size']
-    action_std = config['model']['action_std']
     activation_fn = config['model']['activation_fn']
 
     if activation_fn == 'relu':
-        return hidden_size, action_std, nn.ReLU()
+        act_fn = nn.ReLU()
     elif activation_fn == 'tanh':
-        return hidden_size, action_std, nn.Tanh()
+        act_fn = nn.Tanh()
+
+    return nn.Sequential(
+        nn.Linear(input_dim, hidden_size),
+        act_fn,
+        nn.Linear(hidden_size, hidden_size),
+        act_fn,
+        nn.Linear(hidden_size, output_dim))
 
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super(Actor, self).__init__()
 
-        hidden_size, action_std, activation_fn = get_nn_config(config)
-
-        self.net = nn.Sequential(
-                        nn.Linear(state_dim, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, action_dim),
-                        nn.Tanh())
-
-        self.action_std = torch.nn.Parameter(torch.ones(action_dim)*action_std).to(device)
+        self.net = build_nn_from_config(input_dim = state_dim,
+                                        output_dim = action_dim,
+                                        config = config)
+        self.action_std = torch.nn.Parameter(
+            torch.ones(action_dim, device=device)*config['model']['hidden_size'])
 
     def forward(self, state):
         action_mean = self.net(state)
@@ -52,14 +52,9 @@ class Critic_Q(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super(Critic_Q, self).__init__()
 
-        hidden_size, action_std, activation_fn = get_nn_config(config)
-
-        self.net = nn.Sequential(
-                        nn.Linear(state_dim + action_dim, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, action_dim))
+        self.net = build_nn_from_config(input_dim = state_dim+action_dim,
+                                        output_dim = action_dim,
+                                        config = config)
 
     def forward(self, state, action):
         return self.net(torch.cat([state, action], 1))
@@ -69,14 +64,9 @@ class Critic_V(nn.Module):
     def __init__(self, state_dim, config):
         super(Critic_V, self).__init__()
 
-        hidden_size, action_std, activation_fn = get_nn_config(config)
-
-        self.net = nn.Sequential(
-                        nn.Linear(state_dim, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, hidden_size),
-                        activation_fn,
-                        nn.Linear(hidden_size, 1))
+        self.net = build_nn_from_config(input_dim = state_dim,
+                                        output_dim = 1,
+                                        config = config)
 
     def forward(self, state):
         return torch.squeeze(self.net(state))
@@ -132,3 +122,23 @@ class ReplayBuffer(object):
     # for PPO
     def clear(self):
         self.__init__(self.state_dim, self.action_dim, self.max_size)
+
+
+class AverageMeter(object):
+    def __init__(self, buffer_size, update_rate, print_str):
+        self.buffer_size = buffer_size
+        self.update_rate = update_rate
+        self.print_str = print_str
+        self.vals = np.zeros(buffer_size)
+        self.ptr = 0
+        self.size = 0
+        self.it = 0
+
+    def update(self, val):
+        self.vals[self.ptr] = val
+        self.ptr = (self.ptr + 1) % self.buffer_size
+        self.size = min(self.size + 1, self.buffer_size)
+        self.it += 1
+
+        if self.it % self.update_rate == 0:
+            print(self.print_str + str(np.mean(self.vals[:self.size])) + '   Total updates: ' + str(self.it))

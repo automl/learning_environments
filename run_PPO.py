@@ -3,7 +3,7 @@ import torch
 import gym
 import yaml
 import time
-from utils import ReplayBuffer
+from utils import ReplayBuffer, AverageMeter
 from agents.PPO import PPO
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -31,6 +31,9 @@ def run_PPO(config):
               config = config)
 
     replay_buffer = ReplayBuffer(state_dim, action_dim)
+    avg_meter = AverageMeter(buffer_size = 100,
+                             update_rate = 100,
+                             print_str = 'Average reward: ')
 
     time_step = 0
 
@@ -59,7 +62,8 @@ def run_PPO(config):
                 break
 
         # logging
-        print('Episode {} \t Reward: {}'.format(episode, episode_reward))
+        avg_meter.update(episode_reward)
+        #print('Episode {} \t Reward: {}'.format(episode, episode_reward))
 
 
 if __name__ == "__main__":
