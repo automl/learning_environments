@@ -4,7 +4,7 @@ import torch.nn as nn
 import numpy as np
 from agents.TD3 import TD3
 from agents.PPO import PPO
-from envs.env_generator import EnvGenerator
+from envs.env_factory import EnvFactory
 
 
 class REPTILE(nn.Module):
@@ -16,13 +16,13 @@ class REPTILE(nn.Module):
         self.step_size = reptile_config['step_size']
         self.agent_name = reptile_config['agent_name']
 
-        self.env_generator = EnvGenerator(config)
+        self.env_factory = EnvFactory(config)
         self.agent = self.agent_factory(config)
 
     def run(self):
         for it in range(self.max_iterations):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
-            env = self.env_generator.generate_real_env()
+            env = self.env_factory.generate_real_env()
             self.agent.run(env)
             new_state_dict = self.agent.state_dict()
 
@@ -49,7 +49,7 @@ class REPTILE(nn.Module):
 
 
     def agent_factory(self, config):
-        dummy_env = self.env_generator.generate_default_env()
+        dummy_env = self.env_factory.generate_default_env()
         state_dim = dummy_env.observation_space.shape[0]
         action_dim = dummy_env.action_space.shape[0]
 

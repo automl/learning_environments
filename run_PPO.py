@@ -3,6 +3,7 @@ import torch
 import gym
 import yaml
 from agents.PPO import PPO
+from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -14,9 +15,10 @@ if __name__ == "__main__":
     seed = config['seed']
 
     # generate environment
-    env = gym.make(env_name)
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
+    env_fac = EnvFactory(config)
+    env = env_fac.generate_default_env()
+    state_dim = env.get_state_dim()
+    action_dim = env.get_action_dim()
 
     # set seeds
     env.seed(seed)

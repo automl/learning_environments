@@ -105,7 +105,7 @@ class PPO(nn.Module):
             ratios = torch.exp(logprobs - old_logprobs)
 
             # Finding Surrogate Loss
-            advantages = rewards - state_values.detach()
+            advantages = (rewards - state_values).detach()
             surr1 = ratios * advantages
             surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
             loss = - torch.min(surr1, surr2) \

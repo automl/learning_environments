@@ -5,6 +5,7 @@ from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.autograd.set_detect_anomaly(True)
 
 class TD3(nn.Module):
     def __init__(self, state_dim, action_dim, config):
@@ -58,13 +59,13 @@ class TD3(nn.Module):
 
                 # fill replay buffer at beginning
                 if episode < self.init_episodes:
-                    action = env.action_space.sample()
+                    action = env.random_action()
                 else:
-                    action = self.select_action(state)
+                    action = self.actor(state)
 
                 # state-action transition
                 next_state, reward, done, _ = env.step(action)
-                done_bool = float(done) if t < env._max_episode_steps - 1 else 0
+                done_bool = done if t < env._max_episode_steps - 1 else torch.FloatTensor([0])
                 replay_buffer.add(state, action, next_state, reward, done_bool)
                 state = next_state
 
@@ -80,11 +81,6 @@ class TD3(nn.Module):
             avg_meter_reward.update(episode_reward)
 
 
-    def select_action(self, state):
-        state = torch.FloatTensor(state.reshape(1, -1)).to(self.device)
-        return self.actor(state).cpu().data.numpy().flatten()
-
-
     def train(self, replay_buffer):
         self.total_it += 1
 
@@ -94,6 +90,7 @@ class TD3(nn.Module):
         with torch.no_grad():
             # Select action according to policy and add clipped noise
             next_action = (self.actor_target(next_state))
+            reward = reward.unsqueeze(1)
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_state, next_action)
@@ -110,7 +107,7 @@ class TD3(nn.Module):
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
-        critic_loss.backward()
+        critic_loss.backward(retain_graph=True)
         self.critic_optimizer.step()
 
         # Delayed policy updates
@@ -121,7 +118,7 @@ class TD3(nn.Module):
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
-            actor_loss.backward()
+            actor_loss.backward(retain_graph=True)
             self.actor_optimizer.step()
 
             # Update the frozen target models

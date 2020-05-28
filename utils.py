@@ -12,11 +12,11 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.state = np.zeros((max_size, state_dim))
-        self.action = np.zeros((max_size, action_dim))
-        self.next_state = np.zeros((max_size, state_dim))
-        self.reward = np.zeros((max_size, 1))
-        self.done = np.zeros((max_size, 1))
+        self.state = torch.zeros((max_size, state_dim))
+        self.action = torch.zeros((max_size, action_dim))
+        self.next_state = torch.zeros((max_size, state_dim))
+        self.reward = torch.zeros((max_size))
+        self.done = torch.zeros((max_size))
         self.device = device
 
     def add(self, state, action, next_state, reward, done):
@@ -34,21 +34,21 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            torch.FloatTensor(self.state[ind]).to(self.device),
-            torch.FloatTensor(self.action[ind]).to(self.device),
-            torch.FloatTensor(self.next_state[ind]).to(self.device),
-            torch.FloatTensor(self.reward[ind]).to(self.device),
-            torch.FloatTensor(self.done[ind]).to(self.device)
+            self.state[ind].to(self.device),
+            self.action[ind].to(self.device),
+            self.next_state[ind].to(self.device),
+            self.reward[ind].to(self.device),
+            self.done[ind].to(self.device)
         )
 
     # for PPO
     def get_all(self):
         return (
-            torch.FloatTensor(self.state[:self.size]).to(self.device),
-            torch.FloatTensor(self.action[:self.size]).to(self.device),
-            torch.FloatTensor(self.next_state[:self.size]).to(self.device),
-            torch.FloatTensor(self.reward[:self.size]).to(self.device),
-            torch.FloatTensor(self.done[:self.size]).to(self.device)
+            self.state[:self.size].to(self.device),
+            self.action[:self.size].to(self.device),
+            self.next_state[:self.size].to(self.device),
+            self.reward[:self.size].to(self.device),
+            self.done[:self.size].to(self.device)
         )
 
     # for PPO

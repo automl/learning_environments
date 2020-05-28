@@ -1,4 +1,4 @@
-env_name: !!str Pendulum-v0        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
+env_name: !!str PendulumEnv        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
 seed: !!int 0                      # random initialization seed
 
 models:
@@ -14,8 +14,8 @@ agents:
     agent_name: !!str TD3          # which RL agent to use for meta-training
 
   td3:
-    init_episodes: !!int 100       # number of episodes to fill the replay buffer
-    max_episodes: !!int 1700        # maximum number of episodes to optimize
+    init_episodes: !!int 10       # number of episodes to fill the replay buffer
+    max_episodes: !!int 1700       # maximum number of episodes to optimize
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
     lr: !!float 2e-4               # learning rate

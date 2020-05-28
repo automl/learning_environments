@@ -3,20 +3,22 @@ import torch
 import gym
 import yaml
 from agents.TD3 import TD3
+from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.autograd.set_detect_anomaly(True)
 
 if __name__ == "__main__":
     with open("default_config.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
-    env_name = config['env_name']
     seed = config['seed']
 
     # generate environment
-    env = gym.make(env_name)
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
+    env_fac = EnvFactory(config)
+    env = env_fac.generate_default_env()
+    state_dim = env.get_state_dim()
+    action_dim = env.get_action_dim()
 
     # set seeds
     env.seed(seed)
