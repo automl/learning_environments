@@ -6,18 +6,19 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class VirtualEnv(nn.Module):
-    def __init__(self, state_dim, action_dim, seed):
+    def __init__(self, state_dim, action_dim, **kwargs):
         super(VirtualEnv, self).__init__()
         self.state_dim = state_dim
-        self.seed = torch.Tensor(seed, device=device)
+        self.seed = torch.Tensor(np.random.random(), device=device)
         self.state = torch.zeros(state_dim, device=device)
 
+        hidden_size = kwargs['hidden_size']
         self.net = nn.Sequential(
-                        nn.Linear(state_dim+action_dim+1, 64), # +1 because of seed
+                        nn.Linear(state_dim+action_dim+1, hidden_size), # +1 because of seed
                         nn.ReLU(),
-                        nn.Linear(64, 64),
+                        nn.Linear(hidden_size, hidden_size),
                         nn.ReLU(),
-                        nn.Linear(64, state_dim+2))            # +2 because of reward/done
+                        nn.Linear(hidden_size, state_dim+2))            # +2 because of reward/done
 
     def set_seed(self, seed):
         self.seed = torch.Tensor(seed, device=device)

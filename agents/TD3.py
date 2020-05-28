@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import Actor, Critic_Q, ReplayBuffer, AverageMeter
+from models.actor_critic import Actor, Critic_Q
+from utils import ReplayBuffer, AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -41,8 +42,8 @@ class TD3(nn.Module):
 
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
-        avg_meter_reward = AverageMeter(buffer_size=200,
-                                        update_rate=200,
+        avg_meter_reward = AverageMeter(buffer_size=10,
+                                        update_rate=10,
                                         print_str='Average reward: ')
 
         time_step = 0

@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import Actor, Critic_V, ReplayBuffer, AverageMeter
+from models.actor_critic import Actor, Critic_V
+from utils import ReplayBuffer, AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -11,6 +12,8 @@ class PPO(nn.Module):
 
         ppo_config = config['agents']['ppo']
 
+        self.state_dim = state_dim
+        self.action_dim = action_dim
         self.gamma = ppo_config['gamma']
         self.vf_coef = ppo_config['vf_coef']
         self.ent_coef = ppo_config['ent_coef']

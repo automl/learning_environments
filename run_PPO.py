@@ -27,5 +27,4 @@ if __name__ == "__main__":
               action_dim = action_dim,
               config = config)
 
-    a = pp
     ppo.run(env)
