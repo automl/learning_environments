@@ -18,9 +18,9 @@ class VirtualEnv(nn.Module, gym.Env):
         hidden_size = kwargs['hidden_size']
         self.base = nn.Sequential(
                         nn.Linear(state_dim+action_dim+1, hidden_size), # +1 because of seed
-                        nn.ReLU(),
+                        nn.Tanh(),
                         nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU())                                      # +2 because of reward/done
+                        nn.Tanh())
         self.state_head = nn.Linear(hidden_size, state_dim)
         self.reward_head = nn.Linear(hidden_size, 1)
         self.done_head = nn.Linear(hidden_size, 1)

@@ -39,7 +39,7 @@ envs:
     max_steps: [200, 200, 200]     # maximum number of steps per episode
     max_speed: [10, 10, 10]        # maximum joint speed [min, default, max]
     max_torque: [0.5, 1, 2]        # maximum joint torque [min, default, max]
-    g: 1                           # gravitational constant [min, default, max]
+    g: [5, 10, 15]                 # gravitational constant [min, default, max]
     m: 1                           # joint mass [min, default, max]
     l: 1                           # joint length [min, default, max]
     hidden_size: 128               # size of the hidden layer of the corresponding virtual environment
