@@ -12,19 +12,19 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.state = torch.zeros((max_size, state_dim))
-        self.action = torch.zeros((max_size, action_dim))
-        self.next_state = torch.zeros((max_size, state_dim))
-        self.reward = torch.zeros((max_size))
-        self.done = torch.zeros((max_size))
+        self.state = torch.zeros((max_size, state_dim), device=device)
+        self.action = torch.zeros((max_size, action_dim), device=device)
+        self.next_state = torch.zeros((max_size, state_dim), device=device)
+        self.reward = torch.zeros((max_size,1), device=device)
+        self.done = torch.zeros((max_size,1), device=device)
         self.device = device
 
     def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state
         self.action[self.ptr] = action
         self.next_state[self.ptr] = next_state
-        self.reward[self.ptr] = reward
-        self.done[self.ptr] = done
+        self.reward[self.ptr] = reward.squeeze()
+        self.done[self.ptr] = done.squeeze()
 
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
@@ -34,21 +34,21 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.state[ind].to(self.device),
-            self.action[ind].to(self.device),
-            self.next_state[ind].to(self.device),
-            self.reward[ind].to(self.device),
-            self.done[ind].to(self.device)
+            self.state[ind].to(self.device).detach(),
+            self.action[ind].to(self.device).detach(),
+            self.next_state[ind].to(self.device).detach(),
+            self.reward[ind].to(self.device).detach(),
+            self.done[ind].to(self.device).detach()
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.state[:self.size].to(self.device),
-            self.action[:self.size].to(self.device),
-            self.next_state[:self.size].to(self.device),
-            self.reward[:self.size].to(self.device),
-            self.done[:self.size].to(self.device)
+            self.state[:self.size].to(self.device).detach(),
+            self.action[:self.size].to(self.device).detach(),
+            self.next_state[:self.size].to(self.device).detach(),
+            self.reward[:self.size].to(self.device).detach(),
+            self.done[:self.size].to(self.device).detach()
         )
 
     # for PPO

@@ -33,7 +33,7 @@ class EnvWrapper(gym.Wrapper):
     def random_action(self):
         # do random action in the [-1,1] range
         # TODO: should be modified if environment has different range
-        return torch.FloatTensor(self.get_action_dim()).uniform_(-1,1)
+        return torch.empty(self.get_action_dim(), device=device, dtype=torch.float32).uniform_(-1,1)
 
     def get_state_dim(self):
         if self.is_virtual_env:
@@ -46,7 +46,6 @@ class EnvWrapper(gym.Wrapper):
             return self.action_dim
         else:
             return self.action_space.shape[0]
-
 
 
 class EnvFactory:
@@ -83,7 +82,6 @@ class EnvFactory:
         for key, value in self.env_config.items():
             kwargs[key] = float(value[1])
 
-        # TODO: generate a more useful neural net
         env = VirtualEnv(state_dim = state_dim,
                          action_dim = action_dim,
                          kwargs = kwargs)
@@ -96,7 +94,7 @@ class EnvFactory:
             print('Generating environment "{}" with parameters {}'.format(self.env_name, kwargs))
             env = PendulumEnv(**kwargs)
         else:
-            env = gym.make(self.env_name)
+            raise NotImplementedError('Environment not supported')
         env.seed(self.seed)
 
         return EnvWrapper(env = env,

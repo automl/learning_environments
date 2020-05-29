@@ -1,4 +1,5 @@
 import torch
+import time
 import torch.nn as nn
 import torch.nn.functional as F
 from models.actor_critic import Actor, Critic_Q
@@ -43,8 +44,8 @@ class TD3(nn.Module):
 
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
-        avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=10,
+        avg_meter_reward = AverageMeter(buffer_size=1,
+                                        update_rate=1,
                                         print_str='Average reward: ')
 
         time_step = 0
@@ -65,8 +66,12 @@ class TD3(nn.Module):
 
                 # state-action transition
                 next_state, reward, done, _ = env.step(action)
-                done_bool = done if t < env._max_episode_steps - 1 else torch.FloatTensor([0])
-                replay_buffer.add(state, action, next_state, reward, done_bool)
+                if t < env._max_episode_steps - 1:
+                    done_tensor = done
+                else:
+                    done_tensor = torch.tensor([0], device=device, dtype=torch.float32)
+
+                replay_buffer.add(state, action, next_state, reward, done_tensor)
                 state = next_state
 
                 episode_reward += reward
@@ -90,7 +95,7 @@ class TD3(nn.Module):
         with torch.no_grad():
             # Select action according to policy and add clipped noise
             next_action = (self.actor_target(next_state))
-            reward = reward.unsqueeze(1)
+            reward = reward
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_state, next_action)
@@ -107,7 +112,7 @@ class TD3(nn.Module):
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
-        critic_loss.backward(retain_graph=True)
+        critic_loss.backward()
         self.critic_optimizer.step()
 
         # Delayed policy updates
@@ -118,7 +123,7 @@ class TD3(nn.Module):
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
-            actor_loss.backward(retain_graph=True)
+            actor_loss.backward()
             self.actor_optimizer.step()
 
             # Update the frozen target models

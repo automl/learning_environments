@@ -10,7 +10,7 @@ class VirtualEnv(nn.Module):
         super(VirtualEnv, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
-        self.seed = torch.FloatTensor(np.random.random(), device=device)
+        self.seed = torch.tensor(np.random.random(), device=device, dtype=torch.float32)
         self.state = torch.zeros(state_dim, device=device)
 
         hidden_size = kwargs['hidden_size']
@@ -25,7 +25,7 @@ class VirtualEnv(nn.Module):
         self.done_head = nn.Linear(hidden_size, 1)
 
     def set_seed(self, seed):
-        self.seed = torch.FloatTensor(seed, device=device)
+        self.seed = torch.tensor(seed, device=device, dtype=torch.float32)
 
     def reset(self):
         self.state = torch.zeros(self.state_dim, device=device)

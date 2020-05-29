@@ -66,4 +66,4 @@ class Critic_V(nn.Module):
                                         config = config)
 
     def forward(self, state):
-        return torch.squeeze(self.net(state))
+        return self.net(state)

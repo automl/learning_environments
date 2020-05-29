@@ -35,8 +35,8 @@ class PPO(nn.Module):
 
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
-        avg_meter_reward = AverageMeter(buffer_size=100,
-                                        update_rate=100,
+        avg_meter_reward = AverageMeter(buffer_size=10,
+                                        update_rate=10,
                                         print_str='Average reward: ')
 
         time_step = 0
@@ -50,7 +50,7 @@ class PPO(nn.Module):
                 time_step += 1
 
                 # run old policy
-                action = self.select_action(state)
+                action = self.actor_old(state)
                 next_state, reward, done, _ = env.step(action)
                 replay_buffer.add(state, action, next_state, reward, done)
                 state = next_state
@@ -62,16 +62,11 @@ class PPO(nn.Module):
                     self.train(replay_buffer)
                     replay_buffer.clear()
                     time_step = 0
-                if done:
+                if done > 0.5:
                     break
 
             # logging
             avg_meter_reward.update(episode_reward)
-
-
-    def select_action(self, state):
-        state = torch.FloatTensor(state.reshape(1, -1)).to(device)
-        return self.actor_old(state).cpu().data.numpy().flatten()
 
 
     def train(self, replay_buffer):
@@ -86,7 +81,7 @@ class PPO(nn.Module):
 
         #calculate rewards
         for reward, done in zip(reversed(old_rewards), reversed(old_dones)):
-            if done:
+            if done > 0.5:
                 discounted_reward = 0
             discounted_reward = reward + (self.gamma * discounted_reward)
             rewards.insert(0, discounted_reward)
@@ -99,13 +94,14 @@ class PPO(nn.Module):
         for it in range(self.ppo_epochs):
             # evaluate old actions and values :
             logprobs, dist_entropy = self.actor.evaluate(old_states, old_actions)
-            state_values = self.critic(old_states)
+            state_values = self.critic(old_states).squeeze()
 
             # Finding the ratio (pi_theta / pi_theta__old):
             ratios = torch.exp(logprobs - old_logprobs)
 
             # Finding Surrogate Loss
             advantages = (rewards - state_values).detach()
+
             surr1 = ratios * advantages
             surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
             loss = - torch.min(surr1, surr2) \

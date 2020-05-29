@@ -14,7 +14,7 @@ agents:
     agent_name: !!str TD3          # which RL agent to use for meta-training
 
   td3:
-    init_episodes: !!int 10       # number of episodes to fill the replay buffer
+    init_episodes: !!int 100       # number of episodes to fill the replay buffer
     max_episodes: !!int 1700       # maximum number of episodes to optimize
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
@@ -38,8 +38,8 @@ envs:
     hidden_size: !!int 128         # size of the hidden layer
 
   PendulumEnv:
-    max_speed: [10,10,10]          # maximum joint speed [min, default, max]
-    max_torque: [0.2,0.2,0.2]      # maximum joint torque [min, default, max]
+    max_speed: [8,8,8]          # maximum joint speed [min, default, max]
+    max_torque: [1.5,1.5,1.5]      # maximum joint torque [min, default, max]
     g: [10,10,10]                  # gravitational constant [min, default, max]
     m: [1,1,1]                     # joint mass [min, default, max]
     l: [1,1,1]                     # joint length [min, default, max]
