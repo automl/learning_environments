@@ -11,7 +11,7 @@ class VirtualEnv(nn.Module, gym.Env):
         super(VirtualEnv, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
-        self.seed = torch.tensor([np.random.random()], device='cpu', dtype=torch.float32)
+        self.input_seed = torch.tensor([np.random.random()], device='cpu', dtype=torch.float32)
         self.state = torch.zeros(state_dim, device='cpu')   # not sure what the default state should be
         self._max_episode_steps = int(kwargs['max_steps'])
 
@@ -25,15 +25,12 @@ class VirtualEnv(nn.Module, gym.Env):
         self.reward_head = nn.Linear(hidden_size, 1)
         self.done_head = nn.Linear(hidden_size, 1)
 
-    def set_seed(self, seed):
-        self.seed = torch.tensor(seed, device=device, dtype=torch.float32)
-
     def reset(self):
         self.state = torch.zeros(self.state_dim, device='cpu')  # not sure what the default state should be
         return self.state
 
     def step(self, action):
-        input = torch.cat((action, self.state, self.seed))
+        input = torch.cat((action, self.state, self.input_seed))
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)
