@@ -62,7 +62,7 @@ class EnvFactory:
 
     def generate_default_real_env(self):
         # generate a real environment with default parameters
-        kwargs = self._get_random_parameters()
+        kwargs = self._get_default_parameters()
         print('Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         return self._env_factory(kwargs = kwargs)
 

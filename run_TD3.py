@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    env = env_fac.generate_default_env()
+    env = env_fac.generate_default_real_env()
 
     # set seeds
     env.seed(seed)
