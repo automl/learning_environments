@@ -3,7 +3,6 @@ import torch
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 class ReplayBuffer:
     def __init__(self, state_dim, action_dim, max_size=int(1e6)):
         self.max_size = max_size
@@ -12,12 +11,11 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.state = torch.zeros((max_size, state_dim), device=device)
-        self.action = torch.zeros((max_size, action_dim), device=device)
-        self.next_state = torch.zeros((max_size, state_dim), device=device)
-        self.reward = torch.zeros((max_size,1), device=device)
-        self.done = torch.zeros((max_size,1), device=device)
-        self.device = device
+        self.state = torch.zeros((max_size, state_dim))
+        self.action = torch.zeros((max_size, action_dim))
+        self.next_state = torch.zeros((max_size, state_dim))
+        self.reward = torch.zeros((max_size,1))
+        self.done = torch.zeros((max_size,1))
 
     def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state
@@ -34,21 +32,21 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.state[ind].to(self.device).detach(),
-            self.action[ind].to(self.device).detach(),
-            self.next_state[ind].to(self.device).detach(),
-            self.reward[ind].to(self.device).detach(),
-            self.done[ind].to(self.device).detach()
+            self.state[ind].to(device).detach(),
+            self.action[ind].to(device).detach(),
+            self.next_state[ind].to(device).detach(),
+            self.reward[ind].to(device).detach(),
+            self.done[ind].to(device).detach()
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.state[:self.size].to(self.device).detach(),
-            self.action[:self.size].to(self.device).detach(),
-            self.next_state[:self.size].to(self.device).detach(),
-            self.reward[:self.size].to(self.device).detach(),
-            self.done[:self.size].to(self.device).detach()
+            self.state[:self.size].to(device).detach(),
+            self.action[:self.size].to(device).detach(),
+            self.next_state[:self.size].to(device).detach(),
+            self.reward[:self.size].to(device).detach(),
+            self.done[:self.size].to(device).detach()
         )
 
     # for PPO

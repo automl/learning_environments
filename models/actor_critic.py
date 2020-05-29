@@ -5,9 +5,9 @@ from torch.distributions.normal import Normal
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def build_nn_from_config(input_dim, output_dim, config):
-    hidden_size = config['models']['ac']['hidden_size']
-    activation_fn = config['models']['ac']['activation_fn']
+def build_nn_from_config(input_dim, output_dim, agent_name, config):
+    hidden_size = config['agents'][agent_name]['hidden_size']
+    activation_fn = config['agents'][agent_name]['activation_fn']
 
     if activation_fn == 'relu':
         act_fn = nn.ReLU()
@@ -23,14 +23,15 @@ def build_nn_from_config(input_dim, output_dim, config):
 
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, state_dim, action_dim, agent_name, config):
         super(Actor, self).__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = action_dim,
+                                        agent_name = agent_name,
                                         config = config)
         self.action_std = torch.nn.Parameter(
-            torch.ones(action_dim, device=device)*config['models']['ac']['action_std'])
+            torch.ones(action_dim, device=device)*config['agents'][agent_name]['action_std'])
 
     def forward(self, state):
         action_mean = self.net(state)
@@ -46,11 +47,12 @@ class Actor(nn.Module):
 
 
 class Critic_Q(nn.Module):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, state_dim, action_dim, agent_name, config):
         super(Critic_Q, self).__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim+action_dim,
                                         output_dim = action_dim,
+                                        agent_name=agent_name,
                                         config = config)
 
     def forward(self, state, action):
@@ -58,11 +60,12 @@ class Critic_Q(nn.Module):
 
 
 class Critic_V(nn.Module):
-    def __init__(self, state_dim, config):
+    def __init__(self, state_dim, agent_name, config):
         super(Critic_V, self).__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = 1,
+                                        agent_name=agent_name,
                                         config = config)
 
     def forward(self, state):

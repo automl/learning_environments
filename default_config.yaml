@@ -1,12 +1,6 @@
 env_name: !!str PendulumEnv        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
 seed: !!int 0                      # random initialization seed
 
-models:
-  ac:
-    hidden_size: !!int 128           # size of the hidden layer
-    activation_fn: !!str relu        # activation function for actor/critic ('tanh' or 'relu')
-    action_std: !!float 0.5          # action noise standard deviation
-
 agents:
   reptile:
     max_iterations: !!int 10000    # maximum number of REPTILE iteration
@@ -15,40 +9,48 @@ agents:
 
   td3:
     init_episodes: !!int 100       # number of episodes to fill the replay buffer
-    max_episodes: !!int 1700       # maximum number of episodes to optimize
+    max_episodes: !!int 200        # maximum number of episodes to optimize
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
-    lr: !!float 2e-4               # learning rate
+    lr: !!float 3e-4               # learning rate
     tau: !!float 0.005             # target network update rate
     policy_delay: !!int 2          # frequency of delayed policy updates
     rb_size: !!int 1000000         # size of the replay buffer
+    hidden_size: !!int 256         # size of the actor/critic hidden layer
+    activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
+    action_std: !!float 0.1        # action noise standard deviation
 
   ppo:
     max_episodes: !!int 100000     # maximum number of episodes to optimize
-    update_episodes: !!float 5     # update policy every x episodes (can be float)
-    ppo_epochs: !!int 20           # update policy for x epochs
+    update_episodes: !!float 20    # update policy every x episodes (can be float)
+    ppo_epochs: !!int 100          # update policy for x epochs
     gamma: !!float 0.99            # discount factor
     lr: !!float 5e-4               # learning rate
     vf_coef: !!float 0.5           # value function coefficient (see PPO paper)
-    ent_coef: !!float 0.02         # entropy coefficient (see PPO paper)
+    ent_coef: !!float 0.01         # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.2          # trust region size (see PPO paper)
+    hidden_size: !!int 64          # size of the actor/critic hidden layer
+    activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
+    action_std: !!float 0.5        # action noise standard deviation
 
 envs:
-  virtual:
-    hidden_size: !!int 128         # size of the hidden layer
-
   PendulumEnv:
-    max_speed: [8,8,8]          # maximum joint speed [min, default, max]
-    max_torque: [1.5,1.5,1.5]      # maximum joint torque [min, default, max]
-    g: [10,10,10]                  # gravitational constant [min, default, max]
-    m: [1,1,1]                     # joint mass [min, default, max]
-    l: [1,1,1]                     # joint length [min, default, max]
+    dt: [0.05, 0.05, 0.05]         # sampling rate
+    max_steps: [200, 200, 200]     # maximum number of steps per episode
+    max_speed: [10, 10, 10]        # maximum joint speed [min, default, max]
+    max_torque: [0.5, 1, 2]        # maximum joint torque [min, default, max]
+    g: 1                           # gravitational constant [min, default, max]
+    m: 1                           # joint mass [min, default, max]
+    l: 1                           # joint length [min, default, max]
+    hidden_size: 128               # size of the hidden layer of the corresponding virtual environment
 
 #  PendulumEnv:
+#    dt: [0.05, 0.05, 0.05]         # sampling rate
+#    max_steps: [200, 200, 200]     # maximum number of steps per episode
 #    max_speed: [5, 8, 10]          # maximum joint speed [min, default, max]
 #    max_torque: [1, 2, 3]          # maximum joint torque [min, default, max]
 #    g: [5, 10, 15]                 # gravitational constant [min, default, max]
-#    m: [0.5, 1, 2]               # joint mass [min, default, max]
-#    l: [0.5, 1, 2]               # joint length [min, default, max]
+#    m: [0.5, 1, 2]                 # joint mass [min, default, max]
+#    l: [0.5, 1, 2]                 # joint length [min, default, max]
 
 

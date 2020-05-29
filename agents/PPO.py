@@ -10,8 +10,9 @@ class PPO(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super(PPO, self).__init__()
 
-        ppo_config = config['agents']['ppo']
+        agent_name = 'ppo'
 
+        ppo_config = config['agents'][agent_name]
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.gamma = ppo_config['gamma']
@@ -22,21 +23,21 @@ class PPO(nn.Module):
         self.max_episodes = ppo_config['max_episodes']
         self.update_episodes = ppo_config['update_episodes']
 
-        self.actor = Actor(state_dim, action_dim, config).to(device)
-        self.critic = Critic_V(state_dim, config).to(device)
+        self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.critic = Critic_V(state_dim, agent_name, config).to(device)
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) +
                                           list(self.critic.parameters()), lr=ppo_config['lr'])
 
-        self.actor_old = Actor(state_dim, action_dim, config).to(device)
-        self.critic_old = Critic_V(state_dim, config).to(device)
+        self.actor_old = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.critic_old = Critic_V(state_dim, agent_name, config).to(device)
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
-        avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=10,
+        avg_meter_reward = AverageMeter(buffer_size=50,
+                                        update_rate=50,
                                         print_str='Average reward: ')
 
         time_step = 0
@@ -50,7 +51,7 @@ class PPO(nn.Module):
                 time_step += 1
 
                 # run old policy
-                action = self.actor_old(state)
+                action = self.actor_old(state.to(device)).cpu()
                 next_state, reward, done, _ = env.step(action)
                 replay_buffer.add(state, action, next_state, reward, done)
                 state = next_state

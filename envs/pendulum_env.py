@@ -15,13 +15,13 @@ class PendulumEnv(gym.Env):
     }
 
     def __init__(self, **kwargs):
+        self._max_episode_steps = int(kwargs["max_steps"])
         self.max_speed = kwargs["max_speed"]
         self.max_torque = kwargs["max_torque"]
         self.g = kwargs["g"]
         self.m = kwargs["m"]
         self.l = kwargs["l"]
-        self.dt = .05
-        self._max_episode_steps=500
+        self.dt = kwargs["dt"]
         self.viewer = None
 
         high = np.array([1., 1., self.max_speed], dtype=np.float32)
@@ -59,13 +59,13 @@ class PendulumEnv(gym.Env):
         newthdot = torch.clamp(newthdot, -self.max_speed, self.max_speed)
 
         self.state = torch.stack((newth, newthdot), dim=0)
-        done = torch.tensor([0], device=device, dtype=torch.float32)
-        reward = torch.tensor([-costs], device=device, dtype=torch.float32)
+        done = torch.tensor([0], device='cpu', dtype=torch.float32)
+        reward = torch.tensor([-costs], device='cpu', dtype=torch.float32)
         return self._get_obs(), reward, done, {}
 
     def reset(self):
         high = np.array([np.pi, 1])
-        self.state = torch.tensor(self.np_random.uniform(low=-high, high=high), device=device, dtype=torch.float32)
+        self.state = torch.tensor(self.np_random.uniform(low=-high, high=high), device='cpu', dtype=torch.float32)
         self.last_u = None
         return self._get_obs()
 
