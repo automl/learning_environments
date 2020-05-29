@@ -117,4 +117,4 @@ if __name__ == "__main__":
     with open("../default_config.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
         gen = EnvFactory(config)
-        a = gen.generate_real_env()
+        a = gen.generate_default_real_env()
