@@ -14,24 +14,22 @@ def build_nn_from_config(input_dim, output_dim, agent_name, config):
     elif activation_fn == 'tanh':
         act_fn = nn.Tanh()
 
-    return nn.Sequential(
-        nn.Linear(input_dim, hidden_size),
-        act_fn,
-        nn.Linear(hidden_size, hidden_size),
-        act_fn,
-        nn.Linear(hidden_size, output_dim))
+    return nn.Sequential(nn.Linear(input_dim, hidden_size), act_fn,
+                         nn.Linear(hidden_size, hidden_size), act_fn,
+                         nn.Linear(hidden_size, output_dim))
 
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, agent_name, config):
         super(Actor, self).__init__()
 
-        self.net = build_nn_from_config(input_dim = state_dim,
-                                        output_dim = action_dim,
-                                        agent_name = agent_name,
-                                        config = config)
+        self.net = build_nn_from_config(input_dim=state_dim,
+                                        output_dim=action_dim,
+                                        agent_name=agent_name,
+                                        config=config)
         self.action_std = torch.nn.Parameter(
-            torch.ones(action_dim, device=device)*config['agents'][agent_name]['action_std'])
+            torch.ones(action_dim, device=device) *
+            config['agents'][agent_name]['action_std'])
 
     def forward(self, state):
         action_mean = self.net(state)
@@ -50,10 +48,10 @@ class Critic_Q(nn.Module):
     def __init__(self, state_dim, action_dim, agent_name, config):
         super(Critic_Q, self).__init__()
 
-        self.net = build_nn_from_config(input_dim = state_dim+action_dim,
-                                        output_dim = action_dim,
+        self.net = build_nn_from_config(input_dim=state_dim + action_dim,
+                                        output_dim=action_dim,
                                         agent_name=agent_name,
-                                        config = config)
+                                        config=config)
 
     def forward(self, state, action):
         return self.net(torch.cat([state, action], 1))
@@ -63,10 +61,10 @@ class Critic_V(nn.Module):
     def __init__(self, state_dim, agent_name, config):
         super(Critic_V, self).__init__()
 
-        self.net = build_nn_from_config(input_dim = state_dim,
-                                        output_dim = 1,
+        self.net = build_nn_from_config(input_dim=state_dim,
+                                        output_dim=1,
                                         agent_name=agent_name,
-                                        config = config)
+                                        config=config)
 
     def forward(self, state):
         return self.net(state)

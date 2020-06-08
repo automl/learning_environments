@@ -1,9 +1,10 @@
+from os import path
+
 import gym
-from gym import spaces
-from gym.utils import seeding
 import numpy as np
 import torch
-from os import path
+from gym import spaces
+from gym.utils import seeding
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -25,16 +26,13 @@ class PendulumEnv(gym.Env):
         self.viewer = None
 
         high = np.array([1., 1., self.max_speed], dtype=np.float32)
-        self.action_space = spaces.Box(
-            low=-self.max_torque,
-            high=self.max_torque, shape=(1,),
-            dtype=np.float32
-        )
-        self.observation_space = spaces.Box(
-            low=-high,
-            high=high,
-            dtype=np.float32
-        )
+        self.action_space = spaces.Box(low=-self.max_torque,
+                                       high=self.max_torque,
+                                       shape=(1, ),
+                                       dtype=np.float32)
+        self.observation_space = spaces.Box(low=-high,
+                                            high=high,
+                                            dtype=np.float32)
 
         self.seed()
 
@@ -52,9 +50,10 @@ class PendulumEnv(gym.Env):
 
         u = torch.clamp(u, -self.max_torque, self.max_torque)
         self.last_u = u.cpu().data.numpy()  # for rendering
-        costs = angle_normalize(th) ** 2 + .1 * thdot ** 2 + .001 * (u ** 2)
+        costs = angle_normalize(th)**2 + .1 * thdot**2 + .001 * (u**2)
 
-        newthdot = thdot + (-3 * g / (2 * l) * torch.sin(th + np.pi) + 3. / (m * l ** 2) * u) * dt
+        newthdot = thdot + (-3 * g / (2 * l) * torch.sin(th + np.pi) + 3. /
+                            (m * l**2) * u) * dt
         newth = th + newthdot * dt
         newthdot = torch.clamp(newthdot, -self.max_speed, self.max_speed)
 
@@ -65,14 +64,16 @@ class PendulumEnv(gym.Env):
 
     def reset(self):
         high = np.array([np.pi, 1])
-        self.state = torch.tensor(self.np_random.uniform(low=-high, high=high), device='cpu', dtype=torch.float32)
+        self.state = torch.tensor(self.np_random.uniform(low=-high, high=high),
+                                  device='cpu',
+                                  dtype=torch.float32)
         self.last_u = None
         return self._get_obs()
 
     def _get_obs(self):
-        return torch.stack((torch.cos(self.state[0]),
-                            torch.sin(self.state[0]),
-                            self.state[1]), dim=0).squeeze()
+        return torch.stack((torch.cos(self.state[0]), torch.sin(
+            self.state[0]), self.state[1]),
+                           dim=0).squeeze()
 
     def render(self, mode='human'):
         if self.viewer is None:
@@ -106,4 +107,4 @@ class PendulumEnv(gym.Env):
 
 
 def angle_normalize(x):
-    return (((x+np.pi) % (2*np.pi)) - np.pi)
+    return (((x + np.pi) % (2 * np.pi)) - np.pi)

@@ -52,5 +52,3 @@ envs:
 #    g: [5, 10, 15]                 # gravitational constant [min, default, max]
 #    m: [0.5, 1, 2]                 # joint mass [min, default, max]
 #    l: [0.5, 1, 2]                 # joint length [min, default, max]
-
-

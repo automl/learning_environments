@@ -1,6 +1,7 @@
-import torch
 import gym
 import numpy as np
+import torch
+
 from envs.pendulum_env import PendulumEnv
 from envs.virtual_env import VirtualEnv
 
@@ -9,16 +10,16 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class EnvWrapper(gym.Wrapper):
     # wraps a gym/virtual environment for easier handling
-    def __init__(self, env, is_virtual_env = False):
+    def __init__(self, env, is_virtual_env=False):
         super().__init__(env)
         self.is_virtual_env = is_virtual_env
         self._max_episode_steps = env._max_episode_steps
 
     def step(self, *args):
         # allows the step function to be either called with one (action) or two (action, state) parameters
-        if len(args) == 1:      # action
+        if len(args) == 1:  # action
             return self._step(args[0])
-        elif len(args) == 2:    # action, state
+        elif len(args) == 2:  # action, state
             self.state = args[1]
             return self._step(args[0])
         else:
@@ -33,7 +34,9 @@ class EnvWrapper(gym.Wrapper):
     def random_action(self):
         # do random action in the [-1,1] range
         # TODO: should be modified if environment has different range
-        return torch.empty(self.get_action_dim(), device='cpu', dtype=torch.float32).uniform_(-1,1)
+        return torch.empty(self.get_action_dim(),
+                           device='cpu',
+                           dtype=torch.float32).uniform_(-1, 1)
 
     def get_state_dim(self):
         if self.is_virtual_env:
@@ -63,27 +66,27 @@ class EnvFactory:
     def generate_default_real_env(self):
         # generate a real environment with default parameters
         kwargs = self._get_default_parameters()
-        print('Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        return self._env_factory(kwargs = kwargs)
+        print('Generating default real environment "{}" with parameters {}'.
+              format(self.env_name, kwargs))
+        return self._env_factory(kwargs=kwargs)
 
     def generate_random_real_env(self):
         # generate a real environment with random parameters within specified range
         kwargs = self._get_random_parameters()
-        print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        return self._env_factory(kwargs = kwargs)
+        print('Generating random real environment "{}" with parameters {}'.
+              format(self.env_name, kwargs))
+        return self._env_factory(kwargs=kwargs)
 
     def generate_default_virtual_env(self, seed):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters()
-        print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = VirtualEnv(state_dim = self.state_dim,
-                         action_dim = self.action_dim,
-                         input_seed = seed,
+        print('Generating default virtual environment "{}" with parameters {}'.
+              format(self.env_name, kwargs))
+        env = VirtualEnv(state_dim=self.state_dim,
+                         action_dim=self.action_dim,
+                         input_seed=seed,
                          **kwargs)
-        return EnvWrapper(env = env,
-                          is_virtual_env = True)
-
-
+        return EnvWrapper(env=env, is_virtual_env=True)
 
     def _env_factory(self, kwargs):
         if self.env_name == 'PendulumEnv':
@@ -92,14 +95,14 @@ class EnvFactory:
             raise NotImplementedError('Environment not supported')
         env.seed(self.seed)
 
-        return EnvWrapper(env = env,
-                          is_virtual_env = False)
+        return EnvWrapper(env=env, is_virtual_env=False)
 
     def _get_random_parameters(self):
         kwargs = {}
         for key, value in self.env_config.items():
             if isinstance(value, list):
-                kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
+                kwargs[key] = np.random.uniform(low=float(value[0]),
+                                                high=float(value[2]))
             else:
                 kwargs[key] = value
         return kwargs

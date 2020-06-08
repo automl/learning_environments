@@ -1,7 +1,7 @@
+import gym
 import numpy as np
 import torch
 import torch.nn as nn
-import gym
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -12,21 +12,26 @@ class VirtualEnv(nn.Module, gym.Env):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.input_seed = input_seed
-        self.state = torch.zeros(state_dim, device='cpu')   # not sure what the default state should be
+        self.state = torch.zeros(
+            state_dim,
+            device='cpu')  # not sure what the default state should be
         self._max_episode_steps = int(kwargs['max_steps'])
 
         hidden_size = kwargs['hidden_size']
         self.base = nn.Sequential(
-                        nn.Linear(state_dim+action_dim+1, hidden_size), # +1 because of seed
-                        nn.Tanh(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.Tanh())
+            nn.Linear(state_dim + action_dim + 1,
+                      hidden_size),  # +1 because of seed
+            nn.Tanh(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.Tanh())
         self.state_head = nn.Linear(hidden_size, state_dim)
         self.reward_head = nn.Linear(hidden_size, 1)
         self.done_head = nn.Linear(hidden_size, 1)
 
     def reset(self):
-        self.state = torch.zeros(self.state_dim, device='cpu')  # not sure what the default state should be
+        self.state = torch.zeros(
+            self.state_dim,
+            device='cpu')  # not sure what the default state should be
         return self.state
 
     def step(self, action):
