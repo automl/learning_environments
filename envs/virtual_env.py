@@ -7,11 +7,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class VirtualEnv(nn.Module, gym.Env):
-    def __init__(self, state_dim, action_dim, **kwargs):
+    def __init__(self, state_dim, action_dim, input_seed, **kwargs):
         super(VirtualEnv, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
-        self.input_seed = torch.tensor([np.random.random()], device='cpu', dtype=torch.float32)
+        self.input_seed = input_seed
         self.state = torch.zeros(state_dim, device='cpu')   # not sure what the default state should be
         self._max_episode_steps = int(kwargs['max_steps'])
 
@@ -34,5 +34,5 @@ class VirtualEnv(nn.Module, gym.Env):
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)
-        done = self.done_head(x)
+        done = self.done_head(x) > 0.5
         return next_state, reward, done, {}

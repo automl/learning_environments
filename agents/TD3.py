@@ -78,7 +78,7 @@ class TD3(nn.Module):
                 # train
                 if episode > self.init_episodes:
                     self.train(replay_buffer)
-                if done > 0.5:
+                if done:
                     break
 
             # logging
@@ -99,7 +99,7 @@ class TD3(nn.Module):
             target_Q1 = self.critic_target_1(next_state, next_action)
             target_Q2 = self.critic_target_2(next_state, next_action)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = reward + (1-done) * self.gamma * target_Q
+            target_Q = reward + (1-done.int()) * self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(state, action)
@@ -118,6 +118,7 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             # Compute actor loss
+            # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(state, self.actor(state))).mean()
 
             # Optimize the actor

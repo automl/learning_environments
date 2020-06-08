@@ -18,13 +18,15 @@ class REPTILE(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.agent = self.agent_factory(config)
+        self.seeds = torch.tensor(np.random.choice(range(self.max_iterations), self.max_iterations, replace=False),
+                                  device='cpu', dtype=torch.float32).unsqueeze(1)
 
     def run(self):
         for it in range(self.max_iterations):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
             #env = self.env_factory.generate_random_real_env()
-            env = self.env_factory.generate_default_virtual_env()
-            self.agent.run(env)
+            env = self.env_factory.generate_default_virtual_env(seed=self.seeds[it])
+            self.agent.run(env=env)
             new_state_dict = self.agent.state_dict()
 
             # print('old')
@@ -35,6 +37,8 @@ class REPTILE(nn.Module):
             for key,value in new_state_dict.items():
                 new_state_dict[key] = old_state_dict[key] \
                                       + (new_state_dict[key] - old_state_dict[key]) * self.step_size
+
+            self.agent.load_state_dict(new_state_dict)
 
             # print('new')
             # print(old_state_dict['actor.action_std'])

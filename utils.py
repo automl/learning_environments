@@ -15,7 +15,7 @@ class ReplayBuffer:
         self.action = torch.zeros((max_size, action_dim))
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size,1))
-        self.done = torch.zeros((max_size,1))
+        self.done = torch.zeros((max_size,1), dtype=torch.bool)
 
     def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state
