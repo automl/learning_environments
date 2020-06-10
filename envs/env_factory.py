@@ -72,18 +72,18 @@ class EnvFactory:
         print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         return self._env_factory(kwargs=kwargs)
 
-    def generate_default_virtual_env(self, seed):
+    def generate_default_virtual_env(self):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters()
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = VirtualEnv(state_dim=self.state_dim, action_dim=self.action_dim, input_seed=seed, **kwargs)
+        env = VirtualEnv(state_dim=self.state_dim, action_dim=self.action_dim, **kwargs)
         return EnvWrapper(env=env, is_virtual_env=True)
 
     def _env_factory(self, kwargs):
         if self.env_name == "PendulumEnv":
             env = PendulumEnv(**kwargs)
         else:
-            raise NotImplementedError("Environment not  supported")
+            raise NotImplementedError("Environment not supported")
         env.seed(self.seed)
 
         return EnvWrapper(env=env, is_virtual_env=False)

@@ -7,9 +7,9 @@ from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 
 
-class REPTILE(nn.Module):
+class GTN(nn.Module):
     def __init__(self, config):
-        super(REPTILE, self).__init__()
+        super(GTN, self).__init__()
 
         reptile_config = config["agents"]["reptile"]
         self.max_iterations = reptile_config["max_iterations"]
@@ -19,22 +19,26 @@ class REPTILE(nn.Module):
         self.env_factory = EnvFactory(config)
         self.agent = self.agent_factory(config)
         self.seeds = torch.tensor(
-            [np.random.random() for _ in range(self.max_iterations)], device="cpu", dtype=torch.float32,
+            [np.random.random() for _ in range(self.max_iterations)], device="cpu", dtype=torch.float32
         ).unsqueeze(1)
+
+        self.virtual_env = self.env_factory.generate_default_virtual_env()
 
     def run(self):
         for it in range(self.max_iterations):
+            print("training on real env")
+            # train on real env for a bit
             old_state_dict = copy.deepcopy(self.agent.state_dict())
-            env = self.env_factory.generate_random_real_env()
-            # env = self.env_factory.generate_default_virtual_env()
-            # env.set_seed(seed=self.seeds[it])
-            self.agent.run(env=env)
-            new_state_dict = self.agent.state_dict()
+            real_env = self.env_factory.generate_random_real_env()
+            self.agent.run(env=real_env)
+            self.reptile_update(old_state_dict)
 
-            for key, value in new_state_dict.items():
-                new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * self.step_size
-
-            self.agent.load_state_dict(new_state_dict)
+            print("training on virtual env")
+            # now train on virtual env
+            old_state_dict = copy.deepcopy(self.agent.state_dict())
+            self.virtual_env.set_seed(seed=self.seeds[it])
+            self.agent.run(env=self.virtual_env)
+            self.reptile_update(old_state_dict)
 
     def agent_factory(self, config):
         dummy_env = self.env_factory.generate_default_real_env()
@@ -47,3 +51,9 @@ class REPTILE(nn.Module):
             return PPO(state_dim, action_dim, config)
         else:
             raise NotImplementedError("Unknownn RL agent")
+
+    def reptile_update(self, old_state_dict):
+        new_state_dict = self.agent.state_dict()
+        for key, value in new_state_dict.items():
+            new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * self.step_size
+        self.agent.load_state_dict(new_state_dict)
