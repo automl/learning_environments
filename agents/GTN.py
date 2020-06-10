@@ -26,19 +26,23 @@ class GTN(nn.Module):
 
     def run(self):
         for it in range(self.max_iterations):
-            print("training on real env")
+
             # train on real env for a bit
             old_state_dict = copy.deepcopy(self.agent.state_dict())
             real_env = self.env_factory.generate_random_real_env()
+            print("-- training on real env --")
             self.agent.run(env=real_env)
-            self.reptile_update(old_state_dict)
+            self.reptile_update(old_state_dict, self.agent)
 
-            print("training on virtual env")
             # now train on virtual env
-            old_state_dict = copy.deepcopy(self.agent.state_dict())
+            print("-- training on virtual env --")
+            old_state_dict_agent = copy.deepcopy(self.agent.state_dict())
+            old_state_dict_virtual_env = copy.deepcopy(self.virtual_env.state_dict())
+
             self.virtual_env.set_seed(seed=self.seeds[it])
             self.agent.run(env=self.virtual_env)
-            self.reptile_update(old_state_dict)
+            self.reptile_update(old_state_dict_agent, self.agent)
+            self.reptile_update(old_state_dict_virtual_env, self.virtual_env)
 
     def agent_factory(self, config):
         dummy_env = self.env_factory.generate_default_real_env()
@@ -52,8 +56,10 @@ class GTN(nn.Module):
         else:
             raise NotImplementedError("Unknownn RL agent")
 
-    def reptile_update(self, old_state_dict):
-        new_state_dict = self.agent.state_dict()
+    def reptile_update(self, old_state_dict, target):
+        new_state_dict = target.state_dict()
+
         for key, value in new_state_dict.items():
             new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * self.step_size
-        self.agent.load_state_dict(new_state_dict)
+
+        target.load_state_dict(new_state_dict)

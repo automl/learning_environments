@@ -32,19 +32,23 @@ class ReplayBuffer:
     def sample(self, batch_size):
         ind = np.random.randint(0, self.size, size=batch_size)
 
-        return (self.state[ind].to(device).detach(),
-                self.action[ind].to(device).detach(),
-                self.next_state[ind].to(device).detach(),
-                self.reward[ind].to(device).detach(),
-                self.done[ind].to(device).detach())
+        return (
+            self.state[ind].to(device).detach(),
+            self.action[ind].to(device).detach(),
+            self.next_state[ind].to(device).detach(),
+            self.reward[ind].to(device).detach(),
+            self.done[ind].to(device).detach(),
+        )
 
     # for PPO
     def get_all(self):
-        return (self.state[:self.size].to(device).detach(),
-                self.action[:self.size].to(device).detach(),
-                self.next_state[:self.size].to(device).detach(),
-                self.reward[:self.size].to(device).detach(),
-                self.done[:self.size].to(device).detach())
+        return (
+            self.state[: self.size].to(device).detach(),
+            self.action[: self.size].to(device).detach(),
+            self.next_state[: self.size].to(device).detach(),
+            self.reward[: self.size].to(device).detach(),
+            self.done[: self.size].to(device).detach(),
+        )
 
     # for PPO
     def clear(self):
@@ -68,5 +72,7 @@ class AverageMeter:
         self.it += 1
 
         if self.it % self.update_rate == 0:
-            print(self.print_str + str(np.mean(self.vals[:self.size])) +
-                  '   Total updates: ' + str(self.it))
+            out = self.print_str + "{:15.8f} {:>25} {}".format(
+                np.mean(self.vals[: self.size]), "Total updates: ", self.it
+            )
+            print(out)
