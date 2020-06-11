@@ -19,6 +19,7 @@ agents:
     hidden_size: !!int 256         # size of the actor/critic hidden layer
     activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.1        # action noise standard deviation
+    weight_norm: !!bool True       # weight normalization of NN parameters of the learner
 
   ppo:
     max_episodes: !!int 100000     # maximum number of episodes to optimize
@@ -32,6 +33,7 @@ agents:
     hidden_size: !!int 64          # size of the actor/critic hidden layer
     activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.5        # action noise standard deviation
+    weight_norm: !!bool True       # weight normalization of NN parameters of the learner
 
 envs:
   PendulumEnv:
@@ -43,6 +45,7 @@ envs:
     m: 1                           # joint mass [min, default, max]
     l: 1                           # joint length [min, default, max]
     hidden_size: 128               # size of the hidden layer of the corresponding virtual environment
+    weight_norm: !!bool True       # weight normalization of NN parameters of the generator
 
 #  PendulumEnv:
 #    dt: [0.05, 0.05, 0.05]         # sampling rate
