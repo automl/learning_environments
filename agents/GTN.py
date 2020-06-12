@@ -28,20 +28,20 @@ class GTN(nn.Module):
         for it in range(self.max_iterations):
 
             # train on real env for a bit
-            old_state_dict = copy.deepcopy(self.agent.state_dict())
+            old_state_dict_agent_real = copy.deepcopy(self.agent.state_dict())
             real_env = self.env_factory.generate_random_real_env()
             print("-- training on real env --")
             self.agent.run(env=real_env)
-            self.reptile_update(old_state_dict, self.agent)
+            self.reptile_update(old_state_dict_agent_real, self.agent)
 
             # now train on virtual env
             print("-- training on virtual env --")
-            old_state_dict_agent = copy.deepcopy(self.agent.state_dict())
+            old_state_dict_agent_virt = copy.deepcopy(self.agent.state_dict())
             old_state_dict_virtual_env = copy.deepcopy(self.virtual_env.state_dict())
 
             self.virtual_env.set_seed(seed=self.seeds[it])
             self.agent.run(env=self.virtual_env)
-            self.reptile_update(old_state_dict_agent, self.agent)
+            self.reptile_update(old_state_dict_agent_virt, self.agent)
             self.reptile_update(old_state_dict_virtual_env, self.virtual_env)
 
     def agent_factory(self, config):

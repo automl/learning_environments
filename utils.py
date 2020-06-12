@@ -12,18 +12,18 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.state = torch.zeros((max_size, state_dim))
-        self.action = torch.zeros((max_size, action_dim))
-        self.next_state = torch.zeros((max_size, state_dim))
-        self.reward = torch.zeros((max_size, 1))
-        self.done = torch.zeros((max_size, 1), dtype=torch.bool)
+        self.state = np.zeros((max_size, state_dim))
+        self.action = np.zeros((max_size, action_dim))
+        self.next_state = np.zeros((max_size, state_dim))
+        self.reward = np.zeros((max_size, 1))
+        self.done = np.zeros((max_size, 1), dtype=np.bool)
 
     def add(self, state, action, next_state, reward, done):
-        self.state[self.ptr] = state
-        self.action[self.ptr] = action
-        self.next_state[self.ptr] = next_state
-        self.reward[self.ptr] = reward.squeeze()
-        self.done[self.ptr] = done.squeeze()
+        self.state[self.ptr] = state.data.numpy()
+        self.action[self.ptr] = action.data.numpy()
+        self.next_state[self.ptr] = next_state.data.numpy()
+        self.reward[self.ptr] = reward.squeeze().data.numpy()
+        self.done[self.ptr] = done.squeeze().data.numpy()
 
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
@@ -33,21 +33,21 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.state[ind].to(device).detach(),
-            self.action[ind].to(device).detach(),
-            self.next_state[ind].to(device).detach(),
-            self.reward[ind].to(device).detach(),
-            self.done[ind].to(device).detach(),
+            torch.from_numpy(self.state[ind]).float().to(device),
+            torch.from_numpy(self.action[ind]).float().to(device),
+            torch.from_numpy(self.next_state[ind]).float().to(device),
+            torch.from_numpy(self.reward[ind]).float().to(device),
+            torch.from_numpy(self.done[ind]).bool().to(device),
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.state[: self.size].to(device).detach(),
-            self.action[: self.size].to(device).detach(),
-            self.next_state[: self.size].to(device).detach(),
-            self.reward[: self.size].to(device).detach(),
-            self.done[: self.size].to(device).detach(),
+            torch.from_numpy(self.state[: self.size]).float().to(device),
+            torch.from_numpy(self.action[: self.size]).float().to(device),
+            torch.from_numpy(self.next_state[: self.size]).float().to(device),
+            torch.from_numpy(self.reward[: self.size]).float().to(device),
+            torch.from_numpy(self.done[: self.size]).float().to(device),
         )
 
     # for PPO
