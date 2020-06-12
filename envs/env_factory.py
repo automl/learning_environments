@@ -31,9 +31,9 @@ class EnvWrapper(gym.Wrapper):
         return super().reset()
 
     def random_action(self):
-        # do random action in the [-1,1] range
+        # do random action in the [-2,2] range
         # TODO: should be modified if environment has different range
-        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
+        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-2, 2)
 
     def get_state_dim(self):
         if self.is_virtual_env:
