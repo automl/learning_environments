@@ -14,50 +14,41 @@ class TD3(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super(TD3, self).__init__()
 
-        agent_name = 'td3'
-        td3_config = config['agents'][agent_name]
+        agent_name = "td3"
+        td3_config = config["agents"][agent_name]
 
         self.state_dim = state_dim
         self.action_dim = action_dim
-        self.gamma = td3_config['gamma']
-        self.tau = td3_config['tau']
-        self.policy_delay = td3_config['policy_delay']
-        self.batch_size = td3_config['batch_size']
-        self.init_episodes = td3_config['init_episodes']
-        self.max_episodes = td3_config['max_episodes']
-        self.rb_size = td3_config['rb_size']
+        self.gamma = td3_config["gamma"]
+        self.tau = td3_config["tau"]
+        self.policy_delay = td3_config["policy_delay"]
+        self.batch_size = td3_config["batch_size"]
+        self.init_episodes = td3_config["init_episodes"]
+        self.max_episodes = td3_config["max_episodes"]
+        self.rb_size = td3_config["rb_size"]
 
-        self.actor = Actor(state_dim, action_dim, agent_name,
-                           config).to(device)
-        self.actor_target = Actor(state_dim, action_dim, agent_name,
-                                  config).to(device)
+        self.render_env = config["render_env"]
+
+        self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.actor_target = Actor(state_dim, action_dim, agent_name, config).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(),
-                                                lr=td3_config['lr'])
+        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=td3_config["lr"])
 
-        self.critic_1 = Critic_Q(state_dim, action_dim, agent_name,
-                                 config).to(device)
-        self.critic_2 = Critic_Q(state_dim, action_dim, agent_name,
-                                 config).to(device)
-        self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name,
-                                        config).to(device)
-        self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name,
-                                        config).to(device)
+        self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
+        self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
+        self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
+        self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
         self.critic_optimizer = torch.optim.Adam(
-            list(self.critic_1.parameters()) +
-            list(self.critic_2.parameters()),
-            lr=td3_config['lr'])
+            list(self.critic_1.parameters()) + list(self.critic_2.parameters()), lr=td3_config["lr"]
+        )
 
         self.total_it = 0
 
     def run(self, env):
-        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim,
-                                     self.rb_size)
-        avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=10,
-                                        print_str='Average reward: ')
+        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
+        avg_meter_reward = AverageMeter(buffer_size=10, update_rate=10, print_str="Average reward: ")
 
         time_step = 0
 
@@ -75,17 +66,16 @@ class TD3(nn.Module):
                 else:
                     action = self.actor(state.to(device)).cpu()
                 # state-action transition
+                if self.render_env:
+                    env.render()
                 next_state, reward, done, _ = env.step(action)
 
                 if t < env._max_episode_steps - 1:
                     done_tensor = done
                 else:
-                    done_tensor = torch.tensor([0],
-                                               device='cpu',
-                                               dtype=torch.float32)
+                    done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                replay_buffer.add(state, action, next_state, reward,
-                                  done_tensor)
+                replay_buffer.add(state, action, next_state, reward, done_tensor)
                 state = next_state
 
                 episode_reward += reward
@@ -98,17 +88,17 @@ class TD3(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward)
+        env.close()
 
     def train(self, replay_buffer):
         self.total_it += 1
 
         # Sample replay buffer
-        state, action, next_state, reward, done = replay_buffer.sample(
-            self.batch_size)
+        state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
-            next_action = (self.actor_target(next_state))
+            next_action = self.actor_target(next_state)
             reward = reward
 
             # Compute the target Q value
@@ -122,10 +112,9 @@ class TD3(nn.Module):
         current_Q2 = self.critic_2(state, action)
 
         # Compute critic loss
-        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(
-            current_Q2, target_Q)
+        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
-        #print(self.actor.net._modules['0'].weight[0][0])
+        # print(self.actor.net._modules['0'].weight[0][0])
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -144,17 +133,11 @@ class TD3(nn.Module):
             self.actor_optimizer.step()
 
             # Update the frozen target models
-            for param, target_param in zip(self.critic_1.parameters(),
-                                           self.critic_target_1.parameters()):
-                target_param.data.copy_(self.tau * param.data +
-                                        (1 - self.tau) * target_param.data)
+            for param, target_param in zip(self.critic_1.parameters(), self.critic_target_1.parameters()):
+                target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-            for param, target_param in zip(self.critic_2.parameters(),
-                                           self.critic_target_2.parameters()):
-                target_param.data.copy_(self.tau * param.data +
-                                        (1 - self.tau) * target_param.data)
+            for param, target_param in zip(self.critic_2.parameters(), self.critic_target_2.parameters()):
+                target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-            for param, target_param in zip(self.actor.parameters(),
-                                           self.actor_target.parameters()):
-                target_param.data.copy_(self.tau * param.data +
-                                        (1 - self.tau) * target_param.data)
+            for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
+                target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)

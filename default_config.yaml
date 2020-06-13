@@ -1,5 +1,6 @@
 env_name: !!str PendulumEnv        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
 seed: !!int 0                      # random initialization seed
+render_env: !!bool True            # render environment
 
 agents:
   reptile:
@@ -46,6 +47,7 @@ envs:
     l: 1                           # joint length [min, default, max]
     hidden_size: 128               # size of the hidden layer of the corresponding virtual environment
     weight_norm: !!bool True       # weight normalization of NN parameters of the generator
+    virtual_env_zero_init: !!bool True  # how should the virtual env be initialized? zero state or random starting state (i.e. according to gym specification)
 
 #  PendulumEnv:
 #    dt: [0.05, 0.05, 0.05]         # sampling rate
