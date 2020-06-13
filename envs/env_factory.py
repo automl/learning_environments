@@ -104,6 +104,8 @@ class EnvFactory:
                 kwargs[key] = float(value[1])
             else:
                 kwargs[key] = value
+
+        kwargs["env_name"] = self.env_name
         return kwargs
 
 

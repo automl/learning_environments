@@ -15,5 +15,5 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-    reptile = GTN(config)
-    reptile.run()
+    gtn = GTN(config)
+    gtn.run()

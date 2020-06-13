@@ -1,6 +1,7 @@
 env_name: !!str PendulumEnv        # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
 seed: !!int 0                      # random initialization seed
 render_env: !!bool True            # render environment
+export_path: !!str "./exports/gtn_pendulum_td3/state.pth"
 
 agents:
   reptile:

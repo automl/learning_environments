@@ -24,6 +24,7 @@ class VirtualEnv(nn.Module, gym.Env):
         self.max_speed = kwargs["max_speed"]
         self.max_torque = kwargs["max_torque"]
         self.virtual_env_zero_init = kwargs["virtual_env_zero_init"]
+        self.env_name = kwargs["env_name"]
 
         if apply_weight_norm:
             self.base = nn.Sequential(
@@ -49,7 +50,7 @@ class VirtualEnv(nn.Module, gym.Env):
     def reset(self):
         if self.virtual_env_zero_init:
             self.state = torch.zeros(self.state_dim, device="cpu")
-        else:
+        elif self.env_name == "PendulumEnv":
             self.state = torch.tensor(
                 [
                     np.random.uniform(low=-np.pi, high=np.pi),
@@ -59,6 +60,8 @@ class VirtualEnv(nn.Module, gym.Env):
                 device="cpu",
                 dtype=torch.float32,
             )
+        else:
+            raise NotImplementedError("Unknown environment: non-zero state reset only for supported environments.")
         self.last_action = None
 
         return self.state
