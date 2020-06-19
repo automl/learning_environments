@@ -46,7 +46,7 @@ class TD3(nn.Module):
 
         self.total_it = 0
 
-    def run(self, env):
+    def run(self, env, env_for_replay_buffer=None):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(buffer_size=10, update_rate=10, print_str="Average reward: ")
 
@@ -55,6 +55,8 @@ class TD3(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            last_action = None
+            last_state = None
             episode_reward = 0
 
             for t in range(env._max_episode_steps):
@@ -75,14 +77,19 @@ class TD3(nn.Module):
                 else:
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                replay_buffer.add(state, action, next_state, reward, done_tensor)
+                if last_state is not None and last_action is not None:
+                    # don't add the first sample to buffer since last action should be something that produced state
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor)
+
+                last_state = state
                 state = next_state
+                last_action = action
 
                 episode_reward += reward
 
                 # train
                 if episode > self.init_episodes:
-                    self.train(replay_buffer)
+                    self.train(replay_buffer, virtual_env=env_for_replay_buffer)
                 if done:
                     break
 
@@ -90,11 +97,22 @@ class TD3(nn.Module):
             avg_meter_reward.update(episode_reward)
         env.close()
 
-    def train(self, replay_buffer):
+    def train(self, replay_buffer, virtual_env=None):
         self.total_it += 1
 
         # Sample replay buffer
-        state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
+        last_state, last_action, state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
+
+        # todo: implement for PPO as well
+        if virtual_env:
+            state, action, next_state, reward, done = ReplayBuffer.rebuild_comp_graph_from_replay_buffer(
+                last_state=last_state,
+                last_action=last_action,
+                state=state,
+                action=action,
+                env=virtual_env,
+                actor=self.actor,
+            )
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
@@ -118,7 +136,7 @@ class TD3(nn.Module):
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
-        critic_loss.backward()
+        critic_loss.backward(retain_graph=True)
         self.critic_optimizer.step()
 
         # Delayed policy updates

@@ -62,6 +62,9 @@ class PendulumEnv(gym.Env):
         self.last_action = None
         return self._get_obs()
 
+    def set_state(self, state):
+        self.state = state
+
     def _get_obs(self):
         return torch.stack((torch.cos(self.state[0]), torch.sin(self.state[0]), self.state[1]), dim=0).squeeze()
 

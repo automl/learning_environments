@@ -69,10 +69,14 @@ class VirtualEnv(nn.Module, gym.Env):
     def set_seed(self, seed):
         self.input_seed = seed
 
+    def set_state(self, state):
+        self.state = state
+
     def step(self, action):
         if not self.input_seed:
             raise ValueError("no input seed set")
 
+        # used only for rendering
         self.last_action = action.cpu().data.numpy()
 
         input = torch.cat((action, self.state, self.input_seed))

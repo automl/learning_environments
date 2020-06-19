@@ -30,9 +30,12 @@ class EnvWrapper(gym.Wrapper):
     def reset(self):
         return super().reset()
 
+    def set_state(self, state):
+        return self.env.set_state(state)
+
     def random_action(self):
         # do random action in the [-2,2] range
-        # TODO: should be modified if environment has different range
+        # todo: should be modified if environment has different range
         return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-2, 2)
 
     def get_state_dim(self):

@@ -38,7 +38,7 @@ class GTN(nn.Module):
 
             # train on real env for a bit
             old_state_dict_agent_real = copy.deepcopy(self.agent.state_dict())
-            self.real_env = self.env_factory.generate_default_real_env()  # todo: random or default real env?
+            self.real_env = self.env_factory.generate_random_real_env()  # todo: random or default real env?
             print("-- training on real env --")
             self.agent.run(env=self.real_env)
             self.reptile_update(old_state_dict_agent_real, self.agent)
@@ -49,7 +49,7 @@ class GTN(nn.Module):
             old_state_dict_virtual_env = copy.deepcopy(self.virtual_env.state_dict())
 
             self.virtual_env.set_seed(seed=self.seeds[it])
-            self.agent.run(env=self.virtual_env)
+            self.agent.run(env=self.virtual_env, env_for_replay_buffer=self.virtual_env)
             self.reptile_update(old_state_dict_agent_virt, self.agent)
             self.reptile_update(old_state_dict_virtual_env, self.virtual_env)
 

@@ -10,8 +10,8 @@ agents:
     agent_name: !!str TD3          # which RL agent to use for meta-training
 
   td3:
-    init_episodes: !!int 100       # number of episodes to fill the replay buffer
-    max_episodes: !!int 200        # maximum number of episodes to optimize
+    init_episodes: !!int 10        # number of episodes to fill the replay buffer
+    max_episodes: !!int 20         # maximum number of episodes to optimize
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
     lr: !!float 3e-4               # learning rate
@@ -40,7 +40,7 @@ agents:
 envs:
   PendulumEnv:
     dt: [0.05, 0.05, 0.05]         # sampling rate
-    max_steps: [200, 200, 200]     # maximum number of steps per episode
+    max_steps: [100, 100, 100]     # maximum number of steps per episode
     max_speed: [10, 10, 10]        # maximum joint speed [min, default, max]
     max_torque: [0.5, 1, 2]        # maximum joint torque [min, default, max]
     g: [5, 10, 15]                 # gravitational constant [min, default, max]
@@ -48,7 +48,7 @@ envs:
     l: 1                           # joint length [min, default, max]
     hidden_size: 128               # size of the hidden layer of the corresponding virtual environment
     weight_norm: !!bool True       # weight normalization of NN parameters of the generator
-    virtual_env_zero_init: !!bool True  # how should the virtual env be initialized? zero state or random starting state (i.e. according to gym specification)
+    virtual_env_zero_init: !!bool False  # how should the virtual env be initialized? zero state or random starting state (i.e. according to gym specification)
 
 #  PendulumEnv:
 #    dt: [0.05, 0.05, 0.05]         # sampling rate
