@@ -66,23 +66,25 @@ class ReplayBuffer:
     def rebuild_comp_graph_from_replay_buffer(last_state, last_action, state, action, env, actor):
         num_samples = last_state.shape[0]
         state_dim = env.get_state_dim()
-        action_dim = env.get_action_dim()
 
         state_grad = torch.zeros((num_samples, state_dim)).to(device)
-        action_grad = torch.zeros((num_samples, action_dim)).to(device)
         next_state_grad = torch.zeros((num_samples, state_dim)).to(device)
         reward_grad = torch.zeros((num_samples, 1)).to(device)
         done_grad = torch.zeros((num_samples, 1)).to(device)
 
+        # todo: actor policy is stochastic due to sampling from norm distr., fix by setting seed (?)
+        action_grad = actor(state)
+
         for i in range(num_samples):
             env.set_state(last_state[i])
             state_grad[i], _, _, _ = env.step(last_action[i])
+            # todo: investigate why this sometimes produces e
             # if not all(state[i] == state_grad[i]):
             #    print("error")
-            # todo: actor policy is stochastic due to sampling from norm distr., fix by setting seed (?)
-            # todo: investigate why state_grad[i] cannot be used here
-            action_grad[i] = actor(state[i])
-            next_state_grad[i], reward_grad[i], done_grad[i], _ = env.step(action[i])
+            # todo: check why the following produces autograd error
+            # action_grad[i] = actor(state_grad[i])
+
+            next_state_grad[i], reward_grad[i], done_grad[i], _ = env.step(action_grad[i])
 
         return state_grad, action_grad, next_state_grad, reward_grad, done_grad
 

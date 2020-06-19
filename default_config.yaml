@@ -40,7 +40,7 @@ agents:
 envs:
   PendulumEnv:
     dt: [0.05, 0.05, 0.05]         # sampling rate
-    max_steps: [100, 100, 100]     # maximum number of steps per episode
+    max_steps: [10, 10, 10]     # maximum number of steps per episode
     max_speed: [10, 10, 10]        # maximum joint speed [min, default, max]
     max_torque: [0.5, 1, 2]        # maximum joint torque [min, default, max]
     g: [5, 10, 15]                 # gravitational constant [min, default, max]
