@@ -18,14 +18,17 @@ class EnvWrapper(gym.Wrapper):
         if self.is_virtual_env:
             return super().step(action)
         else:
-            next_state, reward, done, _ = super().step(action)
+            next_state, reward, done, _ = super().step(action.detach().numpy())
             next_state_torch = torch.from_numpy(next_state).float().cpu()
             reward_torch = torch.tensor(reward, device="cpu", dtype=torch.float32)
             done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
             return next_state_torch, reward_torch, done_torch
 
     def reset(self):
-        return super().reset()
+        if self.is_virtual_env:
+            return super().reset()
+        else:
+            return torch.from_numpy(super().reset()).float().cpu()
 
     def set_state(self, state):
         return self.env.set_state(state)
@@ -112,8 +115,6 @@ class EnvFactory:
                 kwargs[key] = float(value[1])
             else:
                 kwargs[key] = value
-
-        kwargs["env_name"] = self.env_name
         return kwargs
 
 
