@@ -20,7 +20,7 @@ class VirtualEnv(nn.Module, gym.Env):
         self._max_episode_steps = int(kwargs['max_steps'])
 
         # for rendering
-        self.last_action = None
+        self.viewer = None
 
         hidden_size = kwargs["hidden_size"]
         self.base = nn.Sequential(
@@ -34,8 +34,6 @@ class VirtualEnv(nn.Module, gym.Env):
         self.done_head = nn.utils.weight_norm(nn.Linear(hidden_size, 1))
 
     def reset(self):
-        self.last_action = None
-
         if self.zero_init:
             self.state = torch.zeros(self.state_dim, device="cpu")
         elif self.env_name == "Pendulum-v0":
@@ -56,9 +54,6 @@ class VirtualEnv(nn.Module, gym.Env):
         self.input_seed = seed
 
     def step(self, action):
-        # used only for rendering
-        self.last_action = action.cpu().data.numpy()
-
         input = torch.cat((action, self.state, self.input_seed))
         x = self.base(input)
         next_state = self.state_head(x)
@@ -67,7 +62,7 @@ class VirtualEnv(nn.Module, gym.Env):
         self.state = next_state
         return next_state, reward, done
 
-    def render(self, mode="human"):
+    def render(self, mode="rgb_array"):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
 
@@ -87,8 +82,8 @@ class VirtualEnv(nn.Module, gym.Env):
 
         # self.viewer.add_onetime(self.img)
         self.pole_transform.set_rotation(self.state[0] + np.pi / 2)
-        if self.last_action:
-            self.imgtrans.scale = (-self.last_action / 2, np.abs(self.last_action) / 2)
+        # if self.last_action:
+        #     self.imgtrans.scale = (-self.last_action / 2, np.abs(self.last_action) / 2)
 
         return self.viewer.render(return_rgb_array=mode == "rgb_array")
 
