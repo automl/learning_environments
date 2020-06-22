@@ -60,10 +60,14 @@ class TD3(nn.Module):
             for t in range(env._max_episode_steps):
                 time_step += 1
 
+                print('------')
+
                 # fill replay buffer at beginning
                 if episode < self.init_episodes:
+                    print('random')
                     action = env.random_action()
                 else:
+                    print('actor')
                     action = self.actor(state.to(device)).cpu()
 
                 # state-action transition
@@ -76,8 +80,11 @@ class TD3(nn.Module):
                 else:
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                # don't add the first sample to buffer since last action should be something that produced state
-
+                print(state)
+                print(action)
+                print(next_state)
+                print(reward)
+                print(done_tensor)
                 replay_buffer.add(state, action, next_state, reward, done_tensor)
 
                 state = next_state

@@ -26,8 +26,7 @@ class REPTILE(nn.Module):
         for it in range(self.max_iterations):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
             env = self.env_factory.generate_random_real_env()
-            # env = self.env_factory.generate_default_virtual_env()
-            # env.set_seed(seed=self.seeds[it])
+
             self.agent.run(env=env)
             new_state_dict = self.agent.state_dict()
 

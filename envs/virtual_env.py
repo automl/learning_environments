@@ -21,8 +21,6 @@ class VirtualEnv(nn.Module, gym.Env):
         hidden_size = kwargs["hidden_size"]
         apply_weight_norm = kwargs["weight_norm"]
 
-        self.max_speed = kwargs["max_speed"]
-        self.max_torque = kwargs["max_torque"]
         self.virtual_env_zero_init = kwargs["virtual_env_zero_init"]
         self.env_name = kwargs["env_name"]
 
