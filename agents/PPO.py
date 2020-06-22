@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from models.actor_critic import Actor, Critic_V
-from utils import ReplayBuffer, AverageMeter
+from utils import AverageMeter, ReplayBuffer
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 class PPO(nn.Module):
     def __init__(self, state_dim, action_dim, config):
@@ -23,16 +25,18 @@ class PPO(nn.Module):
         self.max_episodes = ppo_config['max_episodes']
         self.update_episodes = ppo_config['update_episodes']
 
-        self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.actor = Actor(state_dim, action_dim, agent_name,
+                           config).to(device)
         self.critic = Critic_V(state_dim, agent_name, config).to(device)
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) +
-                                          list(self.critic.parameters()), lr=ppo_config['lr'])
+                                          list(self.critic.parameters()),
+                                          lr=ppo_config['lr'])
 
-        self.actor_old = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.actor_old = Actor(state_dim, action_dim, agent_name,
+                               config).to(device)
         self.critic_old = Critic_V(state_dim, agent_name, config).to(device)
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
-
 
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
@@ -52,7 +56,7 @@ class PPO(nn.Module):
 
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done, _ = env.step(action)
+                next_state, reward, done = env.step(action)
                 replay_buffer.add(state, action, next_state, reward, done)
                 state = next_state
 
@@ -69,20 +73,20 @@ class PPO(nn.Module):
             # logging
             avg_meter_reward.update(episode_reward)
 
-
     def train(self, replay_buffer):
         # Monte Carlo estimate of rewards:
         rewards = []
         discounted_reward = 0
 
         # get states from replay buffer
-        old_states, old_actions, _, old_rewards, old_dones = replay_buffer.get_all()
+        old_states, old_actions, _, old_rewards, old_dones = replay_buffer.get_all(
+        )
         old_logprobs, _ = self.actor_old.evaluate(old_states, old_actions)
         old_logprobs = old_logprobs.detach()
 
         #calculate rewards
         for reward, done in zip(reversed(old_rewards), reversed(old_dones)):
-            if done > 0.5:
+            if done:
                 discounted_reward = 0
             discounted_reward = reward + (self.gamma * discounted_reward)
             rewards.insert(0, discounted_reward)
@@ -94,7 +98,8 @@ class PPO(nn.Module):
         # optimize policy for ppo_epochs:
         for it in range(self.ppo_epochs):
             # evaluate old actions and values :
-            logprobs, dist_entropy = self.actor.evaluate(old_states, old_actions)
+            logprobs, dist_entropy = self.actor.evaluate(
+                old_states, old_actions)
             state_values = self.critic(old_states).squeeze()
 
             # Finding the ratio (pi_theta / pi_theta__old):
@@ -104,7 +109,8 @@ class PPO(nn.Module):
             advantages = (rewards - state_values).detach()
 
             surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
+            surr2 = torch.clamp(ratios, 1 - self.eps_clip,
+                                1 + self.eps_clip) * advantages
             loss = - torch.min(surr1, surr2) \
                    + self.vf_coef * F.mse_loss(state_values, rewards) \
                    - self.ent_coef * dist_entropy

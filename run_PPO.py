@@ -1,7 +1,8 @@
+import gym
 import numpy as np
 import torch
-import gym
 import yaml
+
 from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 
@@ -22,8 +23,8 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-    ppo = PPO(state_dim = env.get_state_dim(),
-              action_dim = env.get_action_dim(),
-              config = config)
+    ppo = PPO(state_dim=env.get_state_dim(),
+              action_dim=env.get_action_dim(),
+              config=config)
 
     ppo.run(env)
