@@ -70,7 +70,7 @@ class TD3(nn.Module):
                 # state-action transition
                 if self.render_env:
                     env.render()
-                next_state, reward, done, _ = env.step(action)
+                next_state, reward, done = env.step(action)
 
                 if t < env._max_episode_steps - 1:
                     done_tensor = done

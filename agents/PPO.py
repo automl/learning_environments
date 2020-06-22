@@ -56,7 +56,7 @@ class PPO(nn.Module):
 
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done, _ = env.step(action)
+                next_state, reward, done = env.step(action)
                 replay_buffer.add(state, action, next_state, reward, done)
                 state = next_state
 

@@ -77,14 +77,14 @@ class ReplayBuffer:
 
         for i in range(num_samples):
             env.set_state(last_state[i])
-            state_grad[i], _, _, _ = env.step(last_action[i])
+            state_grad[i], _, _ = env.step(last_action[i])
             # todo: investigate why this sometimes produces e
             # if not all(state[i] == state_grad[i]):
             #    print("error")
             # todo: check why the following produces autograd error
             # action_grad[i] = actor(state_grad[i])
 
-            next_state_grad[i], reward_grad[i], done_grad[i], _ = env.step(action_grad[i])
+            next_state_grad[i], reward_grad[i], done_grad[i] = env.step(action_grad[i])
 
         return state_grad, action_grad, next_state_grad, reward_grad, done_grad
 
