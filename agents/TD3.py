@@ -24,6 +24,8 @@ class TD3(nn.Module):
         self.max_episodes = td3_config['max_episodes']
         self.rb_size = td3_config['rb_size']
 
+        self.render_env = config["render_env"]
+
         self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
         self.actor_target = Actor(state_dim, action_dim, agent_name, config).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -36,7 +38,8 @@ class TD3(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
         self.critic_optimizer = torch.optim.Adam(list(self.critic_1.parameters()) +
-                                                 list(self.critic_2.parameters()), lr=td3_config['lr'])
+                                                 list(self.critic_2.parameters()),
+                                                 lr=td3_config['lr'])
 
         self.total_it = 0
 
@@ -62,8 +65,13 @@ class TD3(nn.Module):
                     action = env.random_action()
                 else:
                     action = self.actor(state.to(device)).cpu()
+
+                # live view
+                if self.render_env:
+                    env.render()
+
                 # state-action transition
-                next_state, reward, done, _ = env.step(action)
+                next_state, reward, done = env.step(action)
 
                 if t < env._max_episode_steps - 1:
                     done_tensor = done
@@ -78,11 +86,14 @@ class TD3(nn.Module):
                 # train
                 if episode > self.init_episodes:
                     self.train(replay_buffer)
-                if done > 0.5:
+                if done:
                     break
 
             # logging
             avg_meter_reward.update(episode_reward)
+
+        env.close()
+
 
     def train(self, replay_buffer):
         self.total_it += 1
@@ -118,6 +129,7 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             # Compute actor loss
+            # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(state, self.actor(state))).mean()
 
             # Optimize the actor

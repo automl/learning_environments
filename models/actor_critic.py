@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.distributions.normal import Normal
+from torch.nn.utils.weight_norm import weight_norm
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -15,11 +16,12 @@ def build_nn_from_config(input_dim, output_dim, agent_name, config):
         act_fn = nn.Tanh()
 
     return nn.Sequential(
-        nn.Linear(input_dim, hidden_size),
+        weight_norm(nn.Linear(input_dim, hidden_size)),
         act_fn,
-        nn.Linear(hidden_size, hidden_size),
+        weight_norm(nn.Linear(hidden_size, hidden_size)),
         act_fn,
-        nn.Linear(hidden_size, output_dim))
+        weight_norm(nn.Linear(hidden_size, output_dim))
+    )
 
 
 class Actor(nn.Module):

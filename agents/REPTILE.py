@@ -22,31 +22,14 @@ class REPTILE(nn.Module):
     def run(self):
         for it in range(self.max_iterations):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
-            #env = self.env_factory.generate_random_real_env()
-            env = self.env_factory.generate_default_virtual_env()
-            self.agent.run(env)
-            new_state_dict = self.agent.state_dict()
 
-            # print('old')
-            # print(old_state_dict['actor.action_std'])
-            # print(new_state_dict['actor.action_std'])
-            # print(self.agent.state_dict()['actor.action_std'])
+            env = self.env_factory.generate_random_real_env()
+            self.agent.run(env=env)
+            new_state_dict = self.agent.state_dict()
 
             for key,value in new_state_dict.items():
                 new_state_dict[key] = old_state_dict[key] \
                                       + (new_state_dict[key] - old_state_dict[key]) * self.step_size
-
-            # print('new')
-            # print(old_state_dict['actor.action_std'])
-            # print(new_state_dict['actor.action_std'])
-            # print(self.agent.state_dict()['actor.action_std'])
-            #
-            # self.agent.load_state_dict(new_state_dict)
-            #
-            # print('newer')
-            # print(old_state_dict['actor.action_std'])
-            # print(new_state_dict['actor.action_std'])
-            # print(self.agent.state_dict()['actor.action_std'])
 
 
     def agent_factory(self, config):
