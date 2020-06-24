@@ -51,6 +51,7 @@ class TD3(nn.Module):
                                         print_str='Average reward: ')
 
         time_step = 0
+        episode_rewards = []
 
         # training loop
         for episode in range(self.max_episodes):
@@ -91,8 +92,11 @@ class TD3(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward)
+            episode_rewards.append(episode_reward)
 
         env.close()
+
+        return episode_rewards
 
 
     def train(self, replay_buffer):

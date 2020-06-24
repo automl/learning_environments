@@ -38,6 +38,7 @@ class PPO(nn.Module):
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
 
+
     def run(self, env):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
         avg_meter_reward = AverageMeter(buffer_size=50,
@@ -45,6 +46,7 @@ class PPO(nn.Module):
                                         print_str='Average reward: ')
 
         time_step = 0
+        episode_rewards = []
 
         # training loop
         for episode in range(self.max_episodes):
@@ -72,6 +74,10 @@ class PPO(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward)
+            episode_rewards.append(episode_reward)
+
+        return episode_rewards
+
 
     def train(self, replay_buffer):
         # Monte Carlo estimate of rewards:

@@ -10,8 +10,8 @@ agents:
     agent_name: !!str TD3          # which RL agent to use for meta-training
 
   td3:
-    init_episodes: !!int 100       # number of episodes to fill the replay buffer
     max_episodes: !!int 200        # maximum number of episodes to optimize
+    init_episodes: !!int 100       # number of episodes to fill the replay buffer
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
     lr: !!float 3e-4               # learning rate
