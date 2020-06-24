@@ -3,14 +3,13 @@ import torch
 import torch.nn as nn
 import numpy as np
 import os
-from agents.TD3 import TD3
-from agents.PPO import PPO
+from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 
 class GTN(nn.Module):
     def __init__(self, config):
-        super(GTN, self).__init__()
+        super().__init__()
 
         reptile_config = config["agents"]["reptile"]
         self.max_iterations = reptile_config["max_iterations"]
@@ -20,15 +19,15 @@ class GTN(nn.Module):
         self.config = config
 
         self.env_factory = EnvFactory(config)
-        self.agent = self.agent_factory(config)
+        self.agent = select_agent(config, self.agent_name)
         self.seeds = torch.tensor(
             [np.random.random() for _ in range(self.max_iterations)], device="cpu", dtype=torch.float32
         ).unsqueeze(1)
 
         self.virtual_env = self.env_factory.generate_default_virtual_env()
 
-        if os.path.isfile(self.export_path):
-            self.load_checkpoint()
+        # if os.path.isfile(self.export_path):
+        #     self.load_checkpoint()
 
     def run(self):
         for it in range(self.max_iterations):
@@ -52,18 +51,6 @@ class GTN(nn.Module):
             self.agent.run(env=self.virtual_env)
             self.reptile_update(old_state_dict_agent_virt, self.agent)
             self.reptile_update(old_state_dict_virtual_env, self.virtual_env)
-
-    def agent_factory(self, config):
-        dummy_env = self.env_factory.generate_default_real_env()
-        state_dim = dummy_env.observation_space.shape[0]
-        action_dim = dummy_env.action_space.shape[0]
-
-        if self.agent_name == "TD3":
-            return TD3(state_dim, action_dim, config)
-        elif self.agent_name == "PPO":
-            return PPO(state_dim, action_dim, config)
-        else:
-            raise NotImplementedError("Unknownn RL agent")
 
     def reptile_update(self, old_state_dict, target):
         new_state_dict = target.state_dict()

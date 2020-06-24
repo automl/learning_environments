@@ -10,7 +10,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PPO(nn.Module):
     def __init__(self, state_dim, action_dim, config):
-        super(PPO, self).__init__()
+        super().__init__()
 
         agent_name = 'ppo'
 
@@ -51,7 +51,7 @@ class PPO(nn.Module):
             state = env.reset()
             episode_reward = 0
 
-            for t in range(env._max_episode_steps):
+            for t in range(env.max_episode_steps()):
                 time_step += 1
 
                 # run old policy
@@ -63,7 +63,7 @@ class PPO(nn.Module):
                 episode_reward += reward
 
                 # train after certain amount of timesteps
-                if time_step / env._max_episode_steps > self.update_episodes:
+                if time_step / env.max_episode_steps() > self.update_episodes:
                     self.train(replay_buffer)
                     replay_buffer.clear()
                     time_step = 0

@@ -1,15 +1,15 @@
 import torch
-import time
 import torch.nn as nn
 import torch.nn.functional as F
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter
 
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class TD3(nn.Module):
     def __init__(self, state_dim, action_dim, config):
-        super(TD3, self).__init__()
+        super().__init__()
 
         agent_name = 'td3'
         td3_config = config['agents'][agent_name]
@@ -57,12 +57,12 @@ class TD3(nn.Module):
             state = env.reset()
             episode_reward = 0
 
-            for t in range(env._max_episode_steps):
+            for t in range(env.max_episode_steps()):
                 time_step += 1
 
                 # fill replay buffer at beginning
                 if episode < self.init_episodes:
-                    action = env.random_action()
+                    action = env.get_random_action()
                 else:
                     action = self.actor(state.to(device)).cpu()
 
@@ -73,7 +73,7 @@ class TD3(nn.Module):
                 # state-action transition
                 next_state, reward, done = env.step(action)
 
-                if t < env._max_episode_steps - 1:
+                if t < env.max_episode_steps() - 1:
                     done_tensor = done
                 else:
                     done_tensor = torch.tensor([0], device='cpu', dtype=torch.float32)

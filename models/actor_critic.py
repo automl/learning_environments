@@ -26,7 +26,7 @@ def build_nn_from_config(input_dim, output_dim, agent_name, config):
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, agent_name, config):
-        super(Actor, self).__init__()
+        super().__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = action_dim,
@@ -50,7 +50,7 @@ class Actor(nn.Module):
 
 class Critic_Q(nn.Module):
     def __init__(self, state_dim, action_dim, agent_name, config):
-        super(Critic_Q, self).__init__()
+        super().__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim+action_dim,
                                         output_dim = action_dim,
@@ -63,7 +63,7 @@ class Critic_Q(nn.Module):
 
 class Critic_V(nn.Module):
     def __init__(self, state_dim, agent_name, config):
-        super(Critic_V, self).__init__()
+        super().__init__()
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = 1,
