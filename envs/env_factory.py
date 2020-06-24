@@ -33,7 +33,7 @@ class EnvWrapper(nn.Module):
         if isinstance(self.env, VirtualEnv):
             return self.env.set_seed(seed)
         else:
-            print('Not a virtual environment, no need to set a seed')
+            print('Not a virtual environment, no need to set a seed as input')
 
     def get_random_action(self):
         # do random action in the [-1,1] range
@@ -61,8 +61,10 @@ class EnvWrapper(nn.Module):
         return self.env._max_episode_steps
 
     def seed(self, seed):
-        if not isinstance(self.env, VirtualEnv):
-            return self.env.seed()
+        if isinstance(self.env, VirtualEnv):
+            print('Virtual environment, no need to set a seed for random numbers')
+        else:
+            return self.env.seed(seed)
 
 
 class EnvFactory:
@@ -105,14 +107,11 @@ class EnvFactory:
 
         for key, value in kwargs.items():
             setattr(env, key, value)
-
         env._max_episode_steps = int(kwargs["max_steps"])
-
         return env
 
     def _get_random_parameters(self):
-        kwargs = {}
-        kwargs['env_name'] = self.env_name
+        kwargs = {'env_name': self.env_name}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
@@ -121,8 +120,7 @@ class EnvFactory:
         return kwargs
 
     def _get_default_parameters(self):
-        kwargs = {}
-        kwargs['env_name'] = self.env_name
+        kwargs = {'env_name': self.env_name}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = float(value[1])

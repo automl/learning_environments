@@ -21,6 +21,7 @@ class VirtualEnv(nn.Module):
 
         # for compatibility
         self._max_episode_steps = int(kwargs['max_steps'])
+
         # for rendering
         self.viewer_env = gym.make(self.env_name)
         self.viewer_env.reset()
