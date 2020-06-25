@@ -32,10 +32,10 @@ class VirtualEnv(nn.Module):
             nn.Tanh(),
             weight_norm(nn.Linear(hidden_size, hidden_size)),
             nn.Tanh()
-        )
-        self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim))
-        self.reward_head = weight_norm(nn.Linear(hidden_size, 1))
-        self.done_head = weight_norm(nn.Linear(hidden_size, 1))
+        ).to(device)
+        self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim)).to(device)
+        self.reward_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
+        self.done_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
 
     def reset(self):
         if self.zero_init:
@@ -54,11 +54,23 @@ class VirtualEnv(nn.Module):
 
         return self.state
 
-    def set_seed(self, seed):
-        self.input_seed = seed
+    def set_input_seed(self, input_seed):
+        self.input_seed = input_seed
+
+    def get_input_seed(self):
+        return self.input_seed
+
+    def set_state(self, state):
+        self.state = state
+
+    def get_state(self):
+        return self.state
 
     def step(self, action):
-        input = torch.cat((action, self.state, self.input_seed))
+        # print(action.shape)
+        # print(self.state.shape)
+        # print(self.input_seed.shape)
+        input = torch.cat((action, self.state, self.input_seed), len(action.shape)-1)
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)

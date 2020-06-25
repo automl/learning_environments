@@ -24,7 +24,7 @@ class REPTILE(nn.Module):
 
             #env = self.env_factory.generate_random_real_env()
             env = self.env_factory.generate_default_virtual_env()
-            env.set_seed(0)
+            env.set_input_seed(0)
             self.agent.run(env=env)
             new_state_dict = self.agent.state_dict()
 

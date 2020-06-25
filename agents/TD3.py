@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from envs.virtual_env import VirtualEnv
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter
-
+from copy import deepcopy
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -56,6 +57,8 @@ class TD3(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            last_action = None
+            last_state = None
             episode_reward = 0
 
             for t in range(env.max_episode_steps()):
@@ -79,14 +82,18 @@ class TD3(nn.Module):
                 else:
                     done_tensor = torch.tensor([0], device='cpu', dtype=torch.float32)
 
-                replay_buffer.add(state, action, next_state, reward, done_tensor)
+                if last_state is not None and last_action is not None:
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor)
+
+                last_state = state
                 state = next_state
+                last_action = action
 
                 episode_reward += reward
 
                 # train
                 if episode > self.init_episodes:
-                    self.train(replay_buffer)
+                    self.train(replay_buffer, env)
                 if done:
                     break
 
@@ -99,11 +106,35 @@ class TD3(nn.Module):
         return episode_rewards
 
 
-    def train(self, replay_buffer):
+    def train(self, replay_buffer, env):
         self.total_it += 1
 
         # Sample replay buffer
-        state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
+        last_state, last_action, state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
+
+        if env.is_virtual_env():
+            # enable gradient computation
+            last_state.requires_grad = True
+            last_action.requires_grad = True
+
+            # backup old states
+            input_seed_backup = env.get_input_seed()
+            state_backup = env.get_state()
+
+            # run
+            input_seed = input_seed_backup.repeat(len(last_state)).unsqueeze(1)
+            env.set_state(last_state)
+            env.set_input_seed(input_seed)
+            state, _, _ = env.step(last_action)
+            state = state.to(device)    # wtf?
+
+            env.set_input_seed(input_seed_backup)
+            env.set_state(state_backup)
+
+            # print(input_seed.device)
+            # print(last_state.device)
+            # print(last_action.device)
+            # print(state.device)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
@@ -124,10 +155,11 @@ class TD3(nn.Module):
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
         #print(self.actor.net._modules['0'].weight[0][0])
+        #print(env.env.base._modules['0'].weight[0][0])
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
-        critic_loss.backward()
+        critic_loss.backward(retain_graph=True)
         self.critic_optimizer.step()
 
         # Delayed policy updates

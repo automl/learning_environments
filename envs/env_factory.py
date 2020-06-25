@@ -33,12 +33,31 @@ class EnvWrapper(nn.Module):
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
 
-    def set_seed(self, seed):
+    def set_input_seed(self, input_seed):
         if isinstance(self.env, VirtualEnv):
-            seed_torch = torch.tensor([seed], device=device, dtype=torch.float32)
-            return self.env.set_seed(seed_torch)
+            if not torch.is_tensor(input_seed):
+                input_seed = torch.tensor([input_seed], device=device, dtype=torch.float32)
+            return self.env.set_input_seed(input_seed)
         else:
-            print('Not a virtual environment, no need to set a seed as input')
+            print('Not a virtual environment, there is no input seed')
+
+    def get_input_seed(self):
+        if isinstance(self.env, VirtualEnv):
+            return self.env.get_input_seed()
+        else:
+            print('Not a virtual environment, there is no input seed')
+
+    def set_state(self, state):
+        if isinstance(self.env, VirtualEnv):
+            return self.env.set_state(state)
+        else:
+            print('Not a virtual environment, no need yet to set a state')
+
+    def get_state(self):
+        if isinstance(self.env, VirtualEnv):
+            return self.env.get_state()
+        else:
+            return self.env.state
 
     def get_random_action(self):
         # do random action in the [-1,1] range
@@ -70,6 +89,9 @@ class EnvWrapper(nn.Module):
             print('Virtual environment, no need to set a seed for random numbers')
         else:
             return self.env.seed(seed)
+
+    def is_virtual_env(self):
+        return isinstance(self.env, VirtualEnv)
 
 
 class EnvFactory:
