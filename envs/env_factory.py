@@ -23,9 +23,9 @@ class EnvWrapper(nn.Module):
             done = done.to("cpu")
             return next_state, reward, done
         else:
-            self.env.state = state.detach().numpy()
-            next_state, reward, done, _ = self.env.step(action.detach().numpy())
-            next_state_torch = torch.from_numpy(next_state).float().cpu()
+            self.env.state = state.cpu().detach().numpy()
+            next_state, reward, done, _ = self.env.step(action.cpu().detach().numpy())
+            next_state_torch = torch.tensor(next_state, device="cpu", dtype=torch.float32)
             reward_torch = torch.tensor(reward, device="cpu", dtype=torch.float32)
             done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
             return next_state_torch, reward_torch, done_torch
