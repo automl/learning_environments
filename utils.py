@@ -19,8 +19,9 @@ class ReplayBuffer:
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
+        self.input_seed = torch.zeros((max_size, 1))
 
-    def add(self, last_state, last_action, state, action, next_state, reward, done):
+    def add(self, last_state, last_action, state, action, next_state, reward, done, input_seed):
         self.last_state[self.ptr] = last_state.detach()
         self.last_action[self.ptr] = last_action.detach()
         self.state[self.ptr] = state.detach().detach()
@@ -28,6 +29,7 @@ class ReplayBuffer:
         self.next_state[self.ptr] = next_state.detach()
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
+        self.input_seed[self.ptr] = input_seed.squeeze().detach()
 
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
@@ -37,25 +39,27 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.last_state[ind].to(device),
-            self.last_action[ind].to(device),
-            self.state[ind].to(device),
-            self.action[ind].to(device),
-            self.next_state[ind].to(device),
-            self.reward[ind].to(device),
-            self.done[ind].to(device)
+            self.last_state[ind].to(device).detach(),
+            self.last_action[ind].to(device).detach(),
+            self.state[ind].to(device).detach(),
+            self.action[ind].to(device).detach(),
+            self.next_state[ind].to(device).detach(),
+            self.reward[ind].to(device).detach(),
+            self.done[ind].to(device).detach(),
+            self.input_seed[ind].to(device).detach()
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.last_state[: self.size].to(device),
-            self.last_action[: self.size].to(device),
-            self.state[: self.size].to(device),
-            self.action[: self.size].to(device),
-            self.next_state[: self.size].to(device),
-            self.reward[: self.size].to(device),
-            self.done[: self.size].to(device)
+            self.last_state[: self.size].to(device).detach(),
+            self.last_action[: self.size].to(device).detach(),
+            self.state[: self.size].to(device).detach(),
+            self.action[: self.size].to(device).detach(),
+            self.next_state[: self.size].to(device).detach(),
+            self.reward[: self.size].to(device).detach(),
+            self.done[: self.size].to(device).detach(),
+            self.input_seed[: self.size].to(device).detach()
         )
 
     # for PPO
@@ -71,7 +75,7 @@ class AverageMeter:
         self.vals = np.zeros(buffer_size)
         self.ptr = 0
         self.size = 0
-        self.it = 1
+        self.it = 0
 
     def update(self, val):
         self.vals[self.ptr] = val

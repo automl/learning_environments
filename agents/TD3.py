@@ -24,35 +24,34 @@ class TD3(nn.Module):
         self.init_episodes = td3_config['init_episodes']
         self.max_episodes = td3_config['max_episodes']
         self.rb_size = td3_config['rb_size']
+        self.lr = td3_config['lr']
 
         self.render_env = config["render_env"]
 
         self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
         self.actor_target = Actor(state_dim, action_dim, agent_name, config).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=td3_config['lr'])
-
         self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
-        self.critic_optimizer = torch.optim.Adam(list(self.critic_1.parameters()) +
-                                                 list(self.critic_2.parameters()),
-                                                 lr=td3_config['lr'])
 
         self.total_it = 0
 
 
-    def run(self, env):
+    def run(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=10,
+                                        update_rate=1,
                                         print_str='Average reward: ')
+
+        self.init_optimizer(env)
 
         time_step = 0
         episode_rewards = []
+        input_seed = torch.tensor([input_seed], device='cpu', dtype=torch.float32)
 
         # training loop
         for episode in range(self.max_episodes):
@@ -60,6 +59,9 @@ class TD3(nn.Module):
             last_action = None
             last_state = None
             episode_reward = 0
+
+            # print(self.actor.net._modules['0'].weight.sum())
+            # print(env.env.base._modules['0'].weight.sum())
 
             for t in range(env.max_episode_steps()):
                 time_step += 1
@@ -75,7 +77,7 @@ class TD3(nn.Module):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action)
+                next_state, reward, done = env.step(action, state, input_seed)
 
                 if t < env.max_episode_steps() - 1:
                     done_tensor = done
@@ -83,7 +85,7 @@ class TD3(nn.Module):
                     done_tensor = torch.tensor([0], device='cpu', dtype=torch.float32)
 
                 if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor)
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor, input_seed)
 
                 last_state = state
                 state = next_state
@@ -110,31 +112,11 @@ class TD3(nn.Module):
         self.total_it += 1
 
         # Sample replay buffer
-        last_state, last_action, state, action, next_state, reward, done = replay_buffer.sample(self.batch_size)
+        last_state, last_action, state, action, next_state, reward, done, input_seed = \
+            replay_buffer.sample(self.batch_size)
 
         if env.is_virtual_env():
-            # enable gradient computation
-            last_state.requires_grad = True
-            last_action.requires_grad = True
-
-            # backup old states
-            input_seed_backup = env.get_input_seed()
-            state_backup = env.get_state()
-
-            # run
-            input_seed = input_seed_backup.repeat(len(last_state)).unsqueeze(1)
-            env.set_state(last_state)
-            env.set_input_seed(input_seed)
-            state, _, _ = env.step(last_action)
-            state = state.to(device)    # wtf?
-
-            env.set_input_seed(input_seed_backup)
-            env.set_state(state_backup)
-
-            # print(input_seed.device)
-            # print(last_state.device)
-            # print(last_action.device)
-            # print(state.device)
+            state = self.run_env(env, last_state, last_action, input_seed)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
@@ -154,16 +136,16 @@ class TD3(nn.Module):
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
-        #print(self.actor.net._modules['0'].weight[0][0])
-        #print(env.env.base._modules['0'].weight[0][0])
-
         # Optimize the critic
         self.critic_optimizer.zero_grad()
-        critic_loss.backward(retain_graph=True)
+        critic_loss.backward()
         self.critic_optimizer.step()
 
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
+            if env.is_virtual_env():
+                state = self.run_env(env, last_state, last_action, input_seed)
+
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(state, self.actor(state))).mean()
@@ -182,3 +164,26 @@ class TD3(nn.Module):
 
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
+
+
+    def init_optimizer(self, env):
+        actor_params = list(self.actor.parameters())
+        critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
+        if env.is_virtual_env():
+            actor_params += list(env.parameters())
+            critic_params += list(env.parameters())
+        self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr)
+        self.critic_optimizer = torch.optim.Adam(critic_params,
+                                                 lr=self.lr)
+
+
+    def run_env(self, env, last_state, last_action, input_seed):
+        # enable gradient computation
+        last_state.requires_grad = True
+        last_action.requires_grad = True
+        input_seed.requires_grad = True
+
+        state, _, _ = env.step(last_action, last_state, input_seed)
+        state = state.to(device)    # wtf?
+
+        return state

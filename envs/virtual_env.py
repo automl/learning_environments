@@ -66,11 +66,8 @@ class VirtualEnv(nn.Module):
     def get_state(self):
         return self.state
 
-    def step(self, action):
-        # print(action.shape)
-        # print(self.state.shape)
-        # print(self.input_seed.shape)
-        input = torch.cat((action, self.state, self.input_seed), len(action.shape)-1)
+    def step(self, action, state, input_seed=0):
+        input = torch.cat((action, state, input_seed), len(action.shape)-1)
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)
@@ -79,10 +76,10 @@ class VirtualEnv(nn.Module):
         return next_state, reward, done
 
     def render(self):
-        self.viewer_env.env.state = self.state.data.numpy()
+        self.viewer_env.env.state = self.state.cpu().data.numpy()
         self.viewer_env.render()
 
     def close(self):
-        if self.viewer:
-            self.viewer.close()
-            self.viewer = None
+        if self.viewer_env.viewer:
+            self.viewer_env.viewer.close()
+            self.viewer_env.viewer = None

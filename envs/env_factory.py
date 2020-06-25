@@ -13,14 +13,17 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action):
+    def step(self, action, state, input_seed=torch.tensor([0], device='cpu', dtype=torch.float32)):
         if isinstance(self.env, VirtualEnv):
-            next_state, reward, done = self.env.step(action.to(device))
+            next_state, reward, done = self.env.step(action.to(device),
+                                                     state.to(device),
+                                                     input_seed.to(device))
             reward = reward.to("cpu")
             next_state = next_state.to("cpu")
             done = done.to("cpu")
             return next_state, reward, done
         else:
+            self.env.state = state.detach().numpy()
             next_state, reward, done, _ = self.env.step(action.detach().numpy())
             next_state_torch = torch.from_numpy(next_state).float().cpu()
             reward_torch = torch.tensor(reward, device="cpu", dtype=torch.float32)
@@ -32,32 +35,6 @@ class EnvWrapper(nn.Module):
             return self.env.reset()
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
-
-    def set_input_seed(self, input_seed):
-        if isinstance(self.env, VirtualEnv):
-            if not torch.is_tensor(input_seed):
-                input_seed = torch.tensor([input_seed], device=device, dtype=torch.float32)
-            return self.env.set_input_seed(input_seed)
-        else:
-            print('Not a virtual environment, there is no input seed')
-
-    def get_input_seed(self):
-        if isinstance(self.env, VirtualEnv):
-            return self.env.get_input_seed()
-        else:
-            print('Not a virtual environment, there is no input seed')
-
-    def set_state(self, state):
-        if isinstance(self.env, VirtualEnv):
-            return self.env.set_state(state)
-        else:
-            print('Not a virtual environment, no need yet to set a state')
-
-    def get_state(self):
-        if isinstance(self.env, VirtualEnv):
-            return self.env.get_state()
-        else:
-            return self.env.state
 
     def get_random_action(self):
         # do random action in the [-1,1] range
