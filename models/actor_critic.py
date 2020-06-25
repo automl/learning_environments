@@ -11,7 +11,7 @@ def build_nn_from_config(input_dim, output_dim, agent_name, config):
     activation_fn = config['agents'][agent_name]['activation_fn']
 
     if activation_fn == 'relu':
-        act_fn = nn.ReLU()
+        act_fn = nn.ReLU(inplace=False)
     elif activation_fn == 'tanh':
         act_fn = nn.Tanh()
 

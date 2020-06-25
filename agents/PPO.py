@@ -85,8 +85,7 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        old_states, old_actions, _, old_rewards, old_dones = replay_buffer.get_all(
-        )
+        old_states, old_actions, _, old_rewards, old_dones = replay_buffer.get_all()
         old_logprobs, _ = self.actor_old.evaluate(old_states, old_actions)
         old_logprobs = old_logprobs.detach()
 

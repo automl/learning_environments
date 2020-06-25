@@ -15,7 +15,11 @@ class EnvWrapper(nn.Module):
 
     def step(self, action):
         if isinstance(self.env, VirtualEnv):
-            return self.env.step(action)
+            next_state, reward, done = self.env.step(action.to(device))
+            reward = reward.to("cpu")
+            next_state = next_state.to("cpu")
+            done = done.to("cpu")
+            return next_state, reward, done
         else:
             next_state, reward, done, _ = self.env.step(action.detach().numpy())
             next_state_torch = torch.from_numpy(next_state).float().cpu()
@@ -31,7 +35,8 @@ class EnvWrapper(nn.Module):
 
     def set_seed(self, seed):
         if isinstance(self.env, VirtualEnv):
-            return self.env.set_seed(seed)
+            seed_torch = torch.tensor([seed], device=device, dtype=torch.float32)
+            return self.env.set_seed(seed_torch)
         else:
             print('Not a virtual environment, no need to set a seed as input')
 
@@ -96,7 +101,7 @@ class EnvFactory:
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters()
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = VirtualEnv(**kwargs)
+        env = VirtualEnv(**kwargs).to(device)
         return EnvWrapper(env=env)
 
     def _env_factory(self, kwargs):

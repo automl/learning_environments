@@ -17,7 +17,7 @@ class VirtualEnv(nn.Module):
         self.state_dim = int(kwargs['state_dim'])
         self.action_dim = int(kwargs['action_dim'])
         self.zero_init = bool(kwargs['zero_init'])
-        self.state = torch.zeros(self.state_dim, device='cpu')   # not sure what the default state should be
+        self.state = torch.zeros(self.state_dim, device=device)   # not sure what the default state should be
 
         # for compatibility
         self._max_episode_steps = int(kwargs['max_steps'])
@@ -33,20 +33,20 @@ class VirtualEnv(nn.Module):
             weight_norm(nn.Linear(hidden_size, hidden_size)),
             nn.Tanh()
         )
-        self.state_head = nn.utils.weight_norm(nn.Linear(hidden_size, self.state_dim))
-        self.reward_head = nn.utils.weight_norm(nn.Linear(hidden_size, 1))
-        self.done_head = nn.utils.weight_norm(nn.Linear(hidden_size, 1))
+        self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim))
+        self.reward_head = weight_norm(nn.Linear(hidden_size, 1))
+        self.done_head = weight_norm(nn.Linear(hidden_size, 1))
 
     def reset(self):
         if self.zero_init:
-            self.state = torch.zeros(self.state_dim, device="cpu")
+            self.state = torch.zeros(self.state_dim, device=device)
         elif self.env_name == "Pendulum-v0":
             self.state = torch.tensor([
                     np.random.uniform(low=-np.pi, high=np.pi),
                     np.random.uniform(low=-1, high=1),
                     np.random.uniform(low=-8, high=8),
                 ],
-                device="cpu",
+                device=device,
                 dtype=torch.float32,
             )
         else:

@@ -30,7 +30,6 @@ def create_ppo_config_base(max_episodes):
     cfg['envs'] = {}
     cfg['envs']['Pendulum-v0'] = cfg_pen
 
-
     return cfg
 
 def run_ppo(max_episodes):

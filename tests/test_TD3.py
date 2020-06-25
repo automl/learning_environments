@@ -30,7 +30,6 @@ def create_td3_config_base(init_episodes, max_episodes):
     cfg['envs'] = {}
     cfg['envs']['Pendulum-v0'] = cfg_pen
 
-
     return cfg
 
 def run_td3(init_episodes, max_episodes):

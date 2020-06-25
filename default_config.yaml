@@ -18,7 +18,7 @@ agents:
     tau: !!float 0.005             # target network update rate
     policy_delay: !!int 2          # frequency of delayed policy updates
     rb_size: !!int 1000000         # size of the replay buffer
-    hidden_size: !!int 256         # size of the actor/critic hidden layer
+    hidden_size: !!int 192         # size of the actor/critic hidden layer
     activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.1        # action noise standard deviation
 
