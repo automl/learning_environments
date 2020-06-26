@@ -14,20 +14,32 @@ class GTN(nn.Module):
     def __init__(self, config):
         super().__init__()
 
-        reptile_config = config["agents"]["reptile"]
-        self.max_iterations = reptile_config["max_iterations"]
-        self.step_size = reptile_config["step_size"]
-        self.agent_name = reptile_config["agent_name"]
-        self.export_path = config["export_path"]
-        self.config = config
+        gtn_config = config["agents"]["gtn"]
+        self.max_iterations = gtn_config["max_iterations"]
+        self.match_lr = gtn_config["match_lr"]
+        self.match_batch_size = gtn_config["match_batch_size"]
+        self.match_iterations = gtn_config["match_iterations"]
+        self.real_iterations = gtn_config["real_iterations"]
+        self.virtual_iterations = gtn_config["virtual_iterations"]
+        self.step_size = gtn_config["step_size"]
 
-        self.env_factory = EnvFactory(config)
-        self.agent = select_agent(config, self.agent_name)
-        self.input_seeds = torch.tensor(
-            [np.random.random() for _ in range(self.max_iterations)], device="cpu", dtype=torch.float32
-        ).unsqueeze(1)
+        agent_name = gtn_config["agent_name"]
+        self.agent = select_agent(config, agent_name)
 
-        self.virtual_env = self.env_factory.generate_default_virtual_env()
+        different_envs = gtn_config["different_envs"]
+        env_factory = EnvFactory(config)
+        self.virtual_env = env_factory.generate_default_virtual_env()
+        self.real_envs = []
+        self.input_seeds = []
+        if different_envs == 0:
+            # generate single default environment with fixed seed
+            self.real_envs.append(env_factory.generate_default_real_env())
+            self.input_seeds.append(1)
+        else:
+            # generate multiple different real envs with associated seed
+            for i in range(different_envs):
+                self.real_envs.append(env_factory.generate_random_real_env())
+                self.input_seeds.append(np.random.random())
 
         # if os.path.isfile(self.export_path):
         #     self.load_checkpoint()
@@ -38,21 +50,24 @@ class GTN(nn.Module):
             # if it % 10 == 0:
             #     self.save_checkpoint()
 
-            # train on real env for a bit
-            self.real_env = self.env_factory.generate_default_real_env()  # todo: random or default real env?
-
             # map virtual env to real env
-            self.match_environment(real_env = self.real_env,
-                                   virtual_env = self.virtual_env,
+            print("-- matching virtual env to real env --")
+            self.match_environment(virtual_env = self.virtual_env,
+                                   real_env = self.real_envs[it],
                                    input_seed = self.input_seeds[it])
 
             # now train on virtual env
             print("-- training on real env --")
-            self.reptile_run(env = self.real_env)
+            for _ in range(self.real_iterations):
+                env_id = np.random.randint(len(self.real_envs))
+                self.reptile_run(env = self.real_envs[env_id])
 
             # now train on virtual env
             print("-- training on virtual env --")
-            self.reptile_run(env = self.virtual_env, input_seed = self.input_seeds[it])
+            for _ in range(self.virtual_iterations):
+                env_id = np.random.randint(len(self.real_envs))
+                self.reptile_run(env = self.virtual_env,
+                                 input_seed = self.input_seeds[env_id])
 
 
     def reptile_run(self, env, input_seed=0):
@@ -71,78 +86,57 @@ class GTN(nn.Module):
         new_state_dict = target.state_dict()
         for key, value in new_state_dict.items():
             new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * self.step_size
-        #target.load_state_dict(new_state_dict)
+        #target.load_state_dict(new_state_dict) # not needed?
 
+    def match_environment(self, virtual_env, real_env, input_seed):
+        old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
 
-    def match_environment(self, real_env, virtual_env, input_seed):
-        optimizer = torch.optim.Adam(virtual_env.parameters(), lr=1e-4)
+        optimizer = torch.optim.Adam(virtual_env.parameters(), lr=self.match_lr)
         avg_meter_loss = AverageMeter(buffer_size=50,
-                                      update_rate=10,
+                                      update_rate=50,
                                       print_str='Average loss: ')
         avg_meter_diff = AverageMeter(buffer_size=50,
-                                      update_rate=10,
+                                      update_rate=50,
                                       print_str='Average diff: ')
 
-
-        # todo: value from config
-        for _ in range(10000):
+        for _ in range(self.match_iterations):
             states_list = []
             actions_list = []
-            next_states_list = []
+            outputs_list = []
 
             real_env.reset()
 
-            # todo: value from config
-            for k in range(256):
-                # todo: better write getter instead of accessing the member variables directly
-
-                # # use episodes
-                # actions_list.append(real_env.env.action_space.sample())
-                # if len(next_states_list) > 0:
-                #     states_list.append(next_states_list[-1])
-                #     next_state, _, _ = real_env.step(
-                #         action=torch.tensor(actions_list[-1], device=device, dtype=torch.float32),
-                #         state=torch.tensor(next_states_list[-1], device=device, dtype=torch.float32))
-                #     next_states_list.append(next_state)
-                # else:
-                #     states_list.append(real_env.env.observation_space.sample())
-                #     next_state, _, _ = real_env.step(
-                #         action = torch.tensor(actions_list[-1], device=device, dtype=torch.float32),
-                #         state = torch.tensor(states_list[-1], device=device, dtype=torch.float32))
-                #     next_states_list.append(next_state)
-
-                # use random actions/states
+            for k in range(self.match_batch_size):
+                # todo: maybe write getter instead of accessing the member variables directly
+                # run random state/actions transitions on the real env
                 states_list.append(real_env.env.observation_space.sample())
                 actions_list.append(real_env.env.action_space.sample())
-                next_state, _, _ = real_env.step(
+                next_state, reward, done = real_env.step(
                     action=torch.tensor(actions_list[-1], device=device, dtype=torch.float32),
                     state=torch.tensor(states_list[-1], device=device, dtype=torch.float32))
-                next_states_list.append(next_state)
+                outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
 
-                # print('-------')
-                # print(states_list[-1])
-                # print(actions_list[-1])
-                # print(next_states_list[-1])
-
+            # convert to torch
             states = torch.tensor(states_list, device=device, dtype=torch.float32)
             actions = torch.tensor(actions_list, device=device, dtype=torch.float32)
-            next_states_real = torch.stack(next_states_list)
+            outputs_real = torch.stack(outputs_list)
 
+            # simulate the same state/action transitions on the virtual env
             input_seeds = torch.tensor([input_seed], device=device, dtype=torch.float32).repeat(len(states)).unsqueeze(1)
-            next_states_virtual, _, _ = virtual_env.step(action=actions, state=states, input_seed=input_seeds)
+            next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=states, input_seed=input_seeds)
+            outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1)
 
-            diff = abs(next_states_real.cpu()-next_states_virtual.cpu()).sum()
-
-
+            # match virtual env to real env
             optimizer.zero_grad()
-            loss = F.mse_loss(next_states_real, next_states_virtual)
+            loss = F.mse_loss(outputs_real, outputs_virtual)
             loss.backward()
             optimizer.step()
 
+            # logging
             avg_meter_loss.update(loss)
-            avg_meter_diff.update(diff)
+            avg_meter_diff.update(abs(outputs_real.cpu()-outputs_virtual.cpu()).sum())
 
-
+        self.reptile_update(target = virtual_env, old_state_dict = old_state_dict_env)
 
 
     def save_checkpoint(self):
@@ -163,6 +157,7 @@ class GTN(nn.Module):
 
         state = {**state, **state_optimizer}
         torch.save(state, self.export_path)
+
 
     def load_checkpoint(self):
         if os.path.isfile(self.export_path):

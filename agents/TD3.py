@@ -44,7 +44,7 @@ class TD3(nn.Module):
     def run(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=1,
+                                        update_rate=10,
                                         print_str='Average reward: ')
 
         self.init_optimizer(env)

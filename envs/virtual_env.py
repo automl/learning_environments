@@ -66,11 +66,11 @@ class VirtualEnv(nn.Module):
         return self.state
 
     def step(self, action, state, input_seed=0):
-        input = torch.cat((action, state, input_seed), len(action.shape)-1)
+        input = torch.cat((action, state, input_seed), dim=len(action.shape)-1)
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)
-        done = self.done_head(x) > 0.5
+        done = (self.done_head(x) > 0.5).float()
         self.state = next_state
         return next_state, reward, done
 

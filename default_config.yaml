@@ -4,6 +4,17 @@ render_env: !!bool False            # render environment
 export_path: !!str "./exports/gtn_pendulum_td3/state.pth"
 
 agents:
+  gtn:
+    max_iterations: !!int 10       # maximum number of GTN iterations
+    match_lr: !!float 1e-4         # learning rate when matching the virtual env to the real env
+    match_batch_size: !!int 256    # batch size when matching the virtual env to the real env
+    match_iterations: !!int 1000    # number of iterations when matching the virtual env to the real env
+    real_iterations: !!int 1       # number of iterations training the agent on the real env
+    virtual_iterations: !!int 1    # number of iterations training the agent on the virtual env
+    step_size: !!float 0.1         # reptile step size
+    different_envs: 3              # 0: use only default real env
+    agent_name: !!str TD3          # which RL agent to use for meta-training
+
   reptile:
     max_iterations: !!int 10000    # maximum number of REPTILE iteration
     step_size: !!float 0.1         # step size when updating the model parameters
@@ -14,11 +25,11 @@ agents:
     init_episodes: !!int 100       # number of episodes to fill the replay buffer
     batch_size: !!int  256         # batch size when running a policy update step
     gamma: !!float 0.99            # discount factor
-    lr: !!float 3e-4               # learning rate
+    lr: !!float 5e-4               # learning rate
     tau: !!float 0.005             # target network update rate
     policy_delay: !!int 2          # frequency of delayed policy updates
     rb_size: !!int 1000000         # size of the replay buffer
-    hidden_size: !!int 192         # size of the actor/critic hidden layer
+    hidden_size: !!int 384         # size of the actor/critic hidden layer
     activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.1        # action noise standard deviation
 
@@ -31,7 +42,7 @@ agents:
     vf_coef: !!float 0.5           # value function coefficient (see PPO paper)
     ent_coef: !!float 0.01         # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.2          # trust region size (see PPO paper)
-    hidden_size: !!int 64          # size of the actor/critic hidden layer
+    hidden_size: !!int 128         # size of the actor/critic hidden layer
     activation_fn: !!str relu      # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.5        # action noise standard deviation
 

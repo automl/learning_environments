@@ -39,7 +39,7 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def run(self, env):
+    def run(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
         avg_meter_reward = AverageMeter(buffer_size=50,
                                         update_rate=50,
@@ -47,10 +47,13 @@ class PPO(nn.Module):
 
         time_step = 0
         episode_rewards = []
+        input_seed = torch.tensor([input_seed], device='cpu', dtype=torch.float32)
 
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            last_action = None
+            last_state = None
             episode_reward = 0
 
             for t in range(env.max_episode_steps()):
@@ -58,9 +61,13 @@ class PPO(nn.Module):
 
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done = env.step(action)
-                replay_buffer.add(state, action, next_state, reward, done)
+                next_state, reward, done = env.step(action, state)
+                if last_state is not None and last_action is not None:
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed)
+
+                last_state = state
                 state = next_state
+                last_action = action
 
                 episode_reward += reward
 
@@ -85,7 +92,7 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        old_states, old_actions, _, old_rewards, old_dones = replay_buffer.get_all()
+        _, _, old_states, old_actions, _, old_rewards, old_dones, _ = replay_buffer.get_all()
         old_logprobs, _ = self.actor_old.evaluate(old_states, old_actions)
         old_logprobs = old_logprobs.detach()
 
