@@ -44,6 +44,7 @@ class GTN(nn.Module):
         # if os.path.isfile(self.export_path):
         #     self.load_checkpoint()
 
+
     def run(self):
         for it in range(self.max_iterations):
 
