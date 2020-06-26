@@ -27,18 +27,18 @@ class GTN(nn.Module):
         self.agent = select_agent(config, agent_name)
 
         different_envs = gtn_config["different_envs"]
-        env_factory = EnvFactory(config)
-        self.virtual_env = env_factory.generate_default_virtual_env()
+        self.env_factory = EnvFactory(config)
+        self.virtual_env = self.env_factory.generate_default_virtual_env()
         self.real_envs = []
         self.input_seeds = []
         if different_envs == 0:
             # generate single default environment with fixed seed
-            self.real_envs.append(env_factory.generate_default_real_env())
+            self.real_envs.append(self.env_factory.generate_default_real_env())
             self.input_seeds.append(1)
         else:
             # generate multiple different real envs with associated seed
             for i in range(different_envs):
-                self.real_envs.append(env_factory.generate_random_real_env())
+                self.real_envs.append(self.env_factory.generate_random_real_env())
                 self.input_seeds.append(np.random.random())
 
         # if os.path.isfile(self.export_path):
@@ -89,6 +89,7 @@ class GTN(nn.Module):
             new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * self.step_size
         #target.load_state_dict(new_state_dict) # not needed?
 
+
     def match_environment(self, virtual_env, real_env, input_seed):
         old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
 
@@ -138,6 +139,13 @@ class GTN(nn.Module):
             avg_meter_diff.update(abs(outputs_real.cpu()-outputs_virtual.cpu()).sum())
 
         self.reptile_update(target = virtual_env, old_state_dict = old_state_dict_env)
+
+
+    def validate(self):
+        # calculate after how many steps with a new environment a certain score is achieved
+        env = self.env_factory.generate_default_real_env()
+        results = self.agent.run(env=env)
+        return sum(results[-20:-1])
 
 
     def save_checkpoint(self):
