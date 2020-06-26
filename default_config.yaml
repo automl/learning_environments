@@ -46,7 +46,7 @@ envs:
     l: 1                           # joint length [min, default, max]
     state_dim: !!int 3
     action_dim: !!int 1
-    hidden_size: !!int 128         # size of the hidden layer of the corresponding virtual environment
+    hidden_size: !!int 256         # size of the hidden layer of the corresponding virtual environment
     zero_init: !!bool True         # use zero state or random starting state for initialization
 
   MountainCarContinuous-v0:

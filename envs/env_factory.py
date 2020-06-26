@@ -3,6 +3,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 from envs.virtual_env import VirtualEnv
+from envs.pendulum import PendulumEnv
+from envs.continuous_mountain_car import Continuous_MountainCarEnv
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -104,8 +107,11 @@ class EnvFactory:
         return EnvWrapper(env=env)
 
     def _env_factory(self, kwargs):
-        if self.env_name == "Pendulum-v0" or self.env_name == 'MountainCarContinuous-v0':
-            env = gym.make(self.env_name)
+        if self.env_name == "Pendulum-v0":
+            #env = gym.make(self.env_name)
+            env = PendulumEnv()
+        elif self.env_name == 'MountainCarContinuous-v0':
+            env = Continuous_MountainCarEnv()
         else:
             raise NotImplementedError("Environment not supported")
 

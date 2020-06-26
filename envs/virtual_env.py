@@ -1,5 +1,4 @@
 import gym
-import math
 import torch
 import torch.nn as nn
 import numpy as np
@@ -29,9 +28,9 @@ class VirtualEnv(nn.Module):
         hidden_size = int(kwargs["hidden_size"])
         self.base = nn.Sequential(
             weight_norm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
-            nn.Tanh(),
+            nn.ReLU(),
             weight_norm(nn.Linear(hidden_size, hidden_size)),
-            nn.Tanh()
+            nn.ReLU(),
         ).to(device)
         self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim)).to(device)
         self.reward_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)

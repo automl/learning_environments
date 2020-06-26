@@ -79,6 +79,10 @@ class GTN(nn.Module):
         avg_meter_loss = AverageMeter(buffer_size=50,
                                       update_rate=10,
                                       print_str='Average loss: ')
+        avg_meter_diff = AverageMeter(buffer_size=50,
+                                      update_rate=10,
+                                      print_str='Average diff: ')
+
 
         # todo: value from config
         for _ in range(10000):
@@ -120,15 +124,15 @@ class GTN(nn.Module):
                 # print(actions_list[-1])
                 # print(next_states_list[-1])
 
-                real_env.render()
-
             states = torch.tensor(states_list, device=device, dtype=torch.float32)
             actions = torch.tensor(actions_list, device=device, dtype=torch.float32)
             next_states_real = torch.stack(next_states_list)
-            print((next_states_real.cpu()-states.cpu()).sum())
 
             input_seeds = torch.tensor([input_seed], device=device, dtype=torch.float32).repeat(len(states)).unsqueeze(1)
             next_states_virtual, _, _ = virtual_env.step(action=actions, state=states, input_seed=input_seeds)
+
+            diff = abs(next_states_real.cpu()-next_states_virtual.cpu()).sum()
+
 
             optimizer.zero_grad()
             loss = F.mse_loss(next_states_real, next_states_virtual)
@@ -136,6 +140,8 @@ class GTN(nn.Module):
             optimizer.step()
 
             avg_meter_loss.update(loss)
+            avg_meter_diff.update(diff)
+
 
 
 
