@@ -16,6 +16,7 @@ class VirtualEnv(nn.Module):
         self.state_dim = int(kwargs['state_dim'])
         self.action_dim = int(kwargs['action_dim'])
         self.zero_init = bool(kwargs['zero_init'])
+        self.solved_reward = kwargs['solved_reward']
         self.state = torch.zeros(self.state_dim, device=device)   # not sure what the default state should be
 
         # for compatibility

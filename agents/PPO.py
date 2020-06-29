@@ -30,7 +30,8 @@ class PPO(nn.Module):
         self.critic = Critic_V(state_dim, agent_name, config).to(device)
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) +
                                           list(self.critic.parameters()),
-                                          lr=ppo_config['lr'])
+                                          lr=ppo_config['lr'],
+                                          weight_decay=ppo_config['weight_decay'])
 
         self.actor_old = Actor(state_dim, action_dim, agent_name,
                                config).to(device)
@@ -41,12 +42,9 @@ class PPO(nn.Module):
 
     def run(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
-        avg_meter_reward = AverageMeter(buffer_size=50,
-                                        update_rate=50,
-                                        print_str='Average reward: ')
+        avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
         time_step = 0
-        episode_rewards = []
         input_seed = torch.tensor([input_seed], device='cpu', dtype=torch.float32)
 
         # training loop
@@ -73,58 +71,67 @@ class PPO(nn.Module):
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
-                    self.train(replay_buffer)
+                    self.train(replay_buffer, env)
                     replay_buffer.clear()
                     time_step = 0
                 if done:
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward)
-            episode_rewards.append(episode_reward)
+            avg_meter_reward.update(episode_reward, print_rate=100)
 
-        return episode_rewards
+            # quit training if environment is solved
+            if avg_meter_reward.get_mean(num=10) > env.env.solved_reward:
+                break
+
+        env.close()
+
+        return avg_meter_reward.get_raw_data()
 
 
-    def train(self, replay_buffer):
+    def train(self, replay_buffer, env):
         # Monte Carlo estimate of rewards:
-        rewards = []
+        new_rewards = []
         discounted_reward = 0
 
         # get states from replay buffer
-        _, _, old_states, old_actions, _, old_rewards, old_dones, _ = replay_buffer.get_all()
-        old_logprobs, _ = self.actor_old.evaluate(old_states, old_actions)
+        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.get_all()
+
+        if env.is_virtual_env():
+            states = self.run_env(env, last_states, last_actions, input_seeds)
+
+        old_logprobs, _ = self.actor_old.evaluate(states, actions)
         old_logprobs = old_logprobs.detach()
 
         #calculate rewards
-        for reward, done in zip(reversed(old_rewards), reversed(old_dones)):
+        for reward, done in zip(reversed(rewards), reversed(dones)):
             if done:
                 discounted_reward = 0
             discounted_reward = reward + (self.gamma * discounted_reward)
-            rewards.insert(0, discounted_reward)
+            new_rewards.insert(0, discounted_reward)
 
         # normalize advantage function
-        rewards = torch.FloatTensor(rewards).to(device)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
+        new_rewards = torch.FloatTensor(new_rewards).to(device)
+        new_rewards = (new_rewards - new_rewards.mean()) / (new_rewards.std() + 1e-5)
 
         # optimize policy for ppo_epochs:
         for it in range(self.ppo_epochs):
             # evaluate old actions and values :
             logprobs, dist_entropy = self.actor.evaluate(
-                old_states, old_actions)
-            state_values = self.critic(old_states).squeeze()
+                states, actions)
+            state_values = self.critic(states).squeeze()
 
             # Finding the ratio (pi_theta / pi_theta__old):
             ratios = torch.exp(logprobs - old_logprobs)
 
             # Finding Surrogate Loss
-            advantages = (rewards - state_values).detach()
+            advantages = (new_rewards - state_values).detach()
 
             surr1 = ratios * advantages
             surr2 = torch.clamp(ratios, 1 - self.eps_clip,
                                 1 + self.eps_clip) * advantages
             loss = - torch.min(surr1, surr2) \
-                   + self.vf_coef * F.mse_loss(state_values, rewards) \
+                   + self.vf_coef * F.mse_loss(state_values, new_rewards) \
                    - self.ent_coef * dist_entropy
 
             # take gradient step

@@ -68,23 +68,36 @@ class ReplayBuffer:
 
 
 class AverageMeter:
-    def __init__(self, buffer_size, update_rate, print_str):
-        self.buffer_size = buffer_size
-        self.update_rate = update_rate
+    def __init__(self, print_str):
         self.print_str = print_str
-        self.vals = np.zeros(buffer_size)
+        self.vals = []
         self.ptr = 0
         self.size = 0
         self.it = 0
 
-    def update(self, val):
-        self.vals[self.ptr] = val
-        self.ptr = (self.ptr + 1) % self.buffer_size
-        self.size = min(self.size + 1, self.buffer_size)
+    def update(self, val, print_rate=10):
+        self.vals.append(val)
         self.it += 1
 
-        if self.it % self.update_rate == 0:
-            out = self.print_str + "{:15.8f} {:>25} {}".format(
-                np.mean(self.vals[: self.size]), "Total updates: ", self.it
-            )
+        if self.it % print_rate == 0:
+            mean_val = self._mean(print_rate)
+            out = self.print_str + "{:15.4f} {:>20} {}".format(mean_val, "Total updates: ", self.it)
             print(out)
+
+    def get_mean(self, num=10):
+        return self._mean(num)
+
+    def get_raw_data(self):
+        return self.vals
+
+    def _mean(self, num):
+        vals = self.vals[max(len(self.vals)-num-1, 0) : len(self.vals)]
+        return sum(vals) / len(vals)
+
+
+
+def print_abs_param_sum(model, model_name=''):
+    sm = 0
+    for param in model.parameters():
+        sm += abs(param).sum()
+    print(model_name + ' ' + str(sm))

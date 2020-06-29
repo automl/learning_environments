@@ -16,17 +16,20 @@ def create_td3_config_base(init_episodes, max_episodes):
     cfg_td3['batch_size'] = 256
     cfg_td3['gamma'] = 0.99
     cfg_td3['lr'] = 3e-4
+    cfg_td3['weight_decay'] = 0
     cfg_td3['tau'] = 0.005
     cfg_td3['policy_delay'] = 2
     cfg_td3['rb_size'] = 100000
     cfg_td3['hidden_size'] = 256
     cfg_td3['activation_fn'] = 'relu'
     cfg_td3['action_std'] = 0.1
+    cfg_td3['optim_env_with_ac'] = 0
     cfg['agents'] = {}
     cfg['agents']['td3'] = cfg_td3
 
     cfg_pen = {}
     cfg_pen['max_steps'] = 200
+    cfg_pen['solved_reward'] = 0
     cfg['envs'] = {}
     cfg['envs']['Pendulum-v0'] = cfg_pen
 

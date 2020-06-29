@@ -6,7 +6,7 @@ import numpy as np
 import os
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from utils import AverageMeter
+from utils import AverageMeter, print_abs_param_sum
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -17,6 +17,7 @@ class GTN(nn.Module):
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
         self.match_lr = gtn_config["match_lr"]
+        self.match_weight_decay = gtn_config["match_weight_decay"]
         self.match_batch_size = gtn_config["match_batch_size"]
         self.match_iterations = gtn_config["match_iterations"]
         self.real_iterations = gtn_config["real_iterations"]
@@ -44,32 +45,44 @@ class GTN(nn.Module):
         # if os.path.isfile(self.export_path):
         #     self.load_checkpoint()
 
+    def print_stats(self):
+        print_abs_param_sum(self.virtual_env, 'VirtualEnv')
+        print_abs_param_sum(self.agent.actor, 'Actor')
+        print_abs_param_sum(self.agent.critic_1, 'Critic1')
+        print_abs_param_sum(self.agent.critic_2, 'Critic2')
+
 
     def run(self):
         for it in range(self.max_iterations):
-
+            #with torch.autograd.detect_anomaly():
             # if it % 10 == 0:
             #     self.save_checkpoint()
 
+            self.print_stats()
+
             # map virtual env to real env
             print("-- matching virtual env to real env --")
+            env_id = np.random.randint(len(self.real_envs))
             self.match_environment(virtual_env = self.virtual_env,
-                                   real_env = self.real_envs[it],
-                                   input_seed = self.input_seeds[it])
+                                   real_env = self.real_envs[env_id],
+                                   input_seed = self.input_seeds[env_id])
 
-            # now train on virtual env
+            self.print_stats()
+
+            # now train on real env
             print("-- training on real env --")
             for _ in range(self.real_iterations):
                 env_id = np.random.randint(len(self.real_envs))
                 self.reptile_run(env = self.real_envs[env_id])
 
+            self.print_stats()
+
             # now train on virtual env
             print("-- training on virtual env --")
             for _ in range(self.virtual_iterations):
                 env_id = np.random.randint(len(self.real_envs))
-                self.reptile_run(env = self.virtual_env,
-                                 input_seed = self.input_seeds[env_id])
-
+                self.reptile_run(env=self.virtual_env,
+                                 input_seed=self.input_seeds[env_id])
 
     def reptile_run(self, env, input_seed=0):
         old_state_dict_agent = copy.deepcopy(self.agent.state_dict())
@@ -93,13 +106,11 @@ class GTN(nn.Module):
     def match_environment(self, virtual_env, real_env, input_seed):
         old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
 
-        optimizer = torch.optim.Adam(virtual_env.parameters(), lr=self.match_lr)
-        avg_meter_loss = AverageMeter(buffer_size=50,
-                                      update_rate=50,
-                                      print_str='Average loss: ')
-        avg_meter_diff = AverageMeter(buffer_size=50,
-                                      update_rate=50,
-                                      print_str='Average diff: ')
+        optimizer = torch.optim.Adam(virtual_env.parameters(),
+                                     lr = self.match_lr,
+                                     weight_decay = self.match_weight_decay)
+        avg_meter_loss = AverageMeter(print_str='Average loss')
+        avg_meter_diff = AverageMeter(print_str='Average diff')
 
         for _ in range(self.match_iterations):
             states_list = []

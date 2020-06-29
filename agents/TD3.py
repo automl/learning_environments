@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from envs.virtual_env import VirtualEnv
 from models.actor_critic import Actor, Critic_Q
-from utils import ReplayBuffer, AverageMeter
+from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from copy import deepcopy
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -25,6 +25,8 @@ class TD3(nn.Module):
         self.max_episodes = td3_config['max_episodes']
         self.rb_size = td3_config['rb_size']
         self.lr = td3_config['lr']
+        self.weight_decay = td3_config['weight_decay']
+        self.optim_env_with_ac = td3_config['optim_env_with_ac']
 
         self.render_env = config["render_env"]
 
@@ -43,14 +45,11 @@ class TD3(nn.Module):
 
     def run(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
-        avg_meter_reward = AverageMeter(buffer_size=10,
-                                        update_rate=10,
-                                        print_str='Average reward: ')
+        avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
         self.init_optimizer(env)
 
         time_step = 0
-        episode_rewards = []
         input_seed = torch.tensor([input_seed], device='cpu', dtype=torch.float32)
 
         # training loop
@@ -101,37 +100,39 @@ class TD3(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward)
-            episode_rewards.append(episode_reward)
+
+            # quit training if environment is solved
+            if avg_meter_reward.get_mean(num=10) > env.env.solved_reward:
+                break
 
         env.close()
 
-        return episode_rewards
+        return avg_meter_reward.get_raw_data()
 
 
     def train(self, replay_buffer, env):
         self.total_it += 1
 
         # Sample replay buffer
-        last_state, last_action, state, action, next_state, reward, done, input_seed = \
+        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = \
             replay_buffer.sample(self.batch_size)
 
         if env.is_virtual_env():
-            state = self.run_env(env, last_state, last_action, input_seed)
+            states = self.run_env(env, last_states, last_actions, input_seeds)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
-            next_action = (self.actor_target(next_state))
-            reward = reward
+            next_actions = (self.actor_target(next_states))
 
             # Compute the target Q value
-            target_Q1 = self.critic_target_1(next_state, next_action)
-            target_Q2 = self.critic_target_2(next_state, next_action)
+            target_Q1 = self.critic_target_1(next_states, next_actions)
+            target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = reward + (1-done) * self.gamma * target_Q
+            target_Q = rewards + (1-dones) * self.gamma * target_Q
 
         # Get current Q estimates
-        current_Q1 = self.critic_1(state, action)
-        current_Q2 = self.critic_2(state, action)
+        current_Q1 = self.critic_1(states, actions)
+        current_Q2 = self.critic_2(states, actions)
 
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
@@ -144,11 +145,11 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             if env.is_virtual_env():
-                state = self.run_env(env, last_state, last_action, input_seed)
+                states = self.run_env(env, last_states, last_actions, input_seeds)
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
-            actor_loss = (-self.critic_1(state, self.actor(state))).mean()
+            actor_loss = (-self.critic_1(states, self.actor(states))).mean()
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
@@ -170,11 +171,22 @@ class TD3(nn.Module):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
         if env.is_virtual_env():
-            actor_params += list(env.parameters())
-            critic_params += list(env.parameters())
-        self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr)
+            print('is virtual env')
+            if self.optim_env_with_ac == 0:
+                actor_params += list(env.parameters())
+            elif self.optim_env_with_ac == 1:
+                critic_params += list(env.parameters())
+            elif self.optim_env_with_ac == 2:
+                actor_params += list(env.parameters())
+                critic_params += list(env.parameters())
+            else:
+                print('Unknown "optim_env_with_ac" parameter. Virtual env will not be optimized')
+        self.actor_optimizer = torch.optim.Adam(actor_params,
+                                                lr=self.lr,
+                                                weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params,
-                                                 lr=self.lr)
+                                                 lr=self.lr,
+                                                 weight_decay=self.weight_decay)
 
 
     def run_env(self, env, last_state, last_action, input_seed):

@@ -16,6 +16,7 @@ def create_ppo_config_base(max_episodes):
     cfg_ppo['ppo_epochs'] = 100
     cfg_ppo['gamma'] = 0.99
     cfg_ppo['lr'] = 5e-4
+    cfg_ppo['weight_decay'] = 0
     cfg_ppo['vf_coef'] = 0.5
     cfg_ppo['ent_coef'] = 0.01
     cfg_ppo['eps_clip'] = 0.2
@@ -27,6 +28,7 @@ def create_ppo_config_base(max_episodes):
 
     cfg_pen = {}
     cfg_pen['max_steps'] = 200
+    cfg_pen['solved_reward'] = 0
     cfg['envs'] = {}
     cfg['envs']['Pendulum-v0'] = cfg_pen
 

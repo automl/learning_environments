@@ -36,10 +36,17 @@ BOHB_ITERATIONS = 100000
 def get_configspace():
     cs = CS.ConfigurationSpace()
 
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_lr', lower=1e-5, upper=1e-3, log=True, default_value=1e-4))
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_weight_decay', lower=1e-9, upper=1e-6, log=True, default_value=1e-9))
     cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_match_iterations', lower=10, upper=1000, log=True, default_value=500))
     cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_real_iterations', lower=1, upper=10, log=True, default_value=1))
     cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_virtual_iterations', lower=1, upper=10, log=True, default_value=1))
     cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_different_envs', lower=1, upper=5, log=True, default_value=1))
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-5, upper=1e-3, log=True, default_value=3e-4))
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_weight_decay', lower=1e-9, upper=1e-6, log=True, default_value=1e-9))
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_optim_env_with_ac', lower=0, upper=2, log=False, default_value=0))
+    cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='tde_activation_fn', choices=['relu','tanh'], default_value='relu'))
 
     return cs
 
@@ -51,6 +58,12 @@ def construct_specific_config(cso, default_config, budget):
     config["agents"]["gtn"]["real_iterations"]    = cso["gtn_real_iterations"]
     config["agents"]["gtn"]["virtual_iterations"] = cso["gtn_virtual_iterations"]
     config["agents"]["gtn"]["different_envs"]     = cso["gtn_different_envs"]
+
+    config["agents"]["td3"]["lr"]                 = cso["td3_lr"]
+    config["agents"]["td3"]["weight_decay"]       = cso["td3_weight_decay"]
+    config["agents"]["td3"]["optim_env_with_ac"]  = cso["td3_optim_env_with_ac"]
+    config["agents"]["td3"]["activation_fn"]      = cso["tde_activation_fn"]
+
 
     return config
 
