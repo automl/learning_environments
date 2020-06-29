@@ -242,7 +242,7 @@ def runBohbParallel(id, run_id, bohb_workers):
         result_logger=result_logger)
 
     res = bohb.run(n_iterations=BOHB_ITERATIONS,
-                   min_n_workers=bohb_workers)
+                   min_n_workers=int(bohb_workers))
 #    res = bohb.run(n_iterations=BOHB_ITERATIONS)
 
     bohb.shutdown(shutdown_workers=True)
