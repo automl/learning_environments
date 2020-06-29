@@ -76,12 +76,18 @@ class AverageMeter:
         self.it = 0
 
     def update(self, val, print_rate=10):
+        # formatting from torch/numpy to float
+        if torch.is_tensor(val):
+            val = val.cpu().data.numpy()
+            if not np.ndim(val) == 0:
+                val = val[0]
+
         self.vals.append(val)
         self.it += 1
 
         if self.it % print_rate == 0:
             mean_val = self._mean(print_rate)
-            out = self.print_str + "{:15.4f} {:>20} {}".format(mean_val, "Total updates: ", self.it)
+            out = self.print_str + "{:15.4f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
             print(out)
 
     def get_mean(self, num=10):
@@ -92,7 +98,7 @@ class AverageMeter:
 
     def _mean(self, num):
         vals = self.vals[max(len(self.vals)-num-1, 0) : len(self.vals)]
-        return sum(vals) / len(vals)
+        return sum(vals) / (len(vals) + 1e-9)
 
 
 

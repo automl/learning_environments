@@ -24,6 +24,7 @@ class PPO(nn.Module):
         self.ppo_epochs = ppo_config['ppo_epochs']
         self.max_episodes = ppo_config['max_episodes']
         self.update_episodes = ppo_config['update_episodes']
+        self.early_out_num = ppo_config['early_out_num']
 
         self.actor = Actor(state_dim, action_dim, agent_name,
                            config).to(device)
@@ -78,10 +79,10 @@ class PPO(nn.Module):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=100)
+            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            if avg_meter_reward.get_mean(num=10) > env.env.solved_reward:
+            if avg_meter_reward.get_mean(num=self.early_out_num) > env.env.solved_reward:
                 break
 
         env.close()

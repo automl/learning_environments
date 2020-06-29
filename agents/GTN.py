@@ -20,6 +20,9 @@ class GTN(nn.Module):
         self.match_weight_decay = gtn_config["match_weight_decay"]
         self.match_batch_size = gtn_config["match_batch_size"]
         self.match_iterations = gtn_config["match_iterations"]
+        self.match_steps = gtn_config["match_steps"]
+        self.match_early_out_diff = gtn_config["match_early_out_diff"]
+        self.match_early_out_num = gtn_config["match_early_out_num"]
         self.real_iterations = gtn_config["real_iterations"]
         self.virtual_iterations = gtn_config["virtual_iterations"]
         self.step_size = gtn_config["step_size"]
@@ -54,7 +57,6 @@ class GTN(nn.Module):
 
     def run(self):
         for it in range(self.max_iterations):
-            #with torch.autograd.detect_anomaly():
             # if it % 10 == 0:
             #     self.save_checkpoint()
 
@@ -62,10 +64,11 @@ class GTN(nn.Module):
 
             # map virtual env to real env
             print("-- matching virtual env to real env --")
-            env_id = np.random.randint(len(self.real_envs))
-            self.match_environment(virtual_env = self.virtual_env,
-                                   real_env = self.real_envs[env_id],
-                                   input_seed = self.input_seeds[env_id])
+            for _ in range(self.match_iterations):
+                env_id = np.random.randint(len(self.real_envs))
+                self.match_environment(virtual_env = self.virtual_env,
+                                       real_env = self.real_envs[env_id],
+                                       input_seed = self.input_seeds[env_id])
 
             self.print_stats()
 
@@ -112,7 +115,10 @@ class GTN(nn.Module):
         avg_meter_loss = AverageMeter(print_str='Average loss')
         avg_meter_diff = AverageMeter(print_str='Average diff')
 
-        for _ in range(self.match_iterations):
+        old_loss = 0
+        old_diff = 0
+
+        for i in range(self.match_steps):
             states_list = []
             actions_list = []
             outputs_list = []
@@ -120,7 +126,6 @@ class GTN(nn.Module):
             real_env.reset()
 
             for k in range(self.match_batch_size):
-                # todo: maybe write getter instead of accessing the member variables directly
                 # run random state/actions transitions on the real env
                 states_list.append(real_env.env.observation_space.sample())
                 actions_list.append(real_env.env.action_space.sample())
@@ -146,17 +151,29 @@ class GTN(nn.Module):
             optimizer.step()
 
             # logging
-            avg_meter_loss.update(loss)
-            avg_meter_diff.update(abs(outputs_real.cpu()-outputs_virtual.cpu()).sum())
+            avg_meter_loss.update(loss, print_rate=self.match_early_out_num)
+            avg_meter_diff.update(abs(outputs_real.cpu()-outputs_virtual.cpu()).sum(), print_rate=self.match_early_out_num)
 
-        self.reptile_update(target = virtual_env, old_state_dict = old_state_dict_env)
+            # early out
+            loss = avg_meter_loss.get_mean(num=self.match_early_out_num)
+            diff = avg_meter_diff.get_mean(num=self.match_early_out_num)
+            if i % self.match_early_out_num == 0:
+                if abs(old_loss-loss) / loss < self.match_early_out_diff and \
+                abs(old_diff-diff) / diff < self.match_early_out_diff:
+                    print('early out')
+                    break
+                else:
+                    old_loss = loss
+                    old_diff = diff
+
+        self.reptile_update(target=virtual_env, old_state_dict=old_state_dict_env)
 
 
     def validate(self):
         # calculate after how many steps with a new environment a certain score is achieved
         env = self.env_factory.generate_default_real_env()
         results = self.agent.run(env=env)
-        return sum(results[-20:-1])
+        return len(results)
 
 
     def save_checkpoint(self):

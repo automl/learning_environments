@@ -27,6 +27,7 @@ class TD3(nn.Module):
         self.lr = td3_config['lr']
         self.weight_decay = td3_config['weight_decay']
         self.optim_env_with_ac = td3_config['optim_env_with_ac']
+        self.early_out_num = td3_config['early_out_num']
 
         self.render_env = config["render_env"]
 
@@ -99,10 +100,11 @@ class TD3(nn.Module):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward)
+            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            if avg_meter_reward.get_mean(num=10) > env.env.solved_reward:
+            if avg_meter_reward.get_mean(num=self.early_out_num) > env.env.solved_reward:
+                print('early out')
                 break
 
         env.close()

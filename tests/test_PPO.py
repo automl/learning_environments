@@ -23,6 +23,7 @@ def create_ppo_config_base(max_episodes):
     cfg_ppo['hidden_size'] = 64
     cfg_ppo['activation_fn'] = 'relu'
     cfg_ppo['action_std'] = 0.5
+    cfg_ppo['early_out_num'] = 10000
     cfg['agents'] = {}
     cfg['agents']['ppo'] = cfg_ppo
 
