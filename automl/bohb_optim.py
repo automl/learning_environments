@@ -7,7 +7,6 @@ par_dir = os.path.join(script_dir, os.pardir)
 sys.path.append(par_dir)
 os.chdir(par_dir)
 
-import tensorflow as tf
 import random
 import numpy as np
 import time
@@ -86,7 +85,6 @@ def construct_specific_config(cso, default_config, budget):
 class BOHBWorker(Worker):
     def __init__(self, working_dir, *args, **kwargs):
         super(BOHBWorker, self).__init__(*args, **kwargs)
-        self.session = tf.Session()
         print(kwargs)
         self.working_dir = working_dir
 
@@ -295,7 +293,6 @@ if __name__ == "__main__":
     np.random.seed(SEED)
     torch.manual_seed(SEED)
     torch.cuda.manual_seed_all(SEED)
-    tf.set_random_seed(SEED)
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
