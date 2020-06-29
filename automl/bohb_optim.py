@@ -29,7 +29,6 @@ SEED = 42
 BOHB_MIN_BUDGET = 1
 BOHB_MAX_BUDGET = 8
 BOHB_ETA = 2
-BOHB_WORKERS = 16
 BOHB_ITERATIONS = 100000
 
 def get_configspace():
@@ -192,7 +191,7 @@ def get_working_dir(run_id):
     return str(os.path.join(os.getcwd(), "experiments", run_id))
 
 
-def runBohbParallel(id, run_id):
+def runBohbParallel(id, run_id, bohb_workers):
     # get suitable interface (eth0 or lo)
     bohb_interface = get_bohb_interface()
 
@@ -243,7 +242,7 @@ def runBohbParallel(id, run_id):
         result_logger=result_logger)
 
     res = bohb.run(n_iterations=BOHB_ITERATIONS,
-                   min_n_workers=BOHB_WORKERS)
+                   min_n_workers=bohb_workers)
 #    res = bohb.run(n_iterations=BOHB_ITERATIONS)
 
     bohb.shutdown(shutdown_workers=True)
@@ -297,7 +296,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        res = runBohbParallel(id=sys.argv[1], run_id=sys.argv[2])
+        res = runBohbParallel(id=sys.argv[1], bohb_workers=sys.argv[2], run_id=sys.argv[3])
     else:
         res = runBohbSerial(run_id='GTN')
 
