@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
+from utils import WeightNormVar
 from torch.distributions.normal import Normal
-from torch.nn.utils.weight_norm import weight_norm
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -9,6 +9,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def build_nn_from_config(input_dim, output_dim, agent_name, config):
     hidden_size = config['agents'][agent_name]['hidden_size']
     activation_fn = config['agents'][agent_name]['activation_fn']
+    weight_norm = config['agents'][agent_name]['weight_norm']
 
     if activation_fn == 'relu':
         act_fn = nn.ReLU(inplace=False)
@@ -16,11 +17,11 @@ def build_nn_from_config(input_dim, output_dim, agent_name, config):
         act_fn = nn.Tanh()
 
     return nn.Sequential(
-        weight_norm(nn.Linear(input_dim, hidden_size)),
+        WeightNormVar(nn.Linear(input_dim, hidden_size), weight_norm),
         act_fn,
-        weight_norm(nn.Linear(hidden_size, hidden_size)),
+        WeightNormVar(nn.Linear(hidden_size, hidden_size), weight_norm),
         act_fn,
-        weight_norm(nn.Linear(hidden_size, output_dim))
+        WeightNormVar(nn.Linear(hidden_size, output_dim), weight_norm)
     )
 
 

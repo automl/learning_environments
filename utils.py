@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import torch.nn as nn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -100,6 +101,18 @@ class AverageMeter:
         vals = self.vals[max(len(self.vals)-num-1, 0) : len(self.vals)]
         return sum(vals) / (len(vals) + 1e-9)
 
+
+class WeightNormVar(nn.Module):
+    def __init__(self, module, weight_norm):
+        super(WeightNormVar, self).__init__()
+
+        if weight_norm:
+            self.net = torch.nn.utils.weight_norm(module)
+        else:
+            self.net = module
+
+    def forward(self, x):
+        return self.net(x)
 
 
 def print_abs_param_sum(model, model_name=''):

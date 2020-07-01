@@ -51,7 +51,6 @@ class MatchEnv(nn.Module):
         self.early_out_num = me_config['early_out_num']
         self.steps = me_config['steps']
 
-
     def run(self, real_env, virtual_env, input_seed):
         optimizer = torch.optim.Adam(virtual_env.parameters(),
                                      lr = self.lr,

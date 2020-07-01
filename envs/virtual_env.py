@@ -2,8 +2,7 @@ import gym
 import torch
 import torch.nn as nn
 import numpy as np
-from torch.nn.utils.weight_norm import weight_norm
-
+from utils import WeightNormVar
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -12,11 +11,11 @@ class VirtualEnv(nn.Module):
     def __init__(self, **kwargs):
         super().__init__()
         self.input_seed = None
-        self.env_name = kwargs["env_name"]
+        self.env_name = str(kwargs["env_name"])
         self.state_dim = int(kwargs["state_dim"])
         self.action_dim = int(kwargs["action_dim"])
         self.zero_init = bool(kwargs["zero_init"])
-        self.solved_reward = kwargs["solved_reward"]
+        self.solved_reward = float(kwargs["solved_reward"])
         self.state = torch.zeros(self.state_dim, device=device)  # not sure what the default state should be
 
         # for compatibility
@@ -27,15 +26,17 @@ class VirtualEnv(nn.Module):
         self.viewer_env.reset()
 
         hidden_size = int(kwargs["hidden_size"])
+        weight_norm = bool(kwargs["weight_norm"])
+
         self.base = nn.Sequential(
-            weight_norm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
+            WeightNormVar(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size), weight_norm),  # +1 because of seed
             nn.ReLU(),
-            weight_norm(nn.Linear(hidden_size, hidden_size)),
+            WeightNormVar(nn.Linear(hidden_size, hidden_size), weight_norm),
             nn.ReLU(),
         ).to(device)
-        self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim)).to(device)
-        self.reward_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
-        self.done_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
+        self.state_head = WeightNormVar(nn.Linear(hidden_size, self.state_dim), weight_norm).to(device)
+        self.reward_head = WeightNormVar(nn.Linear(hidden_size, 1), weight_norm).to(device)
+        self.done_head = WeightNormVar(nn.Linear(hidden_size, 1), weight_norm).to(device)
 
     def reset(self):
         if self.zero_init:
