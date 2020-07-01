@@ -81,9 +81,9 @@ def construct_specific_config(cso, default_config, budget):
 
     return config
 
-class BOHBWorker(Worker):
+class BohbWorker(Worker):
     def __init__(self, working_dir, *args, **kwargs):
-        super(BOHBWorker, self).__init__(*args, **kwargs)
+        super(BohbWorker, self).__init__(*args, **kwargs)
         print(kwargs)
         self.working_dir = working_dir
 
@@ -191,7 +191,7 @@ def get_working_dir(run_id):
     return str(os.path.join(os.getcwd(), "experiments", run_id))
 
 
-def runBohbParallel(id, run_id, bohb_workers):
+def run_bohb_parallel(id, run_id, bohb_workers):
     # get suitable interface (eth0 or lo)
     bohb_interface = get_bohb_interface()
 
@@ -206,7 +206,7 @@ def runBohbParallel(id, run_id, bohb_workers):
     if int(id) > 0:
         print('START NEW WORKER')
         time.sleep(10)
-        w = BOHBWorker(host=host,
+        w = BohbWorker(host=host,
                        run_id=run_id,
                        working_dir=working_dir)
         w.load_nameserver_credentials(working_directory=working_dir)
@@ -220,7 +220,7 @@ def runBohbParallel(id, run_id, bohb_workers):
                          working_directory=working_dir)
     ns_host, ns_port = ns.start()
 
-    w = BOHBWorker(host=host,
+    w = BohbWorker(host=host,
                    nameserver=ns_host,
                    nameserver_port=ns_port,
                    run_id=run_id,
@@ -251,7 +251,7 @@ def runBohbParallel(id, run_id, bohb_workers):
     return res
 
 
-def runBohbSerial(run_id):
+def run_bohb_serial(run_id):
     # get BOHB log directory
     working_dir = get_working_dir(run_id)
 
@@ -261,7 +261,7 @@ def runBohbSerial(run_id):
     ns = hpns.NameServer(run_id=run_id, host="127.0.0.1", port=port)
     ns.start()
 
-    w = BOHBWorker(nameserver="127.0.0.1",
+    w = BohbWorker(nameserver="127.0.0.1",
                    run_id=run_id,
                    nameserver_port=port,
                    working_dir=working_dir)
@@ -296,8 +296,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        res = runBohbParallel(id=sys.argv[1], bohb_workers=sys.argv[2], run_id=sys.argv[3])
+        res = run_bohb_parallel(id=sys.argv[1], bohb_workers=sys.argv[2], run_id=sys.argv[3])
     else:
-        res = runBohbSerial(run_id='GTN')
+        res = run_bohb_serial(run_id='GTN')
 
 
