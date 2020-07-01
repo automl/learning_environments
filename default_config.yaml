@@ -5,77 +5,79 @@ export_path: !!str "./exports/gtn_pendulum_td3/state.pth"
 
 agents:
   gtn:
-    max_iterations: !!int 10           # maximum number of GTN iterations
-    match_lr: !!float 1e-4             # learning rate when matching the virtual env to the real env
-    match_weight_decay: !!float 1e-9   # weight decay
-    match_batch_size: !!int 256        # batch size when matching the virtual env to the real env
-    match_early_out_diff: !!float 0.05 # break criterion for matching
-    match_early_out_num: !!int 50      # based on how many training steps shall an early out happen
-    match_steps: !!int 1000            # number of step when matching the virtual env to a specific real env
-    match_iterations: !!int 1          # number of different environments the virtual env is matched to
-    real_iterations: !!int 1           # number of iterations training the agent on the real env
-    virtual_iterations: !!int 1        # number of iterations training the agent on the virtual env
-    step_size: !!float 0.1             # reptile step size
-    different_envs: !!int 0            # 0: use only default real env
-    agent_name: !!str TD3              # which RL agent to use for meta-training
+    max_iterations: !!int 10        # maximum number of GTN iterations
+    match_iterations: !!int 1       # number of different environments the virtual env is matched to
+    real_iterations: !!int 1        # number of iterations training the agent on the real env
+    virtual_iterations: !!int 1     # number of iterations training the agent on the virtual env
+    step_size: !!float 0.1          # reptile step size
+    different_envs: !!int 0         # 0: use only default real env
+    agent_name: !!str TD3           # which RL agent to use for meta-training
 
   reptile:
-    max_iterations: !!int 10000        # maximum number of REPTILE iteration
-    step_size: !!float 0.1             # step size when updating the model parameters
-    agent_name: !!str PPO              # which RL agent to use for meta-training
+    max_iterations: !!int 10000     # maximum number of REPTILE iteration
+    step_size: !!float 0.1          # step size when updating the model parameters
+    agent_name: !!str PPO           # which RL agent to use for meta-training
+
+  match_env:
+    lr: !!float 1e-4                # learning rate
+    weight_decay: !!float 0         # weight decay
+    batch_size: !!int 256           # batch size
+    early_out_diff: !!float 0.05    # break criterion for matching
+    early_out_num: !!int 50         # based on how many training steps shall an early out happen
+    steps: !!int 1000               # number of steps
 
   td3:
-    max_episodes: !!int 200            # maximum number of episodes to optimize
-    init_episodes: !!int 100           # number of episodes to fill the replay buffer
-    batch_size: !!int  256             # batch size when running a policy update step
-    gamma: !!float 0.99                # discount factor
-    lr: !!float 3e-4                   # learning rate
-    weight_decay: !!float 1e-9         # weight decay
-    tau: !!float 0.005                 # target network update rate
-    policy_delay: !!int 2              # frequency of delayed policy updates
-    rb_size: !!int 1000000             # size of the replay buffer
-    hidden_size: !!int 224             # size of the actor/critic hidden layer
-    activation_fn: !!str relu          # activation function for actor/critic ('tanh' or 'relu')
-    action_std: !!float 0.1            # action noise standard deviation
-    optim_env_with_ac: !!int 0         # optimize env with actor/critic or with both (possible values: 0/1/2)
-    early_out_num: 5                   # based on how many training steps shall an early out happen
+    max_episodes: !!int 200         # maximum number of episodes to optimize
+    init_episodes: !!int 100        # number of episodes to fill the replay buffer
+    batch_size: !!int  256          # batch size when running a policy update step
+    gamma: !!float 0.99             # discount factor
+    lr: !!float 3e-4                # learning rate
+    weight_decay: !!float 0         # weight decay
+    tau: !!float 0.005              # target network update rate
+    policy_delay: !!int 2           # frequency of delayed policy updates
+    rb_size: !!int 1000000          # size of the replay buffer
+    hidden_size: !!int 224          # size of the actor/critic hidden layer
+    activation_fn: !!str relu       # activation function for actor/critic ('tanh' or 'relu')
+    action_std: !!float 0.1         # action noise standard deviation
+    optim_env_with_ac: !!int 1      # optimize env with actor/critic or with both (possible values: 0/1/2)
+    early_out_num: 5                # based on how many training steps shall an early out happen
 
   ppo:
-    max_episodes: !!int 100000         # maximum number of episodes to optimize
-    update_episodes: !!float 20        # update policy every x episodes (can be float)
-    ppo_epochs: !!int 100              # update policy for x epochs
-    gamma: !!float 0.99                # discount factor
-    lr: !!float 5e-4                   # learning rate
-    weight_decay: !!float 0            # weight decay
-    vf_coef: !!float 0.5               # value function coefficient (see PPO paper)
-    ent_coef: !!float 0.01             # entropy coefficient (see PPO paper)
-    eps_clip: !!float 0.2              # trust region size (see PPO paper)
-    hidden_size: !!int 128             # size of the actor/critic hidden layer
-    activation_fn: !!str relu          # activation function for actor/critic ('tanh' or 'relu')
-    action_std: !!float 0.5            # action noise standard deviation
-    early_out_num: 50                  # based on how many training steps shall an early out happen
+    max_episodes: !!int 100000      # maximum number of episodes to optimize
+    update_episodes: !!float 20     # update policy every x episodes (can be float)
+    ppo_epochs: !!int 100           # update policy for x epochs
+    gamma: !!float 0.99             # discount factor
+    lr: !!float 5e-4                # learning rate
+    weight_decay: !!float 0         # weight decay
+    vf_coef: !!float 0.5            # value function coefficient (see PPO paper)
+    ent_coef: !!float 0.01          # entropy coefficient (see PPO paper)
+    eps_clip: !!float 0.2           # trust region size (see PPO paper)
+    hidden_size: !!int 128          # size of the actor/critic hidden layer
+    activation_fn: !!str relu       # activation function for actor/critic ('tanh' or 'relu')
+    action_std: !!float 0.5         # action noise standard deviation
+    early_out_num: 50               # based on how many training steps shall an early out happen
 
 envs:
   Pendulum-v0:
-    max_steps: [200, 200, 200]         # maximum number of steps per episode
-    dt: [0.05, 0.05, 0.05]             # sampling rate
-    max_speed: [10, 10, 10]            # maximum joint speed [min, default, max]
-    max_torque: [0.5, 1, 2]            # maximum joint torque [min, default, max]
-    g: [5, 10, 15]                     # gravitational constant [min, default, max]
-    m: 1                               # joint mass [min, default, max]
-    l: 1                               # joint length [min, default, max]
+    max_steps: [200, 200, 200]      # maximum number of steps per episode
+    dt: [0.05, 0.05, 0.05]          # sampling rate
+    max_speed: [10, 10, 10]         # maximum joint speed [min, default, max]
+    max_torque: [0.5, 1, 2]         # maximum joint torque [min, default, max]
+    g: [5, 10, 15]                  # gravitational constant [min, default, max]
+    m: 1                            # joint mass [min, default, max]
+    l: 1                            # joint length [min, default, max]
     state_dim: !!int 3
     action_dim: !!int 1
-    hidden_size: !!int 192             # size of the hidden layer of the corresponding virtual environment
-    zero_init: !!bool True             # use zero state or random starting state for initialization
-    solved_reward: !!float -300        # used for early out in RL agent training
+    hidden_size: !!int 192          # size of the hidden layer of the corresponding virtual environment
+    zero_init: !!bool True          # use zero state or random starting state for initialization
+    solved_reward: !!float -300     # used for early out in RL agent training
 
   MountainCarContinuous-v0:
     state_dim: !!int 2
     action_dim: !!int 1
-    max_steps: [200, 200, 200]         # maximum number of steps per episode
-    hidden_size: 128                   # size of the hidden layer of the corresponding virtual environment
-    zero_init: !!bool True             # use zero state or random starting state for initialization
-    solved_reward: !!float 90          # used for early out in RL agent training
+    max_steps: [200, 200, 200]      # maximum number of steps per episode
+    hidden_size: 128                # size of the hidden layer of the corresponding virtual environment
+    zero_init: !!bool True          # use zero state or random starting state for initialization
+    solved_reward: !!float 90       # used for early out in RL agent training
 
 

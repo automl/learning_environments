@@ -50,10 +50,6 @@ class PendulumEnv(gym.Env):
         self.state = np.array([np.cos(newth), np.sin(newth), newthdot])
         return self.state, -costs, False, {}
 
-    def set_state(self, state):
-        self.state = state
-        return self.state
-
     def reset(self):
         high = np.array([np.pi, 1])
         state_tmp = self.np_random.uniform(low=-high, high=high)

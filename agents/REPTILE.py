@@ -8,6 +8,13 @@ from agents.agent_utils import select_agent
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
+def reptile_update(target, old_state_dict, step_size):
+    new_state_dict = target.state_dict()
+    for key, value in new_state_dict.items():
+        new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * step_size
+
+
 class REPTILE(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -29,11 +36,7 @@ class REPTILE(nn.Module):
             self.agent.run(env=env, input_seed=1)
             new_state_dict = self.agent.state_dict()
 
-            for key,value in new_state_dict.items():
-                new_state_dict[key] = old_state_dict[key] \
-                                      + (new_state_dict[key] - old_state_dict[key]) * self.step_size
-
-
+            reptile_update(self.agent, old_state_dict, self.step_size)
 
 
 

@@ -57,10 +57,6 @@ class VirtualEnv(nn.Module):
     def get_input_seed(self):
         return self.input_seed
 
-    def set_state(self, state):
-        self.state = state
-        return self.state
-
     def get_state(self):
         return self.state
 

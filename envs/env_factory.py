@@ -37,9 +37,6 @@ class EnvWrapper(nn.Module):
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
 
-    def set_state(self, state):
-        return self.env.set_state(state)
-
     def get_random_action(self):
         # do random action in the [-1,1] range
         return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
