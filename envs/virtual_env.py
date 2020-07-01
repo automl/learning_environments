@@ -12,15 +12,15 @@ class VirtualEnv(nn.Module):
     def __init__(self, **kwargs):
         super().__init__()
         self.input_seed = None
-        self.env_name = kwargs['env_name']
-        self.state_dim = int(kwargs['state_dim'])
-        self.action_dim = int(kwargs['action_dim'])
-        self.zero_init = bool(kwargs['zero_init'])
-        self.solved_reward = kwargs['solved_reward']
-        self.state = torch.zeros(self.state_dim, device=device)   # not sure what the default state should be
+        self.env_name = kwargs["env_name"]
+        self.state_dim = int(kwargs["state_dim"])
+        self.action_dim = int(kwargs["action_dim"])
+        self.zero_init = bool(kwargs["zero_init"])
+        self.solved_reward = kwargs["solved_reward"]
+        self.state = torch.zeros(self.state_dim, device=device)  # not sure what the default state should be
 
         # for compatibility
-        self._max_episode_steps = int(kwargs['max_steps'])
+        self._max_episode_steps = int(kwargs["max_steps"])
 
         # for rendering
         self.viewer_env = gym.make(self.env_name)
@@ -41,11 +41,8 @@ class VirtualEnv(nn.Module):
         if self.zero_init:
             self.state = torch.zeros(self.state_dim, device=device)
         elif self.env_name == "Pendulum-v0":
-            self.state = torch.tensor([
-                    np.random.uniform(low=-np.pi, high=np.pi),
-                    np.random.uniform(low=-1, high=1),
-                    np.random.uniform(low=-8, high=8),
-                ],
+            self.state = torch.tensor(
+                [np.random.uniform(low=-np.pi, high=np.pi), np.random.uniform(low=-1, high=1), np.random.uniform(low=-8, high=8)],
                 device=device,
                 dtype=torch.float32,
             )
@@ -62,12 +59,13 @@ class VirtualEnv(nn.Module):
 
     def set_state(self, state):
         self.state = state
+        return self.state
 
     def get_state(self):
         return self.state
 
     def step(self, action, state, input_seed=0):
-        input = torch.cat((action, state, input_seed), dim=len(action.shape)-1)
+        input = torch.cat((action, state, input_seed), dim=len(action.shape) - 1)
         x = self.base(input)
         next_state = self.state_head(x)
         reward = self.reward_head(x)

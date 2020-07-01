@@ -16,11 +16,9 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, state, input_seed=torch.tensor([0], device='cpu', dtype=torch.float32)):
+    def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32)):
         if isinstance(self.env, VirtualEnv):
-            next_state, reward, done = self.env.step(action.to(device),
-                                                     state.to(device),
-                                                     input_seed.to(device))
+            next_state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
             reward = reward.to("cpu")
             next_state = next_state.to("cpu")
             done = done.to("cpu")
@@ -39,9 +37,12 @@ class EnvWrapper(nn.Module):
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
 
+    def set_state(self, state):
+        return self.env.set_state(state)
+
     def get_random_action(self):
         # do random action in the [-1,1] range
-        return torch.empty(self.get_action_dim(), device='cpu', dtype=torch.float32).uniform_(-1,1)
+        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
 
     def get_state_dim(self):
         if isinstance(self.env, VirtualEnv):
@@ -66,7 +67,7 @@ class EnvWrapper(nn.Module):
 
     def seed(self, seed):
         if isinstance(self.env, VirtualEnv):
-            print('Virtual environment, no need to set a seed for random numbers')
+            print("Virtual environment, no need to set a seed for random numbers")
         else:
             return self.env.seed(seed)
 
@@ -76,10 +77,10 @@ class EnvWrapper(nn.Module):
 
 class EnvFactory:
     def __init__(self, config):
-        self.env_name = config['env_name']
+        self.env_name = config["env_name"]
         self.env_config = {}
-        if self.env_name in config['envs'].keys():
-            self.env_config = config['envs'][self.env_name]
+        if self.env_name in config["envs"].keys():
+            self.env_config = config["envs"][self.env_name]
 
         dummy_env = self.generate_default_real_env()
         self.state_dim = dummy_env.get_state_dim()
@@ -108,9 +109,9 @@ class EnvFactory:
 
     def _env_factory(self, kwargs):
         if self.env_name == "Pendulum-v0":
-            #env = gym.make(self.env_name)
+            # env = gym.make(self.env_name)
             env = PendulumEnv()
-        elif self.env_name == 'MountainCarContinuous-v0':
+        elif self.env_name == "MountainCarContinuous-v0":
             env = Continuous_MountainCarEnv()
         else:
             raise NotImplementedError("Environment not supported")
@@ -121,7 +122,7 @@ class EnvFactory:
         return env
 
     def _get_random_parameters(self):
-        kwargs = {'env_name': self.env_name}
+        kwargs = {"env_name": self.env_name}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
@@ -130,7 +131,7 @@ class EnvFactory:
         return kwargs
 
     def _get_default_parameters(self):
-        kwargs = {'env_name': self.env_name}
+        kwargs = {"env_name": self.env_name}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = float(value[1])
@@ -142,7 +143,7 @@ class EnvFactory:
 if __name__ == "__main__":
     import yaml
 
-    with open("../default_config.yaml", 'r') as stream:
+    with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
         gen = EnvFactory(config)
         a = gen.generate_default_real_env()
