@@ -39,7 +39,7 @@ agents:
     hidden_size: !!int 224          # size of the actor/critic hidden layer
     activation_fn: !!str relu       # activation function for actor/critic ('tanh' or 'relu')
     action_std: !!float 0.1         # action noise standard deviation
-    optim_env_with_ac: !!int 1      # optimize env with actor/critic or with both (possible values: 0/1/2)
+    optim_env_with_ac: !!int 0      # optimize env with actor/critic or with both (possible values: 0/1/2)
     early_out_num: 5                # based on how many training steps shall an early out happen
 
   ppo:
