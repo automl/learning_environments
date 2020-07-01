@@ -25,6 +25,12 @@ def create_td3_config_base(init_episodes, max_episodes):
     cfg_td3['action_std'] = 0.1
     cfg_td3['optim_env_with_ac'] = 0
     cfg_td3['early_out_num'] = 1000
+    cfg_td3['weight_norm'] = True
+    cfg_td3['optim_env_with_actor'] = False
+    cfg_td3['optim_env_with_critic'] = False
+    cfg_td3['match_weight_actor'] = 0
+    cfg_td3['match_weight_critic'] = 0
+    cfg_td3['match_batch_size'] = 0
     cfg['agents'] = {}
     cfg['agents']['td3'] = cfg_td3
 

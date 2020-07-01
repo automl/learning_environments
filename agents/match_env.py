@@ -2,7 +2,6 @@ import copy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from agents.REPTILE import reptile_update
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -35,7 +34,7 @@ def match_loss(real_env, virtual_env, input_seed, batch_size):
                                                                            input_seed=input_seeds)
     outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1)
 
-    return F.mse_loss(outputs_real, outputs_virtual)
+    return F.mse_loss(outputs_real, outputs_virtual).to(device) / batch_size
 
 
 class MatchEnv(nn.Module):

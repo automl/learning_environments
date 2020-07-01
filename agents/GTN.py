@@ -78,24 +78,25 @@ class GTN(nn.Module):
             self.print_stats()
 
             # now train on virtual env
-            print("-- training on virtual env --")
+            print("-- training on both environments --")
             for _ in range(self.virtual_iterations):
                 env_id = np.random.randint(len(self.real_envs))
                 self.reptile_run(env=self.virtual_env,
+                                 match_env=self.real_envs[env_id],
                                  input_seed=self.input_seeds[env_id])
 
-    def reptile_run(self, env, input_seed=0):
+    def reptile_run(self, env, match_env=None, input_seed=0):
         old_state_dict_agent = copy.deepcopy(self.agent.state_dict())
-        if env.is_virtual_env():
+        if match_env is not None:
             old_state_dict_env = copy.deepcopy(self.virtual_env.state_dict())
 
-        self.agent.run(env=env, input_seed=input_seed)
+        self.agent.run(env=env, match_env=match_env, input_seed=input_seed)
 
         reptile_update(target = self.agent,
                        old_state_dict = old_state_dict_agent,
                        step_size = self.step_size)
-        if env.is_virtual_env():
-            reptile_update(target = env,
+        if match_env is not None:
+            reptile_update(target = self.virtual_env,
                            old_state_dict = old_state_dict_env,
                            step_size = self.step_size)
 

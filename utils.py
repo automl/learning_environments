@@ -88,7 +88,7 @@ class AverageMeter:
 
         if self.it % print_rate == 0:
             mean_val = self._mean(print_rate)
-            out = self.print_str + "{:15.4f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
+            out = self.print_str + "{:15.6f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
             print(out)
 
     def get_mean(self, num=10):

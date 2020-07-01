@@ -102,7 +102,7 @@ class EnvFactory:
         kwargs = self._get_default_parameters()
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(**kwargs).to(device)
-        return EnvWrapper(env=env)
+        return EnvWrapper(env=env).to(device)
 
     def _env_factory(self, kwargs):
         if self.env_name == "Pendulum-v0":

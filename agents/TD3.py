@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from envs.virtual_env import VirtualEnv
+from agents.match_env import match_loss
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from copy import deepcopy
@@ -27,8 +27,12 @@ class TD3(nn.Module):
         self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
         self.weight_decay = td3_config["weight_decay"]
-        self.optim_env_with_ac = td3_config["optim_env_with_ac"]
+        self.optim_env_with_actor = td3_config["optim_env_with_actor"]
+        self.optim_env_with_critic = td3_config["optim_env_with_critic"]
         self.early_out_num = td3_config["early_out_num"]
+        self.match_weight_actor = td3_config["match_weight_actor"]
+        self.match_weight_critic = td3_config["match_weight_critic"]
+        self.match_batch_size = td3_config["match_batch_size"]
 
         self.render_env = config["render_env"]
 
@@ -44,7 +48,7 @@ class TD3(nn.Module):
 
         self.total_it = 0
 
-    def run(self, env, input_seed=0):
+    def run(self, env, match_env=None, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -95,7 +99,7 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.train(replay_buffer, env)
+                    self.train(replay_buffer, env, match_env)
                 if done:
                     break
 
@@ -111,7 +115,7 @@ class TD3(nn.Module):
 
         return avg_meter_reward.get_raw_data()
 
-    def train(self, replay_buffer, env):
+    def train(self, replay_buffer, env, match_env=None):
         self.total_it += 1
 
         # Sample replay buffer
@@ -135,7 +139,15 @@ class TD3(nn.Module):
         current_Q2 = self.critic_2(states, actions)
 
         # Compute critic loss
-        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
+        m_loss = 0
+        if env.is_virtual_env() and self.optim_env_with_critic:
+            m_loss = match_loss(real_env=match_env,
+                                virtual_env=env,
+                                input_seed=input_seeds[0],
+                                batch_size=self.match_batch_size)
+            m_loss *= self.match_weight_critic
+
+        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + m_loss
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -149,7 +161,16 @@ class TD3(nn.Module):
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
-            actor_loss = (-self.critic_1(states, self.actor(states))).mean()
+
+            m_loss = 0
+            if env.is_virtual_env() and self.optim_env_with_actor:
+                m_loss = match_loss(real_env=match_env,
+                                    virtual_env=env,
+                                    input_seed=input_seeds[0],
+                                    batch_size=self.match_batch_size)
+                m_loss *= self.match_weight_actor
+
+            actor_loss = (-self.critic_1(states, self.actor(states))).mean() + m_loss
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
@@ -170,16 +191,10 @@ class TD3(nn.Module):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
         if env.is_virtual_env():
-            print("is virtual env")
-            if self.optim_env_with_ac == 0:
+            if self.optim_env_with_actor:
                 actor_params += list(env.parameters())
-            elif self.optim_env_with_ac == 1:
+            if self.optim_env_with_critic:
                 critic_params += list(env.parameters())
-            elif self.optim_env_with_ac == 2:
-                actor_params += list(env.parameters())
-                critic_params += list(env.parameters())
-            else:
-                print('Unknown "optim_env_with_ac" parameter. Virtual env will not be optimized')
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
