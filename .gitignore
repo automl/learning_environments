@@ -128,3 +128,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# BOHB logs
+configs.json
+results.json
+
+# pytorch saves
+*.pt
+*.pth
+
+# pickle files
+*.pkl

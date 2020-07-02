@@ -2,7 +2,8 @@ import gym
 import torch
 import torch.nn as nn
 import numpy as np
-from utils import WeightNormVar
+from utils import Identity
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -26,17 +27,22 @@ class VirtualEnv(nn.Module):
         self.viewer_env.reset()
 
         hidden_size = int(kwargs["hidden_size"])
-        weight_norm = bool(kwargs["weight_norm"])
+        weight_nrm = bool(kwargs["weight_norm"])
+
+        if weight_nrm:
+            weight_norm = torch.nn.utils.weight_norm
+        else:
+            weight_norm = Identity
 
         self.base = nn.Sequential(
-            WeightNormVar(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size), weight_norm),  # +1 because of seed
+            weight_norm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
             nn.ReLU(),
-            WeightNormVar(nn.Linear(hidden_size, hidden_size), weight_norm),
+            weight_norm(nn.Linear(hidden_size, hidden_size)),
             nn.ReLU(),
         ).to(device)
-        self.state_head = WeightNormVar(nn.Linear(hidden_size, self.state_dim), weight_norm).to(device)
-        self.reward_head = WeightNormVar(nn.Linear(hidden_size, 1), weight_norm).to(device)
-        self.done_head = WeightNormVar(nn.Linear(hidden_size, 1), weight_norm).to(device)
+        self.state_head = weight_norm(nn.Linear(hidden_size, self.state_dim)).to(device)
+        self.reward_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
+        self.done_head = weight_norm(nn.Linear(hidden_size, 1)).to(device)
 
     def reset(self):
         if self.zero_init:

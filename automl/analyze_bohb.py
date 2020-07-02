@@ -256,7 +256,7 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    log_dir = '/home/dingsda/master_thesis/learning_environments/experiments/1'
+    log_dir = '/results/1'
     analyze_bohb(log_dir)
 
 

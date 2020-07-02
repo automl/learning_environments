@@ -139,15 +139,19 @@ class TD3(nn.Module):
         current_Q2 = self.critic_2(states, actions)
 
         # Compute critic loss
+        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
+
         m_loss = 0
         if env.is_virtual_env() and self.optim_env_with_critic:
             m_loss = match_loss(real_env=match_env,
                                 virtual_env=env,
                                 input_seed=input_seeds[0],
                                 batch_size=self.match_batch_size)
-            m_loss *= self.match_weight_critic
+            critic_loss /= self.match_weight_actor ** 0.5
+            m_loss *= self.match_weight_actor ** 0.5
 
-        critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + m_loss
+        critic_loss += m_loss
+
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -161,16 +165,26 @@ class TD3(nn.Module):
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
-
+            actor_loss = (-self.critic_1(states, self.actor(states))).mean()
             m_loss = 0
             if env.is_virtual_env() and self.optim_env_with_actor:
                 m_loss = match_loss(real_env=match_env,
                                     virtual_env=env,
                                     input_seed=input_seeds[0],
                                     batch_size=self.match_batch_size)
-                m_loss *= self.match_weight_actor
+                actor_loss /= self.match_weight_actor ** 0.5
+                m_loss *= self.match_weight_actor ** 0.5
 
-            actor_loss = (-self.critic_1(states, self.actor(states))).mean() + m_loss
+            #     print('----')
+            #     print(actor_loss)
+            #     print(m_loss)
+            #
+            # if self.total_it % 100 == 0:
+            #     print('----')
+            #     print(actor_loss)
+            #     print(m_loss)
+
+            actor_loss += m_loss
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()

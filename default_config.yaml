@@ -35,7 +35,7 @@ agents:
     weight_decay: !!float 0             # weight decay
     tau: !!float 0.005                  # target network update rate
     policy_delay: !!int 2               # frequency of delayed policy updates
-    rb_size: !!int 1000000              # size of the replay buffer
+    rb_size: !!int 100000               # size of the replay buffer
     hidden_size: !!int 224              # size of the actor/critic hidden layer
     activation_fn: !!str relu           # activation function for actor/critic ('tanh' or 'relu')
     weight_norm: !!bool True            # use weight normalization
@@ -43,9 +43,9 @@ agents:
     early_out_num: 5                    # based on how many training steps shall an early out happen
     optim_env_with_actor: !!bool True   # optimize env together with actor
     optim_env_with_critic: !!bool False # optimize env together with actor
-    match_weight_actor: !!float 10      # how much to weight matching loss wrt actor loss
+    match_weight_actor: !!float 1e7     # how much to weight matching loss wrt actor loss
     match_weight_critic: !!float 1      # how much to weight matching loss wrt critic loss
-    match_batch_size: !!int 64          # matching batch size
+    match_batch_size: !!int 256         # matching batch size
 
   ppo:
     max_episodes: !!int 100000          # maximum number of episodes to optimize
@@ -65,6 +65,7 @@ agents:
 
 envs:
   Pendulum-v0:
+    solved_reward: !!float -300         # used for early out in RL agent training
     max_steps: [200, 200, 200]          # maximum number of steps per episode
     dt: [0.05, 0.05, 0.05]              # sampling rate
     max_speed: [10, 10, 10]             # maximum joint speed [min, default, max]
@@ -76,16 +77,15 @@ envs:
     action_dim: !!int 1
     hidden_size: !!int 192              # size of the hidden layer of the corresponding virtual environment
     zero_init: !!bool True              # use zero state or random starting state for initialization
-    solved_reward: !!float -300         # used for early out in RL agent training
     weight_norm: !!bool True            # use weight normalization
 
   MountainCarContinuous-v0:
+    solved_reward: !!float 90           # used for early out in RL agent training
     state_dim: !!int 2
     action_dim: !!int 1
     max_steps: [200, 200, 200]          # maximum number of steps per episode
     hidden_size: 128                    # size of the hidden layer of the corresponding virtual environment
     zero_init: !!bool True              # use zero state or random starting state for initialization
-    solved_reward: !!float 90           # used for early out in RL agent training
     weight_norm: !!bool False           # use weight normalization
 
 

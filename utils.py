@@ -102,14 +102,10 @@ class AverageMeter:
         return sum(vals) / (len(vals) + 1e-9)
 
 
-class WeightNormVar(nn.Module):
-    def __init__(self, module, weight_norm):
-        super(WeightNormVar, self).__init__()
-
-        if weight_norm:
-            self.net = torch.nn.utils.weight_norm(module)
-        else:
-            self.net = module
+class Identity(nn.Module):
+    def __init__(self, module):
+        super(Identity, self).__init__()
+        self.net = module
 
     def forward(self, x):
         return self.net(x)
