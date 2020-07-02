@@ -9,24 +9,28 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def build_nn_from_config(input_dim, output_dim, agent_name, config):
     hidden_size = config['agents'][agent_name]['hidden_size']
     activation_fn = config['agents'][agent_name]['activation_fn']
-    weight_nrm = config['agents'][agent_name]['weight_norm']
+    weight_norm = config['agents'][agent_name]['weight_norm']
 
-    if activation_fn == 'relu':
-        act_fn = nn.ReLU(inplace=False)
+    if activation_fn == 'prelu':
+        act_fn = nn.PReLU()
+    elif activation_fn == 'relu':
+        act_fn = nn.ReLU()
     elif activation_fn == 'tanh':
         act_fn = nn.Tanh()
-
-    if weight_nrm:
-        weight_norm = torch.nn.utils.weight_norm
     else:
-        weight_norm = Identity
+        print('Unknown activation function')
+
+    if weight_norm:
+        weight_nrm = torch.nn.utils.weight_norm
+    else:
+        weight_nrm = Identity
 
     return nn.Sequential(
-        weight_norm(nn.Linear(input_dim, hidden_size)),
+        weight_nrm(nn.Linear(input_dim, hidden_size)),
         act_fn,
-        weight_norm(nn.Linear(hidden_size, hidden_size)),
+        weight_nrm(nn.Linear(hidden_size, hidden_size)),
         act_fn,
-        weight_norm(nn.Linear(hidden_size, output_dim))
+        weight_nrm(nn.Linear(hidden_size, output_dim))
     )
 
 

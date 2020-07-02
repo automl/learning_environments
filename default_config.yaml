@@ -5,12 +5,12 @@ export_path: !!str "./exports/gtn_pendulum_td3/state.pth"
 
 agents:
   gtn:
-    max_iterations: !!int 10            # maximum number of GTN iterations
+    max_iterations: !!int 100           # maximum number of GTN iterations
     match_iterations: !!int 1           # number of different environments the virtual env is matched to
     real_iterations: !!int 1            # number of iterations training the agent on the real env
     virtual_iterations: !!int 1         # number of iterations training the agent on the virtual env
     step_size: !!float 0.1              # reptile step size
-    different_envs: !!int 0             # 0: use only default real env
+    different_envs: !!int 20            # 0: use only default real env
     agent_name: !!str TD3               # which RL agent to use for meta-training
 
   reptile:
@@ -20,11 +20,11 @@ agents:
 
   match_env:
     lr: !!float 1e-4                    # learning rate
-    weight_decay: !!float 0             # weight decay
+    weight_decay: !!float 0.01          # weight decay
     batch_size: !!int 256               # batch size
-    early_out_diff: !!float 0.05        # break criterion for matching
+    early_out_diff: !!float 0.01        # break criterion for matching
     early_out_num: !!int 50             # based on how many training steps shall an early out happen
-    steps: !!int 1000                   # number of steps
+    steps: !!int 2000                   # number of steps
 
   td3:
     max_episodes: !!int 200             # maximum number of episodes to optimize
@@ -37,7 +37,7 @@ agents:
     policy_delay: !!int 2               # frequency of delayed policy updates
     rb_size: !!int 100000               # size of the replay buffer
     hidden_size: !!int 224              # size of the actor/critic hidden layer
-    activation_fn: !!str relu           # activation function for actor/critic ('tanh' or 'relu')
+    activation_fn: !!str prelu          # activation function for actor/critic ('tanh', 'relu' or 'prelu')
     weight_norm: !!bool True            # use weight normalization
     action_std: !!float 0.1             # action noise standard deviation
     early_out_num: 5                    # based on how many training steps shall an early out happen
@@ -58,7 +58,7 @@ agents:
     ent_coef: !!float 0.01              # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.2               # trust region size (see PPO paper)
     hidden_size: !!int 128              # size of the actor/critic hidden layer
-    activation_fn: !!str relu           # activation function for actor/critic ('tanh' or 'relu')
+    activation_fn: !!str prelu          # activation function for actor/critic ('tanh', 'relu' or 'prelu')
     weight_norm: !!bool False           # use weight normalization
     action_std: !!float 0.5             # action noise standard deviation
     early_out_num: 50                   # based on how many training steps shall an early out happen
@@ -68,15 +68,15 @@ envs:
     solved_reward: !!float -300         # used for early out in RL agent training
     max_steps: [200, 200, 200]          # maximum number of steps per episode
     dt: [0.05, 0.05, 0.05]              # sampling rate
-    max_speed: [10, 10, 10]             # maximum joint speed [min, default, max]
+    max_speed: [8, 10, 12]              # maximum joint speed [min, default, max]
     max_torque: [0.5, 1, 2]             # maximum joint torque [min, default, max]
     g: [5, 10, 15]                      # gravitational constant [min, default, max]
-    m: 1                                # joint mass [min, default, max]
-    l: 1                                # joint length [min, default, max]
+    m: [0.5, 1, 1.5]                    # joint mass [min, default, max]
+    l: [0.5, 1, 1.5]                    # joint length [min, default, max]
     state_dim: !!int 3
     action_dim: !!int 1
     hidden_size: !!int 192              # size of the hidden layer of the corresponding virtual environment
-    zero_init: !!bool True              # use zero state or random starting state for initialization
+    zero_init: !!bool False             # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization
 
   MountainCarContinuous-v0:

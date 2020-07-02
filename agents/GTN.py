@@ -57,15 +57,24 @@ class GTN(nn.Module):
             # if it % 10 == 0:
             #     self.save_checkpoint()
 
-            self.print_stats()
+            # self.print_stats()
+            #
+            # # map virtual env to real env
+            # print("-- matching virtual env to real env --")
+            # for _ in range(self.match_iterations):
+            #     env_id = np.random.randint(len(self.real_envs))
+            #     self.matcher.run(real_env = self.real_envs[env_id],
+            #                      virtual_env = self.virtual_env,
+            #                      input_seed = self.input_seeds[env_id])
 
-            # map virtual env to real env
-            print("-- matching virtual env to real env --")
-            for _ in range(self.match_iterations):
-                env_id = np.random.randint(len(self.real_envs))
-                self.matcher.run(real_env = self.real_envs[env_id],
-                                 virtual_env = self.virtual_env,
-                                 input_seed = self.input_seeds[env_id])
+            # self.print_stats()
+            #
+            # # now train on real env
+            # print("-- training on virtual env --")
+            # for _ in range(self.real_iterations):
+            #     env_id = np.random.randint(len(self.real_envs))
+            #     self.reptile_run(env = self.virtual_env,
+            #                      input_seed = self.input_seeds[env_id])
 
             self.print_stats()
 
@@ -73,17 +82,18 @@ class GTN(nn.Module):
             print("-- training on real env --")
             for _ in range(self.real_iterations):
                 env_id = np.random.randint(len(self.real_envs))
+                print('-- with id ' + str(env_id) + ' --')
                 self.reptile_run(env = self.real_envs[env_id])
 
-            self.print_stats()
-
-            # now train on virtual env
-            print("-- training on both environments --")
-            for _ in range(self.virtual_iterations):
-                env_id = np.random.randint(len(self.real_envs))
-                self.reptile_run(env=self.virtual_env,
-                                 match_env=self.real_envs[env_id],
-                                 input_seed=self.input_seeds[env_id])
+            # self.print_stats()
+            #
+            # # now train on virtual env
+            # print("-- training on both environments --")
+            # for _ in range(self.virtual_iterations):
+            #     env_id = np.random.randint(len(self.real_envs))
+            #     self.reptile_run(env=self.virtual_env,
+            #                      match_env=self.real_envs[env_id],
+            #                      input_seed=self.input_seeds[env_id])
 
     def reptile_run(self, env, match_env=None, input_seed=0):
         old_state_dict_agent = copy.deepcopy(self.agent.state_dict())

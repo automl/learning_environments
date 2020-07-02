@@ -52,7 +52,7 @@ class TD3(nn.Module):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
-        self.init_optimizer(env)
+        self.init_optimizer(env, match_env)
 
         time_step = 0
         input_seed = torch.tensor([input_seed], device="cpu", dtype=torch.float32)
@@ -116,12 +116,13 @@ class TD3(nn.Module):
         return avg_meter_reward.get_raw_data()
 
     def train(self, replay_buffer, env, match_env=None):
+        match_virtual_env = env.is_virtual_env() and match_env is not None
         self.total_it += 1
 
         # Sample replay buffer
         last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.sample(self.batch_size)
 
-        if env.is_virtual_env():
+        if match_virtual_env:
             states, rewards, dones = self.run_env(env, last_states, last_actions, input_seeds)
 
         with torch.no_grad():
@@ -142,7 +143,7 @@ class TD3(nn.Module):
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
         m_loss = 0
-        if env.is_virtual_env() and self.optim_env_with_critic:
+        if match_virtual_env and self.optim_env_with_critic:
             m_loss = match_loss(real_env=match_env,
                                 virtual_env=env,
                                 input_seed=input_seeds[0],
@@ -152,7 +153,6 @@ class TD3(nn.Module):
 
         critic_loss += m_loss
 
-
         # Optimize the critic
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
@@ -160,14 +160,14 @@ class TD3(nn.Module):
 
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
-            if env.is_virtual_env():
+            if match_virtual_env:
                 states, rewards, dones = self.run_env(env, last_states, last_actions, input_seeds)
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(states, self.actor(states))).mean()
             m_loss = 0
-            if env.is_virtual_env() and self.optim_env_with_actor:
+            if match_virtual_env and self.optim_env_with_actor:
                 m_loss = match_loss(real_env=match_env,
                                     virtual_env=env,
                                     input_seed=input_seeds[0],
@@ -201,10 +201,10 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-    def init_optimizer(self, env):
+    def init_optimizer(self, env, match_env):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
-        if env.is_virtual_env():
+        if env.is_virtual_env() and match_env is not None:
             if self.optim_env_with_actor:
                 actor_params += list(env.parameters())
             if self.optim_env_with_critic:
