@@ -23,8 +23,9 @@ class VirtualEnv(nn.Module):
         self._max_episode_steps = int(kwargs["max_steps"])
 
         # for rendering
-        self.viewer_env = gym.make(self.env_name)
-        self.viewer_env.reset()
+        if self.env_name != 'Test':
+            self.viewer_env = gym.make(self.env_name)
+            self.viewer_env.reset()
 
         hidden_size = int(kwargs["hidden_size"])
         weight_norm = bool(kwargs["weight_norm"])
@@ -36,6 +37,8 @@ class VirtualEnv(nn.Module):
 
         # self.base = nn.Sequential(
         #     weight_nrm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
+        #     nn.PReLU(),
+        #     weight_nrm(nn.Linear(hidden_size, hidden_size)),
         #     nn.PReLU(),
         #     weight_nrm(nn.Linear(hidden_size, hidden_size)),
         #     nn.PReLU(),
@@ -77,7 +80,7 @@ class VirtualEnv(nn.Module):
     def reset(self):
         if self.zero_init:
             self.state = torch.zeros(self.state_dim, device=device)
-        elif self.env_name == "Pendulum-v0":
+        elif self.env_name == "Pendulum-v0" or self.env_name == "Dummy":
             self.state = torch.tensor(
                 [np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1), np.random.uniform(low=-5, high=5)],
                 device=device,
@@ -113,10 +116,12 @@ class VirtualEnv(nn.Module):
         # return next_state, reward, done
 
     def render(self):
-        self.viewer_env.env.state = self.state.cpu().data.numpy()
-        self.viewer_env.render()
+        if self.env_name != 'Test':
+            self.viewer_env.env.state = self.state.cpu().data.numpy()
+            self.viewer_env.render()
 
     def close(self):
-        if self.viewer_env.viewer:
-            self.viewer_env.viewer.close()
-            self.viewer_env.viewer = None
+        if self.env_name != 'Test':
+            if self.viewer_env.viewer:
+                self.viewer_env.viewer.close()
+                self.viewer_env.viewer = None

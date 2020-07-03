@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,12 +34,17 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False):
     next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=states,
                                                                            input_seed=input_seeds)
     outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1)
+    #
+    # print('----')
+    # print(outputs_real[0,:])
+    # print(outputs_virtual[0,:])
 
-    avg_loss = F.mse_loss(outputs_real, outputs_virtual).to(device)
+    loss_fkt = torch.nn.L1Loss()
+    avg_loss = loss_fkt(outputs_real, outputs_virtual).to(device)
 
-    avg_diff_state  = abs(outputs_real[:,:-2].cpu() - outputs_virtual[:,:-2].cpu()).sum() / batch_size
-    avg_diff_reward = abs(outputs_real[:,-2].cpu()  - outputs_virtual[:,-2].cpu()).sum()  / batch_size
-    avg_diff_done   = abs(outputs_real[:,-1].cpu()  - outputs_virtual[:,-1].cpu()).sum()  / batch_size
+    avg_diff_state   = abs(outputs_real[:,:-2].cpu() - outputs_virtual[:,:-2].cpu()).sum() / batch_size
+    avg_diff_reward  = abs(outputs_real[:,-2].cpu()  - outputs_virtual[:,-2].cpu()).sum()  / batch_size
+    avg_diff_done    = abs(outputs_real[:,-1].cpu()  - outputs_virtual[:,-1].cpu()).sum()  / batch_size
 
     if more_info:
         return avg_loss, avg_diff_state, avg_diff_reward, avg_diff_done
@@ -58,14 +64,18 @@ class MatchEnv(nn.Module):
         self.early_out_diff = me_config['early_out_diff']
         self.early_out_num = me_config['early_out_num']
         self.steps = me_config['steps']
+        self.step_size = me_config['step_size']
+        self.gamma = me_config['gamma']
 
     def run(self, real_env, virtual_env, input_seed):
         optimizer = torch.optim.Adam(virtual_env.parameters(),
                                      lr = self.lr,
                                      weight_decay = self.weight_decay)
-
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
+                                                    step_size=self.step_size,
+                                                    gamma=self.gamma)
         avg_meter_loss   = AverageMeter(print_str='Average loss')
-        avg_meter_state  = AverageMeter(print_str='Average diff state  ')
+        avg_meter_state  = AverageMeter(print_str='Average diff state ')
         avg_meter_reward = AverageMeter(print_str='Average diff reward ')
         avg_meter_done   = AverageMeter(print_str='Average diff done   ')
 
@@ -77,6 +87,7 @@ class MatchEnv(nn.Module):
             loss, d_state, d_reward, d_done = match_loss(real_env, virtual_env, input_seed, self.batch_size, more_info=True)
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             # logging
             avg_meter_loss.update(loss, print_rate=self.early_out_num)
@@ -87,12 +98,12 @@ class MatchEnv(nn.Module):
             # early out
             loss = avg_meter_loss.get_mean(num=self.early_out_num)
             if i % self.early_out_num == 0:
+                #optimizer = self.init_optimizer(virtual_env)
                 if abs(old_loss-loss) / loss < self.early_out_diff:
                     print('early out')
                     break
                 else:
                     old_loss = loss
 
-        return avg_meter_loss.get_raw_data()#, avg_meter_diff.get_raw_data()
-
+        return avg_meter_loss.get_raw_data()
 

@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from envs.virtual_env import VirtualEnv
 from envs.pendulum import PendulumEnv
+from envs.test_env import TestEnv
 from envs.continuous_mountain_car import Continuous_MountainCarEnv
 
 
@@ -85,7 +86,7 @@ class EnvFactory:
 
     def generate_default_real_env(self):
         # generate a real environment with default parameters
-        kwargs = self._get_default_parameters()
+        kwargs = self._get_default_parameters(virtual_env = False)
         print('Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = self._env_factory(kwargs=kwargs)
         return EnvWrapper(env=env)
@@ -99,7 +100,7 @@ class EnvFactory:
 
     def generate_default_virtual_env(self):
         # generate a virtual environment with default parameters
-        kwargs = self._get_default_parameters()
+        kwargs = self._get_default_parameters(virtual_env = True)
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(**kwargs).to(device)
         return EnvWrapper(env=env).to(device)
@@ -110,6 +111,8 @@ class EnvFactory:
             env = PendulumEnv()
         elif self.env_name == "MountainCarContinuous-v0":
             env = Continuous_MountainCarEnv()
+        elif self.env_name == "Test":
+            env = TestEnv()
         else:
             raise NotImplementedError("Environment not supported")
 
@@ -119,7 +122,9 @@ class EnvFactory:
         return env
 
     def _get_random_parameters(self):
-        kwargs = {"env_name": self.env_name}
+        kwargs = {"env_name": self.env_name,
+                  "state_dim": self.state_dim,
+                  "action_dim": self.action_dim}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
@@ -127,8 +132,11 @@ class EnvFactory:
                 kwargs[key] = value
         return kwargs
 
-    def _get_default_parameters(self):
+    def _get_default_parameters(self, virtual_env):
         kwargs = {"env_name": self.env_name}
+        if virtual_env:
+            kwargs["state_dim"] = self.state_dim
+            kwargs["action_dim"] = self.action_dim
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = float(value[1])

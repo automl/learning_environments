@@ -1,4 +1,4 @@
-env_name: !!str Pendulum-v0             # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Pendulum)
+env_name: !!str Pendulum-v0             # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Dummy)
 seed: !!int 0                           # random initialization seed
 render_env: !!bool False                # render environment
 export_path: !!str "./exports/gtn_pendulum_td3/state.pth"
@@ -19,12 +19,14 @@ agents:
     agent_name: !!str PPO               # which RL agent to use for meta-training
 
   match_env:
-    lr: !!float 1e-4                    # learning rate
+    lr: !!float 1e-3                    # learning rate
     weight_decay: !!float 0.01          # weight decay
-    batch_size: !!int 256               # batch size
-    early_out_diff: !!float 0.01        # break criterion for matching
+    batch_size: !!int 128               # batch size
+    early_out_diff: !!float 0.001       # break criterion for matching
     early_out_num: !!int 50             # based on how many training steps shall an early out happen
-    steps: !!int 2000                   # number of steps
+    steps: !!int 25000                  # number of steps
+    step_size: 5000                     # LR scheduler step size
+    gamma: 0.5                          # LR scheduler gamma
 
   td3:
     max_episodes: !!int 200             # maximum number of episodes to optimize
@@ -73,19 +75,22 @@ envs:
     g: [5, 10, 15]                      # gravitational constant [min, default, max]
     m: [0.5, 1, 1.5]                    # joint mass [min, default, max]
     l: [0.5, 1, 1.5]                    # joint length [min, default, max]
-    state_dim: !!int 3
-    action_dim: !!int 1
-    hidden_size: !!int 192              # size of the hidden layer of the corresponding virtual environment
+    hidden_size: !!int 256              # size of the hidden layer of the corresponding virtual environment
     zero_init: !!bool False             # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization
 
+  Test:
+    solved_reward: !!float 50           # used for early out in RL agent training
+    max_steps: [200, 200, 200]          # maximum number of steps per episode
+    hidden_size: !!int 128              # size of the hidden layer of the corresponding virtual environment
+    zero_init: !!bool False             # use zero state or random starting state for initialization
+    weight_norm: !!bool True            # use weight normalization for virtual environment
+
   MountainCarContinuous-v0:
     solved_reward: !!float 90           # used for early out in RL agent training
-    state_dim: !!int 2
-    action_dim: !!int 1
     max_steps: [200, 200, 200]          # maximum number of steps per episode
     hidden_size: 128                    # size of the hidden layer of the corresponding virtual environment
     zero_init: !!bool True              # use zero state or random starting state for initialization
-    weight_norm: !!bool False           # use weight normalization
+    weight_norm: !!bool False           # use weight normalization for virtual environment
 
 
