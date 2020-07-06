@@ -7,7 +7,7 @@ import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.TD3 import TD3
+from agents.match_env import MatchEnv
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
@@ -27,19 +27,22 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='init_episodes', lower=1, upper=150, log=True, default_value=100))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=1.5, log=False, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-5, upper=1e-2, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-10, upper=1e-1, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=32, upper=256, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-5, upper=1e-3, log=True, default_value=3e-4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-12, upper=1e-4, log=True, default_value=1e-10))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='tau', lower=0.0005, upper=0.05, log=True, default_value=0.005))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=10, upper=1000000, log=True, default_value=100000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=256, log=True, default_value=224))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh'], default_value='relu'))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=1e-5, upper=1e-1, log=True, default_value=0.01))
+        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=9e-1, upper=1e0, log=True, default_value=0.91))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=10, upper=200, log=False, default_value=50))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=100, upper=20000, log=False, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='step_size', lower=100, upper=2000, log=True, default_value=1000))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.1, upper=0.9, log=False, default_value=0.5))
+
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=1024, log=True, default_value=224))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=0, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='zero_init', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='weight_norm', choices=[False, True], default_value=True))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=20, log=True, default_value=5))
 
         return cs
 
@@ -47,19 +50,23 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]["td3"]["init_episodes"] = cso["init_episodes"]
-        config["agents"]["td3"]["batch_size"] = cso["batch_size"]
-        config["agents"]["td3"]["gamma"] = cso["gamma"]
-        config["agents"]["td3"]["lr"] = cso["lr"]
-        config["agents"]["td3"]["weight_decay"] = cso["weight_decay"]
-        config["agents"]["td3"]["tau"] = cso["tau"]
-        config["agents"]["td3"]["policy_delay"] = cso["policy_delay"]
-        config["agents"]["td3"]["rb_size"] = cso["rb_size"]
-        config["agents"]["td3"]["hidden_size"] = cso["hidden_size"]
-        config["agents"]["td3"]["activation_fn"] = cso["activation_fn"]
-        config["agents"]["td3"]["weight_norm"] = cso["weight_norm"]
-        config["agents"]["td3"]["action_std"] = cso["action_std"]
-        config["agents"]["td3"]["early_out_num"] = cso["early_out_num"]
+        config["env_name"] = 'Pendulum-v0'
+
+        config["agents"]['match_env']['oversample'] = cso["oversample"]
+        config["agents"]['match_env']['lr'] = cso["lr"]
+        config["agents"]['match_env']['weight_decay'] = cso["weight_decay"]
+        config["agents"]['match_env']['batch_size'] = cso["batch_size"]
+        config["agents"]['match_env']['early_out_diff'] = cso["early_out_diff"]
+        config["agents"]['match_env']['early_out_num'] = cso["early_out_num"]
+        config["agents"]['match_env']['steps'] = cso["steps"]
+        config["agents"]['match_env']['step_size'] = cso["step_size"]
+        config["agents"]['match_env']['gamma'] = cso["gamma"]
+
+        config["envs"]['Pendulum-v0']['activation_fn'] = cso["activation_fn"]
+        config["envs"]['Pendulum-v0']['hidden_size'] = cso["hidden_size"]
+        config["envs"]['Pendulum-v0']['hidden_layer'] = cso["hidden_layer"]
+        config["envs"]['Pendulum-v0']['zero_init'] = cso["zero_init"]
+        config["envs"]['Pendulum-v0']['weight_norm'] = cso["weight_norm"]
 
         return config
 
@@ -78,20 +85,39 @@ class ExperimentWrapper():
 
         info = {}
 
-        # generate environment
-        env_fac = EnvFactory(config)
-        env = env_fac.generate_default_real_env()
+        try:
+            # generate environment
+            env_fac = EnvFactory(config)
+            real_env = env_fac.generate_default_real_env()
+            virtual_env = env_fac.generate_default_virtual_env()
 
-        td3 = TD3(state_dim=env.get_state_dim(),
-                  action_dim=env.get_action_dim(),
-                  config=config)
-        rewards = td3.run(env)
-        score = len(rewards)
+            match_env = MatchEnv(config = config)
+            match_env.train(real_env = real_env,
+                            virtual_env = virtual_env,
+                            input_seed = 0)
+            loss, diff_state, diff_reward, diff_done = \
+                match_env.validate(real_env = real_env,
+                                   virtual_env = virtual_env,
+                                   input_seed = 0,
+                                   validate_samples = 10000)
+            diff_state = float(diff_state.cpu().data.numpy())
+            diff_reward = float(diff_reward.cpu().data.numpy())
+            diff_done = float(diff_done.cpu().data.numpy())
+            score = diff_state + diff_reward + diff_done
+        except:
+            score = float('Inf')
+            diff_state = float('Inf')
+            diff_reward = float('Inf')
+            diff_done = float('Inf')
 
         info['config'] = str(config)
+        info['diff_state'] = diff_state
+        info['diff_reward'] = diff_reward
+        info['diff_done'] = diff_done
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
+        print('DIFF: ' + str(diff_state) + ' ' + str(diff_reward) + ' ' + str(diff_done))
         print("END BOHB ITERATION")
         print('----------------------------')
 
@@ -109,7 +135,7 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'optimize_TD3_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'optimize_match_env_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
