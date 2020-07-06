@@ -27,7 +27,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=1.5, log=False, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=2, log=True, default_value=1.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-5, upper=1e-2, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-10, upper=1e-1, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=32, upper=256, log=True, default_value=128))

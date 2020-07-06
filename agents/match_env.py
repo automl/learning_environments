@@ -127,7 +127,7 @@ class MatchEnv(nn.Module):
                        batch_size=validate_samples,
                        grad_enabled=False,
                        more_info=True,
-                       oversample=self.oversample)
+                       oversample=1.5)
         print('validate_end')
         return loss, diff_state, diff_reward, diff_done
 
