@@ -2,7 +2,7 @@ import gym
 import torch
 import torch.nn as nn
 import numpy as np
-from utils import Identity
+from utils import build_nn_from_config
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,55 +27,15 @@ class VirtualEnv(nn.Module):
             self.viewer_env = gym.make(self.env_name)
             self.viewer_env.reset()
 
-        hidden_size = int(kwargs["hidden_size"])
-        weight_norm = bool(kwargs["weight_norm"])
-
-        if weight_norm:
-            weight_nrm = torch.nn.utils.weight_norm
-        else:
-            weight_nrm = Identity
-
-        # self.base = nn.Sequential(
-        #     weight_nrm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
-        #     nn.PReLU(),
-        #     weight_nrm(nn.Linear(hidden_size, hidden_size)),
-        #     nn.PReLU(),
-        #     weight_nrm(nn.Linear(hidden_size, hidden_size)),
-        #     nn.PReLU(),
-        # ).to(device)
-        # self.state_head = weight_nrm(nn.Linear(hidden_size, self.state_dim)).to(device)
-        # self.reward_head = weight_nrm(nn.Linear(hidden_size, 1)).to(device)
-        # self.done_head = weight_nrm(nn.Linear(hidden_size, 1)).to(device)
-
-        self.state_net = nn.Sequential(
-            weight_nrm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, self.state_dim))
-        ).to(device)
-
-        self.reward_net = nn.Sequential(
-            weight_nrm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, 1))
-        ).to(device)
-
-        self.done_net = nn.Sequential(
-            weight_nrm(nn.Linear(self.state_dim + self.action_dim + 1, hidden_size)),  # +1 because of seed
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, hidden_size)),
-            nn.PReLU(),
-            weight_nrm(nn.Linear(hidden_size, 1))
-        ).to(device)
+        self.state_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+                                              output_dim = self.state_dim,
+                                              nn_config = kwargs).to(device)
+        self.reward_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+                                               output_dim = 1,
+                                               nn_config = kwargs).to(device)
+        self.done_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+                                             output_dim = 1,
+                                             nn_config = kwargs).to(device)
 
     def reset(self):
         if self.zero_init:
@@ -106,14 +66,6 @@ class VirtualEnv(nn.Module):
         reward = self.reward_net(input)
         done = (self.done_net(input) > 0.5).float()
         return next_state, reward, done
-
-        # input = torch.cat((action, state, input_seed), dim=len(action.shape) - 1)
-        # x = self.base(input)
-        # next_state = self.state_head(x)
-        # reward = self.reward_head(x)
-        # done = (self.done_head(x) > 0.5).float()
-        # self.state = next_state
-        # return next_state, reward, done
 
     def render(self):
         if self.env_name != 'Test':

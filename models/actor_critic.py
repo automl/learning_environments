@@ -1,37 +1,9 @@
 import torch
 import torch.nn as nn
-from utils import Identity
+from utils import build_nn_from_config
 from torch.distributions.normal import Normal
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
-def build_nn_from_config(input_dim, output_dim, agent_name, config):
-    hidden_size = config['agents'][agent_name]['hidden_size']
-    activation_fn = config['agents'][agent_name]['activation_fn']
-    weight_norm = config['agents'][agent_name]['weight_norm']
-
-    if activation_fn == 'prelu':
-        act_fn = nn.PReLU()
-    elif activation_fn == 'relu':
-        act_fn = nn.ReLU()
-    elif activation_fn == 'tanh':
-        act_fn = nn.Tanh()
-    else:
-        print('Unknown activation function')
-
-    if weight_norm:
-        weight_nrm = torch.nn.utils.weight_norm
-    else:
-        weight_nrm = Identity
-
-    return nn.Sequential(
-        weight_nrm(nn.Linear(input_dim, hidden_size)),
-        act_fn,
-        weight_nrm(nn.Linear(hidden_size, hidden_size)),
-        act_fn,
-        weight_nrm(nn.Linear(hidden_size, output_dim))
-    )
 
 
 class Actor(nn.Module):
@@ -40,8 +12,7 @@ class Actor(nn.Module):
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = action_dim,
-                                        agent_name = agent_name,
-                                        config = config)
+                                        nn_config = config['agents'][agent_name])
         self.action_std = torch.nn.Parameter(
             torch.ones(action_dim, device=device)*config['agents'][agent_name]['action_std'])
 
@@ -64,8 +35,7 @@ class Critic_Q(nn.Module):
 
         self.net = build_nn_from_config(input_dim = state_dim+action_dim,
                                         output_dim = action_dim,
-                                        agent_name=agent_name,
-                                        config = config)
+                                        nn_config = config['agents'][agent_name])
 
     def forward(self, state, action):
         return self.net(torch.cat([state, action], 1))
@@ -77,8 +47,7 @@ class Critic_V(nn.Module):
 
         self.net = build_nn_from_config(input_dim = state_dim,
                                         output_dim = 1,
-                                        agent_name=agent_name,
-                                        config = config)
+                                        nn_config = config['agents'][agent_name])
 
     def forward(self, state):
         return self.net(state)
