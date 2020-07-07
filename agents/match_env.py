@@ -118,7 +118,7 @@ class MatchEnv(nn.Module):
         return avg_meter_loss.get_raw_data()
 
 
-    def validate(self, real_env, virtual_env, input_seed, validate_samples):
+    def validate(self, real_env, virtual_env, input_seed, oversample, validate_samples):
         print('validate_start')
         loss, diff_state, diff_reward, diff_done = \
             match_loss(real_env=real_env,
@@ -127,7 +127,7 @@ class MatchEnv(nn.Module):
                        batch_size=validate_samples,
                        grad_enabled=False,
                        more_info=True,
-                       oversample=1.5)
+                       oversample=oversample)
         print('validate_end')
         return loss, diff_state, diff_reward, diff_done
 

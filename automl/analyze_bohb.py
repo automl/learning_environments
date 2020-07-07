@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
+EXP_LOSS = 40
 
 
 def analyze_bohb(log_dir):
@@ -35,9 +36,12 @@ def analyze_bohb(log_dir):
     # optimization, and all the additional information
     inc_valid_score = inc_run.loss
     inc_config = id2conf[inc_id]['config']
+    inc_info = inc_run['info']
 
-    print('Best found configuration:')
-    print(inc_config)
+    print()
+    print('Best found configuration :' + str(inc_config))
+    print('Score: ' + str(inc_valid_score))
+    print('Info: ' + str(inc_info))
     # print('It achieved accuracies of %f (validation) and %f (test).' % (-inc_valid_score, inc_test_score))
 
     # Let's plot the observed losses grouped by budget,
@@ -239,6 +243,9 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
         acc = (loss-loss_m) / (loss_M - loss_m)
         if REVERSE_LOSS:
             acc = 1-acc
+
+    acc = acc ** EXP_LOSS
+
     return acc
 
 def get_color(acc):
@@ -256,7 +263,7 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    log_dir = '/results/1'
+    log_dir = '../results/match_env_optimize_2020-07-06-22'
     analyze_bohb(log_dir)
 
 

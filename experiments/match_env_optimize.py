@@ -17,7 +17,7 @@ class ExperimentWrapper():
         params = {}
         params['seed'] = 42
         params['min_budget'] = 1
-        params['max_budget'] = 1
+        params['max_budget'] = 4
         params['eta'] = 2
         params['iterations'] = 1000
 
@@ -27,20 +27,20 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=2, log=True, default_value=1.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-5, upper=1e-2, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-10, upper=1e-1, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=32, upper=256, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=1e-5, upper=1e-1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=3, log=True, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
         #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=9e-1, upper=1e0, log=True, default_value=0.91))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=10, upper=200, log=False, default_value=50))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=100, upper=20000, log=False, default_value=5000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='step_size', lower=100, upper=2000, log=True, default_value=1000))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.1, upper=0.9, log=False, default_value=0.5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=10, upper=1000, log=False, default_value=100))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=200, upper=20000, log=False, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='step_size', lower=200, upper=2000, log=True, default_value=1000))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.3, upper=1, log=False, default_value=0.7))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=1024, log=True, default_value=224))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=0, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=1024, log=True, default_value=224))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='zero_init', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='weight_norm', choices=[False, True], default_value=True))
 
@@ -99,6 +99,7 @@ class ExperimentWrapper():
                 match_env.validate(real_env = real_env,
                                    virtual_env = virtual_env,
                                    input_seed = 0,
+                                   oversample = 1.5,
                                    validate_samples = 10000)
             diff_state = float(diff_state.cpu().data.numpy())
             diff_reward = float(diff_reward.cpu().data.numpy())
