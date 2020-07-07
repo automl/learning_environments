@@ -17,5 +17,5 @@ if __name__ == "__main__":
     virtual_env = env_fac.generate_default_virtual_env()
 
     me = MatchEnv(config)
-    me.run(real_env=real_env, virtual_env=virtual_env, input_seed=0)
+    me.train(real_env=real_env, virtual_env=virtual_env, input_seed=0)
 

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 40
+EXP_LOSS = 50
 
 
 def analyze_bohb(log_dir):

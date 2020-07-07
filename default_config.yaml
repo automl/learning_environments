@@ -19,15 +19,15 @@ agents:
     agent_name: !!str PPO               # which RL agent to use for meta-training
 
   match_env:
-    oversample: !!float 1.1             # how much to sample beyond the normal state/action space
-    lr: !!float 1e-3                    # learning rate
-    weight_decay: !!float 0             # weight decay
-    batch_size: !!int 256               # batch size during training
-    early_out_diff: !!float 0.001       # break criterion for matching
-    early_out_num: !!int 50             # based on how many training steps shall an early out happen
-    steps: !!int 50000                  # number of steps
-    step_size: !!int 1000               # LR scheduler step size
-    gamma: !!float 0.5                  # LR scheduler gamma
+    oversample: !!float 1.6             # how much to sample beyond the normal state/action space
+    lr: !!float 4e-3                    # learning rate
+    weight_decay: !!float 1.5e-5        # weight decay
+    batch_size: !!int 192               # batch size during training
+    early_out_diff: !!float 1e-4        # break criterion for matching
+    early_out_num: !!int 150            # based on how many training steps shall an early out happen
+    steps: !!int 10000                  # number of steps
+    step_size: !!int 750                # LR scheduler step size
+    gamma: !!float 0.6                  # LR scheduler gamma
 
   td3:
     max_episodes: !!int 200             # maximum number of episodes to optimize
@@ -78,11 +78,11 @@ envs:
     g: [5, 10, 15]                      # gravitational constant [min, default, max]
     m: [0.5, 1, 1.5]                    # joint mass [min, default, max]
     l: [0.5, 1, 1.5]                    # joint length [min, default, max]
-    activation_fn: !!str leakyrelu      # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str tanh           # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 512              # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2               # number of hidden layers
     zero_init: !!bool True              # use zero state or random starting state for initialization
-    weight_norm: !!bool True            # use weight normalization
+    weight_norm: !!bool False           # use weight normalization
 
   Test:
     solved_reward: !!float 50           # used for early out in RL agent training
