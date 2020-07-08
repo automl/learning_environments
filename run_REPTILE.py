@@ -16,4 +16,4 @@ if __name__ == "__main__":
     np.random.seed(seed)
 
     reptile = REPTILE(config)
-    reptile.run()
+    reptile.train()

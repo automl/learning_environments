@@ -41,7 +41,7 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def run(self, env, input_seed=0):
+    def train(self, env, input_seed=0):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
         avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
@@ -72,7 +72,7 @@ class PPO(nn.Module):
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
-                    self.train(replay_buffer, env)
+                    self.update(replay_buffer, env)
                     replay_buffer.clear()
                     time_step = 0
                 if done:
@@ -90,7 +90,7 @@ class PPO(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def train(self, replay_buffer, env):
+    def update(self, replay_buffer, env):
         # Monte Carlo estimate of rewards:
         new_rewards = []
         discounted_reward = 0
@@ -143,3 +143,20 @@ class PPO(nn.Module):
         # Copy new weights into old policy:
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
+
+
+    def get_state_dict(self):
+        agent_state = {}
+        agent_state['ppo_actor'] = self.actor.state_dict()
+        agent_state['ppo_actor_old'] = self.actor_target.state_dict()
+        agent_state['ppo_critic'] = self.critic_1.state_dict()
+        agent_state['ppo_critic_old'] = self.critic_2.state_dict()
+        agent_state['ppo_optimizer'] = self.critic_target_1.state_dict()
+        return agent_state
+
+    def set_state_dict(self, agent_state):
+        self.actor.load_state_dict(agent_state['ppo_actor'])
+        self.actor_old.load_state_dict(agent_state['ppo_actor_old'])
+        self.critic.load_state_dict(agent_state['ppo_critic'])
+        self.critic_old.load_state_dict(agent_state['ppo_critic_old'])
+        self.optimizer.load_state_dict(agent_state['ppo_optimizer'])

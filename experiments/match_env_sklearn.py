@@ -52,7 +52,7 @@ def train(real_env):
     return model
 
 
-def validate(real_env, model):
+def test(real_env, model):
     inputs_list = []
     outputs_list = []
 
@@ -89,5 +89,5 @@ if __name__ == "__main__":
     real_env = env_fac.generate_default_real_env()
 
     model = train(real_env)
-    validate(real_env, model)
+    test(real_env, model)
 

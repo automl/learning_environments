@@ -16,4 +16,4 @@ if __name__ == "__main__":
     np.random.seed(seed)
 
     gtn = GTN(config)
-    gtn.run()
+    gtn.train()

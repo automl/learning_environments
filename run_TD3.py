@@ -27,4 +27,4 @@ if __name__ == "__main__":
               action_dim=env.get_action_dim(),
               config=config)
 
-    td3.run(env)
+    td3.train(env)

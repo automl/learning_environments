@@ -26,5 +26,5 @@ if __name__ == "__main__":
     ppo = PPO(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),
               config=config)
-
-    ppo.run(env)
+    a = ppo.state_dict()
+    ppo.train(env)

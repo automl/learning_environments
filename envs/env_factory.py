@@ -18,7 +18,7 @@ class EnvWrapper(nn.Module):
         self.env = env
 
     def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32)):
-        if isinstance(self.env, VirtualEnv):
+        if self.is_virtual_env():
             next_state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
             reward = reward.to("cpu")
             next_state = next_state.to("cpu")
@@ -33,7 +33,7 @@ class EnvWrapper(nn.Module):
             return next_state_torch, reward_torch, done_torch
 
     def reset(self):
-        if isinstance(self.env, VirtualEnv):
+        if self.is_virtual_env():
             return self.env.reset()
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
@@ -43,13 +43,13 @@ class EnvWrapper(nn.Module):
         return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
 
     def get_state_dim(self):
-        if isinstance(self.env, VirtualEnv):
+        if self.is_virtual_env():
             return self.env.state_dim
         else:
             return self.env.observation_space.shape[0]
 
     def get_action_dim(self):
-        if isinstance(self.env, VirtualEnv):
+        if self.is_virtual_env():
             return self.env.action_dim
         else:
             return self.env.action_space.shape[0]
@@ -71,6 +71,19 @@ class EnvWrapper(nn.Module):
 
     def is_virtual_env(self):
         return isinstance(self.env, VirtualEnv)
+
+    def get_state_dict(self):
+        if self.is_virtual_env():
+            return self.env.get_state_dict()
+        else:
+            return self.kwargs
+
+    def set_state_dict(self, env_state):
+        if self.is_virtual_env():
+            self.env.set_state_dict(env_state)
+        else:
+            for key, value in env_state.items():
+                setattr(self.env, key, value)
 
 
 class EnvFactory:
@@ -102,7 +115,7 @@ class EnvFactory:
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env = True)
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = VirtualEnv(**kwargs).to(device)
+        env = VirtualEnv(kwargs).to(device)
         return EnvWrapper(env=env).to(device)
 
     def _env_factory(self, kwargs):
@@ -118,7 +131,10 @@ class EnvFactory:
 
         for key, value in kwargs.items():
             setattr(env, key, value)
+        # needed for stopping the episodes
         env._max_episode_steps = int(kwargs["max_steps"])
+        # needed for model save/load
+        env.kwargs = kwargs
         return env
 
     def _get_random_parameters(self):

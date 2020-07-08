@@ -1,5 +1,6 @@
 import random
 import colorsys
+import math
 
 import numpy as np
 import hpbandster.core.result as hpres
@@ -12,7 +13,8 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 50
+EXP_LOSS = 5
+OUTLIER_PERC = 0.03
 
 
 def analyze_bohb(log_dir):
@@ -61,11 +63,39 @@ def analyze_bohb(log_dir):
     # The next plot compares the performance of configs picked by the model vs. random ones
     hpvis.performance_histogram_model_vs_random(all_runs, id2conf)
 
+    result = remove_outliers(result)
+
     plot_accuracy_over_budget(result)
 
     plot_parallel_scatter(result)
 
     plt.show()
+
+
+def remove_outliers(result):
+    lut = []
+    for key, value1 in result.data.items():
+        for value2 in value1.results.values():
+            loss = value2['loss']
+            lut.append((loss, key))
+
+    # remove NaN's
+    for elem in lut:
+        if not math.isfinite(elem[0]):
+            result.data.pop(elem[1], None)
+    lut = [x for x in lut if math.isfinite(x[0])]
+
+    lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
+    n_remove = math.ceil(len(lut)*OUTLIER_PERC)
+
+    # remove percentage of largest/smallest values
+    for i in range(n_remove):
+        elem = lut.pop(0)
+        result.data.pop(elem[1], None)
+
+    return result
+
+
 
 def plot_accuracy_over_budget(result):
     fig, ax = plt.subplots()
@@ -263,7 +293,7 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    log_dir = '../results/match_env_optimize_2020-07-06-22'
+    log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     analyze_bohb(log_dir)
 
 

@@ -48,7 +48,11 @@ class TD3(nn.Module):
 
         self.total_it = 0
 
-    def run(self, env, match_env=None, input_seed=0):
+    def train(self, env, match_env=None, input_seed=0):
+        # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
+        # env=virtual_env, input_seed given: Train on fixed virtual env
+        # env=real_env: Train on real env
+
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -99,7 +103,7 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.train(replay_buffer, env, match_env)
+                    self.update(replay_buffer, env, match_env)
                 if done:
                     break
 
@@ -115,7 +119,7 @@ class TD3(nn.Module):
 
         return avg_meter_reward.get_raw_data()
 
-    def train(self, replay_buffer, env, match_env=None):
+    def update(self, replay_buffer, env, match_env=None):
         match_virtual_env = env.is_virtual_env() and match_env is not None
         self.total_it += 1
 
@@ -142,6 +146,7 @@ class TD3(nn.Module):
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
+        # Compute matching loss
         m_loss = 0
         if match_virtual_env and self.optim_env_with_critic:
             m_loss = match_loss(real_env=match_env,
@@ -166,6 +171,8 @@ class TD3(nn.Module):
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(states, self.actor(states))).mean()
+
+            # Compute matching loss
             m_loss = 0
             if match_virtual_env and self.optim_env_with_actor:
                 m_loss = match_loss(real_env=match_env,
@@ -224,3 +231,29 @@ class TD3(nn.Module):
         done = done.to(device)
 
         return state, reward, done
+
+    def get_state_dict(self):
+        agent_state = {}
+        agent_state['td3_actor'] = self.actor.state_dict()
+        agent_state['td3_actor_target'] = self.actor_target.state_dict()
+        agent_state['td3_critic_1'] = self.critic_1.state_dict()
+        agent_state['td3_critic_2'] = self.critic_2.state_dict()
+        agent_state['td3_critic_target_1'] = self.critic_target_1.state_dict()
+        agent_state['td3_critic_target_2'] = self.critic_target_2.state_dict()
+        if self.actor_optimizer:
+            agent_state['td3_actor_optimizer'] = self.actor_optimizer.state_dict()
+        if self.critic_optimizer:
+            agent_state['td3_critic_optimizer'] = self.critic_optimizer.state_dict()
+        return agent_state
+
+    def set_state_dict(self, agent_state):
+        self.actor.load_state_dict(agent_state['td3_actor'])
+        self.actor_target.load_state_dict(agent_state['td3_actor_target'])
+        self.critic_1.load_state_dict(agent_state['td3_critic_1'])
+        self.critic_2.load_state_dict(agent_state['td3_critic_2'])
+        self.critic_target_1.load_state_dict(agent_state['td3_critic_target_1'])
+        self.critic_target_2.load_state_dict(agent_state['td3_critic_target_2'])
+        if self.actor_optimizer:
+            self.actor_optimizer.load_state_dict(agent_state['td3_actor_optimizer'])
+        if self.critic_optimizer:
+            self.critic_optimizer.load_state_dict(agent_state['td3_critic_optimizer'])

@@ -36,7 +36,7 @@ def create_ppo_config_base(max_episodes):
 
     return cfg
 
-def run_ppo(max_episodes):
+def train_ppo(max_episodes):
     config = create_ppo_config_base(max_episodes=max_episodes)
     seed = config['seed']
 
@@ -53,12 +53,12 @@ def run_ppo(max_episodes):
               action_dim=env.get_action_dim(),
               config=config)
 
-    return ppo.run(env)
+    return ppo.train(env)
 
 
 def test_ppo_quick():
     # quick test to check if something crashes
-    episode_rewards = run_ppo(max_episodes=50)
+    episode_rewards = train_ppo(max_episodes=50)
 
     for reward in episode_rewards:
         assert reward > -2000
@@ -68,7 +68,7 @@ def test_ppo_quick():
 @pytest.mark.slow
 def test_ppo_complete():
     # more mature test to check if TD3 still works properly
-    episode_rewards = run_ppo(max_episodes=6000)
+    episode_rewards = train_ppo(max_episodes=6000)
 
     for i in range(len(episode_rewards)):
         reward = episode_rewards[i]

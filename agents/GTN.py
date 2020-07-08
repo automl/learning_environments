@@ -6,7 +6,7 @@ import numpy as np
 import os
 from agents.agent_utils import select_agent
 from agents.match_env import MatchEnv
-from agents.REPTILE import reptile_update
+from agents.REPTILE import reptile_update, reptile_train_agent, reptile_match_env
 from envs.env_factory import EnvFactory
 from utils import AverageMeter, print_abs_param_sum
 
@@ -15,6 +15,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class GTN(nn.Module):
     def __init__(self, config):
         super().__init__()
+        # for saving/loading
+        self.config = config
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
@@ -25,7 +27,7 @@ class GTN(nn.Module):
 
         agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, agent_name)
-        self.matcher = MatchEnv(config)
+        self.match_env = MatchEnv(config)
 
         different_envs = gtn_config["different_envs"]
         self.env_factory = EnvFactory(config)
@@ -42,9 +44,6 @@ class GTN(nn.Module):
                 self.real_envs.append(self.env_factory.generate_random_real_env())
                 self.input_seeds.append(np.random.random())
 
-        # if os.path.isfile(self.export_path):
-        #     self.load_checkpoint()
-
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, 'VirtualEnv')
         print_abs_param_sum(self.agent.actor, 'Actor')
@@ -52,11 +51,8 @@ class GTN(nn.Module):
         print_abs_param_sum(self.agent.critic_2, 'Critic2')
 
 
-    def run(self):
+    def train(self):
         for it in range(self.max_iterations):
-            # if it % 10 == 0:
-            #     self.save_checkpoint()
-
             self.print_stats()
 
             # map virtual env to real env
@@ -66,18 +62,21 @@ class GTN(nn.Module):
 
                 env_id = np.random.randint(len(self.real_envs))
                 print('-- with id ' + str(env_id) + ' --')
-                self.reptile_run_match_env(real_env=self.real_envs[env_id],
-                                           virtual_env=self.virtual_env,
-                                           input_seed=self.input_seeds[env_id])
+                reptile_match_env(match_env = self.match_env,
+                                  real_env = self.real_envs[env_id],
+                                  virtual_env = self.virtual_env,
+                                  input_seed = self.input_seeds[env_id],
+                                  step_size = self.step_size)
 
             self.print_stats()
 
-            # now train on real env
+            # now train on virtual env
             print("-- training on virtual env --")
             for _ in range(self.real_iterations):
                 env_id = np.random.randint(len(self.real_envs))
-                self.reptile_run_agent(env = self.virtual_env,
-                                       input_seed = self.input_seeds[env_id])
+                reptile_train_agent(agent = self.agent,
+                                    env = self.virtual_env,
+                                    input_seed = self.input_seeds[env_id])
 
             self.print_stats()
 
@@ -86,7 +85,9 @@ class GTN(nn.Module):
             for _ in range(self.real_iterations):
                 env_id = np.random.randint(len(self.real_envs))
                 print('-- with id ' + str(env_id) + ' --')
-                self.reptile_run_agent(env = self.real_envs[env_id])
+                reptile_train_agent(agent = self.agent,
+                                    env = self.real_envs[env_id],
+                                    step_size = self.step_size)
 
             self.print_stats()
 
@@ -94,77 +95,39 @@ class GTN(nn.Module):
             print("-- training on both environments --")
             for _ in range(self.virtual_iterations):
                 env_id = np.random.randint(len(self.real_envs))
-                self.reptile_run_agent(env=self.virtual_env,
-                                       match_env=self.real_envs[env_id],
-                                       input_seed=self.input_seeds[env_id])
+                reptile_train_agent(agent = self.agent,
+                                    env=self.virtual_env,
+                                    match_env=self.real_envs[env_id],
+                                    input_seed=self.input_seeds[env_id],
+                                    step_size = self.step_size)
 
-
-    def reptile_run_match_env(self, real_env, virtual_env, input_seed):
-        old_state_dict_env = copy.deepcopy(self.virtual_env.state_dict())
-
-        self.matcher.run(real_env=real_env,
-                         virtual_env=virtual_env,
-                         input_seed=input_seed)
-
-        reptile_update(target=self.virtual_env,
-                       old_state_dict=old_state_dict_env,
-                       step_size=self.step_size)
-
-    def reptile_run_agent(self, env, match_env=None, input_seed=0):
-        old_state_dict_agent = copy.deepcopy(self.agent.state_dict())
-        if match_env is not None:
-            old_state_dict_env = copy.deepcopy(self.virtual_env.state_dict())
-
-        self.agent.run(env=env, match_env=match_env, input_seed=input_seed)
-
-        reptile_update(target = self.agent,
-                       old_state_dict = old_state_dict_agent,
-                       step_size = self.step_size)
-        if match_env is not None:
-            reptile_update(target = self.virtual_env,
-                           old_state_dict = old_state_dict_env,
-                           step_size = self.step_size)
-
-
-    def validate(self):
+    def test(self):
         # calculate after how many steps with a new environment a certain score is achieved
         env = self.env_factory.generate_default_real_env()
         results = self.agent.run(env=env)
         return len(results)
 
+    def save(self, path):
+        # not sure if working
+        state = {}
+        state['config'] = self.config
+        state['agent'] = self.agent.get_state_dict()
+        state['virtual_env'] = self.virtual_env.get_state_dict()
+        state['input_seeds'] = self.input_seeds
+        state['real_envs'] = []
+        for real_env in self.real_envs:
+            state['real_envs'].append(real_env.get_state_dict())
+        torch.save(state, path)
 
-    def save_checkpoint(self):
-        if self.agent_name == "PPO":
-            state_optimizer = {"optimizer": self.agent.optimizer.state_dict()}
-        elif self.agent_name == "TD3":
-            state_optimizer = {
-                "critic_optimizer": self.agent.critic_optimizer.state_dict(),
-                "actor_optimizer": self.agent.actor_optimizer.state_dict(),
-            }
-        state = {
-            "agent_state_dict": self.agent.state_dict(),
-            "env_factory": self.env_factory,
-            "virtual_env_state_dict": self.virtual_env.state_dict(),
-            "seeds": self.seeds,
-            "config": self.config,  # not loaded
-        }
-
-        state = {**state, **state_optimizer}
-        torch.save(state, self.export_path)
-
-
-    def load_checkpoint(self):
-        if os.path.isfile(self.export_path):
-            state = torch.load(self.export_path)
-            self.agent.load_state_dict(state["agent_state_dict"])
-            self.env_factory = state["env_factory"]
-            self.virtual_env.load_state_dict(state["virtual_env_state_dict"])
-            self.seeds = state["seeds"]
-
-            if self.agent_name == "PPO":
-                self.agent.optimizer.load_state_dict(state["optimizer"])
-            elif self.agent_name == "TD3":
-                self.agent.critic_optimizer.load_state_dict(state["critic_optimizer"])
-                self.agent.actor_optimizer.load_state_dict(state["actor_optimizer"]),
-
-            print("=> loaded checkpoint '{}'".format(self.export_path))
+    def load(self, path):
+        # not sure if working
+        if os.path.isfile(path):
+            state = torch.load(self.path)
+            self.__init__(state['config'])
+            self.agent.set_state_dict(state['agent'])
+            self.virtual_env.set_state_dict(state['virtual_env'])
+            self.input_seeds = state['input_seeds']
+            for i in range(len(self.real_envs)):
+                self.real_envs[i].set_state_dict(state['real_envs'][i])
+        else:
+            raise FileNotFoundError('File not found: ' + str(path))

@@ -1,3 +1,4 @@
+import os
 import gym
 import torch
 import torch.nn as nn
@@ -9,7 +10,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class VirtualEnv(nn.Module):
-    def __init__(self, **kwargs):
+    def __init__(self, kwargs):
         super().__init__()
         self.input_seed = None
         self.env_name = str(kwargs["env_name"])
@@ -77,3 +78,19 @@ class VirtualEnv(nn.Module):
             if self.viewer_env.viewer:
                 self.viewer_env.viewer.close()
                 self.viewer_env.viewer = None
+
+    def get_state_dict(self):
+        env_state = {}
+        env_state['virtual_env_state_net'] = self.state_net.state_dict()
+        env_state['virtual_env_reward_net'] = self.reward_net.state_dict()
+        env_state['virtual_env_done_net'] = self.done_net.state_dict()
+        return env_state
+
+    def set_state_dict(self, env_state):
+        self.state_net.load_state_dict(env_state['virtual_env_state_net'])
+        self.reward_net.load_state_dict(env_state['virtual_env_reward_net'])
+        self.done_net.load_state_dict(env_state['virtual_env_done_net'])
+
+
+
+

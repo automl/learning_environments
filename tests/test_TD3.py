@@ -43,7 +43,7 @@ def create_td3_config_base(init_episodes, max_episodes):
 
     return cfg
 
-def run_td3(init_episodes, max_episodes):
+def train_td3(init_episodes, max_episodes):
     config = create_td3_config_base(init_episodes=init_episodes,
                                     max_episodes=max_episodes)
     seed = config['seed']
@@ -61,12 +61,12 @@ def run_td3(init_episodes, max_episodes):
               action_dim=env.get_action_dim(),
               config=config)
 
-    return td3.run(env)
+    return td3.train(env)
 
 
 def test_td3_quick():
     # quick test to check if something crashes
-    episode_rewards = run_td3(init_episodes=3,
+    episode_rewards = train_td3(init_episodes=3,
                               max_episodes=6)
 
     for reward in episode_rewards:
@@ -77,7 +77,7 @@ def test_td3_quick():
 @pytest.mark.slow
 def test_td3_complete():
     # more mature test to check if TD3 still works properly
-    episode_rewards = run_td3(init_episodes=100,
+    episode_rewards = train_td3(init_episodes=100,
                               max_episodes=200)
 
     for i in range(len(episode_rewards)):
