@@ -58,7 +58,6 @@ class PendulumEnv(gym.Env):
         return self.state
 
     def render(self, mode="human"):
-
         if self.viewer is None:
             from gym.envs.classic_control import rendering
 
@@ -72,12 +71,13 @@ class PendulumEnv(gym.Env):
             axle = rendering.make_circle(0.05)
             axle.set_color(0, 0, 0)
             self.viewer.add_geom(axle)
+
             fname = path.join(path.dirname(gym.envs.classic_control.__file__), "assets/clockwise.png")
             self.img = rendering.Image(fname, 1.0, 1.0)
             self.imgtrans = rendering.Transform()
             self.img.add_attr(self.imgtrans)
+            self.viewer.add_onetime(self.img)
 
-        self.viewer.add_onetime(self.img)
         th = np.arctan2(self.state[1], self.state[0])
         self.pole_transform.set_rotation(th + np.pi / 2)
         if self.last_u:

@@ -3,8 +3,8 @@ import gym
 import torch
 import torch.nn as nn
 import numpy as np
-from utils import build_nn_from_config
-
+from models.model_utils import build_nn_from_config
+from envs.env_utils import generate_env_with_kwargs
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -24,9 +24,8 @@ class VirtualEnv(nn.Module):
         self._max_episode_steps = int(kwargs["max_steps"])
 
         # for rendering
-        if self.env_name != 'Test':
-            self.viewer_env = gym.make(self.env_name)
-            self.viewer_env.reset()
+        self.viewer_env = generate_env_with_kwargs(kwargs, self.env_name)
+        self.viewer_env.reset()
 
         self.state_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
                                               output_dim = self.state_dim,
@@ -40,26 +39,17 @@ class VirtualEnv(nn.Module):
 
     def reset(self):
         if self.zero_init:
-            self.state = torch.zeros(self.state_dim, device=device)
-        elif self.env_name == "Pendulum-v0" or self.env_name == "Dummy":
-            self.state = torch.tensor(
-                [np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1), np.random.uniform(low=-5, high=5)],
+            state = torch.zeros(self.state_dim, device=device)
+        elif self.env_name == "Pendulum-v0" or self.env_name == "Test":
+            state = torch.tensor(
+                [np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1)],
                 device=device,
                 dtype=torch.float32,
             )
         else:
             raise NotImplementedError("Unknown environment: non-zero state reset only for supported environments.")
 
-        return self.state
-
-    def set_input_seed(self, input_seed):
-        self.input_seed = input_seed
-
-    def get_input_seed(self):
-        return self.input_seed
-
-    def get_state(self):
-        return self.state
+        return state
 
     def step(self, action, state, input_seed=0):
         input = torch.cat((action, state, input_seed), dim=len(action.shape) - 1)
@@ -68,9 +58,9 @@ class VirtualEnv(nn.Module):
         done = (self.done_net(input) > 0.5).float()
         return next_state, reward, done
 
-    def render(self):
+    def render(self, state):
         if self.env_name != 'Test':
-            self.viewer_env.env.state = self.state.cpu().data.numpy()
+            self.viewer_env.state = state.cpu().detach().numpy()
             self.viewer_env.render()
 
     def close(self):

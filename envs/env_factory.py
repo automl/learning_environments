@@ -1,89 +1,10 @@
-import gym
 import numpy as np
 import torch
-import torch.nn as nn
 from envs.virtual_env import VirtualEnv
-from envs.pendulum import PendulumEnv
-from envs.test_env import TestEnv
-from envs.continuous_mountain_car import Continuous_MountainCarEnv
-
+from envs.env_wrapper import EnvWrapper
+from envs.env_utils import generate_env_with_kwargs
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
-class EnvWrapper(nn.Module):
-    # wraps a gym/virtual environment for easier handling
-    def __init__(self, env):
-        super().__init__()
-        self.env = env
-
-    def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32)):
-        if self.is_virtual_env():
-            next_state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
-            reward = reward.to("cpu")
-            next_state = next_state.to("cpu")
-            done = done.to("cpu")
-            return next_state, reward, done
-        else:
-            self.env.state = state.cpu().detach().numpy()
-            next_state, reward, done, _ = self.env.step(action.cpu().detach().numpy())
-            next_state_torch = torch.tensor(next_state, device="cpu", dtype=torch.float32)
-            reward_torch = torch.tensor(reward, device="cpu", dtype=torch.float32)
-            done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
-            return next_state_torch, reward_torch, done_torch
-
-    def reset(self):
-        if self.is_virtual_env():
-            return self.env.reset()
-        else:
-            return torch.from_numpy(self.env.reset()).float().cpu()
-
-    def get_random_action(self):
-        # do random action in the [-1,1] range
-        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
-
-    def get_state_dim(self):
-        if self.is_virtual_env():
-            return self.env.state_dim
-        else:
-            return self.env.observation_space.shape[0]
-
-    def get_action_dim(self):
-        if self.is_virtual_env():
-            return self.env.action_dim
-        else:
-            return self.env.action_space.shape[0]
-
-    def render(self):
-        return self.env.render()
-
-    def close(self):
-        return self.env.close()
-
-    def max_episode_steps(self):
-        return self.env._max_episode_steps
-
-    def seed(self, seed):
-        if isinstance(self.env, VirtualEnv):
-            print("Virtual environment, no need to set a seed for random numbers")
-        else:
-            return self.env.seed(seed)
-
-    def is_virtual_env(self):
-        return isinstance(self.env, VirtualEnv)
-
-    def get_state_dict(self):
-        if self.is_virtual_env():
-            return self.env.get_state_dict()
-        else:
-            return self.kwargs
-
-    def set_state_dict(self, env_state):
-        if self.is_virtual_env():
-            self.env.set_state_dict(env_state)
-        else:
-            for key, value in env_state.items():
-                setattr(self.env, key, value)
 
 
 class EnvFactory:
@@ -101,14 +22,14 @@ class EnvFactory:
         # generate a real environment with default parameters
         kwargs = self._get_default_parameters(virtual_env = False)
         print('Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = self._env_factory(kwargs=kwargs)
+        env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
     def generate_random_real_env(self):
         # generate a real environment with random parameters within specified range
         kwargs = self._get_random_parameters()
         print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = self._env_factory(kwargs=kwargs)
+        env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
     def generate_default_virtual_env(self):
@@ -117,25 +38,6 @@ class EnvFactory:
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs).to(device)
         return EnvWrapper(env=env).to(device)
-
-    def _env_factory(self, kwargs):
-        if self.env_name == "Pendulum-v0":
-            # env = gym.make(self.env_name)
-            env = PendulumEnv()
-        elif self.env_name == "MountainCarContinuous-v0":
-            env = Continuous_MountainCarEnv()
-        elif self.env_name == "Test":
-            env = TestEnv()
-        else:
-            raise NotImplementedError("Environment not supported")
-
-        for key, value in kwargs.items():
-            setattr(env, key, value)
-        # needed for stopping the episodes
-        env._max_episode_steps = int(kwargs["max_steps"])
-        # needed for model save/load
-        env.kwargs = kwargs
-        return env
 
     def _get_random_parameters(self):
         kwargs = {"env_name": self.env_name,

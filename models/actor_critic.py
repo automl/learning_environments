@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from utils import build_nn_from_config
+from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
