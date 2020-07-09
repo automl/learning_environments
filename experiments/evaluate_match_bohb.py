@@ -29,7 +29,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_oversample', lower=1, upper=3, log=True, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_oversampling', lower=1, upper=3, log=True, default_value=1.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_batch_size', lower=64, upper=512, log=True, default_value=128))
@@ -70,7 +70,7 @@ class ExperimentWrapper():
 
         config["env_name"] = 'Pendulum-v0'
 
-        config["agents"]['match_env']['oversample'] = cso["me_oversample"]
+        config["agents"]['match_env']['oversampling'] = cso["me_oversampling"]
         config["agents"]['match_env']['lr'] = cso["me_lr"]
         config["agents"]['match_env']['weight_decay'] = cso["me_weight_decay"]
         config["agents"]['match_env']['batch_size'] = cso["me_batch_size"]

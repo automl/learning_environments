@@ -1,14 +1,13 @@
-import copy
-import numpy as np
+import yaml
+from envs.env_factory import EnvFactory
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
+from utils import AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, grad_enabled=True, oversample=1.1):
+def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, grad_enabled=True, oversampling=1.1):
     with torch.set_grad_enabled(grad_enabled):
         states_list = []
         actions_list = []
@@ -18,8 +17,8 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
 
         for k in range(batch_size):
             # run random state/actions transitions on the real env
-            states_list.append(real_env.env.observation_space.sample()*oversample) # the 1.1 is important!
-            actions_list.append(real_env.env.action_space.sample()*oversample)     # the 1.1 is important!
+            states_list.append(real_env.env.observation_space.sample()*oversampling) # the 1.1 is important!
+            actions_list.append(real_env.env.action_space.sample()*oversampling)     # the 1.1 is important!
             next_state, reward, done = real_env.step(
                 action=torch.tensor(actions_list[-1], device=device, dtype=torch.float32),
                 state=torch.tensor(states_list[-1], device=device, dtype=torch.float32))
@@ -59,7 +58,7 @@ class MatchEnv(nn.Module):
 
         me_config = config['agents']['match_env']
 
-        self.oversample = me_config['oversample']
+        self.oversampling = me_config['oversampling']
         self.lr = me_config['lr']
         self.weight_decay = me_config['weight_decay']
         self.batch_size = me_config['batch_size']
@@ -77,7 +76,7 @@ class MatchEnv(nn.Module):
                                                     step_size=self.step_size,
                                                     gamma=self.gamma)
         avg_meter_loss   = AverageMeter(print_str='Average loss')
-        avg_meter_state  = AverageMeter(print_str='Average diff state ')
+        avg_meter_state  = AverageMeter(print_str='Average diff state  ')
         avg_meter_reward = AverageMeter(print_str='Average diff reward ')
         avg_meter_done   = AverageMeter(print_str='Average diff done   ')
 
@@ -93,7 +92,7 @@ class MatchEnv(nn.Module):
                            batch_size = self.batch_size,
                            grad_enabled = True,
                            more_info = True,
-                           oversample = self.oversample)
+                           oversampling = self.oversampling)
 
             loss.backward()
             optimizer.step()
@@ -118,7 +117,7 @@ class MatchEnv(nn.Module):
         return avg_meter_loss.get_raw_data()
 
 
-    def test(self, real_env, virtual_env, input_seed, oversample, test_samples):
+    def test(self, real_env, virtual_env, input_seed, oversampling, test_samples):
         loss, diff_state, diff_reward, diff_done = \
             match_loss(real_env=real_env,
                        virtual_env=virtual_env,
@@ -126,6 +125,21 @@ class MatchEnv(nn.Module):
                        batch_size=test_samples,
                        grad_enabled=False,
                        more_info=True,
-                       oversample=oversample)
+                       oversampling=oversampling)
         return loss, diff_state, diff_reward, diff_done
+
+
+if __name__ == "__main__":
+    with open("../default_config.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    # generate environment
+    env_fac = EnvFactory(config)
+    real_env = env_fac.generate_default_real_env()
+    virtual_env = env_fac.generate_default_virtual_env()
+
+    me = MatchEnv(config)
+    me.train(real_env=real_env, virtual_env=virtual_env, input_seed=0)
+
+
 

@@ -1,10 +1,12 @@
+import yaml
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 from agents.match_env import match_loss
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
-from copy import deepcopy
+from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -45,6 +47,9 @@ class TD3(nn.Module):
         self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
+
+        self.actor_optimizer = None
+        self.critic_optimizer = None
 
         self.total_it = 0
 
@@ -111,8 +116,9 @@ class TD3(nn.Module):
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            if avg_meter_reward.get_mean(num=self.early_out_num) > env.env.solved_reward:
-                print("early out")
+            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+            if avg_reward > env.env.solved_reward:
+                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
                 break
 
         env.close()
@@ -127,7 +133,8 @@ class TD3(nn.Module):
         last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
-            states, rewards, dones = self.run_env(env, last_states, last_actions, input_seeds)
+            states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
+            _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise
@@ -166,7 +173,8 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             if match_virtual_env:
-                states, rewards, dones = self.run_env(env, last_states, last_actions, input_seeds)
+                states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
+                _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
@@ -240,20 +248,45 @@ class TD3(nn.Module):
         agent_state['td3_critic_2'] = self.critic_2.state_dict()
         agent_state['td3_critic_target_1'] = self.critic_target_1.state_dict()
         agent_state['td3_critic_target_2'] = self.critic_target_2.state_dict()
-        if self.actor_optimizer:
+        if self.actor_optimizer is not None:
             agent_state['td3_actor_optimizer'] = self.actor_optimizer.state_dict()
-        if self.critic_optimizer:
+        if self.critic_optimizer is not None:
             agent_state['td3_critic_optimizer'] = self.critic_optimizer.state_dict()
         return agent_state
 
     def set_state_dict(self, agent_state):
+        print('td3 set state dict')
         self.actor.load_state_dict(agent_state['td3_actor'])
         self.actor_target.load_state_dict(agent_state['td3_actor_target'])
         self.critic_1.load_state_dict(agent_state['td3_critic_1'])
         self.critic_2.load_state_dict(agent_state['td3_critic_2'])
         self.critic_target_1.load_state_dict(agent_state['td3_critic_target_1'])
         self.critic_target_2.load_state_dict(agent_state['td3_critic_target_2'])
-        if self.actor_optimizer:
+        if 'td3_actor_optimizer' in agent_state.keys():
             self.actor_optimizer.load_state_dict(agent_state['td3_actor_optimizer'])
-        if self.critic_optimizer:
+        if 'td3_critic_optimizer' in agent_state.keys():
             self.critic_optimizer.load_state_dict(agent_state['td3_critic_optimizer'])
+
+
+if __name__ == "__main__":
+    with open("../default_config.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    seed = config['seed']
+
+    # generate environment
+    env_fac = EnvFactory(config)
+    #env = env_fac.generate_default_real_env()
+    env = env_fac.generate_interval_real_env(1)
+
+    # set seeds
+    env.seed(seed)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    td3 = TD3(state_dim=env.get_state_dim(),
+              action_dim=env.get_action_dim(),
+              config=config)
+
+    td3.train(env)
+

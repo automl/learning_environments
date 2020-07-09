@@ -1,8 +1,8 @@
+import yaml
 import copy
 import torch
 import torch.nn as nn
-from agents.TD3 import TD3
-from agents.PPO import PPO
+import numpy as np
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
@@ -65,12 +65,25 @@ class REPTILE(nn.Module):
         for it in range(self.max_iterations):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
 
-            #env = self.env_factory.generate_random_real_env()
-            env = self.env_factory.generate_default_virtual_env().to(device)
+            env = self.env_factory.generate_random_real_env()
+            #env = self.env_factory.generate_default_virtual_env().to(device)
             self.agent.train(env=env, input_seed=1)
-            new_state_dict = self.agent.state_dict()
 
             reptile_update(self.agent, old_state_dict, self.step_size)
+
+
+if __name__ == "__main__":
+    with open("../default_config.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    # set seeds
+    seed = config['seed']
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    reptile = REPTILE(config)
+    reptile.train()
+
 
 
 

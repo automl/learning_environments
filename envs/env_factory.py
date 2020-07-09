@@ -32,6 +32,13 @@ class EnvFactory:
         env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
+    def generate_interval_real_env(self, interval):
+        # generate a real environment with random parameters within specified range
+        kwargs = self._get_interval_parameters(interval)
+        print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
+        return EnvWrapper(env=env)
+
     def generate_default_virtual_env(self):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env = True)
@@ -46,6 +53,20 @@ class EnvFactory:
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
+            else:
+                kwargs[key] = value
+        return kwargs
+
+    def _get_interval_parameters(self, interval):
+        kwargs = {"env_name": self.env_name,
+                  "state_dim": self.state_dim,
+                  "action_dim": self.action_dim}
+        for key, value in self.env_config.items():
+            if isinstance(value, list):
+                if bool(value[3]):
+                    kwargs[key] = value[0] + interval * (value[2] - value[0])
+                else:
+                    kwargs[key] = value[2] + interval * (value[0] - value[2])
             else:
                 kwargs[key] = value
         return kwargs

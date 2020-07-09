@@ -6,21 +6,25 @@ agents:
   gtn:
     max_iterations: !!int 100           # maximum number of GTN iterations
     match_iterations: !!int 1           # number of different environments the virtual env is matched to
-    real_iterations: !!int 1            # number of iterations training the agent on the real env
-    virtual_iterations: !!int 1         # number of iterations training the agent on the virtual env
-    step_size: !!float 0.1              # reptile step size
-    different_envs: !!int 20            # 0: use only default real env
+    real_prob: !!int 1                  # number of iterations training the agent on the real env
+    virtual_prob: !!int 1               # number of iterations training the agent on the virtual env
+    both_prob: !!int 1                  # number of iterations training the agent on the virtual env
+    different_envs: !!int 10            # first env is default env
     agent_name: !!str TD3               # which RL agent to use for meta-training
+    match_step_size: !!float 0.1        # reptile step size when matching the two environments
+    real_step_size: !!float 0.1         # reptile step size when matching the agent to the real environment
+    virtual_step_size: !!float 0.1      # reptile step size when matching the agent to the fixed virtual environment
+    both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
 
   reptile:
     max_iterations: !!int 10000         # maximum number of REPTILE iteration
     step_size: !!float 0.1              # step size when updating the model parameters
-    agent_name: !!str PPO               # which RL agent to use for meta-training
+    agent_name: !!str TD3               # which RL agent to use for meta-training
 
   match_env:
-    oversample: !!float 1.6             # how much to sample beyond the normal state/action space
+    oversampling: !!float 1.5           # how much to sample beyond the normal state/action space
     lr: !!float 4e-3                    # learning rate
-    weight_decay: !!float 1.5e-5        # weight decay
+    weight_decay: !!float 1e-9          # weight decay
     batch_size: !!int 192               # batch size during training
     early_out_diff: !!float 1e-4        # break criterion for matching
     early_out_num: !!int 200            # based on how many training steps shall an early out happen
@@ -29,23 +33,23 @@ agents:
     gamma: !!float 0.6                  # LR scheduler gamma
 
   td3:
-    max_episodes: !!int 200             # maximum number of episodes to optimize
-    init_episodes: !!int 100            # number of episodes to fill the replay buffer
+    max_episodes: !!int 80              # maximum number of episodes to optimize
+    init_episodes: !!int 50             # number of episodes to fill the replay buffer
     batch_size: !!int  256              # batch size when running a policy update step
-    gamma: !!float 0.99                 # discount factor
-    lr: !!float 3e-4                    # learning rate
-    weight_decay: !!float 0             # weight decay
-    tau: !!float 0.005                  # target network update rate
+    gamma: !!float 0.995                # discount factor
+    lr: !!float 1e-3                    # learning rate
+    weight_decay: !!float 1e-9          # weight decay
+    tau: !!float 0.02                   # target network update rate
     policy_delay: !!int 2               # frequency of delayed policy updates
     rb_size: !!int 100000               # size of the replay buffer
     activation_fn: !!str leakyrelu      # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 224              # size of the actor/critic hidden layer
     hidden_layer: !!int 1               # number of hidden layers
-    weight_norm: !!bool True            # use weight normalization
+    weight_norm: !!bool False           # use weight normalization
     action_std: !!float 0.1             # action noise standard deviation
     early_out_num: 5                    # based on how many training steps shall an early out happen
     optim_env_with_actor: !!bool True   # optimize env together with actor
-    optim_env_with_critic: !!bool False # optimize env together with actor
+    optim_env_with_critic: !!bool False # optimize env together with critic
     match_weight_actor: !!float 1e7     # how much to weight matching loss wrt actor loss
     match_weight_critic: !!float 1      # how much to weight matching loss wrt critic loss
     match_batch_size: !!int 256         # matching batch size
@@ -54,8 +58,8 @@ agents:
     max_episodes: !!int 100000          # maximum number of episodes to optimize
     update_episodes: !!float 20         # update policy every x episodes (can be float)
     ppo_epochs: !!int 100               # update policy for x epochs
-    gamma: !!float 0.99                 # discount factor
-    lr: !!float 5e-4                    # learning rate
+    gamma: !!float 0.998                # discount factor
+    lr: !!float 1e-3                    # learning rate
     weight_decay: !!float 0             # weight decay
     vf_coef: !!float 0.5                # value function coefficient (see PPO paper)
     ent_coef: !!float 0.01              # entropy coefficient (see PPO paper)
@@ -69,19 +73,19 @@ agents:
 
 envs:
   Pendulum-v0:
-    solved_reward: !!float -250         # used for early out in RL agent training
-    max_steps: [200, 200, 200]          # maximum number of steps per episode
-    dt: [0.05, 0.05, 0.05]              # sampling rate
-    max_speed: [8, 10, 12]              # maximum joint speed [min, default, max]
-    max_torque: [0.5, 1, 2]             # maximum joint torque [min, default, max]
-    g: [5, 10, 15]                      # gravitational constant [min, default, max]
-    m: [0.5, 1, 1.5]                    # joint mass [min, default, max]
-    l: [0.5, 1, 1.5]                    # joint length [min, default, max]
+    solved_reward: !!float -300         # used for early out in RL agent training
+    max_steps: 200                      # maximum number of steps per episode
+    dt: 0.05                            # sampling rate
+    max_speed: [8, 10, 12, False]       # maximum joint speed [min, default, max, larger=more difficult]
+    max_torque: [1.5, 2, 3, False]      # maximum joint torque [min, default, max, larger=more difficult]
+    g: [5, 10, 15, True]                # gravitational constant [min, default, max, larger=more difficult]
+    m: [0.5, 1, 1.2, True]              # joint mass [min, default, max, larger=more difficult]
+    l: [0.5, 1, 1.2, True]              # joint length [min, default, max, larger=more difficult]
     activation_fn: !!str tanh           # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256              # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2               # number of hidden layers
     zero_init: !!bool False             # use zero state or random starting state for initialization
-    weight_norm: !!bool False           # use weight normalization
+    weight_norm: !!bool True            # use weight normalization
 
   Test:
     solved_reward: !!float 50           # used for early out in RL agent training
@@ -99,6 +103,6 @@ envs:
     hidden_size: 128                    # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 1               # number of hidden layers
     zero_init: !!bool True              # use zero state or random starting state for initialization
-    weight_norm: !!bool False           # use weight normalization for virtual environment
+    weight_norm: !!bool True            # use weight normalization for virtual environment
 
 

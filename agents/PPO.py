@@ -1,9 +1,11 @@
+import yaml
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import numpy as np
 from models.actor_critic import Actor, Critic_V
 from utils import AverageMeter, ReplayBuffer
+from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -160,3 +162,26 @@ class PPO(nn.Module):
         self.critic.load_state_dict(agent_state['ppo_critic'])
         self.critic_old.load_state_dict(agent_state['ppo_critic_old'])
         self.optimizer.load_state_dict(agent_state['ppo_optimizer'])
+
+
+if __name__ == "__main__":
+    with open("../default_config.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    seed = config['seed']
+
+    # generate environment
+    env_fac = EnvFactory(config)
+    env = env_fac.generate_default_real_env()
+
+    # set seeds
+    env.seed(seed)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    ppo = PPO(state_dim=env.get_state_dim(),
+              action_dim=env.get_action_dim(),
+              config=config)
+    a = ppo.state_dict()
+    ppo.train(env)
+

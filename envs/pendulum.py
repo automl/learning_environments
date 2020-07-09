@@ -4,7 +4,6 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 from os import path
-from copy import deepcopy
 
 
 class PendulumEnv(gym.Env):

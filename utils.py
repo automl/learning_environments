@@ -98,7 +98,7 @@ class AverageMeter:
         return self.vals
 
     def _mean(self, num):
-        vals = self.vals[max(len(self.vals)-num-1, 0) : len(self.vals)]
+        vals = self.vals[max(len(self.vals)-num, 0) : len(self.vals)]
         return sum(vals) / (len(vals) + 1e-9)
 
 

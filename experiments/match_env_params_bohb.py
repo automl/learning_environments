@@ -27,7 +27,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversample', lower=1, upper=3, log=True, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='oversampling', lower=1, upper=3, log=True, default_value=1.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=128))
@@ -52,7 +52,7 @@ class ExperimentWrapper():
 
         config["env_name"] = 'Pendulum-v0'
 
-        config["agents"]['match_env']['oversample'] = cso["oversample"]
+        config["agents"]['match_env']['oversampling'] = cso["oversampling"]
         config["agents"]['match_env']['lr'] = cso["lr"]
         config["agents"]['match_env']['weight_decay'] = cso["weight_decay"]
         config["agents"]['match_env']['batch_size'] = cso["batch_size"]
@@ -99,7 +99,7 @@ class ExperimentWrapper():
                 match_env.test(real_env = real_env,
                                virtual_env = virtual_env,
                                input_seed = 0,
-                               oversample = 1.5,
+                               oversampling = 1.5,
                                test_samples = 10000)
             diff_state = float(diff_state.cpu().data.numpy())
             diff_reward = float(diff_reward.cpu().data.numpy())

@@ -1,7 +1,6 @@
-import copy
+import yaml
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import numpy as np
 import os
 from agents.agent_utils import select_agent
@@ -19,11 +18,16 @@ class GTN(nn.Module):
         self.config = config
 
         gtn_config = config["agents"]["gtn"]
-        self.max_iterations = gtn_config["max_iterations"]
+        print(gtn_config)
         self.match_iterations = gtn_config["match_iterations"]
-        self.real_iterations = gtn_config["real_iterations"]
-        self.virtual_iterations = gtn_config["virtual_iterations"]
-        self.step_size = gtn_config["step_size"]
+        self.max_iterations = gtn_config["max_iterations"]
+        self.real_prob = gtn_config["real_prob"]
+        self.virtual_prob = gtn_config["virtual_prob"]
+        self.both_prob = gtn_config["virtual_prob"]
+        self.match_step_size = gtn_config["match_step_size"]
+        self.real_step_size = gtn_config["real_step_size"]
+        self.virtual_step_size = gtn_config["virtual_step_size"]
+        self.both_step_size = gtn_config["both_step_size"]
 
         agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, agent_name)
@@ -34,15 +38,15 @@ class GTN(nn.Module):
         self.virtual_env = self.env_factory.generate_default_virtual_env()
         self.real_envs = []
         self.input_seeds = []
-        if different_envs == 0:
-            # generate single default environment with fixed seed
-            self.real_envs.append(self.env_factory.generate_default_real_env())
-            self.input_seeds.append(1)
-        else:
-            # generate multiple different real envs with associated seed
-            for i in range(different_envs):
-                self.real_envs.append(self.env_factory.generate_random_real_env())
-                self.input_seeds.append(np.random.random())
+
+        # first environment is default environment
+        self.real_envs.append(self.env_factory.generate_default_real_env())
+        self.input_seeds.append(1)
+        # generate multiple different real envs with associated seed
+        for i in range(different_envs-1):
+            self.real_envs.append(self.env_factory.generate_random_real_env())
+            self.input_seeds.append(np.random.random())
+
 
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, 'VirtualEnv')
@@ -52,60 +56,62 @@ class GTN(nn.Module):
 
 
     def train(self):
+        self.print_stats()
+
+        # map virtual env to real env
+        env_id = 0
+        print("-- matching virtual env to real env with id " + str(env_id) + ' --')
+        for _ in range(self.match_iterations):
+            reptile_match_env(match_env=self.match_env,
+                              real_env=self.real_envs[env_id],
+                              virtual_env=self.virtual_env,
+                              input_seed=self.input_seeds[env_id],
+                              step_size=self.match_step_size)
+
         for it in range(self.max_iterations):
-            self.print_stats()
-
-            # map virtual env to real env
-            print("-- matching virtual env to real env --")
-            for _ in range(self.match_iterations):
-                old_state_dict_env = copy.deepcopy(self.virtual_env.state_dict())
-
-                env_id = np.random.randint(len(self.real_envs))
-                print('-- with id ' + str(env_id) + ' --')
-                reptile_match_env(match_env = self.match_env,
-                                  real_env = self.real_envs[env_id],
-                                  virtual_env = self.virtual_env,
-                                  input_seed = self.input_seeds[env_id],
-                                  step_size = self.step_size)
+            sm = self.real_prob + self.virtual_prob + self.both_prob
+            prob = np.random.random() * sm
 
             self.print_stats()
 
-            # now train on virtual env
-            print("-- training on virtual env --")
-            for _ in range(self.real_iterations):
-                env_id = np.random.randint(len(self.real_envs))
-                reptile_train_agent(agent = self.agent,
-                                    env = self.virtual_env,
-                                    input_seed = self.input_seeds[env_id])
-
-            self.print_stats()
-
-            # now train on real env
-            print("-- training on real env --")
-            for _ in range(self.real_iterations):
-                env_id = np.random.randint(len(self.real_envs))
-                print('-- with id ' + str(env_id) + ' --')
+            env_id = np.random.randint(len(self.real_envs))
+            if prob <= self.real_prob:
+                print("-- training on real env with id " + str(env_id) + ' --')
                 reptile_train_agent(agent = self.agent,
                                     env = self.real_envs[env_id],
-                                    step_size = self.step_size)
+                                    step_size = self.real_step_size)
 
-            self.print_stats()
+            elif prob <= self.real_prob + self.virtual_prob:
+                print("-- training on virtual env with id " + str(env_id) + ' --')
+                reptile_train_agent(agent = self.agent,
+                                    env = self.virtual_env,
+                                    input_seed = self.input_seeds[env_id],
+                                    step_size = self.virtual_step_size)
 
-            # now train on virtual env
-            print("-- training on both environments --")
-            for _ in range(self.virtual_iterations):
-                env_id = np.random.randint(len(self.real_envs))
+            elif prob <= self.real_prob + self.virtual_prob + self.both_prob:
+                print("-- training on both envs with id " + str(env_id) + ' --')
                 reptile_train_agent(agent = self.agent,
                                     env=self.virtual_env,
                                     match_env=self.real_envs[env_id],
                                     input_seed=self.input_seeds[env_id],
-                                    step_size = self.step_size)
+                                    step_size = self.both_step_size)
+            else:
+                print('Case that should not happen')
+
 
     def test(self):
         # calculate after how many steps with a new environment a certain score is achieved
-        env = self.env_factory.generate_default_real_env()
-        results = self.agent.run(env=env)
-        return len(results)
+        episodes_till_solved = 0
+        agent_state = self.agent.get_state_dict()
+
+        for interval in np.arange(0, 1.01, 0.1):
+            self.agent.set_state_dict(agent_state)
+            env = self.env_factory.generate_interval_real_env(interval)
+            reward_list = self.agent.test(env=env)
+            print('episodes till solved: ' + str(len(reward_list)))
+            episodes_till_solved += len(reward_list)
+        return episodes_till_solved
+
 
     def save(self, path):
         # not sure if working
@@ -119,6 +125,7 @@ class GTN(nn.Module):
             state['real_envs'].append(real_env.get_state_dict())
         torch.save(state, path)
 
+
     def load(self, path):
         # not sure if working
         if os.path.isfile(path):
@@ -131,3 +138,17 @@ class GTN(nn.Module):
                 self.real_envs[i].set_state_dict(state['real_envs'][i])
         else:
             raise FileNotFoundError('File not found: ' + str(path))
+
+
+if __name__ == "__main__":
+    with open("../default_config.yaml", "r") as stream:
+        config = yaml.safe_load(stream)
+
+    # set seeds
+    seed = config["seed"]
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    gtn = GTN(config)
+    gtn.train()
+

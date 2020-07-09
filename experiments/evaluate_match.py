@@ -7,7 +7,7 @@ import torch
 from copy import deepcopy
 from agents.TD3 import TD3
 from agents.match_env import MatchEnv
-from agents.REPTILE import reptile_train_agent
+from agents.REPTILE import reptile_train_agent, reptile_match_env
 from envs.env_factory import EnvFactory
 
 
@@ -30,11 +30,19 @@ if __name__ == "__main__":
     #                 virtual_env=virtual_env,
     #                 input_seed=0)
     #
-    # path = 'model.pt'
-    # virtual_env.save(path)
+
+    match_env = MatchEnv(config=config)
+    reptile_match_env(match_env=match_env,
+                      real_env=real_env,
+                      virtual_env=virtual_env,
+                      input_seed=0,
+                      step_size=0.1)
 
     path = 'model.pt'
-    virtual_env.load(path)
+    virtual_env.save(path)
+
+    # path = 'model.pt'
+    # virtual_env.load(path)
 
     # then train on virtual env
     print("-- training on virtual env --")

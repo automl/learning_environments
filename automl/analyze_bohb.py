@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 3
-OUTLIER_PERC = 0.03
+EXP_LOSS = 7
+OUTLIER_PERC = 0.05
 
 
 def analyze_bohb(log_dir):
@@ -96,7 +96,6 @@ def remove_outliers(result):
     return result
 
 
-
 def plot_accuracy_over_budget(result):
     fig, ax = plt.subplots()
 
@@ -114,17 +113,15 @@ def plot_accuracy_over_budget(result):
             y = []
             for key2, value2 in value1.results.items():
                 x.append(key2)
-                if REVERSE_LOSS:
-                    y.append(-value2["loss"])
-                else:
-                    y.append(value2["loss"])
+                y.append(value2["loss"])
             plt.semilogx(x, y, color=color)
         except:
             print('Error in plot_accuracy_over_budget, continuing')
 
-    ax.set_title('Classification accuracy for different configurations')
+    ax.set_title('Score for different configurations')
     ax.set_xlabel('epochs')
-    ax.set_ylabel('classification accuracy')
+    ax.set_ylabel('score')
+
 
 def plot_parallel_scatter(result):
     plt.subplots(dpi=300)
@@ -230,7 +227,7 @@ def plot_parallel_scatter(result):
 
             # log scale if min/max value differs to much
             if max_val / min_val > 100:
-                val050 = np.exp(linear_interpolation(0.50, 0, 1, np.log(min_val), np.log(max_val)))
+                val050 = np.exp((np.log(min_val)+np.log(max_val))/2)
                 for i in range(len(values)):
                     for k in range(len(data)):
                         if data[k][0] == values[i]:
@@ -293,7 +290,8 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    log_dir = '../results/TD3_params_bohb_2020-07-07-12'
+    #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
+    log_dir = '../results/match_env_params_bohb_2020-07-07-11'
     analyze_bohb(log_dir)
 
 
