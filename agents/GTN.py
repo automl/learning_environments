@@ -59,14 +59,20 @@ class GTN(nn.Module):
         self.print_stats()
 
         # first map virtual env to default real env -> use as starting point for further optimization
-        env_id = 0
-        print("-- matching virtual env to real env with id " + str(env_id) + ' --')
-        for _ in range(self.match_iterations):
-            reptile_match_env(match_env=self.match_env,
-                              real_env=self.real_envs[env_id],
-                              virtual_env=self.virtual_env,
-                              input_seed=self.input_seeds[env_id],
-                              step_size=self.match_step_size)
+
+        path = 'virtual_env.pt'
+        if os.path.isfile(path):
+            self.virtual_env.load(path)
+        else:
+            env_id = 0
+            print("-- matching virtual env to real env with id " + str(env_id) + ' --')
+            for _ in range(self.match_iterations):
+                reptile_match_env(match_env=self.match_env,
+                                  real_env=self.real_envs[env_id],
+                                  virtual_env=self.virtual_env,
+                                  input_seed=self.input_seeds[env_id],
+                                  step_size=self.match_step_size)
+            self.virtual_env.save(path)
 
         # randomly determine in each iteration whether
         # - the agent should be trained on a specific real env

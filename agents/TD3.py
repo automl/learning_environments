@@ -133,6 +133,10 @@ class TD3(nn.Module):
         last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
+            last_states.requires_grad = True
+            last_actions.requires_grad = True
+            input_seeds.requires_grad = True
+
             states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
             _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
@@ -160,8 +164,12 @@ class TD3(nn.Module):
                                 virtual_env=env,
                                 input_seed=input_seeds[0],
                                 batch_size=self.match_batch_size)
-            critic_loss /= self.match_weight_actor ** 0.5
-            m_loss *= self.match_weight_actor ** 0.5
+            m_loss *= self.match_weight_critic
+
+        # if self.total_it % 100 == 0:
+        #     print('----')
+        #     print(critic_loss)
+        #     print(m_loss)
 
         critic_loss += m_loss
 
@@ -173,6 +181,10 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             if match_virtual_env:
+                last_states.requires_grad = True
+                last_actions.requires_grad = True
+                input_seeds.requires_grad = True
+
                 states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
                 _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
@@ -187,17 +199,12 @@ class TD3(nn.Module):
                                     virtual_env=env,
                                     input_seed=input_seeds[0],
                                     batch_size=self.match_batch_size)
-                actor_loss /= self.match_weight_actor ** 0.5
-                m_loss *= self.match_weight_actor ** 0.5
+                m_loss *= self.match_weight_actor
 
-            #     print('----')
-            #     print(actor_loss)
-            #     print(m_loss)
-            #
-            # if self.total_it % 100 == 0:
-            #     print('----')
-            #     print(actor_loss)
-            #     print(m_loss)
+            if self.total_it % 100 == 0:
+                print('----')
+                print(actor_loss)
+                print(m_loss)
 
             actor_loss += m_loss
 
@@ -229,10 +236,6 @@ class TD3(nn.Module):
 
     def run_env(self, env, last_state, last_action, input_seed):
         # enable gradient computation
-        last_state.requires_grad = True
-        last_action.requires_grad = True
-        input_seed.requires_grad = True
-
         state, reward, done = env.step(last_action, last_state, input_seed)
         state = state.to(device)  # wtf?
         reward = reward.to(device)
