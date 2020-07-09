@@ -21,8 +21,9 @@ class ReplayBuffer:
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
         self.input_seed = torch.zeros((max_size, 1))
+        self.action_std = torch.zeros((max_size, 1))
 
-    def add(self, last_state, last_action, state, action, next_state, reward, done, input_seed):
+    def add(self, last_state, last_action, state, action, next_state, reward, done, input_seed, action_std):
         self.last_state[self.ptr] = last_state.detach()
         self.last_action[self.ptr] = last_action.detach()
         self.state[self.ptr] = state.detach().detach()
@@ -31,6 +32,7 @@ class ReplayBuffer:
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
         self.input_seed[self.ptr] = input_seed.squeeze().detach()
+        self.action_std[self.ptr] = action_std.squeeze().detach()
 
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
@@ -47,7 +49,8 @@ class ReplayBuffer:
             self.next_state[ind].to(device).detach(),
             self.reward[ind].to(device).detach(),
             self.done[ind].to(device).detach(),
-            self.input_seed[ind].to(device).detach()
+            self.input_seed[ind].to(device).detach(),
+            self.action_std[ind].to(device).detach(),
         )
 
     # for PPO
@@ -60,12 +63,13 @@ class ReplayBuffer:
             self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
-            self.input_seed[: self.size].to(device).detach()
+            self.input_seed[: self.size].to(device).detach(),
+            self.action_std[: self.size].to(device).detach(),
         )
 
     # for PPO
     def clear(self):
-        self.__init__(self.state_dim, self.action_dim, self.max_size)
+        self.__init__(self.state_dim, self.action_dim, self.max_size)  #
 
 
 class AverageMeter:
@@ -98,13 +102,54 @@ class AverageMeter:
         return self.vals
 
     def _mean(self, num):
-        vals = self.vals[max(len(self.vals)-num, 0) : len(self.vals)]
+        vals = self.vals[max(len(self.vals) - num, 0) : len(self.vals)]
         return sum(vals) / (len(vals) + 1e-9)
 
 
+class Identity(nn.Module):
+    def __init__(self, module):
+        super(Identity, self).__init__()
+        self.net = module
 
-def print_abs_param_sum(model, model_name=''):
+    def forward(self, x):
+        return self.net(x)
+
+
+def build_nn_from_config(input_dim, output_dim, nn_config):
+    hidden_size = nn_config["hidden_size"]
+    hidden_layer = nn_config["hidden_layer"]
+    activation_fn = nn_config["activation_fn"]
+    weight_norm = nn_config["weight_norm"]
+
+    if activation_fn == "prelu":
+        act_fn = nn.PReLU()
+    elif activation_fn == "relu":
+        act_fn = nn.ReLU()
+    elif activation_fn == "leakyrelu":
+        act_fn = nn.LeakyReLU()
+    elif activation_fn == "tanh":
+        act_fn = nn.Tanh()
+    else:
+        print("Unknown activation function")
+
+    if weight_norm:
+        weight_nrm = torch.nn.utils.weight_norm
+    else:
+        weight_nrm = Identity
+
+    modules = []
+    modules.append(nn.Linear(input_dim, hidden_size))
+    modules.append(act_fn)
+    for i in range(hidden_layer):
+        modules.append(weight_nrm(nn.Linear(hidden_size, hidden_size)))
+        modules.append(act_fn)
+    modules.append(nn.Linear(hidden_size, output_dim))
+
+    return nn.Sequential(*modules)
+
+
+def print_abs_param_sum(model, model_name=""):
     sm = 0
     for param in model.parameters():
         sm += abs(param).sum()
-    print(model_name + ' ' + str(sm))
+    print(model_name + " " + str(sm))

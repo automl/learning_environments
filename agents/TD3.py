@@ -79,6 +79,10 @@ class TD3(nn.Module):
             for t in range(env.max_episode_steps()):
                 time_step += 1
 
+                # required to make resampling of actions (for the autograd bw graph) deterministic
+                actor_seed = abs(int(sum(state) * 1e9))
+                torch.manual_seed(actor_seed)
+
                 # fill replay buffer at beginning
                 if episode < self.init_episodes:
                     action = env.get_random_action()
@@ -98,7 +102,7 @@ class TD3(nn.Module):
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
                 if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor, input_seed)
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor, input_seed, self.actor.action_std.data)
 
                 last_state = state
                 state = next_state
@@ -130,7 +134,7 @@ class TD3(nn.Module):
         self.total_it += 1
 
         # Sample replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.sample(self.batch_size)
+        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds, action_std = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
             last_states.requires_grad = True
@@ -141,7 +145,7 @@ class TD3(nn.Module):
             _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
         with torch.no_grad():
-            # Select action according to policy and add clipped noise
+            # Select action according to policy and add clipped noise, no_grad since target will be copied
             next_actions = self.actor_target(next_states)
 
             # Compute the target Q value
@@ -149,6 +153,8 @@ class TD3(nn.Module):
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
             target_Q = rewards + (1 - dones) * self.gamma * target_Q
+
+        actions = self.actor.reconstruct_autograd(states, action_std)
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
@@ -160,6 +166,9 @@ class TD3(nn.Module):
         # Compute matching loss
         m_loss = 0
         if match_virtual_env and self.optim_env_with_critic:
+            m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seeds[0], batch_size=self.match_batch_size)
+            critic_loss /= self.match_weight_actor ** 0.5
+            m_loss *= self.match_weight_actor ** 0.5
             m_loss = match_loss(real_env=match_env,
                                 virtual_env=env,
                                 input_seed=input_seeds[0],
@@ -195,6 +204,9 @@ class TD3(nn.Module):
             # Compute matching loss
             m_loss = 0
             if match_virtual_env and self.optim_env_with_actor:
+                m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seeds[0], batch_size=self.match_batch_size)
+                actor_loss /= self.match_weight_actor ** 0.5
+                m_loss *= self.match_weight_actor ** 0.5
                 m_loss = match_loss(real_env=match_env,
                                     virtual_env=env,
                                     input_seed=input_seeds[0],
@@ -245,6 +257,30 @@ class TD3(nn.Module):
 
     def get_state_dict(self):
         agent_state = {}
+
+        agent_state["td3_actor"] = self.actor.state_dict()
+        agent_state["td3_actor_target"] = self.actor_target.state_dict()
+        agent_state["td3_critic_1"] = self.critic_1.state_dict()
+        agent_state["td3_critic_2"] = self.critic_2.state_dict()
+        agent_state["td3_critic_target_1"] = self.critic_target_1.state_dict()
+        agent_state["td3_critic_target_2"] = self.critic_target_2.state_dict()
+        if self.actor_optimizer:
+            agent_state["td3_actor_optimizer"] = self.actor_optimizer.state_dict()
+        if self.critic_optimizer:
+            agent_state["td3_critic_optimizer"] = self.critic_optimizer.state_dict()
+        return agent_state
+
+    def set_state_dict(self, agent_state):
+        self.actor.load_state_dict(agent_state["td3_actor"])
+        self.actor_target.load_state_dict(agent_state["td3_actor_target"])
+        self.critic_1.load_state_dict(agent_state["td3_critic_1"])
+        self.critic_2.load_state_dict(agent_state["td3_critic_2"])
+        self.critic_target_1.load_state_dict(agent_state["td3_critic_target_1"])
+        self.critic_target_2.load_state_dict(agent_state["td3_critic_target_2"])
+        if self.actor_optimizer:
+            self.actor_optimizer.load_state_dict(agent_state["td3_actor_optimizer"])
+        if self.critic_optimizer:
+            self.critic_optimizer.load_state_dict(agent_state["td3_critic_optimizer"])
         agent_state['td3_actor'] = self.actor.state_dict()
         agent_state['td3_actor_target'] = self.actor_target.state_dict()
         agent_state['td3_critic_1'] = self.critic_1.state_dict()
@@ -292,4 +328,3 @@ if __name__ == "__main__":
               config=config)
 
     td3.train(env)
-
