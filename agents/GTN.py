@@ -58,7 +58,7 @@ class GTN(nn.Module):
     def train(self):
         self.print_stats()
 
-        # map virtual env to real env
+        # first map virtual env to default real env -> use as starting point for further optimization
         env_id = 0
         print("-- matching virtual env to real env with id " + str(env_id) + ' --')
         for _ in range(self.match_iterations):
@@ -68,6 +68,11 @@ class GTN(nn.Module):
                               input_seed=self.input_seeds[env_id],
                               step_size=self.match_step_size)
 
+        # randomly determine in each iteration whether
+        # - the agent should be trained on a specific real env
+        # - the agent should be trained on a fixed virtual env with specific input seed
+        # - the agent should be trained on a variable virtual env with specific input seed
+        # all conditions has a corresponding probability to be executed in each iteration
         for it in range(self.max_iterations):
             sm = self.real_prob + self.virtual_prob + self.both_prob
             prob = np.random.random() * sm
@@ -100,17 +105,22 @@ class GTN(nn.Module):
 
 
     def test(self):
-        # calculate after how many steps with a new environment a certain score is achieved
-        episodes_till_solved = 0
+        # generate 10 different deterministic environments with increasing difficulty
+        # and check for every environment how many episodes it takes the agent to solve it
+        # N.B. we have to reset the state of the agent before every iteration
+        sum_episodes_till_solved = 0
         agent_state = self.agent.get_state_dict()
 
         for interval in np.arange(0, 1.01, 0.1):
             self.agent.set_state_dict(agent_state)
             env = self.env_factory.generate_interval_real_env(interval)
             reward_list = self.agent.test(env=env)
+            sum_episodes_till_solved += len(reward_list)
             print('episodes till solved: ' + str(len(reward_list)))
-            episodes_till_solved += len(reward_list)
-        return episodes_till_solved
+
+        self.agent.set_state_dict(agent_state)
+
+        return sum_episodes_till_solved
 
 
     def save(self, path):
