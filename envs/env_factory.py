@@ -32,9 +32,9 @@ class EnvFactory:
         env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_interval_real_env(self, interval):
+    def generate_interpolate_real_env(self, interpolate):
         # generate a real environment with random parameters within specified range
-        kwargs = self._get_interval_parameters(interval)
+        kwargs = self._get_interpolate_parameters(interpolate)
         print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
@@ -57,16 +57,16 @@ class EnvFactory:
                 kwargs[key] = value
         return kwargs
 
-    def _get_interval_parameters(self, interval):
+    def _get_interpolate_parameters(self, interpolate):
         kwargs = {"env_name": self.env_name,
                   "state_dim": self.state_dim,
                   "action_dim": self.action_dim}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 if bool(value[3]):
-                    kwargs[key] = value[0] + interval * (value[2] - value[0])
+                    kwargs[key] = value[0] + interpolate * (value[2] - value[0])
                 else:
-                    kwargs[key] = value[2] + interval * (value[0] - value[2])
+                    kwargs[key] = value[2] + interpolate * (value[0] - value[2])
             else:
                 kwargs[key] = value
         return kwargs

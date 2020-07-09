@@ -59,7 +59,6 @@ class GTN(nn.Module):
         self.print_stats()
 
         # first map virtual env to default real env -> use as starting point for further optimization
-
         path = 'virtual_env.pt'
         if os.path.isfile(path):
             self.virtual_env.load(path)
@@ -114,19 +113,21 @@ class GTN(nn.Module):
         # generate 10 different deterministic environments with increasing difficulty
         # and check for every environment how many episodes it takes the agent to solve it
         # N.B. we have to reset the state of the agent before every iteration
-        sum_episodes_till_solved = 0
+        mean_episodes_till_solved = 0
         agent_state = self.agent.get_state_dict()
 
-        for interval in np.arange(0, 1.01, 0.1):
+        for interpolate in np.arange(0, 1.01, 0.1):
+            print(interpolate)
             self.agent.set_state_dict(agent_state)
-            env = self.env_factory.generate_interval_real_env(interval)
-            reward_list = self.agent.test(env=env)
-            sum_episodes_till_solved += len(reward_list)
+            env = self.env_factory.generate_interpolate_real_env(interpolate)
+            reward_list = self.agent.train(env=env)
+            mean_episodes_till_solved += len(reward_list)
             print('episodes till solved: ' + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
+        mean_episodes_till_solved /= 10
 
-        return sum_episodes_till_solved
+        return mean_episodes_till_solved
 
 
     def save(self, path):
@@ -166,5 +167,6 @@ if __name__ == "__main__":
     np.random.seed(seed)
 
     gtn = GTN(config)
-    gtn.train()
+    gtn.test()
+    #gtn.train()
 
