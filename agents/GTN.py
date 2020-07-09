@@ -128,7 +128,7 @@ class GTN(nn.Module):
         mean_episodes_till_solved /= 10
 
         return mean_episodes_till_solved
-
+ 
 
     def save(self, path):
         # not sure if working
