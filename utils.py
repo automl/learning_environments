@@ -23,7 +23,18 @@ class ReplayBuffer:
         self.input_seed = torch.zeros((max_size, 1))
         self.action_std = torch.zeros((max_size, 1))
 
-    def add(self, last_state, last_action, state, action, next_state, reward, done, input_seed, action_std):
+    def add(
+        self,
+        last_state,
+        last_action,
+        state,
+        action,
+        next_state,
+        reward,
+        done,
+        input_seed,
+        action_std,
+    ):
         self.last_state[self.ptr] = last_state.detach()
         self.last_action[self.ptr] = last_action.detach()
         self.state[self.ptr] = state.detach().detach()
@@ -92,7 +103,9 @@ class AverageMeter:
 
         if self.it % print_rate == 0:
             mean_val = self._mean(print_rate)
-            out = self.print_str + "{:15.6f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
+            out = self.print_str + "{:15.6f} {:>25} {}".format(
+                mean_val, "Total updates: ", self.it
+            )
             print(out)
 
     def get_mean(self, num=10):
@@ -104,48 +117,6 @@ class AverageMeter:
     def _mean(self, num):
         vals = self.vals[max(len(self.vals) - num, 0) : len(self.vals)]
         return sum(vals) / (len(vals) + 1e-9)
-
-
-class Identity(nn.Module):
-    def __init__(self, module):
-        super(Identity, self).__init__()
-        self.net = module
-
-    def forward(self, x):
-        return self.net(x)
-
-
-def build_nn_from_config(input_dim, output_dim, nn_config):
-    hidden_size = nn_config["hidden_size"]
-    hidden_layer = nn_config["hidden_layer"]
-    activation_fn = nn_config["activation_fn"]
-    weight_norm = nn_config["weight_norm"]
-
-    if activation_fn == "prelu":
-        act_fn = nn.PReLU()
-    elif activation_fn == "relu":
-        act_fn = nn.ReLU()
-    elif activation_fn == "leakyrelu":
-        act_fn = nn.LeakyReLU()
-    elif activation_fn == "tanh":
-        act_fn = nn.Tanh()
-    else:
-        print("Unknown activation function")
-
-    if weight_norm:
-        weight_nrm = torch.nn.utils.weight_norm
-    else:
-        weight_nrm = Identity
-
-    modules = []
-    modules.append(nn.Linear(input_dim, hidden_size))
-    modules.append(act_fn)
-    for i in range(hidden_layer):
-        modules.append(weight_nrm(nn.Linear(hidden_size, hidden_size)))
-        modules.append(act_fn)
-    modules.append(nn.Linear(hidden_size, output_dim))
-
-    return nn.Sequential(*modules)
 
 
 def print_abs_param_sum(model, model_name=""):
