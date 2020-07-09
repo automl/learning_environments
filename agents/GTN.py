@@ -64,14 +64,14 @@ class GTN(nn.Module):
         else:
             env_id = 0
             print("-- matching virtual env to real env with id " + str(env_id) + " --")
-            for _ in range(self.match_iterations):
-                reptile_match_env(
-                    match_env=self.match_env,
-                    real_env=self.real_envs[env_id],
-                    virtual_env=self.virtual_env,
-                    input_seed=self.input_seeds[env_id],
-                    step_size=self.match_step_size,
-                )
+            #for _ in range(self.match_iterations):
+            reptile_match_env(
+                match_env=self.match_env,
+                real_env=self.real_envs[env_id],
+                virtual_env=self.virtual_env,
+                input_seed=self.input_seeds[env_id],
+                step_size=self.match_step_size,
+            )
             self.virtual_env.save(path)
 
         # randomly determine in each iteration whether
@@ -171,5 +171,5 @@ if __name__ == "__main__":
     np.random.seed(seed)
 
     gtn = GTN(config)
-    gtn.test()
-    # gtn.train()
+    #gtn.test()
+    gtn.train()

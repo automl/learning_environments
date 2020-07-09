@@ -156,17 +156,8 @@ class TD3(nn.Module):
         self.total_it += 1
 
         # Sample replay buffer
-        (
-            last_states,
-            last_actions,
-            states,
-            actions,
-            next_states,
-            rewards,
-            dones,
-            input_seeds,
-            action_std,
-        ) = replay_buffer.sample(self.batch_size)
+        last_states, last_actions, states, actions, next_states, \
+        rewards, dones, input_seeds, action_std = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
             last_states.requires_grad = True
@@ -321,7 +312,6 @@ class TD3(nn.Module):
         return agent_state
 
     def set_state_dict(self, agent_state):
-        print("td3 set state dict")
         self.actor.load_state_dict(agent_state["td3_actor"])
         self.actor_target.load_state_dict(agent_state["td3_actor_target"])
         self.critic_1.load_state_dict(agent_state["td3_critic_1"])
@@ -342,8 +332,8 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    # env = env_fac.generate_default_real_env()
-    env = env_fac.generate_interpolate_real_env(1)
+    env = env_fac.generate_default_real_env()
+    #env = env_fac.generate_interpolate_real_env(1)
 
     # set seeds
     env.seed(seed)
