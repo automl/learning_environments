@@ -201,10 +201,10 @@ class TD3(nn.Module):
                                     batch_size=self.match_batch_size)
                 m_loss *= self.match_weight_actor
 
-            if self.total_it % 100 == 0:
-                print('----')
-                print(actor_loss)
-                print(m_loss)
+            # if self.total_it % 100 == 0:
+            #     print('----')
+            #     print(actor_loss)
+            #     print(m_loss)
 
             actor_loss += m_loss
 
