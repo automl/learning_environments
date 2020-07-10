@@ -137,7 +137,7 @@ class GTN(nn.Module):
             print("episodes till solved: " + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
-        mean_episodes_till_solved /= 10
+        mean_episodes_till_solved /= 10.0
 
         return mean_episodes_till_solved
 
@@ -177,5 +177,6 @@ if __name__ == "__main__":
     np.random.seed(seed)
 
     gtn = GTN(config)
-    gtn.test()
     gtn.train()
+    result = gtn.test()
+    print(result)

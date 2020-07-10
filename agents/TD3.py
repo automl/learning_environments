@@ -287,6 +287,8 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     seed = config["seed"]
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     # generate environment
     env_fac = EnvFactory(config)
@@ -294,10 +296,7 @@ if __name__ == "__main__":
     #virtual_env = env_fac.generate_default_virtual_env()
     #env = env_fac.generate_interpolate_real_env(1)
 
-    # set seeds
     env.seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
 
     td3 = TD3(state_dim=env.get_state_dim(), action_dim=env.get_action_dim(), config=config)
 
