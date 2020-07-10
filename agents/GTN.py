@@ -65,13 +65,11 @@ class GTN(nn.Module):
             env_id = 0
             print("-- matching virtual env to real env with id " + str(env_id) + " --")
             #for _ in range(self.match_iterations):
-            reptile_match_env(
-                match_env=self.match_env,
-                real_env=self.real_envs[env_id],
-                virtual_env=self.virtual_env,
-                input_seed=self.input_seeds[env_id],
-                step_size=self.match_step_size,
-            )
+            reptile_match_env(match_env=self.match_env,
+                              real_env=self.real_envs[env_id],
+                              virtual_env=self.virtual_env,
+                              input_seed=self.input_seeds[env_id],
+                              step_size=self.match_step_size)
             self.virtual_env.save(path)
 
         # randomly determine in each iteration whether
@@ -88,30 +86,25 @@ class GTN(nn.Module):
             env_id = np.random.randint(len(self.real_envs))
             if prob <= self.real_prob:
                 print("-- training on real env with id " + str(env_id) + " --")
-                reptile_train_agent(
-                    agent=self.agent,
-                    env=self.real_envs[env_id],
-                    step_size=self.real_step_size,
-                )
+                reptile_train_agent(agent=self.agent,
+                                    env=self.real_envs[env_id],
+                                    step_size=self.real_step_size)
 
             elif prob <= self.real_prob + self.virtual_prob:
                 print("-- training on virtual env with id " + str(env_id) + " --")
-                reptile_train_agent(
-                    agent=self.agent,
-                    env=self.virtual_env,
-                    input_seed=self.input_seeds[env_id],
-                    step_size=self.virtual_step_size,
-                )
+                reptile_train_agent(agent=self.agent,
+                                    env=self.virtual_env,
+                                    input_seed=self.input_seeds[env_id],
+                                    step_size=self.virtual_step_size)
 
             elif prob <= self.real_prob + self.virtual_prob + self.both_prob:
                 print("-- training on both envs with id " + str(env_id) + " --")
-                reptile_train_agent(
-                    agent=self.agent,
-                    env=self.virtual_env,
-                    match_env=self.real_envs[env_id],
-                    input_seed=self.input_seeds[env_id],
-                    step_size=self.both_step_size,
-                )
+                reptile_train_agent(agent=self.agent,
+                                    env=self.virtual_env,
+                                    match_env=self.real_envs[env_id],
+                                    input_seed=self.input_seeds[env_id],
+                                    step_size=self.both_step_size)
+
             else:
                 print("Case that should not happen")
 
