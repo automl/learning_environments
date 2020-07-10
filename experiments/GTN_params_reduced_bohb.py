@@ -123,7 +123,7 @@ class ExperimentWrapper():
 
         try:
             gtn = GTN(config)
-            #gtn.train()
+            gtn.train()
             score = gtn.test()
         except:
             score = float('Inf')
