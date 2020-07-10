@@ -159,10 +159,9 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         max_budget=bohb_params['max_budget'],
         result_logger=result_logger)
 
-    res = bohb.run(n_iterations=bohb_params['iterations'])
-    # res = bohb.run(n_iterations=bohb_params['iterations'],
-    #                min_n_workers=int(bohb_workers))
-#    res = bohb.run(n_iterations=BOHB_ITERATIONS)
+    #res = bohb.run(n_iterations=bohb_params['iterations'])
+    res = bohb.run(n_iterations=bohb_params['iterations'],
+                   min_n_workers=int(bohb_workers))
 
     bohb.shutdown(shutdown_workers=True)
     ns.shutdown()
