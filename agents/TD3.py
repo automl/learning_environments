@@ -143,7 +143,7 @@ class TD3(nn.Module):
             input_seeds.requires_grad = True
 
             states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
-            actions = self.actor.reconstruct_autograd(states, action_std)
+            actions = self.actor.forward(states, action_std)
             _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
         with torch.no_grad():
@@ -192,7 +192,7 @@ class TD3(nn.Module):
                 input_seeds.requires_grad = True
 
                 states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
-                actions = self.actor.reconstruct_autograd(states, action_std)
+                actions = self.actor.forward(states, action_std)
                 _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
             # Compute actor loss
@@ -291,6 +291,7 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     env = env_fac.generate_default_real_env()
+    #virtual_env = env_fac.generate_default_virtual_env()
     #env = env_fac.generate_interpolate_real_env(1)
 
     # set seeds
@@ -300,4 +301,4 @@ if __name__ == "__main__":
 
     td3 = TD3(state_dim=env.get_state_dim(), action_dim=env.get_action_dim(), config=config)
 
-    td3.train(env)
+    td3.train(env=env)
