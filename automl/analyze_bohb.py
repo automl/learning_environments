@@ -291,7 +291,7 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/match_env_params_bohb_2020-07-07-11'
+    log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     analyze_bohb(log_dir)
 
 

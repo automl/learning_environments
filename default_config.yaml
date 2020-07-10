@@ -15,6 +15,8 @@ agents:
     real_step_size: !!float 0.1         # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1      # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
+    input_seed_mean: !!float 0.1        # mean of input seed distribution
+    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
 
   reptile:
     max_iterations: !!int 10000         # maximum number of REPTILE iteration
@@ -22,15 +24,27 @@ agents:
     agent_name: !!str TD3               # which RL agent to use for meta-training
 
   match_env:
+    # faster matching
     oversampling: !!float 1.5           # how much to sample beyond the normal state/action space
     lr: !!float 4e-3                    # learning rate
     weight_decay: !!float 1e-9          # weight decay
     batch_size: !!int 192               # batch size during training
     early_out_diff: !!float 1e-4        # break criterion for matching
     early_out_num: !!int 200            # based on how many training steps shall an early out happen
-    steps: !!int 15000                  # number of steps
-    step_size: !!int 1000               # LR scheduler step size
+    steps: !!int 5000                   # number of steps
+    step_size: !!int 500                # LR scheduler step size
     gamma: !!float 0.6                  # LR scheduler gamma
+
+#  slower but more accurate matching
+#    oversampling: !!float 1.5          # how much to sample beyond the normal state/action space
+#    lr: !!float 4e-3                   # learning rate
+#    weight_decay: !!float 1e-9         # weight decay
+#    batch_size: !!int 192              # batch size during training
+#    early_out_diff: !!float 1e-4       # break criterion for matching
+#    early_out_num: !!int 200           # based on how many training steps shall an early out happen
+#    steps: !!int 15000                 # number of steps
+#    step_size: !!int 1000              # LR scheduler step size
+#    gamma: !!float 0.6                 # LR scheduler gamma
 
   td3:
     max_episodes: !!int 100             # maximum number of episodes to optimize
@@ -52,7 +66,7 @@ agents:
     optim_env_with_critic: !!bool False # optimize env together with critic
     match_weight_actor: !!float 1e4     # how much to weight matching loss wrt actor loss
     match_weight_critic: !!float 1e4    # how much to weight matching loss wrt critic loss
-    match_batch_size: !!int 256         # matching batch size
+    match_batch_size: !!int 128         # matching batch size
 
   ppo:
     max_episodes: !!int 100000          # maximum number of episodes to optimize
