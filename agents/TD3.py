@@ -192,6 +192,7 @@ class TD3(nn.Module):
                 input_seeds.requires_grad = True
 
                 states, _, _ = self.run_env(env, last_states, last_actions, input_seeds)
+                actions = self.actor.reconstruct_autograd(states, action_std)
                 _, rewards, dones = self.run_env(env, states, actions, input_seeds)
 
             # Compute actor loss
