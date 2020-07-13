@@ -21,7 +21,7 @@ class ReplayBuffer:
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
         self.input_seed = torch.zeros((max_size, 1))
-        self.action_std = torch.zeros((max_size, 1))
+        self.action_std = torch.zeros((max_size, action_dim))
 
     def add(
         self,

@@ -7,8 +7,6 @@ from os import path
 
 
 class PendulumEnv(gym.Env):
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
-
     def __init__(self, g=10.0):
         self.max_speed = 8
         self.max_torque = 2.0
@@ -19,8 +17,15 @@ class PendulumEnv(gym.Env):
         self.viewer = None
 
         high = np.array([1.0, 1.0, self.max_speed])
-        self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32)
+        self.action_space = spaces.Box(
+            low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32
+        )
         self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
+
+        self.metadata = {
+            "render.modes": ["human", "rgb_array"],
+            "video.frames_per_second": 30,
+        }
 
         self.seed()
 
@@ -42,9 +47,14 @@ class PendulumEnv(gym.Env):
         self.last_u = u  # for rendering
         costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
 
-        newthdot = thdot + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
+        newthdot = (
+            thdot
+            + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
+        )
         newth = th + newthdot * dt
-        newthdot = np.clip(newthdot, -self.max_speed, self.max_speed)  # pylint: disable=E1111
+        newthdot = np.clip(
+            newthdot, -self.max_speed, self.max_speed
+        )  # pylint: disable=E1111
 
         self.state = np.array([np.cos(newth), np.sin(newth), newthdot])
         return self.state, -costs, False, {}
@@ -52,7 +62,9 @@ class PendulumEnv(gym.Env):
     def reset(self):
         high = np.array([np.pi, 1])
         state_tmp = self.np_random.uniform(low=-high, high=high)
-        self.state = np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])
+        self.state = np.array(
+            [np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]]
+        )
         self.last_u = None
         return self.state
 
@@ -71,7 +83,9 @@ class PendulumEnv(gym.Env):
             axle.set_color(0, 0, 0)
             self.viewer.add_geom(axle)
 
-            fname = path.join(path.dirname(gym.envs.classic_control.__file__), "assets/clockwise.png")
+            fname = path.join(
+                path.dirname(gym.envs.classic_control.__file__), "assets/clockwise.png"
+            )
             self.img = rendering.Image(fname, 1.0, 1.0)
             self.imgtrans = rendering.Transform()
             self.img.add_attr(self.imgtrans)
