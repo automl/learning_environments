@@ -104,6 +104,11 @@ class ExperimentWrapper():
         config["envs"]['Pendulum-v0']['hidden_layer'] = cso["pen_hidden_layer"]
         config["envs"]['Pendulum-v0']['weight_norm'] = cso["pen_weight_norm"]
 
+        # manual override for REPTILE comparison
+        config["agents"]['match_env']['steps'] = 0
+        config["agents"]['gtn']['virtual_prob'] = 0
+        config["agents"]['gtn']['both_prob'] = 0
+
         return config
 
 
