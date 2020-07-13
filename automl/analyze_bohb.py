@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 2
-OUTLIER_PERC = 0.3
+OUTLIER_PERC = 0.2
 
 
 def analyze_bohb(log_dir):
@@ -76,7 +76,10 @@ def remove_outliers(result):
     lut = []
     for key, value1 in result.data.items():
         for value2 in value1.results.values():
-            loss = value2['loss']
+            if value2 == None:
+                loss = float('nan')
+            else:
+                loss = value2['loss']
             lut.append((loss, key))
 
     # remove NaN's

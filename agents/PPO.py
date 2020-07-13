@@ -29,6 +29,7 @@ class PPO(nn.Module):
         self.early_out_num = ppo_config['early_out_num']
         self.same_action_num = ppo_config['same_action_num']
 
+        self.render_env = config["render_env"]
 
         self.actor = Actor(state_dim, action_dim, agent_name,
                            config).to(device)
@@ -65,8 +66,13 @@ class PPO(nn.Module):
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
                 next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+
+                # live view
+                if self.render_env and episode % 100 == 0:
+                    env.render(state)
+
                 if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed)
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed, self.actor.action_std.data)
 
                 last_state = state
                 state = next_state
@@ -100,7 +106,7 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.get_all()
+        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds, action_stds = replay_buffer.get_all()
 
         if env.is_virtual_env():
             states = self.run_env(env, last_states, last_actions, input_seeds)

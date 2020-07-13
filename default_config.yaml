@@ -1,4 +1,4 @@
-env_name: !!str MountainCarContinuous-v0             # used environment. Can be either a gym environment (e.g. Pendulum-v0) or a custom one (Test)
+env_name: !!str Pendulum-v0             # used environment: Pendulum-v0, MountainCarCOntinuous-v0, Test
 seed: !!int 0                           # random initialization seed
 render_env: !!bool False                # render environment
 
@@ -24,7 +24,6 @@ agents:
     agent_name: !!str TD3               # which RL agent to use for meta-training
 
   match_env:
-    # faster matching
     oversampling: !!float 1.5           # how much to sample beyond the normal state/action space
     lr: !!float 4e-3                    # learning rate
     weight_decay: !!float 1e-9          # weight decay
@@ -34,17 +33,6 @@ agents:
     steps: !!int 5000                   # number of steps
     step_size: !!int 500                # LR scheduler step size
     gamma: !!float 0.6                  # LR scheduler gamma
-
-#  slower but more accurate matching
-#    oversampling: !!float 1.5          # how much to sample beyond the normal state/action space
-#    lr: !!float 4e-3                   # learning rate
-#    weight_decay: !!float 1e-9         # weight decay
-#    batch_size: !!int 192              # batch size during training
-#    early_out_diff: !!float 1e-4       # break criterion for matching
-#    early_out_num: !!int 200           # based on how many training steps shall an early out happen
-#    steps: !!int 15000                 # number of steps
-#    step_size: !!int 1000              # LR scheduler step size
-#    gamma: !!float 0.6                 # LR scheduler gamma
 
   td3:
     max_episodes: !!int 100             # maximum number of episodes to optimize
@@ -105,7 +93,10 @@ envs:
 
   MountainCarContinuous-v0:
     solved_reward: !!float 90           # used for early out in RL agent training
-    max_steps: [999, 999, 999]          # maximum number of steps per episode
+    max_steps: 999                      # maximum number of steps per episode
+    max_speed: [0.05, 0.07, 0.1]        # maximum allowed vehicle velocity
+    power: [0.001, 0.0015, 0.002]       # strength of the vehicle engine
+    goal_position: [0.45, 0.45, 0.5]    # x value? of goal position
     activation_fn: !!str leakyrelu      # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: 128                    # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 1               # number of hidden layers
