@@ -27,6 +27,9 @@ class PPO(nn.Module):
         self.max_episodes = ppo_config['max_episodes']
         self.update_episodes = ppo_config['update_episodes']
         self.early_out_num = ppo_config['early_out_num']
+        self.same_action_num = ppo_config['same_action_num']
+
+        self.render_env = config["render_env"]
 
         self.actor = Actor(state_dim, action_dim, agent_name,
                            config).to(device)
@@ -57,14 +60,19 @@ class PPO(nn.Module):
             last_state = None
             episode_reward = 0
 
-            for t in range(env.max_episode_steps()):
+            for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += 1
 
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done = env.step(action, state)
+                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+
+                # live view
+                if self.render_env and episode % 100 == 0:
+                    env.render(state)
+
                 if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed)
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed, self.actor.action_std.data)
 
                 last_state = state
                 state = next_state
@@ -84,7 +92,9 @@ class PPO(nn.Module):
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            if avg_meter_reward.get_mean(num=self.early_out_num) > env.env.solved_reward:
+            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+            if avg_reward > env.env.solved_reward:
+                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
                 break
 
         env.close()
@@ -98,7 +108,7 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds = replay_buffer.get_all()
+        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds, action_stds = replay_buffer.get_all()
 
         if env.is_virtual_env():
             states = self.run_env(env, last_states, last_actions, input_seeds)
@@ -169,15 +179,14 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     seed = config['seed']
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     # generate environment
     env_fac = EnvFactory(config)
     env = env_fac.generate_default_real_env()
 
-    # set seeds
     env.seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
 
     ppo = PPO(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),

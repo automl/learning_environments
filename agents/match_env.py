@@ -1,7 +1,7 @@
 import yaml
-from envs.env_factory import EnvFactory
 import torch
 import torch.nn as nn
+from envs.env_factory import EnvFactory
 from utils import AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -31,7 +31,8 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
 
         # simulate the same state/action transitions on the virtual env
         input_seeds = torch.tensor([input_seed], device=device, dtype=torch.float32).repeat(len(states)).unsqueeze(1)
-        next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=states,
+        next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions,
+                                                                               state=states,
                                                                                input_seed=input_seeds)
         outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1)
         #

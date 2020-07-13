@@ -29,6 +29,7 @@ class TD3(nn.Module):
         self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
         self.weight_decay = td3_config["weight_decay"]
+        self.same_action_num = td3_config["same_action_num"]
         self.optim_env_with_actor = td3_config["optim_env_with_actor"]
         self.optim_env_with_critic = td3_config["optim_env_with_critic"]
         self.early_out_num = td3_config["early_out_num"]
@@ -76,7 +77,7 @@ class TD3(nn.Module):
             # print(self.actor.net._modules['0'].weight.sum())
             # print(env.env.base._modules['0'].weight.sum())
 
-            for t in range(env.max_episode_steps()):
+            for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += 1
 
                 # required to make resampling of actions (for the autograd bw graph) deterministic
@@ -90,11 +91,14 @@ class TD3(nn.Module):
                     action = self.actor(state.to(device)).cpu()
 
                 # live view
-                if self.render_env and episode % 10 == 0 and episode > self.init_episodes:
+                if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:
                     env.render(state)
 
                 # state-action transition
-                next_state, reward, done = env.step(action, state, input_seed)
+                next_state, reward, done = env.step(action=action,
+                                                    state=state,
+                                                    input_seed=input_seed,
+                                                    same_action_num=self.same_action_num)
 
                 if t < env.max_episode_steps() - 1:
                     done_tensor = done
@@ -247,7 +251,10 @@ class TD3(nn.Module):
 
     def run_env(self, env, last_state, last_action, input_seed):
         # enable gradient computation
-        state, reward, done = env.step(last_action, last_state, input_seed)
+        state, reward, done = env.step(action=last_action,
+                                       state=last_state,
+                                       input_seed=input_seed,
+                                       same_action_num=self.same_action_num)
         state = state.to(device)  # wtf?
         reward = reward.to(device)
         done = done.to(device)
@@ -287,6 +294,8 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     seed = config["seed"]
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     # generate environment
     env_fac = EnvFactory(config)
@@ -294,10 +303,7 @@ if __name__ == "__main__":
     #virtual_env = env_fac.generate_default_virtual_env()
     #env = env_fac.generate_interpolate_real_env(1)
 
-    # set seeds
     env.seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
 
     td3 = TD3(state_dim=env.get_state_dim(), action_dim=env.get_action_dim(), config=config)
 

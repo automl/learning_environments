@@ -21,6 +21,7 @@ def create_td3_config_base(init_episodes, max_episodes):
     cfg_td3["tau"] = 0.005
     cfg_td3["policy_delay"] = 2
     cfg_td3["rb_size"] = 100000
+    cfg_td3["same_action_num"] = 1
     cfg_td3["activation_fn"] = "relu"
     cfg_td3["hidden_size"] = 256
     cfg_td3["hidden_layer"] = 1

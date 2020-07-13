@@ -13,18 +13,38 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32)):
+    def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32), same_action_num=1):
         if self.is_virtual_env():
-            next_state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
-            reward = reward.to("cpu")
-            next_state = next_state.to("cpu")
+            reward_sum = None
+            done_any = None
+
+            for i in range(same_action_num):
+                state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
+                if reward_sum == None:
+                    reward_sum = reward
+                else:
+                    reward_sum += reward
+                # TODO: Right now we only use the last done flag, but this might be problematic if same_action_num > 1
+
+            reward = reward_sum.to("cpu")
+            next_state = state.to("cpu")
             done = done.to("cpu")
             return next_state, reward, done
+
         else:
             self.env.state = state.cpu().detach().numpy()
-            next_state, reward, done, _ = self.env.step(action.cpu().detach().numpy())
-            next_state_torch = torch.tensor(next_state, device="cpu", dtype=torch.float32)
-            reward_torch = torch.tensor(reward, device="cpu", dtype=torch.float32)
+            action = action.cpu().detach().numpy()
+            reward_sum = 0
+
+            for i in range(same_action_num):
+                state, reward, done, _ = self.env.step(action)
+                self.env.state = state
+                reward_sum += reward
+                if done:
+                    break
+
+            next_state_torch = torch.tensor(state, device="cpu", dtype=torch.float32)
+            reward_torch = torch.tensor(reward_sum, device="cpu", dtype=torch.float32)
             done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
             return next_state_torch, reward_torch, done_torch
 
