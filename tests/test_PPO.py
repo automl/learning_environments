@@ -20,7 +20,9 @@ def create_ppo_config_base(max_episodes):
     cfg_ppo['vf_coef'] = 0.5
     cfg_ppo['ent_coef'] = 0.01
     cfg_ppo['eps_clip'] = 0.2
+    cfg_ppo['same_action_num'] = 1
     cfg_ppo['hidden_size'] = 64
+    cfg_ppo['hidden_layer'] = 1
     cfg_ppo['activation_fn'] = 'relu'
     cfg_ppo['action_std'] = 0.5
     cfg_ppo['early_out_num'] = 10000

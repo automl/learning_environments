@@ -27,6 +27,8 @@ class PPO(nn.Module):
         self.max_episodes = ppo_config['max_episodes']
         self.update_episodes = ppo_config['update_episodes']
         self.early_out_num = ppo_config['early_out_num']
+        self.same_action_num = ppo_config['same_action_num']
+
 
         self.actor = Actor(state_dim, action_dim, agent_name,
                            config).to(device)
@@ -57,12 +59,12 @@ class PPO(nn.Module):
             last_state = None
             episode_reward = 0
 
-            for t in range(env.max_episode_steps()):
+            for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += 1
 
                 # run old policy
                 action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done = env.step(action, state)
+                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
                 if last_state is not None and last_action is not None:
                     replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed)
 
