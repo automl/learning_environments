@@ -114,7 +114,7 @@ envs:
 
   HalfCheetah-v2:
     solved_reward: !!float 3000         # used for early out in RL agent training
-    max_steps: 150                      # maximum number of steps per episode
+    max_steps: 1000                      # maximum number of steps per episode
     g: [-1, -9.806, -18, True]          # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool True         # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
     activation_fn: !!str tanh           # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')

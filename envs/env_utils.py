@@ -1,7 +1,7 @@
 from envs.pendulum import PendulumEnv
 from envs.test_env import TestEnv
 from envs.continuous_mountain_car import Continuous_MountainCarEnv
-#from envs.half_cheetah import HalfCheetahEnv
+from envs.half_cheetah import HalfCheetahEnv
 
 
 def generate_env_with_kwargs(kwargs, env_name):
