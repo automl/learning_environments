@@ -15,13 +15,16 @@ class EnvWrapper(nn.Module):
 
     def step(self, action, state, input_seed=torch.tensor([0], device="cpu", dtype=torch.float32), same_action_num=1):
         if self.is_virtual_env():
-            reward_sum = torch.tensor([0], device=device, dtype=torch.float32)
+            reward_sum = None
+            done_any = None
 
             for i in range(same_action_num):
                 state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
-                reward_sum += reward
-                if done:
-                    break
+                if reward_sum == None:
+                    reward_sum = reward
+                else:
+                    reward_sum += reward
+                # TODO: Right now we only use the last done flag, but this might be problematic if same_action_num > 1
 
             reward = reward_sum.to("cpu")
             next_state = state.to("cpu")
