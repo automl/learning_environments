@@ -1,5 +1,6 @@
 import datetime
 import sys
+import traceback
 import yaml
 import random
 import numpy as np
@@ -104,11 +105,6 @@ class ExperimentWrapper():
         config["envs"]['Pendulum-v0']['hidden_layer'] = cso["pen_hidden_layer"]
         config["envs"]['Pendulum-v0']['weight_norm'] = cso["pen_weight_norm"]
 
-        # manual override for REPTILE comparison
-        config["agents"]['match_env']['steps'] = 0
-        config["agents"]['gtn']['virtual_prob'] = 0
-        config["agents"]['gtn']['both_prob'] = 0
-
         return config
 
 
@@ -128,12 +124,18 @@ class ExperimentWrapper():
 
         try:
             gtn = GTN(config)
-            gtn.train()
+            order = gtn.train()
             score = gtn.test()
+            error = ""
         except:
+            order = []
             score = float('Inf')
+            error = traceback.format_exc()
+            print(error)
 
         info['config'] = str(config)
+        info['order'] = str(order)
+        info['error'] = str(error)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))

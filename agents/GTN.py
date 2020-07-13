@@ -90,6 +90,8 @@ class GTN(nn.Module):
         # - the agent should be trained on a fixed virtual env with specific input seed
         # - the agent should be trained on a variable virtual env with specific input seed
         # all conditions has a corresponding probability to be executed in each iteration
+
+        order = []
         for it in range(self.max_iterations):
             sm = self.real_prob + self.virtual_prob + self.both_prob
             prob = np.random.random() * sm
@@ -102,6 +104,7 @@ class GTN(nn.Module):
                 reptile_train_agent(agent=self.agent,
                                     env=self.real_envs[env_id],
                                     step_size=self.real_step_size)
+                order.append(1)
 
             elif prob <= self.real_prob + self.virtual_prob:
                 print("-- training on virtual env with id " + str(env_id) + " --")
@@ -109,6 +112,7 @@ class GTN(nn.Module):
                                     env=self.virtual_env,
                                     input_seed=self.input_seeds[env_id],
                                     step_size=self.virtual_step_size)
+                order.append(2)
 
             elif prob <= self.real_prob + self.virtual_prob + self.both_prob:
                 print("-- training on both envs with id " + str(env_id) + " --")
@@ -117,9 +121,11 @@ class GTN(nn.Module):
                                     match_env=self.real_envs[env_id],
                                     input_seed=self.input_seeds[env_id],
                                     step_size=self.both_step_size)
+                order.append(3)
 
             else:
                 print("Case that should not happen")
+        return order
 
     def test(self):
         # generate 10 different deterministic environments with increasing difficulty
@@ -138,7 +144,7 @@ class GTN(nn.Module):
             print("episodes till solved: " + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
-        mean_episodes_till_solved /= 10.0
+        mean_episodes_till_solved /= 11.0
 
         return mean_episodes_till_solved
 
