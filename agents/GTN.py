@@ -5,6 +5,7 @@ import torch.nn as nn
 import numpy as np
 import os
 import copy
+from agents.TD3 import TD3
 from agents.agent_utils import select_agent
 from agents.match_env import MatchEnv
 from agents.REPTILE import reptile_update, reptile_train_agent, reptile_match_env
@@ -131,6 +132,12 @@ class GTN(nn.Module):
         # generate 10 different deterministic environments with increasing difficulty
         # and check for every environment how many episodes it takes the agent to solve it
         # N.B. we have to reset the state of the agent before every iteration
+
+        # to avoid problems with wrongly initialized optimizers
+        if isinstance(self.agent, TD3):
+            env = self.env_factory.generate_default_real_env()
+            self.agent.init_optimizer(env=env, match_env=None)
+
         mean_episodes_till_solved = 0
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
@@ -188,6 +195,6 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = False
 
     gtn = GTN(config)
-    gtn.train()
+    #gtn.train()
     result = gtn.test()
     print(result)
