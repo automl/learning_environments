@@ -1,4 +1,5 @@
 import yaml
+import random
 import torch
 import torch.nn as nn
 import numpy as np
@@ -173,8 +174,12 @@ if __name__ == "__main__":
 
     # set seeds
     seed = config["seed"]
-    torch.manual_seed(seed)
+    random.seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
     gtn = GTN(config)
     gtn.train()

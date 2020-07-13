@@ -1,7 +1,7 @@
 import yaml
-from envs.env_factory import EnvFactory
 import torch
 import torch.nn as nn
+from envs.env_factory import EnvFactory
 from utils import AverageMeter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
