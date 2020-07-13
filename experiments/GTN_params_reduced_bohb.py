@@ -121,14 +121,13 @@ class ExperimentWrapper():
         print('----------------------------')
 
         info = {}
-
+        order = None
+        error = ""
         try:
             gtn = GTN(config)
             order = gtn.train()
             score = gtn.test()
-            error = ""
         except:
-            order = []
             score = float('Inf')
             error = traceback.format_exc()
             print(error)
