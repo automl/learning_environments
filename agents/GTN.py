@@ -195,6 +195,6 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = False
 
     gtn = GTN(config)
-    #gtn.train()
+    gtn.train()
     result = gtn.test()
     print(result)
