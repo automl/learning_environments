@@ -61,7 +61,7 @@ agents:
     max_episodes: !!int 100000          # maximum number of episodes to optimize
     update_episodes: !!float 20         # update policy every x episodes (can be float)
     ppo_epochs: !!int 100               # update policy for x epochs
-    gamma: !!float 0.998                # discount factor
+    gamma: !!float 0.99                 # discount factor
     lr: !!float 1e-3                    # learning rate
     weight_decay: !!float 0             # weight decay
     vf_coef: !!float 0.5                # value function coefficient (see PPO paper)
