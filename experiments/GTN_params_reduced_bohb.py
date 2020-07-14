@@ -27,7 +27,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=0, upper=10, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=10, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_real_prob', lower=0, upper=10, log=False, default_value=3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_virtual_prob', lower=0, upper=10, log=False, default_value=3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_both_prob', lower=0, upper=10, log=False, default_value=3))
