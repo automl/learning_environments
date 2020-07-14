@@ -40,17 +40,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def set_kwargs_with_mujoco_support(self, kwargs):
-        for key, value in kwargs.items():
-            if "g" == key:  # gravity along negative z-axis
-                self.model.opt.gravity[2] = value
-            elif "cripple_joint" == key:
-                if value:  # cripple_joint True
-                    self.cripple_mask = np.ones(self.action_space.shape)
-                    idx = np.random.choice(self.action_space.shape[0])
-                    self.cripple_mask[idx] = 0
-            else:
-                setattr(self, key, value)
+
 
         # additional params to play with
         # self.sim.model.geom_friction
