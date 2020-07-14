@@ -17,6 +17,8 @@ agents:
     both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
     input_seed_mean: !!float 0.1        # mean of input seed distribution
     input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
+    pretrain_env: !!bool True           # match the virtual_env to the real_env at the beginning?
+    pretrain_agent: !!bool True         # pretrain the agent on the default env?
 
   reptile:
     max_iterations: !!int 10000         # maximum number of REPTILE iteration

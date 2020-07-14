@@ -27,7 +27,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=20, log=True, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=0, upper=10, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_real_prob', lower=0, upper=10, log=False, default_value=3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_virtual_prob', lower=0, upper=10, log=False, default_value=3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_both_prob', lower=0, upper=10, log=False, default_value=3))
@@ -38,6 +38,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_mean', lower=0, upper=1, log=False, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_range', lower=0.001, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_env', choices=[False, True], default_value=True))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_oversampling', lower=1, upper=3, log=True, default_value=1.5))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_lr', lower=1e-3, upper=1e-1, log=True, default_value=2e-3))
@@ -81,6 +83,8 @@ class ExperimentWrapper():
         config["agents"]['gtn']['both_step_size'] = cso["gtn_both_step_size"]
         config["agents"]['gtn']['input_seed_mean'] = cso["gtn_input_seed_mean"]
         config["agents"]['gtn']['input_seed_range'] = cso["gtn_input_seed_range"]
+        config["agents"]['gtn']['pretrain_env'] = cso["gtn_pretrain_env"]
+        config["agents"]['gtn']['pretrain_agent'] = cso["gtn_pretrain_agent"]
 
         config["agents"]['match_env']['oversampling'] = cso["me_oversampling"]
         config["agents"]['match_env']['lr'] = cso["me_lr"]

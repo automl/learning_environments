@@ -40,8 +40,6 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-
-
         # additional params to play with
         # self.sim.model.geom_friction
         # self.model.body_mass

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 2
+EXP_LOSS = 5
 OUTLIER_PERC = 0.2
 
 
@@ -294,7 +294,7 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-11-reptile'
+    log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-21-with-order'
     analyze_bohb(log_dir)
 
 

@@ -34,6 +34,8 @@ class GTN(nn.Module):
         self.both_step_size = gtn_config["both_step_size"]
         self.input_seed_mean = gtn_config["input_seed_mean"]
         self.input_seed_range = gtn_config["input_seed_range"]
+        self.pretrain_env = gtn_config["pretrain_env"]
+        self.pretrain_agent = gtn_config["pretrain_agent"]
 
         agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, agent_name)
@@ -69,22 +71,25 @@ class GTN(nn.Module):
         # if os.path.isfile(path):
         #     self.virtual_env.load(path)
         # else:
-        env_id = 0
-        print("-- matching virtual env to real env with id " + str(env_id) + " --")
-        #for _ in range(self.match_iterations):
-        reptile_match_env(match_env=self.match_env,
-                          real_env=self.real_envs[env_id],
-                          virtual_env=self.virtual_env,
-                          input_seed=self.input_seeds[env_id],
-                          step_size=self.match_step_size)
-            #self.virtual_env.save(path)
+
+        if self.pretrain_env:
+            env_id = 0
+            print("-- matching virtual env to real env with id " + str(env_id) + " --")
+            #for _ in range(self.match_iterations):
+            reptile_match_env(match_env=self.match_env,
+                              real_env=self.real_envs[env_id],
+                              virtual_env=self.virtual_env,
+                              input_seed=self.input_seeds[env_id],
+                              step_size=self.match_step_size)
+                #self.virtual_env.save(path)
 
         # then train actor on default env -> use as starting point for further optimization
-        env_id = 0
-        print("-- training on real env with id " + str(env_id) + " --")
-        reptile_train_agent(agent=self.agent,
-                            env=self.real_envs[env_id],
-                            step_size=self.real_step_size)
+        if self.pretrain_agent:
+            env_id = 0
+            print("-- training on real env with id " + str(env_id) + " --")
+            reptile_train_agent(agent=self.agent,
+                                env=self.real_envs[env_id],
+                                step_size=self.real_step_size)
 
         # then determine randomly in each iteration whether
         # - the agent should be trained on a specific real env
