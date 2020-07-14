@@ -28,17 +28,23 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=10, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_real_prob', lower=0, upper=10, log=False, default_value=3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_virtual_prob', lower=0, upper=10, log=False, default_value=3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_both_prob', lower=0, upper=10, log=False, default_value=3))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_5', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_6', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_7', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_8', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_9', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_different_envs', lower=1, upper=10, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_mean', lower=0.1, upper=10, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_range', lower=0.001, upper=10, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_env', choices=[False, True], default_value=True))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_mean', lower=0.1, upper=5, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_input_seed_range', lower=0.001, upper=5, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_oversampling', lower=1, upper=3, log=True, default_value=1.5))
@@ -46,7 +52,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_weight_decay', lower=1e-12, upper=1e-6, log=True, default_value=1e-9))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_step_size', lower=200, upper=1000, log=True, default_value=500))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_steps', lower=1, upper=10000, log=True, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_step_size', lower=100, upper=1000, log=True, default_value=200))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_gamma', lower=0.5, upper=1, log=False, default_value=0.7))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=3e-4, upper=1e-2, log=True, default_value=1e-3))
@@ -56,8 +63,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_weight_decay', lower=1e-12, upper=1e-6, log=True, default_value=1e-9))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_actor', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_critic', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e3, upper=1e6, log=True, default_value=1e4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e3, upper=1e6, log=True, default_value=1e4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e4, upper=1e8, log=True, default_value=1e5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e4, upper=1e8, log=True, default_value=1e5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_match_batch_size', lower=64, upper=512, log=True, default_value=256))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_size', lower=128, upper=1024, log=True, default_value=224))
@@ -73,9 +80,16 @@ class ExperimentWrapper():
         config["env_name"] = 'Pendulum-v0'
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
-        config["agents"]['gtn']['real_prob'] = cso["gtn_real_prob"]
-        config["agents"]['gtn']['virtual_prob'] = cso["gtn_virtual_prob"]
-        config["agents"]['gtn']['both_prob'] = cso["gtn_both_prob"]
+        config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
+        config["agents"]['gtn']['type_1'] = cso["gtn_type_1"]
+        config["agents"]['gtn']['type_2'] = cso["gtn_type_2"]
+        config["agents"]['gtn']['type_3'] = cso["gtn_type_3"]
+        config["agents"]['gtn']['type_4'] = cso["gtn_type_4"]
+        config["agents"]['gtn']['type_5'] = cso["gtn_type_5"]
+        config["agents"]['gtn']['type_6'] = cso["gtn_type_6"]
+        config["agents"]['gtn']['type_7'] = cso["gtn_type_7"]
+        config["agents"]['gtn']['type_8'] = cso["gtn_type_8"]
+        config["agents"]['gtn']['type_9'] = cso["gtn_type_9"]
         config["agents"]['gtn']['different_envs'] = cso["gtn_different_envs"]
         config["agents"]['gtn']['match_step_size'] = cso["gtn_match_step_size"]
         config["agents"]['gtn']['real_step_size'] = cso["gtn_real_step_size"]
@@ -83,7 +97,6 @@ class ExperimentWrapper():
         config["agents"]['gtn']['both_step_size'] = cso["gtn_both_step_size"]
         config["agents"]['gtn']['input_seed_mean'] = cso["gtn_input_seed_mean"]
         config["agents"]['gtn']['input_seed_range'] = cso["gtn_input_seed_range"]
-        config["agents"]['gtn']['pretrain_env'] = cso["gtn_pretrain_env"]
         config["agents"]['gtn']['pretrain_agent'] = cso["gtn_pretrain_agent"]
 
         config["agents"]['match_env']['oversampling'] = cso["me_oversampling"]
@@ -91,6 +104,7 @@ class ExperimentWrapper():
         config["agents"]['match_env']['weight_decay'] = cso["me_weight_decay"]
         config["agents"]['match_env']['batch_size'] = cso["me_batch_size"]
         config["agents"]['match_env']['early_out_diff'] = cso["me_early_out_diff"]
+        config["agents"]['match_env']['steps'] = cso["me_steps"]
         config["agents"]['match_env']['step_size'] = cso["me_step_size"]
         config["agents"]['match_env']['gamma'] = cso["me_gamma"]
 

@@ -23,19 +23,18 @@ class GTN(nn.Module):
 
         gtn_config = config["agents"]["gtn"]
         print(gtn_config)
-        self.match_iterations = gtn_config["match_iterations"]
         self.max_iterations = gtn_config["max_iterations"]
-        self.real_prob = gtn_config["real_prob"]
-        self.virtual_prob = gtn_config["virtual_prob"]
-        self.both_prob = gtn_config["virtual_prob"]
         self.match_step_size = gtn_config["match_step_size"]
         self.real_step_size = gtn_config["real_step_size"]
         self.virtual_step_size = gtn_config["virtual_step_size"]
         self.both_step_size = gtn_config["both_step_size"]
         self.input_seed_mean = gtn_config["input_seed_mean"]
         self.input_seed_range = gtn_config["input_seed_range"]
-        self.pretrain_env = gtn_config["pretrain_env"]
         self.pretrain_agent = gtn_config["pretrain_agent"]
+        self.type = []
+        for i in range(10):
+            strng = "type_" + str(i)
+            self.type.append(gtn_config[strng])
 
         agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, agent_name)
@@ -72,16 +71,15 @@ class GTN(nn.Module):
         #     self.virtual_env.load(path)
         # else:
 
-        if self.pretrain_env:
-            env_id = 0
-            print("-- matching virtual env to real env with id " + str(env_id) + " --")
-            #for _ in range(self.match_iterations):
-            reptile_match_env(match_env=self.match_env,
-                              real_env=self.real_envs[env_id],
-                              virtual_env=self.virtual_env,
-                              input_seed=self.input_seeds[env_id],
-                              step_size=self.match_step_size)
-                #self.virtual_env.save(path)
+        env_id = 0
+        print("-- matching virtual env to real env with id " + str(env_id) + " --")
+        #for _ in range(self.match_iterations):
+        reptile_match_env(match_env=self.match_env,
+                          real_env=self.real_envs[env_id],
+                          virtual_env=self.virtual_env,
+                          input_seed=self.input_seeds[env_id],
+                          step_size=self.match_step_size)
+            #self.virtual_env.save(path)
 
         # then train actor on default env -> use as starting point for further optimization
         if self.pretrain_agent:
@@ -99,20 +97,17 @@ class GTN(nn.Module):
 
         order = []
         for it in range(self.max_iterations):
-            sm = self.real_prob + self.virtual_prob + self.both_prob
-            prob = np.random.random() * sm
-
             self.print_stats()
 
             env_id = np.random.randint(len(self.real_envs))
-            if prob <= self.real_prob:
+            if self.type[it] == 1:
                 print("-- training on real env with id " + str(env_id) + " --")
                 reptile_train_agent(agent=self.agent,
                                     env=self.real_envs[env_id],
                                     step_size=self.real_step_size)
                 order.append(1)
 
-            elif prob <= self.real_prob + self.virtual_prob:
+            elif self.type[it] == 2:
                 print("-- training on virtual env with id " + str(env_id) + " --")
                 reptile_train_agent(agent=self.agent,
                                     env=self.virtual_env,
@@ -120,7 +115,7 @@ class GTN(nn.Module):
                                     step_size=self.virtual_step_size)
                 order.append(2)
 
-            elif prob <= self.real_prob + self.virtual_prob + self.both_prob:
+            elif self.type[it] == 3:
                 print("-- training on both envs with id " + str(env_id) + " --")
                 reptile_train_agent(agent=self.agent,
                                     env=self.virtual_env,

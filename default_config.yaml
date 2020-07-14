@@ -4,11 +4,17 @@ render_env: !!bool False                # render environment
 
 agents:
   gtn:
-    max_iterations: !!int 100           # maximum number of GTN iterations
-    match_iterations: !!int 1           # number of different environments the virtual env is matched to
-    real_prob: !!int 1                  # number of iterations training the agent on the real env
-    virtual_prob: !!int 1               # number of iterations training the agent on the virtual env
-    both_prob: !!int 1                  # number of iterations training the agent on the virtual env
+    max_iterations: !!int 5             # maximum number of GTN iterations
+    type_0: !!int 1
+    type_1: !!int 1
+    type_2: !!int 1
+    type_3: !!int 1
+    type_4: !!int 1
+    type_5: !!int 1
+    type_6: !!int 1
+    type_7: !!int 1
+    type_8: !!int 1
+    type_9: !!int 1
     different_envs: !!int 10            # first env is default env
     agent_name: !!str TD3               # which RL agent to use for meta-training
     match_step_size: !!float 0.1        # reptile step size when matching the two environments
@@ -17,7 +23,6 @@ agents:
     both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
     input_seed_mean: !!float 0.1        # mean of input seed distribution
     input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
-    pretrain_env: !!bool True           # match the virtual_env to the real_env at the beginning?
     pretrain_agent: !!bool True         # pretrain the agent on the default env?
 
   reptile:
