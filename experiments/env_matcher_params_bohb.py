@@ -7,7 +7,7 @@ import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.match_env import MatchEnv
+from agents.env_matcher import EnvMatcher
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
@@ -91,7 +91,7 @@ class ExperimentWrapper():
             real_env = env_fac.generate_default_real_env()
             virtual_env = env_fac.generate_default_virtual_env()
 
-            match_env = MatchEnv(config = config)
+            match_env = EnvMatcher(config = config)
             match_env.train(real_env = real_env,
                             virtual_env = virtual_env,
                             input_seed = 0)
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'match_env_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'env_matcher_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

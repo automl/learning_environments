@@ -20,7 +20,6 @@ class ReplayBuffer:
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
-        self.input_seed = torch.zeros((max_size, 1))
         self.action_std = torch.zeros((max_size, action_dim))
 
     def add(
@@ -32,7 +31,6 @@ class ReplayBuffer:
         next_state,
         reward,
         done,
-        input_seed,
         action_std,
     ):
         self.last_state[self.ptr] = last_state.detach()
@@ -42,7 +40,6 @@ class ReplayBuffer:
         self.next_state[self.ptr] = next_state.detach()
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
-        self.input_seed[self.ptr] = input_seed.squeeze().detach()
         self.action_std[self.ptr] = action_std.squeeze().detach()
 
         self.ptr = (self.ptr + 1) % self.max_size
@@ -60,7 +57,6 @@ class ReplayBuffer:
             self.next_state[ind].to(device).detach(),
             self.reward[ind].to(device).detach(),
             self.done[ind].to(device).detach(),
-            self.input_seed[ind].to(device).detach(),
             self.action_std[ind].to(device).detach(),
         )
 
@@ -74,7 +70,6 @@ class ReplayBuffer:
             self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
-            self.input_seed[: self.size].to(device).detach(),
             self.action_std[: self.size].to(device).detach(),
         )
 

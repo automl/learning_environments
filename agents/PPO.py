@@ -46,12 +46,11 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def train(self, env, input_seed=0):
+    def train(self, env, input_seed=torch.tensor([0])):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
         avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
         time_step = 0
-        input_seed = torch.tensor([input_seed], device='cpu', dtype=torch.float32)
 
         # training loop
         for episode in range(self.max_episodes):
@@ -72,7 +71,7 @@ class PPO(nn.Module):
                     env.render(state)
 
                 if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, input_seed, self.actor.action_std.data)
+                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, self.actor.action_std.data)
 
                 last_state = state
                 state = next_state
@@ -82,7 +81,7 @@ class PPO(nn.Module):
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
-                    self.update(replay_buffer, env)
+                    self.update(replay_buffer, env, input_seed)
                     replay_buffer.clear()
                     time_step = 0
                 if done:
@@ -102,16 +101,16 @@ class PPO(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def update(self, replay_buffer, env):
+    def update(self, replay_buffer, env, input_seed):
         # Monte Carlo estimate of rewards:
         new_rewards = []
         discounted_reward = 0
 
         # get states from replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, input_seeds, action_stds = replay_buffer.get_all()
+        last_states, last_actions, states, actions, next_states, rewards, dones, action_stds = replay_buffer.get_all()
 
         if env.is_virtual_env():
-            states = self.run_env(env, last_states, last_actions, input_seeds)
+            states = self.run_env(env, last_states, last_actions, input_seed)
 
         old_logprobs, _ = self.actor_old.evaluate(states, actions)
         old_logprobs = old_logprobs.detach()

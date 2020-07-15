@@ -9,16 +9,22 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_match_env(match_env, real_env, virtual_env, input_seed, step_size):
+def reptile_match_env(env_matcher, real_envs, virtual_env, input_seeds, step_size):
     old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
+    old_input_seeds = copy.deepcopy(input_seeds)
 
-    match_env.train(real_env=real_env,
-                    virtual_env=virtual_env,
-                    input_seed=input_seed)
+    env_matcher.train(real_envs=real_envs,
+                      virtual_env=virtual_env,
+                      input_seeds=input_seeds)
 
-    reptile_update(target=virtual_env,
-                   old_state_dict=old_state_dict_env,
-                   step_size=step_size)
+    reptile_update_state_dict(target=virtual_env,
+                              old_state_dict=old_state_dict_env,
+                              step_size=step_size)
+
+    for i in range(len(old_input_seeds)):
+        reptile_update_tensor(target=input_seeds[i],
+                              old_tensor=old_input_seeds[i],
+                              step_size=step_size)
 
 
 def reptile_train_agent(agent, env, match_env=None, input_seed=0, step_size=0.1):
@@ -29,24 +35,32 @@ def reptile_train_agent(agent, env, match_env=None, input_seed=0, step_size=0.1)
     old_state_dict_agent = copy.deepcopy(agent.state_dict())
     if match_env is not None:
         old_state_dict_env = copy.deepcopy(env.state_dict())
+        old_input_seed = copy.deepcopy(input_seed)
 
     reward_list = agent.train(env=env, match_env=match_env, input_seed=input_seed)
 
-    reptile_update(target = agent,
-                   old_state_dict = old_state_dict_agent,
-                   step_size = step_size)
+    reptile_update_state_dict(target = agent,
+                              old_state_dict = old_state_dict_agent,
+                              step_size = step_size)
     if match_env is not None:
-        reptile_update(target = env,
-                       old_state_dict = old_state_dict_env,
-                       step_size = step_size)
+        reptile_update_state_dict(target = env,
+                                  old_state_dict = old_state_dict_env,
+                                  step_size = step_size)
+        reptile_update_tensor(target=input_seed,
+                              old_tensor=old_input_seed,
+                              step_size=step_size)
 
     return reward_list
 
 
-def reptile_update(target, old_state_dict, step_size):
+def reptile_update_state_dict(target, old_state_dict, step_size):
     new_state_dict = target.state_dict()
     for key, value in new_state_dict.items():
         new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * step_size
+
+
+def reptile_update_tensor(target, old_tensor, step_size):
+    target.data = old_tensor.data + (target.data - old_tensor.data) * step_size
 
 
 class REPTILE(nn.Module):
@@ -69,7 +83,7 @@ class REPTILE(nn.Module):
             #env = self.env_factory.generate_default_virtual_env().to(device)
             self.agent.train(env=env, input_seed=1)
 
-            reptile_update(self.agent, old_state_dict, self.step_size)
+            reptile_update_state_dict(self.agent, old_state_dict, self.step_size)
 
 
 if __name__ == "__main__":

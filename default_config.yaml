@@ -37,8 +37,8 @@ agents:
     batch_size: !!int 192               # batch size during training
     early_out_diff: !!float 1e-4        # break criterion for matching
     early_out_num: !!int 200            # based on how many training steps shall an early out happen
-    steps: !!int 5000                   # number of steps
-    step_size: !!int 500                # LR scheduler step size
+    steps: !!int 10000                  # number of steps
+    step_size: !!int 1000               # LR scheduler step size
     gamma: !!float 0.6                  # LR scheduler gamma
 
   td3:

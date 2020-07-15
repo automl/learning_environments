@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from copy import deepcopy
 from agents.TD3 import TD3
-from agents.match_env import MatchEnv
+from agents.env_matcher import EnvMatcher
 from agents.REPTILE import reptile_train_agent, reptile_match_env
 from envs.env_factory import EnvFactory
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     #                 input_seed=0)
     #
 
-    match_env = MatchEnv(config=config)
+    match_env = EnvMatcher(config=config)
     reptile_match_env(match_env=match_env,
                       real_env=real_env,
                       virtual_env=virtual_env,

@@ -6,7 +6,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import RandomForestRegressor
 from joblib import parallel_backend
 from envs.env_factory import EnvFactory
-from agents.match_env import *
+from agents.env_matcher import *
 
 TRAIN_SAMPLES = 100000
 TEST_SAMPLES = 1000

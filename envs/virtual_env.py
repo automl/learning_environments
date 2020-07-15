@@ -51,7 +51,7 @@ class VirtualEnv(nn.Module):
 
         return state
 
-    def step(self, action, state, input_seed=0):
+    def step(self, action, state, input_seed):
         input = torch.cat((action, state, input_seed), dim=len(action.shape) - 1)
         next_state = self.state_net(input)
         reward = self.reward_net(input)

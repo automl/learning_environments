@@ -8,7 +8,7 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
 from agents.TD3 import TD3
-from agents.match_env import MatchEnv
+from agents.env_matcher import EnvMatcher
 from agents.REPTILE import reptile_train_agent
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
@@ -130,7 +130,7 @@ class ExperimentWrapper():
 
             # first match
             print("-- matching virtual env to real env --")
-            match_env = MatchEnv(config=config)
+            match_env = EnvMatcher(config=config)
             match_env.train(real_env=real_env,
                             virtual_env=virtual_env,
                             input_seed=0)

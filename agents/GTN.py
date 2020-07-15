@@ -7,8 +7,8 @@ import os
 import copy
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent
-from agents.match_env import MatchEnv
-from agents.REPTILE import reptile_update, reptile_train_agent, reptile_match_env
+from agents.env_matcher import EnvMatcher
+from agents.REPTILE import reptile_update_state_dict, reptile_train_agent, reptile_match_env
 from envs.env_factory import EnvFactory
 from utils import AverageMeter, print_abs_param_sum
 
@@ -38,7 +38,7 @@ class GTN(nn.Module):
 
         agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, agent_name)
-        self.match_env = MatchEnv(config)
+        self.env_matcher = EnvMatcher(config)
 
         different_envs = gtn_config["different_envs"]
         self.env_factory = EnvFactory(config)
@@ -48,13 +48,14 @@ class GTN(nn.Module):
 
         # first environment is default environment
         self.real_envs.append(self.env_factory.generate_default_real_env())
-        self.input_seeds.append(self.input_seed_mean)
+        self.input_seeds.append(torch.tensor([self.input_seed_mean], requires_grad=True, dtype=torch.float32))
         # generate multiple different real envs with associated seed
+        seed_min = self.input_seed_mean - self.input_seed_range
+        seed_max = self.input_seed_mean + self.input_seed_range
         for i in range(different_envs - 1):
-            seed_min = self.input_seed_mean - self.input_seed_range
-            seed_max = self.input_seed_mean + self.input_seed_range
+            cur_seed = seed_min + np.random.random() * (seed_max-seed_min)
             self.real_envs.append(self.env_factory.generate_random_real_env())
-            self.input_seeds.append(seed_min + np.random.random() * (seed_max-seed_min))
+            self.input_seeds.append(torch.tensor([cur_seed], requires_grad=True, dtype=torch.float32))
 
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, "VirtualEnv")
@@ -65,35 +66,19 @@ class GTN(nn.Module):
     def train(self):
         self.print_stats()
 
-        # first map virtual env to default real env -> use as starting point for further optimization
-        # path = "virtual_env.pt"
-        # if os.path.isfile(path):
-        #     self.virtual_env.load(path)
-        # else:
-
-        env_id = 0
-        print("-- matching virtual env to real env with id " + str(env_id) + " --")
-        #for _ in range(self.match_iterations):
-        reptile_match_env(match_env=self.match_env,
-                          real_env=self.real_envs[env_id],
+        print("-- matching virtual env to real envs ---")
+        reptile_match_env(env_matcher=self.env_matcher,
+                          real_envs=self.real_envs,
                           virtual_env=self.virtual_env,
-                          input_seed=self.input_seeds[env_id],
+                          input_seeds=self.input_seeds,
                           step_size=self.match_step_size)
-            #self.virtual_env.save(path)
 
-        # then train actor on default env -> use as starting point for further optimization
         if self.pretrain_agent:
             env_id = 0
             print("-- training on real env with id " + str(env_id) + " --")
             reptile_train_agent(agent=self.agent,
                                 env=self.real_envs[env_id],
                                 step_size=self.real_step_size)
-
-        # then determine randomly in each iteration whether
-        # - the agent should be trained on a specific real env
-        # - the agent should be trained on a fixed virtual env with specific input seed
-        # - the agent should be trained on a variable virtual env with specific input seed
-        # all conditions has a corresponding probability to be executed in each iteration
 
         order = []
         for it in range(self.max_iterations):
