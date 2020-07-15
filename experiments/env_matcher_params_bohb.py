@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import sys
 import yaml
 import random
@@ -32,15 +33,17 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
-        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=9e-1, upper=1e0, log=True, default_value=0.91))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=10, upper=1000, log=False, default_value=100))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=200, upper=20000, log=False, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=200, upper=10000, log=False, default_value=5000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='step_size', lower=200, upper=2000, log=True, default_value=1000))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.3, upper=1, log=False, default_value=0.7))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=1024, log=True, default_value=224))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='input_seed_dim', lower=1, upper=32, log=True, default_value=4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='input_seed_mean', lower=0.01, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='input_seed_range', lower=0.01, upper=10, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='zero_init', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='weight_norm', choices=[False, True], default_value=True))
 
@@ -65,6 +68,9 @@ class ExperimentWrapper():
         config["envs"]['Pendulum-v0']['activation_fn'] = cso["activation_fn"]
         config["envs"]['Pendulum-v0']['hidden_size'] = cso["hidden_size"]
         config["envs"]['Pendulum-v0']['hidden_layer'] = cso["hidden_layer"]
+        config["envs"]['Pendulum-v0']['input_seed_dim'] = cso["input_seed_dim"]
+        config["envs"]['Pendulum-v0']['input_seed_mean'] = cso["input_seed_mean"]
+        config["envs"]['Pendulum-v0']['input_seed_range'] = cso["input_seed_range"]
         config["envs"]['Pendulum-v0']['zero_init'] = cso["zero_init"]
         config["envs"]['Pendulum-v0']['weight_norm'] = cso["weight_norm"]
 
@@ -88,37 +94,45 @@ class ExperimentWrapper():
         try:
             # generate environment
             env_fac = EnvFactory(config)
-            real_env = env_fac.generate_default_real_env()
+            real_envs = []
+            input_seeds = []
+            for i in range(10):
+                real_envs.append(env_fac.generate_random_real_env())
+                input_seeds.append(env_fac.generate_random_input_seed())
             virtual_env = env_fac.generate_default_virtual_env()
 
             match_env = EnvMatcher(config = config)
-            match_env.train(real_env = real_env,
+            match_env.train(real_envs = real_envs,
                             virtual_env = virtual_env,
-                            input_seed = 0)
+                            input_seeds = input_seeds)
             loss, diff_state, diff_reward, diff_done = \
-                match_env.test(real_env = real_env,
+                match_env.test(real_envs = real_envs,
                                virtual_env = virtual_env,
-                               input_seed = 0,
+                               input_seeds = input_seeds,
                                oversampling = 1.5,
                                test_samples = 10000)
             diff_state = float(diff_state.cpu().data.numpy())
             diff_reward = float(diff_reward.cpu().data.numpy())
             diff_done = float(diff_done.cpu().data.numpy())
             score = diff_state + diff_reward + diff_done
+            error = ''
         except:
             score = float('Inf')
             diff_state = float('Inf')
             diff_reward = float('Inf')
             diff_done = float('Inf')
+            error = traceback.format_exc()
 
         info['config'] = str(config)
         info['diff_state'] = diff_state
         info['diff_reward'] = diff_reward
         info['diff_done'] = diff_done
+        info['error'] = str(error)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('DIFF: ' + str(diff_state) + ' ' + str(diff_reward) + ' ' + str(diff_done))
+        print('ERR: ' + str(error))
         print("END BOHB ITERATION")
         print('----------------------------')
 

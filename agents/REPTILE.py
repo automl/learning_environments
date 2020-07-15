@@ -11,7 +11,9 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def reptile_match_env(env_matcher, real_envs, virtual_env, input_seeds, step_size):
     old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
-    old_input_seeds = copy.deepcopy(input_seeds)
+    old_input_seeds = []
+    for i in range(len(input_seeds)):
+        old_input_seeds.append(torch.tensor(input_seeds[i]))
 
     env_matcher.train(real_envs=real_envs,
                       virtual_env=virtual_env,

@@ -16,6 +16,7 @@ class VirtualEnv(nn.Module):
         self.env_name = str(kwargs["env_name"])
         self.state_dim = int(kwargs["state_dim"])
         self.action_dim = int(kwargs["action_dim"])
+        self.input_seed_dim = int(kwargs["input_seed_dim"])
         self.zero_init = bool(kwargs["zero_init"])
         self.solved_reward = float(kwargs["solved_reward"])
         self.state = torch.zeros(self.state_dim, device=device)  # not sure what the default state should be
@@ -27,13 +28,13 @@ class VirtualEnv(nn.Module):
         self.viewer_env = generate_env_with_kwargs(kwargs, self.env_name)
         self.viewer_env.reset()
 
-        self.state_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+        self.state_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + self.input_seed_dim,
                                               output_dim = self.state_dim,
                                               nn_config = kwargs).to(device)
-        self.reward_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+        self.reward_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + self.input_seed_dim,
                                                output_dim = 1,
                                                nn_config = kwargs).to(device)
-        self.done_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + 1,
+        self.done_net = build_nn_from_config(input_dim = self.state_dim + self.action_dim + self.input_seed_dim,
                                              output_dim = 1,
                                              nn_config = kwargs).to(device)
 

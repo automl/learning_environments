@@ -6,8 +6,8 @@ agents:
   gtn:
     max_iterations: !!int 5             # maximum number of GTN iterations
     type_0: !!int 1
-    type_1: !!int 1
-    type_2: !!int 1
+    type_1: !!int 2
+    type_2: !!int 3
     type_3: !!int 1
     type_4: !!int 1
     type_5: !!int 1
@@ -21,8 +21,6 @@ agents:
     real_step_size: !!float 0.1         # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1      # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
-    input_seed_mean: !!float 0.1        # mean of input seed distribution
-    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
     pretrain_agent: !!bool True         # pretrain the agent on the default env?
 
   reptile:
@@ -37,7 +35,7 @@ agents:
     batch_size: !!int 192               # batch size during training
     early_out_diff: !!float 1e-4        # break criterion for matching
     early_out_num: !!int 200            # based on how many training steps shall an early out happen
-    steps: !!int 10000                  # number of steps
+    steps: !!int 5000                   # number of steps
     step_size: !!int 1000               # LR scheduler step size
     gamma: !!float 0.6                  # LR scheduler gamma
 
@@ -95,6 +93,9 @@ envs:
     activation_fn: !!str tanh           # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256              # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2               # number of hidden layers
+    input_seed_dim: !!int 10            # dimension of the input seed
+    input_seed_mean: !!float 0.1        # mean of input seed distribution
+    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
     zero_init: !!bool False             # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization
 
@@ -107,15 +108,21 @@ envs:
     activation_fn: !!str leakyrelu      # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: 128                    # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 1               # number of hidden layers
+    input_seed_dim: !!int 1             # dimension of the input seed
+    input_seed_mean: !!float 0.1        # mean of input seed distribution
+    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
     zero_init: !!bool True              # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization for virtual environment
 
   Test:
     solved_reward: !!float 50           # used for early out in RL agent training
-    max_steps: [200, 200, 200]          # maximum number of steps per episode
+    max_steps: 200                      # maximum number of steps per episode
     activation_fn: !!str leakyrelu      # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128              # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 1               # number of hidden layers
+    input_seed_dim: !!int 3             # dimension of the input seed
+    input_seed_mean: !!float 0.1        # mean of input seed distribution
+    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
     zero_init: !!bool False             # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization for virtual environment
 
@@ -127,6 +134,9 @@ envs:
     activation_fn: !!str tanh           # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256              # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2               # number of hidden layers
+    input_seed_dim: !!int 3             # dimension of the input seed
+    input_seed_mean: !!float 0.1        # mean of input seed distribution
+    input_seed_range: !!float 0.1       # range (around mean) of input seed distribution
     zero_init: !!bool False             # use zero state or random starting state for initialization
     weight_norm: !!bool True            # use weight normalization
 

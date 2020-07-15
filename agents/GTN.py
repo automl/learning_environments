@@ -22,14 +22,11 @@ class GTN(nn.Module):
         self.config = config
 
         gtn_config = config["agents"]["gtn"]
-        print(gtn_config)
         self.max_iterations = gtn_config["max_iterations"]
         self.match_step_size = gtn_config["match_step_size"]
         self.real_step_size = gtn_config["real_step_size"]
         self.virtual_step_size = gtn_config["virtual_step_size"]
         self.both_step_size = gtn_config["both_step_size"]
-        self.input_seed_mean = gtn_config["input_seed_mean"]
-        self.input_seed_range = gtn_config["input_seed_range"]
         self.pretrain_agent = gtn_config["pretrain_agent"]
         self.type = []
         for i in range(10):
@@ -48,14 +45,11 @@ class GTN(nn.Module):
 
         # first environment is default environment
         self.real_envs.append(self.env_factory.generate_default_real_env())
-        self.input_seeds.append(torch.tensor([self.input_seed_mean], requires_grad=True, dtype=torch.float32))
+        self.input_seeds.append(self.env_factory.generate_default_input_seed())
         # generate multiple different real envs with associated seed
-        seed_min = self.input_seed_mean - self.input_seed_range
-        seed_max = self.input_seed_mean + self.input_seed_range
         for i in range(different_envs - 1):
-            cur_seed = seed_min + np.random.random() * (seed_max-seed_min)
             self.real_envs.append(self.env_factory.generate_random_real_env())
-            self.input_seeds.append(torch.tensor([cur_seed], requires_grad=True, dtype=torch.float32))
+            self.input_seeds.append(self.env_factory.generate_random_input_seed())
 
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, "VirtualEnv")
@@ -121,7 +115,7 @@ class GTN(nn.Module):
         # to avoid problems with wrongly initialized optimizers
         if isinstance(self.agent, TD3):
             env = self.env_factory.generate_default_real_env()
-            self.agent.init_optimizer(env=env, match_env=None)
+            self.agent.init_optimizer(env=env)
 
         mean_episodes_till_solved = 0
         agent_state = copy.deepcopy(self.agent.get_state_dict())

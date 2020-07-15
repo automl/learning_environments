@@ -10,13 +10,14 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class EnvFactory:
     def __init__(self, config):
         self.env_name = config["env_name"]
-        self.env_config = {}
-        if self.env_name in config["envs"].keys():
-            self.env_config = config["envs"][self.env_name]
+        self.env_config = config["envs"][self.env_name]
 
         dummy_env = self.generate_default_real_env()
         self.state_dim = dummy_env.get_state_dim()
         self.action_dim = dummy_env.get_action_dim()
+        self.input_seed_dim = self.env_config["input_seed_dim"]
+        self.input_seed_mean = self.env_config["input_seed_mean"]
+        self.input_seed_range = self.env_config["input_seed_range"]
 
     def generate_default_real_env(self):
         # generate a real environment with default parameters
@@ -45,6 +46,14 @@ class EnvFactory:
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs).to(device)
         return EnvWrapper(env=env).to(device)
+
+    def generate_default_input_seed(self):
+        return (torch.ones(self.input_seed_dim) * self.input_seed_mean).clone().requires_grad_(True)
+
+    def generate_random_input_seed(self):
+        seed_min = self.input_seed_mean - self.input_seed_range
+        seed_max = self.input_seed_mean + self.input_seed_range
+        return (torch.rand(self.input_seed_dim) * (seed_max-seed_min) + seed_min).clone().requires_grad_(True)
 
     def _get_random_parameters(self):
         kwargs = {"env_name": self.env_name,

@@ -234,7 +234,7 @@ class TD3(nn.Module):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
 
-    def init_optimizer(self, env, match_env, input_seed):
+    def init_optimizer(self, env, match_env=None, input_seed=None):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
         if env.is_virtual_env() and match_env is not None:
@@ -252,7 +252,7 @@ class TD3(nn.Module):
 
     def run_env(self, env, last_states, last_actions, input_seed):
         # enable gradient computation
-        input_seeds = input_seed.repeat(len(last_states)).unsqueeze(1)
+        input_seeds = input_seed.repeat(len(last_states), 1)
         state, reward, done = env.step(action=last_actions,
                                        state=last_states,
                                        input_seed=input_seeds,
