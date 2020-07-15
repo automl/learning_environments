@@ -18,11 +18,14 @@ def analyze_bohb(log_dir):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
+    # get the 'dict' that translates config ids to the actual configurations
+    id2conf = result.get_id2config_mapping()
+
     result = remove_outliers(result)
     result_w = deepcopy(result)
     result_wo = deepcopy(result)
 
-    analyze_result_order(result)
+    analyze_result_order(result, id2conf)
 
     result_w = get_w(result_w, inverse=False)
     result_wo = get_w(result_wo, inverse=True)
@@ -58,7 +61,7 @@ def get_w(result, inverse=False):
     return result
 
 
-def analyze_result_order(result):
+def analyze_result_order(result, id2conf):
     order_list = []
     w_3 = []
     wo_3 = []
@@ -66,7 +69,14 @@ def analyze_result_order(result):
         for value2 in value1.results.values():
             loss = value2['loss']
             order = ast.literal_eval(value2['info']['order'])
-            order_list.append((loss, order))
+            optim_with_actor = id2conf[key]['config']['td3_optim_env_with_actor']
+            optim_with_critic = id2conf[key]['config']['td3_optim_env_with_critic']
+            lr = id2conf[key]['config']['me_lr']
+            steps = id2conf[key]['config']['me_steps']
+            step_size = id2conf[key]['config']['me_step_size']
+            gamma = id2conf[key]['config']['me_gamma']
+            batch_size = id2conf[key]['config']['me_batch_size']
+            order_list.append((loss, order, optim_with_actor, optim_with_critic, lr, steps, step_size, gamma, batch_size))
             if 3 in order:
                 w_3.append(loss)
             else:
@@ -143,7 +153,7 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-21-with-order'
+    log_dir = '../results/GTN_params_reduced_bohb_2020-07-14-15-with-variable-pretraining'
     analyze_bohb(log_dir)
 
 
