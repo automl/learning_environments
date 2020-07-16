@@ -305,12 +305,11 @@ if __name__ == "__main__":
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_default_real_env()
     virtual_env = env_fac.generate_default_virtual_env()
-    #env = env_fac.generate_interpolate_real_env(1)
-    input_seed = torch.tensor([1], requires_grad=True, dtype=torch.float32)
+    input_seed = env_fac.generate_default_input_seed()
 
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
 
-    #td3.train(env=real_env)
-    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    td3.train(env=real_env)
+    #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
