@@ -23,16 +23,8 @@ if __name__ == "__main__":
               action_dim=real_env.get_action_dim(),
               config=config)
 
-    # # first match
-    # print("-- matching virtual env to real env --")
-    # match_env = MatchEnv(config=config)
-    # match_env.train(real_env=real_env,
-    #                 virtual_env=virtual_env,
-    #                 input_seed=0)
-    #
-
-    match_env = EnvMatcher(config=config)
-    reptile_match_env(match_env=match_env,
+    env_matcher = EnvMatcher(config=config)
+    reptile_match_env(env_matcher=env_matcher,
                       real_env=real_env,
                       virtual_env=virtual_env,
                       input_seed=0,

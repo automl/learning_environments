@@ -29,20 +29,26 @@ class VirtualEnv(nn.Module):
         self.viewer_env = generate_env_with_kwargs(kwargs, self.env_name)
         self.viewer_env.reset()
 
-        self.state_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim, output_dim=self.state_dim, nn_config=kwargs).to(
-            device
-        )
-        self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim, output_dim=1, nn_config=kwargs).to(device)
-        self.done_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim, output_dim=1, nn_config=kwargs).to(device)
+        self.state_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim,
+                                              output_dim=self.state_dim,
+                                              nn_config=kwargs).to(device)
+        self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim,
+                                               output_dim=1,
+                                               nn_config=kwargs).to(device)
+        self.done_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim + self.input_seed_dim,
+                                             output_dim=1,
+                                             nn_config=kwargs).to(device)
 
     def reset(self):
         # todo fabio: refactor
         if self.zero_init:
             state = torch.zeros(self.state_dim, device=device)
         elif self.env_name == "Pendulum-v0" or self.env_name == "Test":
-            state = torch.tensor(
-                [np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1), np.random.uniform(low=-1, high=1)], device=device, dtype=torch.float32,
-            )
+            state = torch.tensor([np.random.uniform(low=-1, high=1),
+                                  np.random.uniform(low=-1, high=1),
+                                  np.random.uniform(low=-1, high=1)],
+                                 device=device,
+                                 dtype=torch.float32)
         else:
             raise NotImplementedError("Unknown environment: non-zero state reset only for supported environments.")
 

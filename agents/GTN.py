@@ -61,14 +61,18 @@ class GTN(nn.Module):
         self.print_stats()
 
         print("-- matching virtual env to real envs ---")
-        reptile_match_env(
-            env_matcher=self.env_matcher, real_envs=self.real_envs, virtual_env=self.virtual_env, input_seeds=self.input_seeds, step_size=self.match_step_size
-        )
+        reptile_match_env(env_matcher=self.env_matcher,
+                          real_envs=self.real_envs,
+                          virtual_env=self.virtual_env,
+                          input_seeds=self.input_seeds,
+                          step_size=self.match_step_size)
 
         if self.pretrain_agent:
             env_id = 0
             print("-- training on real env with id " + str(env_id) + " --")
-            reptile_train_agent(agent=self.agent, env=self.real_envs[env_id], step_size=self.real_step_size)
+            reptile_train_agent(agent=self.agent,
+                                env=self.real_envs[env_id],
+                                step_size=self.real_step_size)
 
         order = []
         for it in range(self.max_iterations):
@@ -77,17 +81,24 @@ class GTN(nn.Module):
             env_id = np.random.randint(len(self.real_envs))
             if self.type[it] == 1:
                 print("-- training on real env with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent, env=self.real_envs[env_id], step_size=self.real_step_size)
+                reptile_train_agent(agent=self.agent,
+                                    env=self.real_envs[env_id],
+                                    step_size=self.real_step_size)
 
             elif self.type[it] == 2:
                 print("-- training on virtual env with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent, env=self.virtual_env, input_seed=self.input_seeds[env_id], step_size=self.virtual_step_size)
+                reptile_train_agent(agent=self.agent,
+                                    env=self.virtual_env,
+                                    input_seed=self.input_seeds[env_id],
+                                    step_size=self.virtual_step_size)
 
             elif self.type[it] == 3:
                 print("-- training on both envs with id " + str(env_id) + " --")
-                reptile_train_agent(
-                    agent=self.agent, env=self.virtual_env, match_env=self.real_envs[env_id], input_seed=self.input_seeds[env_id], step_size=self.both_step_size
-                )
+                reptile_train_agent(agent=self.agent,
+                                    env=self.virtual_env,
+                                    match_env=self.real_envs[env_id],
+                                    input_seed=self.input_seeds[env_id],
+                                    step_size=self.both_step_size)
 
             else:
                 print("Case that should not happen")
@@ -111,8 +122,8 @@ class GTN(nn.Module):
         mean_episodes_till_solved = 0
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
-        for interpolate in np.arange(0, 1.01, 0.1):
-            # todo fabio: check if this is needed or addressed by init_optimizer()
+        interpolate_vals = np.arange(0, 1.01, 0.1)
+        for interpolate in interpolate_vals:
             self.agent.set_state_dict(agent_state)
             # print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
             env = self.env_factory.generate_interpolate_real_env(interpolate)
@@ -121,8 +132,7 @@ class GTN(nn.Module):
             print("episodes till solved: " + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
-        # todo fabio: dangerous, refactor
-        mean_episodes_till_solved /= 11.0
+        mean_episodes_till_solved /= len(interpolate_vals)
 
         return mean_episodes_till_solved
 

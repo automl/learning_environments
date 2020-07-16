@@ -62,9 +62,7 @@ class PendulumEnv(gym.Env):
     def reset(self):
         high = np.array([np.pi, 1])
         state_tmp = self.np_random.uniform(low=-high, high=high)
-        self.state = np.array(
-            [np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]]
-        )
+        self.state = np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])
         self.last_u = None
         return self.state
 

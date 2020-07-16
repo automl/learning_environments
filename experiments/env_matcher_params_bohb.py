@@ -55,15 +55,15 @@ class ExperimentWrapper():
 
         config["env_name"] = 'Pendulum-v0'
 
-        config["agents"]['match_env']['oversampling'] = cso["oversampling"]
-        config["agents"]['match_env']['lr'] = cso["lr"]
-        config["agents"]['match_env']['weight_decay'] = cso["weight_decay"]
-        config["agents"]['match_env']['batch_size'] = cso["batch_size"]
-        config["agents"]['match_env']['early_out_diff'] = cso["early_out_diff"]
-        config["agents"]['match_env']['early_out_num'] = cso["early_out_num"]
-        config["agents"]['match_env']['steps'] = cso["steps"]
-        config["agents"]['match_env']['step_size'] = cso["step_size"]
-        config["agents"]['match_env']['gamma'] = cso["gamma"]
+        config["agents"]['env_matcher']['oversampling'] = cso["oversampling"]
+        config["agents"]['env_matcher']['lr'] = cso["lr"]
+        config["agents"]['env_matcher']['weight_decay'] = cso["weight_decay"]
+        config["agents"]['env_matcher']['batch_size'] = cso["batch_size"]
+        config["agents"]['env_matcher']['early_out_diff'] = cso["early_out_diff"]
+        config["agents"]['env_matcher']['early_out_num'] = cso["early_out_num"]
+        config["agents"]['env_matcher']['steps'] = cso["steps"]
+        config["agents"]['env_matcher']['step_size'] = cso["step_size"]
+        config["agents"]['env_matcher']['gamma'] = cso["gamma"]
 
         config["envs"]['Pendulum-v0']['activation_fn'] = cso["activation_fn"]
         config["envs"]['Pendulum-v0']['hidden_size'] = cso["hidden_size"]
@@ -101,16 +101,16 @@ class ExperimentWrapper():
                 input_seeds.append(env_fac.generate_random_input_seed())
             virtual_env = env_fac.generate_default_virtual_env()
 
-            match_env = EnvMatcher(config = config)
-            match_env.train(real_envs = real_envs,
-                            virtual_env = virtual_env,
-                            input_seeds = input_seeds)
+            env_matcher = EnvMatcher(config = config)
+            env_matcher.train(real_envs = real_envs,
+                              virtual_env = virtual_env,
+                              input_seeds = input_seeds)
             loss, diff_state, diff_reward, diff_done = \
-                match_env.test(real_envs = real_envs,
-                               virtual_env = virtual_env,
-                               input_seeds = input_seeds,
-                               oversampling = 1.5,
-                               test_samples = 10000)
+                env_matcher.test(real_envs = real_envs,
+                                 virtual_env = virtual_env,
+                                 input_seeds = input_seeds,
+                                 oversampling = 1.5,
+                                 test_samples = 10000)
             diff_state = float(diff_state.cpu().data.numpy())
             diff_reward = float(diff_reward.cpu().data.numpy())
             diff_done = float(diff_done.cpu().data.numpy())

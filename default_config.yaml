@@ -5,16 +5,16 @@ render_env: !!bool False                # render environment
 agents:
   gtn:
     max_iterations: !!int 5             # maximum number of GTN iterations
-    type_0: !!int 1
-    type_1: !!int 2
-    type_2: !!int 3
-    type_3: !!int 1
-    type_4: !!int 1
-    type_5: !!int 1
-    type_6: !!int 1
-    type_7: !!int 1
-    type_8: !!int 1
-    type_9: !!int 1
+    type_0: !!int 1                     # optimization used during iteration 1
+    type_1: !!int 2                     # optimization used during iteration 2
+    type_2: !!int 3                     # optimization used during iteration 3
+    type_3: !!int 1                     # optimization used during iteration 4
+    type_4: !!int 1                     # optimization used during iteration 5
+    type_5: !!int 1                     # optimization used during iteration 6
+    type_6: !!int 1                     # optimization used during iteration 7
+    type_7: !!int 1                     # optimization used during iteration 8
+    type_8: !!int 1                     # optimization used during iteration 9
+    type_9: !!int 1                     # optimization used during iteration 10
     different_envs: !!int 10            # first env is default env
     agent_name: !!str TD3               # which RL agent to use for meta-training
     match_step_size: !!float 0.1        # reptile step size when matching the two environments
@@ -28,20 +28,20 @@ agents:
     step_size: !!float 0.1              # step size when updating the model parameters
     agent_name: !!str TD3               # which RL agent to use for meta-training
 
-  match_env:
+  env_matcher:
     oversampling: !!float 1.5           # how much to sample beyond the normal state/action space
     lr: !!float 4e-3                    # learning rate
     weight_decay: !!float 1e-9          # weight decay
     batch_size: !!int 192               # batch size during training
     early_out_diff: !!float 1e-4        # break criterion for matching
     early_out_num: !!int 200            # based on how many training steps shall an early out happen
-    steps: !!int 5000                   # number of steps
+    max_steps: !!int 5000               # number of steps
     step_size: !!int 1000               # LR scheduler step size
     gamma: !!float 0.6                  # LR scheduler gamma
 
   td3:
     max_episodes: !!int 100             # maximum number of episodes to optimize
-    init_episodes: !!int 5             # number of episodes to fill the replay buffer
+    init_episodes: !!int 50             # number of episodes to fill the replay buffer
     batch_size: !!int  256              # batch size when running a policy update step
     gamma: !!float 0.99                 # discount factor
     lr: !!float 1e-3                    # learning rate
@@ -82,7 +82,7 @@ agents:
 
 envs:
   Pendulum-v0:
-    solved_reward: !!float 300         # used for early out in RL agent training
+    solved_reward: !!float -300         # used for early out in RL agent training
     max_steps: 200                      # maximum number of steps per episode
     dt: 0.05                            # sampling rate
     max_speed: [8, 10, 12, False]       # maximum joint speed [min, default, max, larger=more difficult]

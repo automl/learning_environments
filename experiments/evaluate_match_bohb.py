@@ -29,11 +29,11 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_oversampling', lower=1, upper=3, log=True, default_value=1.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_batch_size', lower=64, upper=512, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1, upper=3, log=True, default_value=1.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=64, upper=512, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
         #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=9e-1, upper=1e0, log=True, default_value=0.91))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_early_out_num', lower=10, upper=1000, log=False, default_value=100))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_steps', lower=200, upper=20000, log=False, default_value=5000))
@@ -70,15 +70,15 @@ class ExperimentWrapper():
 
         config["env_name"] = 'Pendulum-v0'
 
-        config["agents"]['match_env']['oversampling'] = cso["me_oversampling"]
-        config["agents"]['match_env']['lr'] = cso["me_lr"]
-        config["agents"]['match_env']['weight_decay'] = cso["me_weight_decay"]
-        config["agents"]['match_env']['batch_size'] = cso["me_batch_size"]
-        config["agents"]['match_env']['early_out_diff'] = cso["me_early_out_diff"]
-        config["agents"]['match_env']['early_out_num'] = cso["me_early_out_num"]
-        config["agents"]['match_env']['steps'] = cso["me_steps"]
-        config["agents"]['match_env']['step_size'] = cso["me_step_size"]
-        config["agents"]['match_env']['gamma'] = cso["me_gamma"]
+        config["agents"]['env_matcher']['oversampling'] = cso["em_oversampling"]
+        config["agents"]['env_matcher']['lr'] = cso["em_lr"]
+        config["agents"]['env_matcher']['weight_decay'] = cso["em_weight_decay"]
+        config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
+        config["agents"]['env_matcher']['early_out_diff'] = cso["em_early_out_diff"]
+        config["agents"]['env_matcher']['early_out_num'] = cso["em_early_out_num"]
+        config["agents"]['env_matcher']['steps'] = cso["em_steps"]
+        config["agents"]['env_matcher']['step_size'] = cso["em_step_size"]
+        config["agents"]['env_matcher']['gamma'] = cso["em_gamma"]
 
         config["envs"]['Pendulum-v0']['activation_fn'] = cso["pen_activation_fn"]
         config["envs"]['Pendulum-v0']['hidden_size'] = cso["pen_hidden_size"]
@@ -130,10 +130,10 @@ class ExperimentWrapper():
 
             # first match
             print("-- matching virtual env to real env --")
-            match_env = EnvMatcher(config=config)
-            match_env.train(real_env=real_env,
-                            virtual_env=virtual_env,
-                            input_seed=0)
+            env_matcher = EnvMatcher(config=config)
+            env_matcher.train(real_env=real_env,
+                              virtual_env=virtual_env,
+                              input_seed=0)
 
             # then train on virtual env
             print("-- training on virtual env --")

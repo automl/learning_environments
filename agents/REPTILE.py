@@ -70,9 +70,7 @@ class REPTILE(nn.Module):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
 
             env = self.env_factory.generate_random_real_env()
-            # env = self.env_factory.generate_default_virtual_env().to(device)
-            # todo fabio: fix arguments
-            self.agent.train(env=env, input_seed=1)
+            self.agent.train(env=env)
 
             reptile_update_state_dict(self.agent, old_state_dict, self.step_size)
 

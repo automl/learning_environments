@@ -1,7 +1,10 @@
 import os
 import torch
 import torch.nn as nn
+import numpy as np
 from envs.virtual_env import VirtualEnv
+from gym.envs.mujoco import mujoco_env
+from gym.utils import seeding
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -23,8 +26,7 @@ class EnvWrapper(nn.Module):
                     reward_sum = reward
                 else:
                     reward_sum += reward
-                # todo fabio: improve description of todo below
-                # TODO: Right now we only use the last done flag, but this might be problematic if same_action_num > 1
+                # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
 
             reward = reward_sum.to("cpu")
             next_state = state.to("cpu")
@@ -54,10 +56,25 @@ class EnvWrapper(nn.Module):
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
 
+    def get_ramdom_state(self):
+        if self.env.env_name == 'Pendulum-v0':
+            high = np.array([np.pi, 1])
+            np_random, seed = seeding.np_random()
+            state_tmp = np_random.uniform(low=-high, high=high)
+            a = torch.from_numpy(np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])).float()
+            return a
+        elif self.env_name == 'MountainCarContinuous-v0':
+            return torch.from_numpy(np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])).float()
+        else:
+            print("Probably wrong implementation of get_random_state")
+            return torch.tensor(self.env.observation_space.sample(), dtype=torch.float32)
+
     def get_random_action(self):
-        # do random action in the [-1,1] range
-        # todo fabio: move to individual env classes
-        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
+        if self.env.env_name == 'Pendulum-v0':
+            if self.is_virtual_env():
+                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-2, 2)
+            else:
+                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
 
     def get_state_dim(self):
         if self.is_virtual_env():
@@ -92,6 +109,9 @@ class EnvWrapper(nn.Module):
 
     def is_virtual_env(self):
         return isinstance(self.env, VirtualEnv)
+
+    def is_mujoco_env(self):
+        return issubclass(self.env, mujoco_env.MujocoEnv)
 
     def get_state_dict(self):
         if self.is_virtual_env():

@@ -15,9 +15,6 @@ class EnvFactory:
         dummy_env = self.generate_default_real_env()
         self.state_dim = dummy_env.get_state_dim()
         self.action_dim = dummy_env.get_action_dim()
-        self.input_seed_dim = self.env_config["input_seed_dim"]
-        self.input_seed_mean = self.env_config["input_seed_mean"]
-        self.input_seed_range = self.env_config["input_seed_range"]
 
     def generate_default_real_env(self):
         # generate a real environment with default parameters
@@ -48,13 +45,18 @@ class EnvFactory:
         return EnvWrapper(env=env).to(device)
 
     def generate_default_input_seed(self):
-        return (torch.ones(self.input_seed_dim) * self.input_seed_mean).clone().requires_grad_(True)
+        input_seed_dim = self.env_config["input_seed_dim"]
+        input_seed_mean = self.env_config["input_seed_mean"]
+        return (torch.ones(input_seed_dim) * input_seed_mean).clone().requires_grad_(True)
 
     def generate_random_input_seed(self):
-        seed_min = self.input_seed_mean - self.input_seed_range
-        seed_max = self.input_seed_mean + self.input_seed_range
+        input_seed_dim = self.env_config["input_seed_dim"]
+        input_seed_mean = self.env_config["input_seed_mean"]
+        input_seed_range = self.env_config["input_seed_range"]
+        seed_min = input_seed_mean - input_seed_range
+        seed_max = input_seed_mean + input_seed_range
         # clone required because otherwise operations on it will make it a no-leaf-variable
-        return (torch.rand(self.input_seed_dim) * (seed_max - seed_min) + seed_min).clone().requires_grad_(True)
+        return (torch.rand(input_seed_dim) * (seed_max - seed_min) + seed_min).clone().requires_grad_(True)
 
     def _get_random_parameters(self):
         kwargs = {"env_name": self.env_name, "state_dim": self.state_dim, "action_dim": self.action_dim}

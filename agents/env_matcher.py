@@ -20,17 +20,15 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
         for k in range(batch_size):
             # run random state/actions transitions on the real env
             # todo fabio: maybe improve (access member variables)
-            states_list.append(real_env.env.observation_space.sample() * oversampling)
-            actions_list.append(real_env.env.action_space.sample() * oversampling)
-            next_state, reward, done = real_env.step(
-                action=torch.tensor(actions_list[-1], device=device, dtype=torch.float32),
-                state=torch.tensor(states_list[-1], device=device, dtype=torch.float32),
-            )
+            states_list.append(real_env.get_ramdom_state() * oversampling)
+            actions_list.append(real_env.get_random_action() * oversampling)
+            next_state, reward, done = real_env.step(action=actions_list[-1],
+                                                     state=states_list[-1])
             outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
 
         # convert to torch
-        states = torch.tensor(states_list, device=device, dtype=torch.float32)
-        actions = torch.tensor(actions_list, device=device, dtype=torch.float32)
+        states = torch.stack(states_list)
+        actions = torch.stack(actions_list)
         outputs_real = torch.stack(outputs_list)
 
         # simulate the same state/action transitions on the virtual env, create input_seeds batch
@@ -60,17 +58,17 @@ class EnvMatcher(nn.Module):
     def __init__(self, config):
         super().__init__()
 
-        me_config = config["agents"]["match_env"]
+        em_config = config["agents"]["env_matcher"]
 
-        self.oversampling = me_config["oversampling"]
-        self.lr = me_config["lr"]
-        self.weight_decay = me_config["weight_decay"]
-        self.batch_size = me_config["batch_size"]
-        self.early_out_diff = me_config["early_out_diff"]
-        self.early_out_num = me_config["early_out_num"]
-        self.steps = me_config["steps"]  # todo fabio: change to max_steps
-        self.step_size = me_config["step_size"]
-        self.gamma = me_config["gamma"]
+        self.oversampling = em_config["oversampling"]
+        self.lr = em_config["lr"]
+        self.weight_decay = em_config["weight_decay"]
+        self.batch_size = em_config["batch_size"]
+        self.early_out_diff = em_config["early_out_diff"]
+        self.early_out_num = em_config["early_out_num"]
+        self.max_steps = em_config["max_steps"]
+        self.step_size = em_config["step_size"]
+        self.gamma = em_config["gamma"]
 
     def train(self, real_envs, virtual_env, input_seeds):
         optimizer = torch.optim.Adam(list(virtual_env.parameters()) + input_seeds, lr=self.lr, weight_decay=self.weight_decay)
@@ -84,21 +82,20 @@ class EnvMatcher(nn.Module):
         n = len(real_envs)
         batch_size_normalized = math.ceil(self.batch_size / n)
 
-        for i in range(self.steps):
+        for i in range(self.max_steps):
             # match virtual env to real env
             loss, diff_state, diff_reward, diff_done = 0, 0, 0, 0
 
             optimizer.zero_grad()
             for real_env, input_seed in zip(real_envs, input_seeds):
-                loss_tmp, diff_state_tmp, diff_reward_tmp, diff_done_tmp = match_loss(
-                    real_env=real_env,
-                    virtual_env=virtual_env,
-                    input_seed=input_seed,
-                    batch_size=batch_size_normalized,
-                    more_info=True,
-                    grad_enabled=True,
-                    oversampling=self.oversampling,
-                )
+                loss_tmp, diff_state_tmp, diff_reward_tmp, diff_done_tmp = \
+                    match_loss(real_env=real_env,
+                               virtual_env=virtual_env,
+                               input_seed=input_seed,
+                               batch_size=batch_size_normalized,
+                               more_info=True,
+                               grad_enabled=True,
+                               oversampling=self.oversampling)
                 loss += loss_tmp
                 diff_state += diff_state_tmp
                 diff_reward += diff_reward_tmp
@@ -132,15 +129,14 @@ class EnvMatcher(nn.Module):
         n = len(real_envs)
         test_samples_normalized = math.ceil(test_samples / n)
         for real_env, input_seed in zip(real_envs, input_seeds):
-            loss_tmp, diff_state_tmp, diff_reward_tmp, diff_done_tmp = match_loss(
-                real_env=real_env,
-                virtual_env=virtual_env,
-                input_seed=input_seed,
-                batch_size=test_samples_normalized,
-                more_info=True,
-                grad_enabled=False,
-                oversampling=oversampling,
-            )
+            loss_tmp, diff_state_tmp, diff_reward_tmp, diff_done_tmp = \
+                match_loss(real_env=real_env,
+                           virtual_env=virtual_env,
+                           input_seed=input_seed,
+                           batch_size=test_samples_normalized,
+                           more_info=True,
+                           grad_enabled=False,
+                           oversampling=oversampling)
             loss += loss_tmp
             diff_state += diff_state_tmp
             diff_reward += diff_reward_tmp

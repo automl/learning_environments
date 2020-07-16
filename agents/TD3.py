@@ -164,7 +164,10 @@ class TD3(nn.Module):
         # Compute matching loss
         m_loss = 0
         if match_virtual_env and self.optim_env_with_critic:
-            m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seed, batch_size=self.match_batch_size)
+            m_loss = match_loss(real_env=match_env,
+                                virtual_env=env,
+                                input_seed=input_seed,
+                                batch_size=self.match_batch_size)
             m_loss *= self.match_weight_critic
 
         # if self.total_it % 100 == 0:
@@ -196,7 +199,10 @@ class TD3(nn.Module):
             # Compute matching loss
             m_loss = 0
             if match_virtual_env and self.optim_env_with_actor:
-                m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seed, batch_size=self.match_batch_size)
+                m_loss = match_loss(real_env=match_env,
+                                    virtual_env=env,
+                                    input_seed=input_seed,
+                                    batch_size=self.match_batch_size)
                 m_loss *= self.match_weight_actor
 
             # if self.total_it % 100 == 0:
@@ -234,8 +240,12 @@ class TD3(nn.Module):
 
     def run_env(self, env, last_states, last_actions, input_seed):
         # enable gradient computation
-        input_seeds = input_seed.repeat(len(last_states), 1)
+        input_seeds = input_seed.repeat(len(last_states), 1).to(device)
         state, reward, done = env.step(action=last_actions, state=last_states, input_seed=input_seeds, same_action_num=self.same_action_num)
+
+        state = state.to(device)
+        reward = reward.to(device)
+        done = done.to(device)
 
         return state, reward, done
 
@@ -285,5 +295,5 @@ if __name__ == "__main__":
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
 
-    # td3.train(env=real_env)
     td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    td3.train(env=real_env)
