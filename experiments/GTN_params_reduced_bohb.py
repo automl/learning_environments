@@ -63,8 +63,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_weight_decay', lower=1e-12, upper=1e-6, log=True, default_value=1e-9))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_actor', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_critic', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e4, upper=1e8, log=True, default_value=1e5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e4, upper=1e8, log=True, default_value=1e5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e0, upper=1e8, log=True, default_value=1e5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e0, upper=1e8, log=True, default_value=1e5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_match_batch_size', lower=64, upper=512, log=True, default_value=256))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_size', lower=128, upper=1024, log=True, default_value=224))
