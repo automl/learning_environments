@@ -13,7 +13,7 @@ def reptile_match_env(env_matcher, real_envs, virtual_env, input_seeds, step_siz
     old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
     old_input_seeds = []
     for i in range(len(input_seeds)):
-        old_input_seeds.append(torch.tensor(input_seeds[i]))
+        old_input_seeds.append(input_seeds[i].clone())
 
     env_matcher.train(real_envs=real_envs,
                       virtual_env=virtual_env,

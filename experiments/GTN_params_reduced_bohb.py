@@ -69,6 +69,9 @@ class ExperimentWrapper():
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_size', lower=128, upper=1024, log=True, default_value=224))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_layer', lower=1, upper=2, log=True, default_value=2))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_input_seed_dim', lower=1, upper=32, log=True, default_value=4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='pen_input_seed_mean', lower=0.01, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='pen_input_seed_range', lower=0.01, upper=10, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='pen_weight_norm', choices=[False, True], default_value=True))
 
         return cs
@@ -121,6 +124,9 @@ class ExperimentWrapper():
 
         config["envs"]['Pendulum-v0']['hidden_size'] = cso["pen_hidden_size"]
         config["envs"]['Pendulum-v0']['hidden_layer'] = cso["pen_hidden_layer"]
+        config["envs"]['Pendulum-v0']['input_seed_dim'] = cso["pen_input_seed_dim"]
+        config["envs"]['Pendulum-v0']['input_seed_mean'] = cso["pen_input_seed_mean"]
+        config["envs"]['Pendulum-v0']['input_seed_range'] = cso["pen_input_seed_range"]
         config["envs"]['Pendulum-v0']['weight_norm'] = cso["pen_weight_norm"]
 
         return config
