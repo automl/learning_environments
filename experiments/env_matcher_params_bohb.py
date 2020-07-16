@@ -34,7 +34,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=10, upper=1000, log=False, default_value=100))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='steps', lower=200, upper=10000, log=False, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='max_steps', lower=200, upper=10000, log=False, default_value=5000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='step_size', lower=200, upper=2000, log=True, default_value=1000))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.3, upper=1, log=False, default_value=0.7))
 
@@ -61,7 +61,7 @@ class ExperimentWrapper():
         config["agents"]['env_matcher']['batch_size'] = cso["batch_size"]
         config["agents"]['env_matcher']['early_out_diff'] = cso["early_out_diff"]
         config["agents"]['env_matcher']['early_out_num'] = cso["early_out_num"]
-        config["agents"]['env_matcher']['steps'] = cso["steps"]
+        config["agents"]['env_matcher']['max_steps'] = cso["max_steps"]
         config["agents"]['env_matcher']['step_size'] = cso["step_size"]
         config["agents"]['env_matcher']['gamma'] = cso["gamma"]
 

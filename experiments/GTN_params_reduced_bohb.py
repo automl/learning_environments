@@ -52,7 +52,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_weight_decay', lower=1e-12, upper=1e-6, log=True, default_value=1e-9))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_steps', lower=1, upper=10000, log=True, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=10000, log=True, default_value=5000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=100, upper=1000, log=True, default_value=200))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_gamma', lower=0.5, upper=1, log=False, default_value=0.7))
 
@@ -107,7 +107,7 @@ class ExperimentWrapper():
         config["agents"]['env_matcher']['weight_decay'] = cso["em_weight_decay"]
         config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
         config["agents"]['env_matcher']['early_out_diff'] = cso["em_early_out_diff"]
-        config["agents"]['env_matcher']['steps'] = cso["em_steps"]
+        config["agents"]['env_matcher']['max_steps'] = cso["em_max_steps"]
         config["agents"]['env_matcher']['step_size'] = cso["em_step_size"]
         config["agents"]['env_matcher']['gamma'] = cso["em_gamma"]
 

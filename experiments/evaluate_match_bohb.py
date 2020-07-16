@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import sys
 import yaml
 import random
@@ -34,11 +35,10 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
-        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='early_out_diff', lower=9e-1, upper=1e0, log=True, default_value=0.91))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_early_out_num', lower=10, upper=1000, log=False, default_value=100))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_steps', lower=200, upper=20000, log=False, default_value=5000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='me_step_size', lower=200, upper=2000, log=True, default_value=1000))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='me_gamma', lower=0.3, upper=1, log=False, default_value=0.7))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_early_out_num', lower=10, upper=1000, log=False, default_value=100))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=200, upper=20000, log=False, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=200, upper=2000, log=True, default_value=1000))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_gamma', lower=0.3, upper=1, log=False, default_value=0.7))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='rep_step_size', lower=0.01, upper=1, log=False, default_value=0.1))
 
@@ -76,7 +76,7 @@ class ExperimentWrapper():
         config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
         config["agents"]['env_matcher']['early_out_diff'] = cso["em_early_out_diff"]
         config["agents"]['env_matcher']['early_out_num'] = cso["em_early_out_num"]
-        config["agents"]['env_matcher']['steps'] = cso["em_steps"]
+        config["agents"]['env_matcher']['max_steps'] = cso["em_max_steps"]
         config["agents"]['env_matcher']['step_size'] = cso["em_step_size"]
         config["agents"]['env_matcher']['gamma'] = cso["em_gamma"]
 
@@ -123,6 +123,7 @@ class ExperimentWrapper():
             env_fac = EnvFactory(config)
             real_env = env_fac.generate_default_real_env()
             virtual_env = env_fac.generate_default_virtual_env()
+            input_seed = env_fac.generate_default_input_seed()
 
             td3 = TD3(state_dim=real_env.get_state_dim(),
                       action_dim=real_env.get_action_dim(),
@@ -131,14 +132,15 @@ class ExperimentWrapper():
             # first match
             print("-- matching virtual env to real env --")
             env_matcher = EnvMatcher(config=config)
-            env_matcher.train(real_env=real_env,
+            env_matcher.train(real_envs=[real_env],
                               virtual_env=virtual_env,
-                              input_seed=0)
+                              input_seeds=[input_seed])
 
             # then train on virtual env
             print("-- training on virtual env --")
             reptile_train_agent(agent=td3,
                                 env=virtual_env,
+                                input_seed=input_seed,
                                 step_size=config["agents"]["reptile"]["step_size"])
 
             # then train on real env
@@ -150,6 +152,7 @@ class ExperimentWrapper():
             score = len(reward_list)
 
         except:
+            print(traceback.format_exc())
             score = float('Inf')
 
         info['config'] = str(config)

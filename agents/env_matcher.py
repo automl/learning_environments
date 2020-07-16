@@ -78,7 +78,7 @@ class EnvMatcher(nn.Module):
         avg_meter_reward = AverageMeter(print_str="Average diff reward ")
         avg_meter_done = AverageMeter(print_str="Average diff done   ")
 
-        old_loss = 0
+        old_loss = float('Inf')
         n = len(real_envs)
         batch_size_normalized = math.ceil(self.batch_size / n)
 
@@ -112,7 +112,6 @@ class EnvMatcher(nn.Module):
             avg_meter_done.update(diff_done / n, print_rate=self.early_out_num)
 
             # early out
-            # todo: fabio adapt like in TD3
             loss = avg_meter_loss.get_mean(num=self.early_out_num)
             if i % self.early_out_num == 0:
                 if abs(old_loss - loss) / loss < self.early_out_diff:
