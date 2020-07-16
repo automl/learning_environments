@@ -41,7 +41,7 @@ agents:
 
   td3:
     max_episodes: !!int 100             # maximum number of episodes to optimize
-    init_episodes: !!int 50             # number of episodes to fill the replay buffer
+    init_episodes: !!int 5             # number of episodes to fill the replay buffer
     batch_size: !!int  256              # batch size when running a policy update step
     gamma: !!float 0.99                 # discount factor
     lr: !!float 1e-3                    # learning rate
@@ -82,7 +82,7 @@ agents:
 
 envs:
   Pendulum-v0:
-    solved_reward: !!float -300         # used for early out in RL agent training
+    solved_reward: !!float 300         # used for early out in RL agent training
     max_steps: 200                      # maximum number of steps per episode
     dt: 0.05                            # sampling rate
     max_speed: [8, 10, 12, False]       # maximum joint speed [min, default, max, larger=more difficult]

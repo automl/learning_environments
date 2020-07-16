@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import torch.nn as nn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -22,17 +21,7 @@ class ReplayBuffer:
         self.done = torch.zeros((max_size, 1))
         self.action_std = torch.zeros((max_size, action_dim))
 
-    def add(
-        self,
-        last_state,
-        last_action,
-        state,
-        action,
-        next_state,
-        reward,
-        done,
-        action_std,
-    ):
+    def add(self, last_state, last_action, state, action, next_state, reward, done, action_std):
         self.last_state[self.ptr] = last_state.detach()
         self.last_action[self.ptr] = last_action.detach()
         self.state[self.ptr] = state.detach().detach()
@@ -82,8 +71,6 @@ class AverageMeter:
     def __init__(self, print_str):
         self.print_str = print_str
         self.vals = []
-        self.ptr = 0
-        self.size = 0
         self.it = 0
 
     def update(self, val, print_rate=10):
@@ -98,9 +85,7 @@ class AverageMeter:
 
         if self.it % print_rate == 0:
             mean_val = self._mean(print_rate)
-            out = self.print_str + "{:15.6f} {:>25} {}".format(
-                mean_val, "Total updates: ", self.it
-            )
+            out = self.print_str + "{:15.6f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
             print(out)
 
     def get_mean(self, num=10):

@@ -54,8 +54,7 @@ class TD3(nn.Module):
 
         self.total_it = 0
 
-
-    def train(self, env, match_env=None, input_seed=torch.tensor([0])):
+    def train(self, env, match_env=None, input_seed=None):
         # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
         # env=virtual_env, input_seed given: Train on fixed virtual env
         # env=real_env: Train on real env
@@ -95,10 +94,7 @@ class TD3(nn.Module):
                     env.render(state)
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action,
-                                                    state=state,
-                                                    input_seed=input_seed,
-                                                    same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
 
                 if t < env.max_episode_steps() - 1:
                     done_tensor = done
@@ -133,14 +129,12 @@ class TD3(nn.Module):
 
         return avg_meter_reward.get_raw_data()
 
-
     def update(self, replay_buffer, env, match_env=None, input_seed=None):
         match_virtual_env = env.is_virtual_env() and match_env is not None
         self.total_it += 1
 
         # Sample replay buffer
-        last_states, last_actions, states, actions, next_states, \
-        rewards, dones, action_std = replay_buffer.sample(self.batch_size)
+        last_states, last_actions, states, actions, next_states, rewards, dones, action_std = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
             last_states.requires_grad = True
@@ -170,10 +164,7 @@ class TD3(nn.Module):
         # Compute matching loss
         m_loss = 0
         if match_virtual_env and self.optim_env_with_critic:
-            m_loss = match_loss(real_env=match_env,
-                                virtual_env=env,
-                                input_seed=input_seed,
-                                batch_size=self.match_batch_size)
+            m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seed, batch_size=self.match_batch_size)
             m_loss *= self.match_weight_critic
 
         # if self.total_it % 100 == 0:
@@ -205,10 +196,7 @@ class TD3(nn.Module):
             # Compute matching loss
             m_loss = 0
             if match_virtual_env and self.optim_env_with_actor:
-                m_loss = match_loss(real_env=match_env,
-                                    virtual_env=env,
-                                    input_seed=input_seed,
-                                    batch_size=self.match_batch_size)
+                m_loss = match_loss(real_env=match_env, virtual_env=env, input_seed=input_seed, batch_size=self.match_batch_size)
                 m_loss *= self.match_weight_actor
 
             # if self.total_it % 100 == 0:
@@ -233,7 +221,6 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-
     def init_optimizer(self, env, match_env=None, input_seed=None):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
@@ -242,27 +229,15 @@ class TD3(nn.Module):
                 actor_params += list(env.parameters()) + [input_seed]
             if self.optim_env_with_critic:
                 critic_params += list(env.parameters()) + [input_seed]
-        self.actor_optimizer = torch.optim.Adam(actor_params,
-                                                lr=self.lr,
-                                                weight_decay=self.weight_decay)
-        self.critic_optimizer = torch.optim.Adam(critic_params,
-                                                 lr=self.lr,
-                                                 weight_decay=self.weight_decay)
-
+        self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
+        self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
     def run_env(self, env, last_states, last_actions, input_seed):
         # enable gradient computation
         input_seeds = input_seed.repeat(len(last_states), 1)
-        state, reward, done = env.step(action=last_actions,
-                                       state=last_states,
-                                       input_seed=input_seeds,
-                                       same_action_num=self.same_action_num)
-        state = state.to(device)  # wtf?
-        reward = reward.to(device)
-        done = done.to(device)
+        state, reward, done = env.step(action=last_actions, state=last_states, input_seed=input_seeds, same_action_num=self.same_action_num)
 
         return state, reward, done
-
 
     def get_state_dict(self):
         agent_state = {}
@@ -278,7 +253,6 @@ class TD3(nn.Module):
         if self.critic_optimizer:
             agent_state["td3_critic_optimizer"] = self.critic_optimizer.state_dict()
         return agent_state
-
 
     def set_state_dict(self, agent_state):
         self.actor.load_state_dict(agent_state["td3_actor"])
@@ -311,5 +285,5 @@ if __name__ == "__main__":
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
 
-    td3.train(env=real_env)
-    #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    # td3.train(env=real_env)
+    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)

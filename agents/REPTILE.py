@@ -11,25 +11,18 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def reptile_match_env(env_matcher, real_envs, virtual_env, input_seeds, step_size):
     old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
-    old_input_seeds = []
-    for i in range(len(input_seeds)):
-        old_input_seeds.append(input_seeds[i].clone())
+    old_input_seeds = copy.deepcopy(input_seeds)
 
-    env_matcher.train(real_envs=real_envs,
-                      virtual_env=virtual_env,
-                      input_seeds=input_seeds)
+    env_matcher.train(real_envs=real_envs, virtual_env=virtual_env, input_seeds=input_seeds)
 
-    reptile_update_state_dict(target=virtual_env,
-                              old_state_dict=old_state_dict_env,
-                              step_size=step_size)
+    reptile_update_state_dict(target=virtual_env, old_state_dict=old_state_dict_env, step_size=step_size)
 
+    # for step_size=1 reptile is disabled
     for i in range(len(old_input_seeds)):
-        reptile_update_tensor(target=input_seeds[i],
-                              old_tensor=old_input_seeds[i],
-                              step_size=step_size)
+        reptile_update_tensor(target=input_seeds[i], old_tensor=old_input_seeds[i], step_size=step_size)
 
 
-def reptile_train_agent(agent, env, match_env=None, input_seed=0, step_size=0.1):
+def reptile_train_agent(agent, env, match_env=None, input_seed=None, step_size=None):
     # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
     # env=virtual_env, input_seed given: Train on fixed virtual env
     # env=real_env: Train on real env
@@ -41,16 +34,10 @@ def reptile_train_agent(agent, env, match_env=None, input_seed=0, step_size=0.1)
 
     reward_list = agent.train(env=env, match_env=match_env, input_seed=input_seed)
 
-    reptile_update_state_dict(target = agent,
-                              old_state_dict = old_state_dict_agent,
-                              step_size = step_size)
+    reptile_update_state_dict(target=agent, old_state_dict=old_state_dict_agent, step_size=step_size)
     if match_env is not None:
-        reptile_update_state_dict(target = env,
-                                  old_state_dict = old_state_dict_env,
-                                  step_size = step_size)
-        reptile_update_tensor(target=input_seed,
-                              old_tensor=old_input_seed,
-                              step_size=step_size)
+        reptile_update_state_dict(target=env, old_state_dict=old_state_dict_env, step_size=step_size)
+        reptile_update_tensor(target=input_seed, old_tensor=old_input_seed, step_size=step_size)
 
     return reward_list
 
@@ -65,15 +52,16 @@ def reptile_update_tensor(target, old_tensor, step_size):
     target.data = old_tensor.data + (target.data - old_tensor.data) * step_size
 
 
+# todo fabio: refactor
 class REPTILE(nn.Module):
     def __init__(self, config):
         super().__init__()
 
-        reptile_config = config['agents']['reptile']
-        self.max_iterations = reptile_config['max_iterations']
-        self.step_size = reptile_config['step_size']
+        reptile_config = config["agents"]["reptile"]
+        self.max_iterations = reptile_config["max_iterations"]
+        self.step_size = reptile_config["step_size"]
 
-        agent_name = reptile_config['agent_name']
+        agent_name = reptile_config["agent_name"]
         self.env_factory = EnvFactory(config)
         self.agent = select_agent(config, agent_name)
 
@@ -82,25 +70,21 @@ class REPTILE(nn.Module):
             old_state_dict = copy.deepcopy(self.agent.state_dict())
 
             env = self.env_factory.generate_random_real_env()
-            #env = self.env_factory.generate_default_virtual_env().to(device)
+            # env = self.env_factory.generate_default_virtual_env().to(device)
+            # todo fabio: fix arguments
             self.agent.train(env=env, input_seed=1)
 
             reptile_update_state_dict(self.agent, old_state_dict, self.step_size)
 
 
 if __name__ == "__main__":
-    with open("../default_config.yaml", 'r') as stream:
+    with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # set seeds
-    seed = config['seed']
+    seed = config["seed"]
     torch.manual_seed(seed)
     np.random.seed(seed)
 
     reptile = REPTILE(config)
     reptile.train()
-
-
-
-
-

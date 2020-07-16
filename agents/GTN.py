@@ -61,18 +61,14 @@ class GTN(nn.Module):
         self.print_stats()
 
         print("-- matching virtual env to real envs ---")
-        reptile_match_env(env_matcher=self.env_matcher,
-                          real_envs=self.real_envs,
-                          virtual_env=self.virtual_env,
-                          input_seeds=self.input_seeds,
-                          step_size=self.match_step_size)
+        reptile_match_env(
+            env_matcher=self.env_matcher, real_envs=self.real_envs, virtual_env=self.virtual_env, input_seeds=self.input_seeds, step_size=self.match_step_size
+        )
 
         if self.pretrain_agent:
             env_id = 0
             print("-- training on real env with id " + str(env_id) + " --")
-            reptile_train_agent(agent=self.agent,
-                                env=self.real_envs[env_id],
-                                step_size=self.real_step_size)
+            reptile_train_agent(agent=self.agent, env=self.real_envs[env_id], step_size=self.real_step_size)
 
         order = []
         for it in range(self.max_iterations):
@@ -81,36 +77,31 @@ class GTN(nn.Module):
             env_id = np.random.randint(len(self.real_envs))
             if self.type[it] == 1:
                 print("-- training on real env with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent,
-                                    env=self.real_envs[env_id],
-                                    step_size=self.real_step_size)
-                order.append(1)
+                reptile_train_agent(agent=self.agent, env=self.real_envs[env_id], step_size=self.real_step_size)
 
             elif self.type[it] == 2:
                 print("-- training on virtual env with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent,
-                                    env=self.virtual_env,
-                                    input_seed=self.input_seeds[env_id],
-                                    step_size=self.virtual_step_size)
-                order.append(2)
+                reptile_train_agent(agent=self.agent, env=self.virtual_env, input_seed=self.input_seeds[env_id], step_size=self.virtual_step_size)
 
             elif self.type[it] == 3:
                 print("-- training on both envs with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent,
-                                    env=self.virtual_env,
-                                    match_env=self.real_envs[env_id],
-                                    input_seed=self.input_seeds[env_id],
-                                    step_size=self.both_step_size)
-                order.append(3)
+                reptile_train_agent(
+                    agent=self.agent, env=self.virtual_env, match_env=self.real_envs[env_id], input_seed=self.input_seeds[env_id], step_size=self.both_step_size
+                )
 
             else:
                 print("Case that should not happen")
+
+            order.append(self.type[it])
+
         return order
 
     def test(self):
         # generate 10 different deterministic environments with increasing difficulty
         # and check for every environment how many episodes it takes the agent to solve it
         # N.B. we have to reset the state of the agent before every iteration
+
+        # todo future: fine-tuning, then test
 
         # to avoid problems with wrongly initialized optimizers
         if isinstance(self.agent, TD3):
@@ -121,15 +112,16 @@ class GTN(nn.Module):
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
         for interpolate in np.arange(0, 1.01, 0.1):
-            print(interpolate)
+            # todo fabio: check if this is needed or addressed by init_optimizer()
             self.agent.set_state_dict(agent_state)
-            #print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
+            # print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
             env = self.env_factory.generate_interpolate_real_env(interpolate)
             reward_list = self.agent.train(env=env)
             mean_episodes_till_solved += len(reward_list)
             print("episodes till solved: " + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
+        # todo fabio: dangerous, refactor
         mean_episodes_till_solved /= 11.0
 
         return mean_episodes_till_solved
@@ -169,7 +161,6 @@ if __name__ == "__main__":
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 

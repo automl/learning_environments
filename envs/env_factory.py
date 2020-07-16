@@ -21,7 +21,7 @@ class EnvFactory:
 
     def generate_default_real_env(self):
         # generate a real environment with default parameters
-        kwargs = self._get_default_parameters(virtual_env = False)
+        kwargs = self._get_default_parameters(virtual_env=False)
         print('Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
@@ -42,7 +42,7 @@ class EnvFactory:
 
     def generate_default_virtual_env(self):
         # generate a virtual environment with default parameters
-        kwargs = self._get_default_parameters(virtual_env = True)
+        kwargs = self._get_default_parameters(virtual_env=True)
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs).to(device)
         return EnvWrapper(env=env).to(device)
@@ -53,12 +53,11 @@ class EnvFactory:
     def generate_random_input_seed(self):
         seed_min = self.input_seed_mean - self.input_seed_range
         seed_max = self.input_seed_mean + self.input_seed_range
-        return (torch.rand(self.input_seed_dim) * (seed_max-seed_min) + seed_min).clone().requires_grad_(True)
+        # clone required because otherwise operations on it will make it a no-leaf-variable
+        return (torch.rand(self.input_seed_dim) * (seed_max - seed_min) + seed_min).clone().requires_grad_(True)
 
     def _get_random_parameters(self):
-        kwargs = {"env_name": self.env_name,
-                  "state_dim": self.state_dim,
-                  "action_dim": self.action_dim}
+        kwargs = {"env_name": self.env_name, "state_dim": self.state_dim, "action_dim": self.action_dim}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
@@ -67,9 +66,7 @@ class EnvFactory:
         return kwargs
 
     def _get_interpolate_parameters(self, interpolate):
-        kwargs = {"env_name": self.env_name,
-                  "state_dim": self.state_dim,
-                  "action_dim": self.action_dim}
+        kwargs = {"env_name": self.env_name, "state_dim": self.state_dim, "action_dim": self.action_dim}
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 if bool(value[3]):

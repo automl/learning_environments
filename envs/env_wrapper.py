@@ -19,10 +19,11 @@ class EnvWrapper(nn.Module):
 
             for i in range(same_action_num):
                 state, reward, done = self.env.step(action.to(device), state.to(device), input_seed.to(device))
-                if reward_sum == None:
+                if reward_sum is None:
                     reward_sum = reward
                 else:
                     reward_sum += reward
+                # todo fabio: improve description of todo below
                 # TODO: Right now we only use the last done flag, but this might be problematic if same_action_num > 1
 
             reward = reward_sum.to("cpu")
@@ -55,6 +56,7 @@ class EnvWrapper(nn.Module):
 
     def get_random_action(self):
         # do random action in the [-1,1] range
+        # todo fabio: move to individual env classes
         return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
 
     def get_state_dim(self):
@@ -111,4 +113,4 @@ class EnvWrapper(nn.Module):
         if os.path.isfile(path):
             self.set_state_dict(torch.load(path))
         else:
-            raise FileNotFoundError('File not found: ' + str(path))
+            raise FileNotFoundError("File not found: " + str(path))
