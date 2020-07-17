@@ -23,31 +23,38 @@ def analyze_bohb(log_dir):
     result = remove_outliers(result)
     result_w = deepcopy(result)
     result_wo = deepcopy(result)
+    result_re = deepcopy(result)
 
-    analyze_result_order(result, id2conf)
+    #analyze_result_order(result, id2conf)
 
-    get_w(result_w, get_three=True)
-    get_w(result_wo, get_three=False)
+    get_w(result_w, spec="w3")
+    get_w(result_wo, spec="wo3")
+    get_w(result_re, spec="re")
 
     print(len(result_w.data))
     print(len(result_wo.data))
+    print(len(result_re.data))
 
     plot_accuracy_over_budget(result_w,  'with variable virtual env')
     plot_accuracy_over_budget(result_wo, 'without variable virtual env')
+    plot_accuracy_over_budget(result_re, 'with real env only')
 
     plt.show()
 
 
-def get_w(result, get_three=False):
+def get_w(result, spec):
     del_list = []
     for key1, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             order = ast.literal_eval(value2['info']['order'])
-            if get_three == True:
+            if spec == "w3":    # consider all runs with variable env
                 if 3 not in order:
                     del_list.append((key1, key2))
-            else:
+            elif spec == "wo3": # consider all runs without variable env
                 if 3 in order:
+                    del_list.append((key1, key2))
+            elif spec == "re":  # consider all runs with real env only
+                if 2 in order or 3 in order:
                     del_list.append((key1, key2))
 
     for key in del_list:
@@ -150,7 +157,7 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-16-16'
+    log_dir = '../results/GTN_params_reduced_bohb_2020-07-16-16-latest-greatest'
     analyze_bohb(log_dir)
 
 
