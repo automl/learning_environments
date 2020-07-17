@@ -36,6 +36,9 @@ class TD3(nn.Module):
         self.match_weight_actor = td3_config["match_weight_actor"]
         self.match_weight_critic = td3_config["match_weight_critic"]
         self.match_batch_size = td3_config["match_batch_size"]
+        self.virtual_min_episodes = td3_config["virtual_min_episodes"]
+        self.both_min_episodes = td3_config["both_min_episodes"]
+
 
         self.render_env = config["render_env"]
 
@@ -121,7 +124,8 @@ class TD3(nn.Module):
 
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward > env.env.solved_reward:
+            min_episodes_to_run = self.min_episodes_to_run(env, match_env)
+            if avg_reward > env.env.solved_reward and episode >= min_episodes_to_run:
                 print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
                 break
 
@@ -249,6 +253,13 @@ class TD3(nn.Module):
 
         return state, reward, done
 
+    def min_episodes_to_run(self, env, match_env):
+        if not env.is_virtual_env():
+            return 0
+        if match_env is None:
+            return self.init_episodes + self.virtual_min_episodes
+        return self.init_episodes + self.both_min_episodes
+
     def get_state_dict(self):
         agent_state = {}
 
@@ -294,6 +305,6 @@ if __name__ == "__main__":
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
-
-    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    td3.train(env=virtual_env, input_seed=input_seed)
+    #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
     td3.train(env=real_env)

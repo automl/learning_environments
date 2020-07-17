@@ -21,6 +21,7 @@ agents:
     real_step_size: !!float 0.1         # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1      # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1         # reptile step size when matching the agent to the variable virtual env
+    pretrain_env: !!bool False          # pretrain the virtual_env?
     pretrain_agent: !!bool True         # pretrain the agent on the default env?
 
   reptile:
@@ -61,6 +62,9 @@ agents:
     match_weight_actor: !!float 1e4     # how much to weight matching loss wrt actor loss
     match_weight_critic: !!float 1e4    # how much to weight matching loss wrt critic loss
     match_batch_size: !!int 128         # matching batch size
+    real_min_episodes: !!float 30       # minimum number of agent episodes to train on the real env
+    virtual_min_episodes: !!float 10    # minimum number of agent episodes to train on the virtual env
+    both_min_episodes: !!float 0        # minimum number of agent episodes to train on both envs
 
   ppo:
     max_episodes: !!int 100000          # maximum number of episodes to optimize

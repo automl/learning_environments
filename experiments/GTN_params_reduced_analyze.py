@@ -10,7 +10,6 @@ from copy import deepcopy
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 2
 OUTLIER_PERC = 0.0
 
 
@@ -71,11 +70,11 @@ def analyze_result_order(result, id2conf):
             order = ast.literal_eval(value2['info']['order'])
             optim_with_actor = id2conf[key]['config']['td3_optim_env_with_actor']
             optim_with_critic = id2conf[key]['config']['td3_optim_env_with_critic']
-            lr = id2conf[key]['config']['me_lr']
-            steps = id2conf[key]['config']['me_steps']
-            step_size = id2conf[key]['config']['me_step_size']
-            gamma = id2conf[key]['config']['me_gamma']
-            batch_size = id2conf[key]['config']['me_batch_size']
+            lr = id2conf[key]['config']['em_lr']
+            steps = id2conf[key]['config']['em_max_steps']
+            step_size = id2conf[key]['config']['em_step_size']
+            gamma = id2conf[key]['config']['em_gamma']
+            batch_size = id2conf[key]['config']['em_batch_size']
             order_list.append((loss, order, optim_with_actor, optim_with_critic, lr, steps, step_size, gamma, batch_size))
             if 3 in order:
                 w_3.append(loss)
@@ -92,7 +91,7 @@ def analyze_result_order(result, id2conf):
 
 
 def plot_accuracy_over_budget(result):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(dpi=300)
 
     # plot hyperband plot
     index = None
@@ -153,7 +152,7 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-14-15-with-variable-pretraining'
+    log_dir = '../results/GTN_params_reduced_bohb_2020-07-16-16'
     analyze_bohb(log_dir)
 
 

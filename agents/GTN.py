@@ -27,6 +27,7 @@ class GTN(nn.Module):
         self.real_step_size = gtn_config["real_step_size"]
         self.virtual_step_size = gtn_config["virtual_step_size"]
         self.both_step_size = gtn_config["both_step_size"]
+        self.pretrain_env = gtn_config["pretrain_env"]
         self.pretrain_agent = gtn_config["pretrain_agent"]
         self.type = []
         for i in range(10):
@@ -60,12 +61,13 @@ class GTN(nn.Module):
     def train(self):
         self.print_stats()
 
-        print("-- matching virtual env to real envs ---")
-        reptile_match_env(env_matcher=self.env_matcher,
-                          real_envs=self.real_envs,
-                          virtual_env=self.virtual_env,
-                          input_seeds=self.input_seeds,
-                          step_size=self.match_step_size)
+        if self.pretrain_env:
+            print("-- matching virtual env to real envs ---")
+            reptile_match_env(env_matcher=self.env_matcher,
+                              real_envs=self.real_envs,
+                              virtual_env=self.virtual_env,
+                              input_seeds=self.input_seeds,
+                              step_size=self.match_step_size)
 
         if self.pretrain_agent:
             env_id = 0
