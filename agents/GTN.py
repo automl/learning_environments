@@ -71,7 +71,7 @@ class GTN(nn.Module):
 
         if self.pretrain_agent:
             env_id = 0
-            print("-- training on real env with id " + str(env_id) + " --")
+            print("-- pretraining agent on real env with id " + str(env_id) + " --")
             reptile_train_agent(agent=self.agent,
                                 env=self.real_envs[env_id],
                                 step_size=self.real_step_size)
@@ -106,6 +106,8 @@ class GTN(nn.Module):
                 print("Case that should not happen")
 
             order.append(self.type[it])
+
+        self.print_stats()
 
         return order
 

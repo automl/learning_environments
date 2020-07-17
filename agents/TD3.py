@@ -83,8 +83,13 @@ class TD3(nn.Module):
                 time_step += 1
 
                 # required to make resampling of actions (for the autograd bw graph) deterministic
-                actor_seed = abs(int(sum(state) * 1e9))
-                torch.manual_seed(actor_seed)
+                try:
+                    actor_seed = abs(int(sum(state) * 1e9))
+                    torch.manual_seed(actor_seed)
+                except:
+                    print("State that caused the problem: " + str(state))
+                    print("Actor seed that caused the problem: " + str(actor_seed))
+                    raise
 
                 # fill replay buffer at beginning
                 if episode < self.init_episodes:
