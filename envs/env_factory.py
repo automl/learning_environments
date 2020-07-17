@@ -33,7 +33,7 @@ class EnvFactory:
     def generate_interpolate_real_env(self, interpolate):
         # generate a real environment with random parameters within specified range
         kwargs = self._get_interpolate_parameters(interpolate)
-        print('Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        print('Generating interpolated real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = generate_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 

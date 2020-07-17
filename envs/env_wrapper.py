@@ -75,6 +75,13 @@ class EnvWrapper(nn.Module):
                 return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-2, 2)
             else:
                 return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
+        elif self.env.env_name == 'MountainCarContinuous-v0':
+            if self.is_virtual_env():
+                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
+            else:
+                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
+        else:
+            raise NotImplementedError("Unknownn RL agent")
 
     def get_state_dim(self):
         if self.is_virtual_env():
