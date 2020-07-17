@@ -26,24 +26,24 @@ def analyze_bohb(log_dir):
 
     analyze_result_order(result, id2conf)
 
-    result_w = get_w(result_w, inverse=False)
-    result_wo = get_w(result_wo, inverse=True)
+    get_w(result_w, get_three=True)
+    get_w(result_wo, get_three=False)
 
     print(len(result_w.data))
     print(len(result_wo.data))
 
-    plot_accuracy_over_budget(result_w)
-    plot_accuracy_over_budget(result_wo)
+    plot_accuracy_over_budget(result_w,  'with variable virtual env')
+    plot_accuracy_over_budget(result_wo, 'without variable virtual env')
 
     plt.show()
 
 
-def get_w(result, inverse=False):
+def get_w(result, get_three=False):
     del_list = []
     for key1, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             order = ast.literal_eval(value2['info']['order'])
-            if inverse:
+            if get_three == True:
                 if 3 not in order:
                     del_list.append((key1, key2))
             else:
@@ -56,8 +56,6 @@ def get_w(result, inverse=False):
         result.data[key1].results.pop(key2, None)
         if len(result.data[key1].results) == 0:
             result.data.pop(key1)
-
-    return result
 
 
 def analyze_result_order(result, id2conf):
@@ -90,7 +88,7 @@ def analyze_result_order(result, id2conf):
 
 
 
-def plot_accuracy_over_budget(result):
+def plot_accuracy_over_budget(result, plot_str):
     fig, ax = plt.subplots(dpi=300)
 
     # plot hyperband plot
@@ -112,7 +110,7 @@ def plot_accuracy_over_budget(result):
         except:
             print('Error in plot_accuracy_over_budget, continuing')
 
-    ax.set_title('Score for different configurations')
+    ax.set_title(plot_str)
     ax.set_xlabel('epochs')
     ax.set_ylabel('score')
 
