@@ -89,8 +89,6 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["env_name"] = 'Pendulum-v0'
-
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
         config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
         config["agents"]['gtn']['type_1'] = cso["gtn_type_1"]
