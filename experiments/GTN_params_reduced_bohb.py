@@ -153,6 +153,7 @@ class ExperimentWrapper():
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
+
         print('----------------------------')
         print("START BOHB ITERATION")
         print('CONFIG: ' + str(config))
@@ -163,14 +164,14 @@ class ExperimentWrapper():
         info = {}
         order = None
         error = ""
-        try:
-            gtn = GTN(config)
-            order = gtn.train()
-            score = gtn.test()
-        except:
-            score = float('Inf')
-            error = traceback.format_exc()
-            print(error)
+        #try:
+        gtn = GTN(config)
+        order = gtn.train()
+        score = gtn.test()
+        # except:
+        #     score = float('Inf')
+        #     error = traceback.format_exc()
+        #     print(error)
 
         info['config'] = str(config)
         info['order'] = str(order)
@@ -188,7 +189,7 @@ class ExperimentWrapper():
 
 
 if __name__ == "__main__":
-    SEED = 42
+    SEED = 39
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
