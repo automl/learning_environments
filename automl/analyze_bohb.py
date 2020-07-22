@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 5
-OUTLIER_PERC = 0.2
+EXP_LOSS = 1
+OUTLIER_PERC_WORST = 0.8
+OUTLIER_PERC_BEST = 0.0
 
 
 def analyze_bohb(log_dir):
@@ -80,20 +81,36 @@ def remove_outliers(result):
                 loss = float('nan')
             else:
                 loss = value2['loss']
-            lut.append((loss, key))
+            lut.append([loss, key])
+
+    filtered_lut = [x for x in lut if math.isfinite(x[0])]
+    worst_loss = sorted(filtered_lut, reverse=REVERSE_LOSS)[0][0]
+
+    if REVERSE_LOSS:
+        worst_loss += 0.01*abs(worst_loss)
+    else:
+        worst_loss -= 0.01*abs(worst_loss)
 
     # remove NaN's
-    for elem in lut:
-        if not math.isfinite(elem[0]):
-            result.data.pop(elem[1], None)
-    lut = [x for x in lut if math.isfinite(x[0])]
+    for i in range(len(lut)):
+        if not math.isfinite(lut[i][0]):
+            lut[i][0] = worst_loss
+            for key in result.data[lut[i][1]].results.keys():
+                result.data[lut[i][1]].results[key]['loss'] = worst_loss
+            #result.data.pop(elem[1], None)
 
     lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
-    n_remove = math.ceil(len(lut)*OUTLIER_PERC)
+    n_remove_worst = math.ceil(len(lut)*OUTLIER_PERC_WORST)
+    n_remove_best = math.ceil(len(lut)*OUTLIER_PERC_BEST)
 
-    # remove percentage of largest/smallest values
-    for i in range(n_remove):
+    # remove percentage of worst values
+    for i in range(n_remove_worst):
         elem = lut.pop(0)
+        result.data.pop(elem[1], None)
+
+    # remove percentage of worst values
+    for i in range(n_remove_best):
+        elem = lut.pop()
         result.data.pop(elem[1], None)
 
     return result
@@ -155,7 +172,7 @@ def plot_parallel_scatter(result):
 
     x_dev = 0.3
     r_min = 0.1
-    r_max = 6
+    r_max = 4
     alpha = 0.5
     text_x_offset = -0.1
     text_y_offset = -0.1
@@ -294,7 +311,8 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-21-with-order'
+    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-21-with-order'
+    log_dir = '../results'
     analyze_bohb(log_dir)
 
 

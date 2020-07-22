@@ -43,7 +43,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
-        #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_env', choices=[False, True], default_value=False))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_env', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1, upper=2, log=True, default_value=1.5))
@@ -51,7 +51,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_weight_decay', lower=1e-12, upper=1e-6, log=True, default_value=1e-9))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=64, upper=256, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=10, upper=10000, log=True, default_value=5000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=10000, log=True, default_value=5000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=200, upper=2000, log=True, default_value=1000))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_gamma', lower=0.6, upper=1, log=False, default_value=0.7))
 
@@ -74,20 +74,22 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_virtual_min_episodes', lower=1, upper=30, log=True, default_value=3))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_both_min_episodes', lower=1, upper=30, log=True, default_value=3))
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='pen_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='tanh'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_size', lower=128, upper=2024, log=True, default_value=224))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_hidden_layer', lower=1, upper=3, log=True, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='pen_input_seed_dim', lower=1, upper=64, log=True, default_value=4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='pen_input_seed_mean', lower=0.01, upper=10, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='pen_input_seed_range', lower=0.01, upper=10, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='pen_zero_init', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='pen_weight_norm', choices=[False, True], default_value=True))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='tanh'))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_size', lower=128, upper=2024, log=True, default_value=224))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_layer', lower=1, upper=3, log=True, default_value=2))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_input_seed_dim', lower=1, upper=64, log=True, default_value=4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_mean', lower=0.01, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_range', lower=0.01, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_zero_init', choices=[False, True], default_value=False))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_weight_norm', choices=[False, True], default_value=True))
 
         return cs
 
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
+
+        env_name = config["env_name"]
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
         config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
@@ -105,7 +107,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['real_step_size'] = cso["gtn_real_step_size"]
         config["agents"]['gtn']['virtual_step_size'] = cso["gtn_virtual_step_size"]
         config["agents"]['gtn']['both_step_size'] = cso["gtn_both_step_size"]
-        #config["agents"]['gtn']['pretrain_env'] = cso["gtn_pretrain_env"]
+        config["agents"]['gtn']['pretrain_env'] = cso["gtn_pretrain_env"]
         config["agents"]['gtn']['pretrain_agent'] = cso["gtn_pretrain_agent"]
 
         config["agents"]['env_matcher']['oversampling'] = cso["em_oversampling"]
@@ -136,14 +138,14 @@ class ExperimentWrapper():
         config["agents"]["td3"]["virtual_min_episodes"] = cso["td3_virtual_min_episodes"]
         config["agents"]["td3"]["both_min_episodes"] = cso["td3_both_min_episodes"]
 
-        config["envs"]['Pendulum-v0']['activation_fn'] = cso["pen_activation_fn"]
-        config["envs"]['Pendulum-v0']['hidden_size'] = cso["pen_hidden_size"]
-        config["envs"]['Pendulum-v0']['hidden_layer'] = cso["pen_hidden_layer"]
-        config["envs"]['Pendulum-v0']['input_seed_dim'] = cso["pen_input_seed_dim"]
-        config["envs"]['Pendulum-v0']['input_seed_mean'] = cso["pen_input_seed_mean"]
-        config["envs"]['Pendulum-v0']['input_seed_range'] = cso["pen_input_seed_range"]
-        config["envs"]['Pendulum-v0']['zero_init'] = cso["pen_zero_init"]
-        config["envs"]['Pendulum-v0']['weight_norm'] = cso["pen_weight_norm"]
+        config["envs"][env_name]['activation_fn'] = cso["env_activation_fn"]
+        config["envs"][env_name]['hidden_size'] = cso["env_hidden_size"]
+        config["envs"][env_name]['hidden_layer'] = cso["env_hidden_layer"]
+        config["envs"][env_name]['input_seed_dim'] = cso["env_input_seed_dim"]
+        config["envs"][env_name]['input_seed_mean'] = cso["env_input_seed_mean"]
+        config["envs"][env_name]['input_seed_range'] = cso["env_input_seed_range"]
+        config["envs"][env_name]['zero_init'] = cso["env_zero_init"]
+        config["envs"][env_name]['weight_norm'] = cso["env_weight_norm"]
 
         return config
 
