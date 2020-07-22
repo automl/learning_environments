@@ -15,7 +15,7 @@ class Actor(nn.Module):
 
     def forward(self, state, std=None):
         if std is not None:
-            rng = [torch.manual_seed(abs(int(sum(state[i]) * 1e9))) for i in range(state.shape[0])]
+            rng = [torch.manual_seed(abs(int(sum(state[i]) * 1e9) % 1e9)) for i in range(state.shape[0])]
         else:
             rng = None
         action_mean = self.net(state)
