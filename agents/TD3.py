@@ -84,7 +84,7 @@ class TD3(nn.Module):
 
                 # required to make resampling of actions (for the autograd bw graph) deterministic
                 try:
-                    actor_seed = abs(int(sum(state) * 1e9))
+                    actor_seed = abs(int(sum(state) * 1e9) % 1e9)
                     torch.manual_seed(actor_seed)
                 except:
                     print("State that caused the problem: " + str(state))

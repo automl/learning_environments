@@ -63,7 +63,7 @@ class EnvWrapper(nn.Module):
             state_tmp = np_random.uniform(low=-high, high=high)
             a = torch.from_numpy(np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])).float()
             return a
-        elif self.env_name == 'MountainCarContinuous-v0':
+        elif self.env.env_name == 'MountainCarContinuous-v0':
             return torch.from_numpy(np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])).float()
         else:
             print("Probably wrong implementation of get_random_state")
