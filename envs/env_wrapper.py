@@ -65,7 +65,7 @@ class EnvWrapper(nn.Module):
             return a
         elif self.env.env_name == 'MountainCarContinuous-v0':
             np_random, seed = seeding.np_random()
-            return torch.from_numpy(np.array([np_random.uniform(low=-0.6, high=-0.4), 0])).float()
+            return torch.from_numpy(np.array([np_random.uniform(low=-1.2, high=0.6), 0])).float()
         else:
             print("Probably wrong implementation of get_random_state")
             return torch.tensor(self.env.observation_space.sample(), dtype=torch.float32)
