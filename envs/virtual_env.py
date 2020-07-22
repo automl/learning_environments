@@ -49,6 +49,11 @@ class VirtualEnv(nn.Module):
                                   np.random.uniform(low=-1, high=1)],
                                  device=device,
                                  dtype=torch.float32)
+        elif self.env_name == "MountainCarContinuous-v0":
+            state = torch.tensor([np.random.uniform(low=-0.6, high=-0.4),
+                                  0],
+                                 device=device,
+                                 dtype=torch.float32)
         else:
             raise NotImplementedError("Unknown environment: non-zero state reset only for supported environments.")
 
