@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
 
@@ -24,16 +25,17 @@ class Actor(nn.Module):
         dist = Normal(action_mean, self.action_std, rng)
 
         if len(state.shape) == 1:
-            sm = 0
-            for param in self.net.parameters():
-                sm += abs(param).sum()
+            if not np.isfinite(action_mean.cpu().detach().numpy()):
+                sm = 0
+                for param in self.net.parameters():
+                    sm += abs(param).sum()
 
-            print('act: ' +
-                  str(state.cpu().detach().numpy()) + " " +
-                  str(action_mean.cpu().detach().numpy()) + " " +
-                  str(self.action_std.cpu().detach().numpy()) + " " +
-                  str(rng) + " " +
-                  str(sm.cpu().detach().numpy()))
+                print('act: ' +
+                      str(state.cpu().detach().numpy()) + " " +
+                      str(action_mean.cpu().detach().numpy()) + " " +
+                      str(self.action_std.cpu().detach().numpy()) + " " +
+                      str(rng) + " " +
+                      str(sm.cpu().detach().numpy()))
 
         return dist.rsample()
 

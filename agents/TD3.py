@@ -118,7 +118,7 @@ class TD3(nn.Module):
 
                 episode_reward += reward
 
-                print("td3 :" + str(time_step) + " " + str(last_state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()))
+                #print("td3 :" + str(time_step) + " " + str(last_state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()))
 
                 # train
                 if episode > self.init_episodes:
