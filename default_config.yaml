@@ -1,4 +1,4 @@
-env_name: !!str MountainCarContinuous-v0                 # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
 seed: !!int 0                               # random initialization seed
 render_env: !!bool False                    # render environment
 
@@ -21,7 +21,7 @@ agents:
     real_step_size: !!float 0.1             # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1          # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1             # reptile step size when matching the agent to the variable virtual env
-    pretrain_env: !!bool False              # pretrain the virtual_env?
+    pretrain_env: !!bool True               # pretrain the virtual_env?
     pretrain_agent: !!bool True             # pretrain the agent on the default env?
 
   reptile:
