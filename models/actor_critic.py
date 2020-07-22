@@ -18,9 +18,14 @@ class Actor(nn.Module):
             rng = [torch.manual_seed(abs(int(sum(state[i]) * 1e9) % 1e9)) for i in range(state.shape[0])]
         else:
             rng = None
+
         action_mean = self.net(state)
         self.clamp(self.action_std, 0.01)
         dist = Normal(action_mean, self.action_std, rng)
+
+        if len(state.shape) == 1:
+            print('act: ' + str(state.cpu().detach().numpy()) + " " + str(action_mean.cpu().detach().numpy()) + " " + str(self.action_std.cpu().detach().numpy()) + " " + str(rng))
+
         return dist.rsample()
 
     def evaluate(self, state, action):
