@@ -24,7 +24,16 @@ class Actor(nn.Module):
         dist = Normal(action_mean, self.action_std, rng)
 
         if len(state.shape) == 1:
-            print('act: ' + str(state.cpu().detach().numpy()) + " " + str(action_mean.cpu().detach().numpy()) + " " + str(self.action_std.cpu().detach().numpy()) + " " + str(rng))
+            sm = 0
+            for param in self.net.parameters():
+                sm += abs(param).sum()
+
+            print('act: ' +
+                  str(state.cpu().detach().numpy()) + " " +
+                  str(action_mean.cpu().detach().numpy()) + " " +
+                  str(self.action_std.cpu().detach().numpy()) + " " +
+                  str(rng) + " " +
+                  str(sm.cpu().detach().numpy()))
 
         return dist.rsample()
 
