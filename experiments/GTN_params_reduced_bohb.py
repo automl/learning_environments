@@ -165,6 +165,7 @@ class ExperimentWrapper():
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
+        print('TIMINGS:     ' + str(timings))
         print("END BOHB ITERATION")
         print('----------------------------')
 
