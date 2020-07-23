@@ -66,9 +66,9 @@ class GTN(nn.Module):
         self.print_stats()
 
         if self.pretrain_env:
-            print("-- matching virtual env to real envs ---")
             order.append(-2)
             t = time()
+            print("-- matching virtual env to real envs ---")
             reptile_match_env(env_matcher=self.env_matcher,
                               real_envs=self.real_envs,
                               virtual_env=self.virtual_env,
@@ -77,10 +77,10 @@ class GTN(nn.Module):
             timings.append(time()-t)
 
         if self.pretrain_agent:
-            print("-- pretraining agent on real env with id " + str(env_id) + " --")
             order.append(-1)
             t = time()
             env_id = 0
+            print("-- pretraining agent on real env with id " + str(env_id) + " --")
             reptile_train_agent(agent=self.agent,
                                 env=self.real_envs[env_id],
                                 step_size=self.real_step_size)
@@ -89,7 +89,6 @@ class GTN(nn.Module):
         for it in range(self.max_iterations):
             self.print_stats()
             t = time()
-
             env_id = np.random.randint(len(self.real_envs))
             if self.type[it] == 1:
                 print("-- training on real env with id " + str(env_id) + " --")
