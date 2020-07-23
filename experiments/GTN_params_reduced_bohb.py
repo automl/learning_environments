@@ -55,7 +55,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=1e-3, upper=1e-2, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.002, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=1024, log=True, default_value=256))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=512, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_weight_norm', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.1, upper=1, log=True, default_value=0.2))
