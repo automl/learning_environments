@@ -36,6 +36,7 @@ class TD3(nn.Module):
         self.match_weight_actor = td3_config["match_weight_actor"]
         self.match_weight_critic = td3_config["match_weight_critic"]
         self.match_batch_size = td3_config["match_batch_size"]
+        self.match_oversampling = td3_config["match_oversampling"]
         self.virtual_min_episodes = td3_config["virtual_min_episodes"]
         self.both_min_episodes = td3_config["both_min_episodes"]
 
@@ -62,7 +63,8 @@ class TD3(nn.Module):
         # env=virtual_env, input_seed given: Train on fixed virtual env
         # env=real_env: Train on real env
 
-        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.rb_size)
+        replay_buffer       = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
+        match_replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         self.init_optimizer(env, match_env, input_seed)
@@ -72,12 +74,7 @@ class TD3(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
-            last_action = None
-            last_state = None
             episode_reward = 0
-
-            # print(self.actor.net._modules['0'].weight.sum())
-            # print(env.env.base._modules['0'].weight.sum())
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += 1
@@ -109,12 +106,9 @@ class TD3(nn.Module):
                 else:
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done_tensor, self.actor.action_std.data)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
-                last_state = state
                 state = next_state
-                last_action = action
 
                 episode_reward += reward
 
@@ -122,7 +116,7 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer, env, match_env, input_seed)
+                    self.update(replay_buffer, match_replay_buffer, env, match_env, input_seed)
                 if done:
                     break
 
@@ -140,19 +134,15 @@ class TD3(nn.Module):
 
         return avg_meter_reward.get_raw_data()
 
-    def update(self, replay_buffer, env, match_env=None, input_seed=None):
+    def update(self, replay_buffer, match_replay_buffer, env, match_env=None, input_seed=None):
         match_virtual_env = env.is_virtual_env() and match_env is not None
         self.total_it += 1
 
         # Sample replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, action_std = replay_buffer.sample(self.batch_size)
+        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env:
-            last_states.requires_grad = True
-            last_actions.requires_grad = True
-
-            states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
-            actions = self.actor.forward(states, action_std)
+            actions = self.actor.forward(states)
             _, rewards, dones = self.run_env(env, states, actions, input_seed)
 
         with torch.no_grad():
@@ -178,7 +168,9 @@ class TD3(nn.Module):
             m_loss = match_loss(real_env=match_env,
                                 virtual_env=env,
                                 input_seed=input_seed,
-                                batch_size=self.match_batch_size)
+                                batch_size=self.match_batch_size,
+                                oversampling=self.match_oversampling,
+                                replay_buffer=match_replay_buffer)
             m_loss *= self.match_weight_critic
 
         # if self.total_it % 100 == 0:
@@ -196,11 +188,7 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             if match_virtual_env:
-                last_states.requires_grad = True
-                last_actions.requires_grad = True
-
-                states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
-                actions = self.actor.forward(states, action_std)
+                actions = self.actor.forward(states)
                 _, rewards, dones = self.run_env(env, states, actions, input_seed)
 
             # Compute actor loss
@@ -213,7 +201,9 @@ class TD3(nn.Module):
                 m_loss = match_loss(real_env=match_env,
                                     virtual_env=env,
                                     input_seed=input_seed,
-                                    batch_size=self.match_batch_size)
+                                    batch_size=self.match_batch_size,
+                                    oversampling=self.match_oversampling,
+                                    replay_buffer=match_replay_buffer)
                 m_loss *= self.match_weight_actor
 
             # if self.total_it % 100 == 0:
@@ -249,16 +239,16 @@ class TD3(nn.Module):
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
-    def run_env(self, env, last_states, last_actions, input_seed):
+    def run_env(self, env, states, actions, input_seed):
         # enable gradient computation
-        input_seeds = input_seed.repeat(len(last_states), 1).to(device)
-        state, reward, done = env.step(action=last_actions, state=last_states, input_seed=input_seeds, same_action_num=self.same_action_num)
+        input_seeds = input_seed.repeat(len(states), 1).to(device)
+        next_states, rewards, dones = env.step(action=actions, state=states, input_seed=input_seeds, same_action_num=self.same_action_num)
 
-        state = state.to(device)
-        reward = reward.to(device)
-        done = done.to(device)
+        next_states = next_states.to(device)
+        rewards = rewards.to(device)
+        dones = dones.to(device)
 
-        return state, reward, done
+        return next_states, rewards, dones
 
     def min_episodes_to_run(self, env, match_env):
         if not env.is_virtual_env():
@@ -305,7 +295,8 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    real_env = env_fac.generate_interpolate_real_env(1)
+    #real_env = env_fac.generate_interpolate_real_env(1)
+    real_env = env_fac.generate_default_real_env()
     virtual_env = env_fac.generate_default_virtual_env()
     input_seed = env_fac.generate_default_input_seed()
 

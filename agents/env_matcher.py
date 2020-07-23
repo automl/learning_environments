@@ -2,47 +2,66 @@ import yaml
 import math
 import torch
 import torch.nn as nn
-import numpy as np
 from envs.env_factory import EnvFactory
-from utils import AverageMeter
+from utils import AverageMeter, ReplayBuffer
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, grad_enabled=True, oversampling=1.1):
+def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, grad_enabled=True, oversampling=1.1, replay_buffer=None):
     with torch.set_grad_enabled(grad_enabled):
-        states_list = []
-        actions_list = []
-        outputs_list = []
 
         real_env.reset()
 
-        for k in range(batch_size):
-            # run random state/actions transitions on the real env
-            # todo fabio: maybe improve (access member variables)
-            states_list.append(real_env.get_ramdom_state() * oversampling)
-            actions_list.append(real_env.get_random_action() * oversampling)
-            next_state, reward, done = real_env.step(action=actions_list[-1],
-                                                     state=states_list[-1])
-            outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
+        # do not use replay buffer
+        if replay_buffer == None:
+            actions_list = []
+            states_list = []
+            outputs_list = []
 
-        # convert to torch
-        states = torch.stack(states_list)
-        actions = torch.stack(actions_list)
-        outputs_real = torch.stack(outputs_list)
+            for k in range(batch_size):
+                # run random state/actions transitions on the real env
+                # todo fabio: maybe improve (access member variables)
+                actions_list.append(real_env.get_random_action() * oversampling)
+                states_list.append(real_env.get_random_state() * oversampling)
+                next_state, reward, done = real_env.step(action = actions_list[-1],
+                                                         state = states_list[-1])
+                outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
+
+            # convert to torch
+            actions = torch.stack(actions_list)
+            states = torch.stack(states_list)
+            outputs_real = torch.stack(outputs_list).to(device)
+
+        else:
+            # first fill replay buffer with enough values
+            if replay_buffer.get_size() < batch_size:
+                num_samples = int(batch_size*10)
+            else:
+                num_samples = int(batch_size/10)+1
+
+            for k in range(num_samples):
+                action = real_env.get_random_action() * oversampling
+                state = real_env.get_random_state() * oversampling
+                next_state, reward, done = real_env.step(action = action,
+                                                         state = state)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+
+            states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size)
+            outputs_real = torch.cat((next_states, rewards, dones), dim=1)
 
         # simulate the same state/action transitions on the virtual env, create input_seeds batch
         input_seeds = input_seed.repeat(len(states), 1)
         next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=states, input_seed=input_seeds)
-        outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1)
-        #
+        outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1).to(device)
+
         # print('----')
         # print(outputs_real[0,:])
         # print(outputs_virtual[0,:])
 
         # todo fabio: maybe make loss as parameter (low priority)
         loss_fkt = torch.nn.L1Loss()
-        avg_loss = loss_fkt(outputs_real, outputs_virtual).to(device)
+        avg_loss = loss_fkt(outputs_real, outputs_virtual)
 
         avg_diff_state = abs(outputs_real[:, :-2].cpu() - outputs_virtual[:, :-2].cpu()).sum() / batch_size
         avg_diff_reward = abs(outputs_real[:, -2].cpu() - outputs_virtual[:, -2].cpu()).sum() / batch_size
@@ -69,6 +88,7 @@ class EnvMatcher(nn.Module):
         self.max_steps = em_config["max_steps"]
         self.step_size = em_config["step_size"]
         self.gamma = em_config["gamma"]
+        self.use_rb = em_config["use_rb"]
 
     def train(self, real_envs, virtual_env, input_seeds):
         optimizer = torch.optim.Adam(list(virtual_env.parameters()) + input_seeds, lr=self.lr, weight_decay=self.weight_decay)
@@ -82,12 +102,23 @@ class EnvMatcher(nn.Module):
         n = len(real_envs)
         batch_size_normalized = math.ceil(self.batch_size / n)
 
+        # initialize replay buffers
+        replay_buffers = []
+        for k in range(len(real_envs)):
+            if self.use_rb:
+                real_env = real_envs[k]
+                replay_buffers.append(ReplayBuffer(state_dim=real_env.get_state_dim(),
+                                                   action_dim=real_env.get_action_dim(),
+                                                   max_size=int(1e6)))
+            else:
+                replay_buffers.append(None)
+
         for i in range(self.max_steps):
             # match virtual env to real env
             loss, diff_state, diff_reward, diff_done = 0, 0, 0, 0
 
             optimizer.zero_grad()
-            for real_env, input_seed in zip(real_envs, input_seeds):
+            for real_env, input_seed, replay_buffer in zip(real_envs, input_seeds, replay_buffers):
                 loss_tmp, diff_state_tmp, diff_reward_tmp, diff_done_tmp = \
                     match_loss(real_env=real_env,
                                virtual_env=virtual_env,
@@ -95,7 +126,8 @@ class EnvMatcher(nn.Module):
                                batch_size=batch_size_normalized,
                                more_info=True,
                                grad_enabled=True,
-                               oversampling=self.oversampling)
+                               oversampling=self.oversampling,
+                               replay_buffer=replay_buffer)
                 loss += loss_tmp
                 diff_state += diff_state_tmp
                 diff_reward += diff_reward_tmp

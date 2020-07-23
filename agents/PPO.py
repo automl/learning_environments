@@ -47,7 +47,7 @@ class PPO(nn.Module):
 
 
     def train(self, env, input_seed=torch.tensor([0])):
-        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
+        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=int(1e6))
         avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
         time_step = 0
@@ -55,8 +55,6 @@ class PPO(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
-            last_action = None
-            last_state = None
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
@@ -70,12 +68,9 @@ class PPO(nn.Module):
                 if self.render_env and episode % 100 == 0:
                     env.render(state)
 
-                if last_state is not None and last_action is not None:
-                    replay_buffer.add(last_state, last_action, state, action, next_state, reward, done, self.actor.action_std.data)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
-                last_state = state
                 state = next_state
-                last_action = action
 
                 episode_reward += reward
 
@@ -107,7 +102,7 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones, action_stds = replay_buffer.get_all()
+        states, actions, next_states, rewards, dones = replay_buffer.get_all()
 
         if env.is_virtual_env():
             states = self.run_env(env, last_states, last_actions, input_seed)

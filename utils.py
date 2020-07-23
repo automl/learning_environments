@@ -3,7 +3,6 @@ import torch
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 class ReplayBuffer:
     def __init__(self, state_dim, action_dim, max_size=int(1e6)):
         self.max_size = max_size
@@ -12,55 +11,47 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.last_state = torch.zeros((max_size, state_dim))
-        self.last_action = torch.zeros((max_size, action_dim))
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
-        self.action_std = torch.zeros((max_size, action_dim))
 
-    def add(self, last_state, last_action, state, action, next_state, reward, done, action_std):
-        self.last_state[self.ptr] = last_state.detach()
-        self.last_action[self.ptr] = last_action.detach()
+    # for TD3 / PPO / gym
+    def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state.detach().detach()
         self.action[self.ptr] = action.detach()
         self.next_state[self.ptr] = next_state.detach()
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
-        self.action_std[self.ptr] = action_std.squeeze().detach()
 
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
 
-    # for TD3
+    # for TD3 / gym
     def sample(self, batch_size):
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.last_state[ind].to(device).detach(),
-            self.last_action[ind].to(device).detach(),
             self.state[ind].to(device).detach(),
             self.action[ind].to(device).detach(),
             self.next_state[ind].to(device).detach(),
             self.reward[ind].to(device).detach(),
             self.done[ind].to(device).detach(),
-            self.action_std[ind].to(device).detach(),
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.last_state[: self.size].to(device).detach(),
-            self.last_action[: self.size].to(device).detach(),
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
             self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
-            self.action_std[: self.size].to(device).detach(),
         )
+
+    def get_size(self):
+        return self.size
 
     # for PPO
     def clear(self):

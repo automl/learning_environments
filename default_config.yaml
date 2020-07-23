@@ -32,13 +32,14 @@ agents:
   env_matcher:
     oversampling: !!float 1.5               # how much to sample beyond the normal state/action space
     lr: !!float 4e-3                        # learning rate
-    weight_decay: !!float 1e-9              # weight decay
-    batch_size: !!int 192                   # batch size during training
+    weight_decay: !!float 0                 # weight decay
+    batch_size: !!int 256                   # batch size during training
     early_out_diff: !!float 1e-4            # break criterion for matching
     early_out_num: !!int 200                # based on how many training steps shall an early out happen
     max_steps: !!int 5000                   # number of steps
     step_size: !!int 1000                   # LR scheduler step size
-    gamma: !!float 0.6                      # LR scheduler gamma
+    gamma: !!float 0.7                      # LR scheduler gamma
+    use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:
     max_episodes: !!int 100                 # maximum number of episodes to optimize
@@ -46,12 +47,12 @@ agents:
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate
-    weight_decay: !!float 1e-9              # weight decay
+    weight_decay: !!float 0                 # weight decay
     tau: !!float 0.02                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 224                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
@@ -62,6 +63,7 @@ agents:
     match_weight_actor: !!float 1e4         # how much to weight matching loss wrt actor loss
     match_weight_critic: !!float 1e4        # how much to weight matching loss wrt critic loss
     match_batch_size: !!int 128             # matching batch size
+    match_oversampling: !!float 1.1         # oversampling factor for matching
     virtual_min_episodes: !!float 2         # minimum number of agent episodes to train on the virtual env
     both_min_episodes: !!float 5            # minimum number of agent episodes to train on both envs
 
@@ -93,7 +95,7 @@ envs:
     g: [5, 10, 15, True]                    # gravitational constant [min, default, max, larger=more difficult]
     m: [0.5, 1, 1.2, True]                  # joint mass [min, default, max, larger=more difficult]
     l: [0.5, 1, 1.2, True]                  # joint length [min, default, max, larger=more difficult]
-    activation_fn: !!str tanh               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256                  # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2                   # number of hidden layers
     input_seed_dim: !!int 10                # dimension of the input seed
@@ -111,7 +113,7 @@ envs:
     goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: 128                        # size of the hidden layer of the corresponding virtual environment
-    hidden_layer: !!int 1                   # number of hidden layers
+    hidden_layer: !!int 2                   # number of hidden layers
     input_seed_dim: !!int 1                 # dimension of the input seed
     input_seed_mean: !!float 0.1            # mean of input seed distribution
     input_seed_range: !!float 0.1           # range (around mean) of input seed distribution

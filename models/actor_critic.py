@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from time import time
 from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
 
@@ -14,16 +15,12 @@ class Actor(nn.Module):
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
         self.action_std = torch.nn.Parameter(torch.ones(action_dim, device=device) * config["agents"][agent_name]["action_std"])
 
-    def forward(self, state, std=None):
-        if std is not None:
-            rng = [torch.manual_seed(abs(int(sum(state[i]) * 1e9) % 1e9)) for i in range(state.shape[0])]
-        else:
-            rng = None
-
+    def forward(self, state):
         action_mean = self.net(state)
         self.clamp(self.action_std, 0.01)
-        dist = Normal(action_mean, self.action_std, rng)
+        dist = Normal(action_mean, self.action_std)
 
+        # for debug purpose
         if len(state.shape) == 1:
             if not np.isfinite(action_mean.cpu().detach().numpy()):
                 sm = 0
@@ -34,7 +31,6 @@ class Actor(nn.Module):
                       str(state.cpu().detach().numpy()) + " " +
                       str(action_mean.cpu().detach().numpy()) + " " +
                       str(self.action_std.cpu().detach().numpy()) + " " +
-                      str(rng) + " " +
                       str(sm.cpu().detach().numpy()))
 
         return dist.rsample()

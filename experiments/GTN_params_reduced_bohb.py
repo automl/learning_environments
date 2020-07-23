@@ -39,46 +39,37 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_8', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_9', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_different_envs', lower=1, upper=10, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.05, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.05, upper=0.5, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_env', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1, upper=2, log=True, default_value=1.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-5, upper=1e-2, log=True, default_value=2e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-9))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=64, upper=256, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-7, upper=1e-3, log=True, default_value=1e-4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1.5, upper=3, log=True, default_value=1.5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-5, upper=1e-3, log=True, default_value=1e-4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_early_out_diff', lower=1e-6, upper=1e-3, log=True, default_value=1e-4))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=10000, log=True, default_value=5000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=200, upper=2000, log=True, default_value=1000))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_gamma', lower=0.6, upper=1, log=False, default_value=0.7))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=500, upper=2000, log=True, default_value=1000))
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-5, upper=1e-2, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=2e-3, upper=5e-2, log=True, default_value=1e-2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_weight_decay', lower=1e-12, upper=1e-3, log=True, default_value=1e-9))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=1e-3, upper=1e-2, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.002, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=1, upper=4, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_rb_size', lower=1e4, upper=1e7, log=True, default_value=1e6))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=1024, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_weight_norm', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.02, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_actor', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_optim_env_with_critic', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e0, upper=1e8, log=True, default_value=1e5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e0, upper=1e8, log=True, default_value=1e5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_match_batch_size', lower=64, upper=512, log=True, default_value=256))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_virtual_min_episodes', lower=1, upper=30, log=True, default_value=3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_both_min_episodes', lower=1, upper=30, log=True, default_value=3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_actor', lower=1e1, upper=1e9, log=True, default_value=1e5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_weight_critic', lower=1e1, upper=1e9, log=True, default_value=1e5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_match_oversampling', lower=1, upper=3, log=True, default_value=1.5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_virtual_min_episodes', lower=1, upper=5, log=True, default_value=2))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_both_min_episodes', lower=1, upper=5, log=True, default_value=2))
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='tanh'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_size', lower=128, upper=2024, log=True, default_value=224))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_layer', lower=1, upper=3, log=True, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_input_seed_dim', lower=1, upper=64, log=True, default_value=4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_mean', lower=0.01, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_size', lower=64, upper=1024, log=True, default_value=256))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_input_seed_dim', lower=1, upper=16, log=True, default_value=4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_mean', lower=0.01, upper=3, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_range', lower=0.01, upper=10, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_zero_init', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_weight_norm', choices=[False, True], default_value=True))
@@ -112,20 +103,13 @@ class ExperimentWrapper():
 
         config["agents"]['env_matcher']['oversampling'] = cso["em_oversampling"]
         config["agents"]['env_matcher']['lr'] = cso["em_lr"]
-        config["agents"]['env_matcher']['weight_decay'] = cso["em_weight_decay"]
-        config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
         config["agents"]['env_matcher']['early_out_diff'] = cso["em_early_out_diff"]
         config["agents"]['env_matcher']['max_steps'] = cso["em_max_steps"]
         config["agents"]['env_matcher']['step_size'] = cso["em_step_size"]
-        config["agents"]['env_matcher']['gamma'] = cso["em_gamma"]
 
         config["agents"]["td3"]["lr"] = cso["td3_lr"]
         config["agents"]["td3"]["gamma"] = 1-cso["td3_gamma"]
-        config["agents"]["td3"]["weight_decay"] = cso["td3_weight_decay"]
         config["agents"]["td3"]["tau"] = cso["td3_tau"]
-        config["agents"]["td3"]["policy_delay"] = cso["td3_policy_delay"]
-        config["agents"]["td3"]["rb_size"] = cso["td3_rb_size"]
-        config["agents"]["td3"]["activation_fn"] = cso["td3_activation_fn"]
         config["agents"]["td3"]["hidden_size"] = cso["td3_hidden_size"]
         config["agents"]["td3"]["hidden_layer"] = cso["td3_hidden_layer"]
         config["agents"]["td3"]["weight_norm"] = cso["td3_weight_norm"]
@@ -134,13 +118,11 @@ class ExperimentWrapper():
         config["agents"]["td3"]["optim_env_with_critic"] = cso["td3_optim_env_with_critic"]
         config["agents"]["td3"]["match_weight_actor"] = cso["td3_match_weight_actor"]
         config["agents"]["td3"]["match_weight_critic"] = cso["td3_match_weight_critic"]
-        config["agents"]["td3"]["match_batch_size"] = cso["td3_match_batch_size"]
+        config["agents"]["td3"]["match_oversampling"] = cso["td3_match_oversampling"]
         config["agents"]["td3"]["virtual_min_episodes"] = cso["td3_virtual_min_episodes"]
         config["agents"]["td3"]["both_min_episodes"] = cso["td3_both_min_episodes"]
 
-        config["envs"][env_name]['activation_fn'] = cso["env_activation_fn"]
         config["envs"][env_name]['hidden_size'] = cso["env_hidden_size"]
-        config["envs"][env_name]['hidden_layer'] = cso["env_hidden_layer"]
         config["envs"][env_name]['input_seed_dim'] = cso["env_input_seed_dim"]
         config["envs"][env_name]['input_seed_mean'] = cso["env_input_seed_mean"]
         config["envs"][env_name]['input_seed_range'] = cso["env_input_seed_range"]
@@ -165,10 +147,11 @@ class ExperimentWrapper():
 
         info = {}
         order = None
+        timings = None
         error = ""
         try:
             gtn = GTN(config)
-            order = gtn.train()
+            order, timings = gtn.train()
             score = gtn.test()
         except:
             score = float('Inf')
@@ -177,6 +160,7 @@ class ExperimentWrapper():
 
         info['config'] = str(config)
         info['order'] = str(order)
+        info['timings'] = str(timings)
         info['error'] = str(error)
 
         print('----------------------------')

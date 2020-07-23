@@ -5,6 +5,7 @@ import torch.nn as nn
 import numpy as np
 import os
 import copy
+from time import time
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent
 from agents.env_matcher import EnvMatcher
@@ -59,26 +60,35 @@ class GTN(nn.Module):
         print_abs_param_sum(self.agent.critic_2, "Critic2")
 
     def train(self):
+        order = []
+        timings = []
+
         self.print_stats()
 
         if self.pretrain_env:
             print("-- matching virtual env to real envs ---")
+            order.append(-2)
+            t = time()
             reptile_match_env(env_matcher=self.env_matcher,
                               real_envs=self.real_envs,
                               virtual_env=self.virtual_env,
                               input_seeds=self.input_seeds,
                               step_size=self.match_step_size)
+            timings.append(time()-t)
 
         if self.pretrain_agent:
-            env_id = 0
             print("-- pretraining agent on real env with id " + str(env_id) + " --")
+            order.append(-1)
+            t = time()
+            env_id = 0
             reptile_train_agent(agent=self.agent,
                                 env=self.real_envs[env_id],
                                 step_size=self.real_step_size)
+            timings.append(time()-t)
 
-        order = []
         for it in range(self.max_iterations):
             self.print_stats()
+            t = time()
 
             env_id = np.random.randint(len(self.real_envs))
             if self.type[it] == 1:
@@ -106,10 +116,11 @@ class GTN(nn.Module):
                 print("Case that should not happen")
 
             order.append(self.type[it])
+            timings.append(time()-t)
 
         self.print_stats()
 
-        return order
+        return order, timings
 
     def test(self):
         # generate 10 different deterministic environments with increasing difficulty
@@ -175,8 +186,6 @@ if __name__ == "__main__":
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
 
     gtn = GTN(config)
     gtn.train()

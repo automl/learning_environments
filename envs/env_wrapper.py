@@ -56,7 +56,7 @@ class EnvWrapper(nn.Module):
         else:
             return torch.from_numpy(self.env.reset()).float().cpu()
 
-    def get_ramdom_state(self):
+    def get_random_state(self):
         if self.env.env_name == 'Pendulum-v0':
             high = np.array([np.pi, 1])
             np_random, seed = seeding.np_random()
