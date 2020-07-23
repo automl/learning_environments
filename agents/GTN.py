@@ -74,7 +74,7 @@ class GTN(nn.Module):
                               virtual_env=self.virtual_env,
                               input_seeds=self.input_seeds,
                               step_size=self.match_step_size)
-            timings.append(time()-t)
+            timings.append(int(time()-t))
 
         if self.pretrain_agent:
             order.append(-1)
@@ -84,7 +84,7 @@ class GTN(nn.Module):
             reptile_train_agent(agent=self.agent,
                                 env=self.real_envs[env_id],
                                 step_size=self.real_step_size)
-            timings.append(time()-t)
+            timings.append(int(time()-t))
 
         for it in range(self.max_iterations):
             self.print_stats()
@@ -115,7 +115,7 @@ class GTN(nn.Module):
                 print("Case that should not happen")
 
             order.append(self.type[it])
-            timings.append(time()-t)
+            timings.append(int(time()-t))
 
         self.print_stats()
 
