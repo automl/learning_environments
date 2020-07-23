@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from time import time
 from agents.env_matcher import match_loss
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
@@ -77,33 +78,34 @@ class TD3(nn.Module):
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                time_step += 1
+                with torch.no_grad():
+                    time_step += 1
 
-                # fill replay buffer at beginning
-                if episode < self.init_episodes:
-                    action = env.get_random_action()
-                else:
-                    action = self.actor(state.to(device)).cpu()
+                    # fill replay buffer at beginning
+                    if episode < self.init_episodes:
+                        action = env.get_random_action()
+                    else:
+                        action = self.actor(state.to(device)).cpu()
 
-                # live view
-                if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:
-                    env.render(state)
+                    # live view
+                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:
+                        env.render(state)
 
-                # state-action transition
-                next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
+                    # state-action transition
+                    next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
 
-                if t < env.max_episode_steps() - 1:
-                    done_tensor = done
-                else:
-                    done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
+                    if t < env.max_episode_steps() - 1:
+                        done_tensor = done
+                    else:
+                        done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
+                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
-                state = next_state
+                    state = next_state
 
-                episode_reward += reward
+                    episode_reward += reward
 
-                #print("td3 :" + str(time_step) + " " + str(last_state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()))
+                    #print("td3 :" + str(time_step) + " " + str(last_state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()))
 
                 # train
                 if episode > self.init_episodes:

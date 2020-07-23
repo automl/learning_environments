@@ -58,21 +58,22 @@ class PPO(nn.Module):
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                time_step += 1
+                with torch.no_grad():
+                    time_step += 1
 
-                # run old policy
-                action = self.actor_old(state.to(device)).cpu()
-                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+                    # run old policy
+                    action = self.actor_old(state.to(device)).cpu()
+                    next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
 
-                # live view
-                if self.render_env and episode % 100 == 0:
-                    env.render(state)
+                    # live view
+                    if self.render_env and episode % 100 == 0:
+                        env.render(state)
 
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
-                state = next_state
+                    state = next_state
 
-                episode_reward += reward
+                    episode_reward += reward
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
@@ -105,6 +106,7 @@ class PPO(nn.Module):
         states, actions, next_states, rewards, dones = replay_buffer.get_all()
 
         if env.is_virtual_env():
+            # TODO: fix
             states = self.run_env(env, last_states, last_actions, input_seed)
 
         old_logprobs, _ = self.actor_old.evaluate(states, actions)
