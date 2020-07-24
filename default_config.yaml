@@ -43,7 +43,7 @@ agents:
 
   td3:
     max_episodes: !!int 100                 # maximum number of episodes to optimize
-    init_episodes: !!int 5                  # number of episodes to fill the replay buffer
+    init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate

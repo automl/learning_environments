@@ -34,6 +34,7 @@ def create_td3_config_base(init_episodes, max_episodes):
     cfg_td3["match_weight_critic"] = 0
     cfg_td3["match_batch_size"] = 0
     cfg_td3["match_oversampling"] = 0
+    cfg_td3["match_delay"] = 0
     cfg_td3["virtual_min_episodes"] = 0
     cfg_td3["both_min_episodes"] = 0
 
