@@ -100,7 +100,7 @@ class TD3(nn.Module):
 
                     # check
                     if any(torch.isinf(state)) or any(torch.isnan(state)):
-                        print('early out because state is not finite')
+                        #print('early out because state is not finite')
                         break
 
                     if last_state is not None and last_action is not None:
