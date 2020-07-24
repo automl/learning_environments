@@ -153,7 +153,6 @@ class TD3(nn.Module):
 
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
-
         # Compute matching loss
         if match_virtual_env and self.optim_env_with_critic and self.total_it % self.match_delay == 0:
             m_loss = match_loss(real_env=match_env,
@@ -162,6 +161,7 @@ class TD3(nn.Module):
                                 batch_size=self.match_batch_size,
                                 oversampling=self.match_oversampling,
                                 replay_buffer=match_replay_buffer)
+            #print('critic: {} {}'.format(critic_loss, m_loss))
             m_loss *= self.match_weight_critic
             critic_loss += m_loss
 
@@ -188,6 +188,7 @@ class TD3(nn.Module):
                                     batch_size=self.match_batch_size,
                                     oversampling=self.match_oversampling,
                                     replay_buffer=match_replay_buffer)
+                #print('actor: {} {}'.format(actor_loss, m_loss))
                 m_loss *= self.match_weight_actor
                 actor_loss += m_loss
 
@@ -230,10 +231,14 @@ class TD3(nn.Module):
 
     def min_episodes_to_run(self, env, match_env):
         if not env.is_virtual_env():
-            return 0
+            # real env
+            return self.init_episodes
         if match_env is None:
+            # fixed virtual env
             return self.init_episodes + self.virtual_min_episodes
-        return self.init_episodes + self.both_min_episodes
+        else:
+            # variable virtual env
+            return self.init_episodes + self.both_min_episodes
 
     def get_state_dict(self):
         agent_state = {}
