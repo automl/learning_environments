@@ -140,7 +140,7 @@ class GTN(nn.Module):
         episodes_till_solved = []
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
-        interpolate_vals = np.arange(0, 1.01, 0.1)
+        interpolate_vals = np.arange(0, 1.01, 0.2)
         for interpolate in interpolate_vals:
             self.agent.set_state_dict(agent_state)
             # print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
