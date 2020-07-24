@@ -167,7 +167,8 @@ class TD3(nn.Module):
                                 batch_size=self.match_batch_size,
                                 oversampling=self.match_oversampling,
                                 replay_buffer=match_replay_buffer)
-            #print('critic: {} {}'.format(critic_loss, m_loss))
+            if self.total_it % 300 == 0:
+                print('critic: {} {}'.format(critic_loss, m_loss))
             m_loss *= self.match_weight_critic
             critic_loss += m_loss
 
@@ -195,7 +196,8 @@ class TD3(nn.Module):
                                     batch_size=self.match_batch_size,
                                     oversampling=self.match_oversampling,
                                     replay_buffer=match_replay_buffer)
-                #print('actor: {} {}'.format(actor_loss, m_loss))
+                if self.total_it % 300 == 0:
+                    print('actor: {} {}'.format(actor_loss, m_loss))
                 m_loss *= self.match_weight_actor
                 actor_loss += m_loss
 
