@@ -134,6 +134,7 @@ class GTN(nn.Module):
             self.agent.init_optimizer(env=env)
 
         mean_episodes_till_solved = 0
+        episodes_till_solved = []
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
         interpolate_vals = np.arange(0, 1.01, 0.1)
@@ -143,12 +144,13 @@ class GTN(nn.Module):
             env = self.env_factory.generate_interpolate_real_env(interpolate)
             reward_list = self.agent.train(env=env)
             mean_episodes_till_solved += len(reward_list)
+            episodes_till_solved.append(len(reward_list))
             print("episodes till solved: " + str(len(reward_list)))
 
         self.agent.set_state_dict(agent_state)
         mean_episodes_till_solved /= len(interpolate_vals)
 
-        return mean_episodes_till_solved
+        return mean_episodes_till_solved, episodes_till_solved
 
     def save(self, path):
         # not sure if working

@@ -132,11 +132,12 @@ class ExperimentWrapper():
         info = {}
         order = None
         timings = None
+        episodes_till_solved = None
         error = ""
         try:
             gtn = GTN(config)
             order, timings = gtn.train()
-            score = gtn.test()
+            score, episodes_till_solved = gtn.test()
         except:
             score = float('Inf')
             error = traceback.format_exc()
@@ -145,6 +146,7 @@ class ExperimentWrapper():
         info['config'] = str(config)
         info['order'] = str(order)
         info['timings'] = str(timings)
+        info['episodes_till_solved'] = str(episodes_till_solved)
         info['error'] = str(error)
 
         print('----------------------------')
