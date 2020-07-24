@@ -34,8 +34,8 @@ agents:
     lr: !!float 4e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
-    early_out_diff: !!float 1e-4            # break criterion for matching
-    early_out_num: !!int 200                # based on how many training steps shall an early out happen
+    early_out_diff: !!float 0               # break criterion for matching
+    early_out_num: !!int 50                 # based on how many training steps shall an early out happen
     max_steps: !!int 5000                   # number of steps
     step_size: !!int 1000                   # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
