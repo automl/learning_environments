@@ -69,10 +69,14 @@ class PPO(nn.Module):
                     if self.render_env and episode % 100 == 0:
                         env.render(state)
 
+                    # check
+                    if any(torch.isinf(state)) or any(torch.isnan(state)):
+                        print('early out because state is not finite')
+                        break
+
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
                     state = next_state
-
                     episode_reward += reward
 
                 # train after certain amount of timesteps

@@ -96,6 +96,11 @@ class TD3(nn.Module):
                     else:
                         done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
+                    # check
+                    if any(torch.isinf(state)) or any(torch.isnan(state)):
+                        print('early out because state is not finite')
+                        break
+
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
                     state = next_state
