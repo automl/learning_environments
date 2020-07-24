@@ -19,20 +19,6 @@ class Actor(nn.Module):
         action_mean = self.net(state)
         self.clamp(self.action_std, 0.01)
         dist = Normal(action_mean, self.action_std)
-
-        # for debug purpose
-        if len(state.shape) == 1:
-            if not np.isfinite(action_mean.cpu().detach().numpy()):
-                sm = 0
-                for param in self.net.parameters():
-                    sm += abs(param).sum()
-
-                print('act: ' +
-                      str(state.cpu().detach().numpy()) + " " +
-                      str(action_mean.cpu().detach().numpy()) + " " +
-                      str(self.action_std.cpu().detach().numpy()) + " " +
-                      str(sm.cpu().detach().numpy()))
-
         return dist.rsample()
 
     def evaluate(self, state, action):

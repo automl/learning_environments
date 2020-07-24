@@ -38,6 +38,7 @@ class TD3(nn.Module):
         self.match_weight_critic = td3_config["match_weight_critic"]
         self.match_batch_size = td3_config["match_batch_size"]
         self.match_oversampling = td3_config["match_oversampling"]
+        self.match_delay = td3_config["match_delay"]
         self.virtual_min_episodes = td3_config["virtual_min_episodes"]
         self.both_min_episodes = td3_config["both_min_episodes"]
 
@@ -70,8 +71,6 @@ class TD3(nn.Module):
 
         self.init_optimizer(env, match_env, input_seed)
 
-        time_step = 0
-
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
@@ -79,8 +78,6 @@ class TD3(nn.Module):
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 with torch.no_grad():
-                    time_step += 1
-
                     # fill replay buffer at beginning
                     if episode < self.init_episodes:
                         action = env.get_random_action()
@@ -102,10 +99,7 @@ class TD3(nn.Module):
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
                     state = next_state
-
                     episode_reward += reward
-
-                    #print("td3 :" + str(time_step) + " " + str(last_state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()))
 
                 # train
                 if episode > self.init_episodes:
@@ -134,7 +128,7 @@ class TD3(nn.Module):
         # Sample replay buffer
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
-        if match_virtual_env:
+        if match_virtual_env and self.total_it % self.match_delay == 0:
             actions = self.actor.forward(states)
             _, rewards, dones = self.run_env(env, states, actions, input_seed)
 
@@ -156,8 +150,7 @@ class TD3(nn.Module):
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
 
         # Compute matching loss
-        m_loss = 0
-        if match_virtual_env and self.optim_env_with_critic:
+        if match_virtual_env and self.optim_env_with_critic and self.total_it % self.match_delay == 0:
             m_loss = match_loss(real_env=match_env,
                                 virtual_env=env,
                                 input_seed=input_seed,
@@ -165,13 +158,7 @@ class TD3(nn.Module):
                                 oversampling=self.match_oversampling,
                                 replay_buffer=match_replay_buffer)
             m_loss *= self.match_weight_critic
-
-        # if self.total_it % 100 == 0:
-        #     print('----')
-        #     print(critic_loss)
-        #     print(m_loss)
-
-        critic_loss += m_loss
+            critic_loss += m_loss
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -180,7 +167,7 @@ class TD3(nn.Module):
 
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
-            if match_virtual_env:
+            if match_virtual_env and self.total_it % self.match_delay == 0:
                 actions = self.actor.forward(states)
                 _, rewards, dones = self.run_env(env, states, actions, input_seed)
 
@@ -189,8 +176,7 @@ class TD3(nn.Module):
             actor_loss = (-self.critic_1(states, self.actor(states))).mean()
 
             # Compute matching loss
-            m_loss = 0
-            if match_virtual_env and self.optim_env_with_actor:
+            if match_virtual_env and self.optim_env_with_actor and self.total_it % self.match_delay == 0:
                 m_loss = match_loss(real_env=match_env,
                                     virtual_env=env,
                                     input_seed=input_seed,
@@ -198,13 +184,7 @@ class TD3(nn.Module):
                                     oversampling=self.match_oversampling,
                                     replay_buffer=match_replay_buffer)
                 m_loss *= self.match_weight_actor
-
-            # if self.total_it % 100 == 0:
-            #     print('----')
-            #     print(actor_loss)
-            #     print(m_loss)
-
-            actor_loss += m_loss
+                actor_loss += m_loss
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
@@ -296,6 +276,6 @@ if __name__ == "__main__":
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
-    td3.train(env=real_env)
+    #td3.train(env=real_env)
     #td3.train(env=virtual_env, input_seed=input_seed)
-    #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)

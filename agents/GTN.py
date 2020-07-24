@@ -9,9 +9,9 @@ from time import time
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent
 from agents.env_matcher import EnvMatcher
-from agents.REPTILE import reptile_update_state_dict, reptile_train_agent, reptile_match_env
+from agents.REPTILE import reptile_train_agent, reptile_match_env
 from envs.env_factory import EnvFactory
-from utils import AverageMeter, print_abs_param_sum
+from utils import print_abs_param_sum
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
