@@ -49,9 +49,13 @@ class GTN(nn.Module):
         self.real_envs.append(self.env_factory.generate_default_real_env())
         self.input_seeds.append(self.env_factory.generate_default_input_seed())
         # generate multiple different real envs with associated seed
-        for i in range(different_envs - 1):
-            self.real_envs.append(self.env_factory.generate_random_real_env())
-            self.input_seeds.append(self.env_factory.generate_random_input_seed())
+        for i in range(different_envs-1):
+            if i == 0:
+                self.real_envs.append(self.env_factory.generate_interpolated_real_env(0.1))
+                self.input_seeds.append(self.env_factory.generate_interpolated_input_seed(0.1))
+            else:
+                self.real_envs.append(self.env_factory.generate_random_real_env())
+                self.input_seeds.append(self.env_factory.generate_random_input_seed())
 
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, "VirtualEnv")
@@ -127,7 +131,6 @@ class GTN(nn.Module):
         # N.B. we have to reset the state of the agent before every iteration
 
         # todo future: fine-tuning, then test
-
         # to avoid problems with wrongly initialized optimizers
         if isinstance(self.agent, TD3):
             env = self.env_factory.generate_default_real_env()
@@ -141,7 +144,7 @@ class GTN(nn.Module):
         for interpolate in interpolate_vals:
             self.agent.set_state_dict(agent_state)
             # print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
-            env = self.env_factory.generate_interpolate_real_env(interpolate)
+            env = self.env_factory.generate_interpolated_real_env(interpolate)
             reward_list = self.agent.train(env=env)
             mean_episodes_till_solved += len(reward_list)
             episodes_till_solved.append(len(reward_list))

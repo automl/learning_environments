@@ -40,14 +40,15 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
             else:
                 num_samples = int(batch_size/10)+1
 
+            dummy = torch.tensor([0])
             for k in range(num_samples):
                 action = real_env.get_random_action() * oversampling
                 state = real_env.get_random_state() * oversampling
                 next_state, reward, done = real_env.step(action = action,
                                                          state = state)
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                replay_buffer.add(last_state=dummy, last_action=dummy, state=state, action=action, next_state=next_state, reward=reward, done=done)
 
-            states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size)
+            _, _, states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size)
             outputs_real = torch.cat((next_states, rewards, dones), dim=1)
 
         # simulate the same state/action transitions on the virtual env, create input_seeds batch

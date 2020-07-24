@@ -74,6 +74,8 @@ class TD3(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            last_action = None
+            last_state = None
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
@@ -101,9 +103,12 @@ class TD3(nn.Module):
                         print('early out because state is not finite')
                         break
 
-                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
+                    if last_state is not None and last_action is not None:
+                        replay_buffer.add(last_state=last_state, last_action=last_action, state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
+                    last_state = state
                     state = next_state
+                    last_action = action
                     episode_reward += reward
 
                 # train
@@ -131,11 +136,12 @@ class TD3(nn.Module):
         self.total_it += 1
 
         # Sample replay buffer
-        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
+        last_states, last_actions, states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         if match_virtual_env and self.total_it % self.match_delay == 0:
+            states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
             actions = self.actor.forward(states)
-            _, rewards, dones = self.run_env(env, states, actions, input_seed)
+            next_states, rewards, dones = self.run_env(env, states, actions, input_seed)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
@@ -173,8 +179,9 @@ class TD3(nn.Module):
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
             if match_virtual_env and self.total_it % self.match_delay == 0:
+                states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
                 actions = self.actor.forward(states)
-                _, rewards, dones = self.run_env(env, states, actions, input_seed)
+                next_states, rewards, dones = self.run_env(env, states, actions, input_seed)
 
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
@@ -278,7 +285,7 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    #real_env = env_fac.generate_interpolate_real_env(1)
+    #real_env = env_fac.generate_interpolated_real_env(1)
     real_env = env_fac.generate_default_real_env()
     virtual_env = env_fac.generate_default_virtual_env()
     input_seed = env_fac.generate_default_input_seed()

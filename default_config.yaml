@@ -38,7 +38,7 @@ agents:
     early_out_num: !!int 200                # based on how many training steps shall an early out happen
     max_steps: !!int 5000                   # number of steps
     step_size: !!int 1000                   # LR scheduler step size
-    gamma: !!float 0.7                      # LR scheduler gamma
+    gamma: !!float 0.5                      # LR scheduler gamma
     use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:

@@ -55,6 +55,8 @@ class PPO(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            last_action = None
+            last_state = None
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
@@ -74,7 +76,8 @@ class PPO(nn.Module):
                         print('early out because state is not finite')
                         break
 
-                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                    if last_state is not None and last_action is not None:
+                        replay_buffer.add(last_state=last_state, last_action=last_action, state=state, action=action, next_state=next_state, reward=reward, done=done)
 
                     state = next_state
                     episode_reward += reward
@@ -107,10 +110,9 @@ class PPO(nn.Module):
         discounted_reward = 0
 
         # get states from replay buffer
-        states, actions, next_states, rewards, dones = replay_buffer.get_all()
+        last_states, last_actions, states, actions, next_states, rewards, dones = replay_buffer.get_all()
 
         if env.is_virtual_env():
-            # TODO: fix
             states = self.run_env(env, last_states, last_actions, input_seed)
 
         old_logprobs, _ = self.actor_old.evaluate(states, actions)

@@ -11,6 +11,8 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
+        self.last_state = torch.zeros((max_size, state_dim))
+        self.last_action = torch.zeros((max_size, action_dim))
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
         self.next_state = torch.zeros((max_size, state_dim))
@@ -18,7 +20,9 @@ class ReplayBuffer:
         self.done = torch.zeros((max_size, 1))
 
     # for TD3 / PPO / gym
-    def add(self, state, action, next_state, reward, done):
+    def add(self, last_state, last_action, state, action, next_state, reward, done):
+        self.last_state[self.ptr] = last_state.detach()
+        self.last_action[self.ptr] = last_action.detach()
         self.state[self.ptr] = state.detach().detach()
         self.action[self.ptr] = action.detach()
         self.next_state[self.ptr] = next_state.detach()
@@ -33,6 +37,8 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
+            self.last_state[ind].to(device).detach(),
+            self.last_action[ind].to(device).detach(),
             self.state[ind].to(device).detach(),
             self.action[ind].to(device).detach(),
             self.next_state[ind].to(device).detach(),
@@ -43,6 +49,8 @@ class ReplayBuffer:
     # for PPO
     def get_all(self):
         return (
+            self.last_state[: self.size].to(device).detach(),
+            self.last_action[: self.size].to(device).detach(),
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
             self.next_state[: self.size].to(device).detach(),
