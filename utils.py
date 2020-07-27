@@ -15,7 +15,8 @@ class ReplayBuffer:
         self.last_action = torch.zeros((max_size, action_dim))
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
-        self.next_state = torch.zeros((max_size, state_dim))
+        self.next_state = [None]*max_size
+        #self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
 
@@ -41,7 +42,8 @@ class ReplayBuffer:
             self.last_action[ind].to(device).detach(),
             self.state[ind].to(device).detach(),
             self.action[ind].to(device).detach(),
-            self.next_state[ind].to(device).detach(),
+            torch.stack([self.next_state[idx] for idx in ind]).to(device).detach(),
+            #self.next_state[ind].to(device).detach(),
             self.reward[ind].to(device).detach(),
             self.done[ind].to(device).detach(),
         )
@@ -53,7 +55,8 @@ class ReplayBuffer:
             self.last_action[: self.size].to(device).detach(),
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
-            self.next_state[: self.size].to(device).detach(),
+            torch.stack(self.next_state[:self.size]).to(device).detach(),
+            #self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
         )

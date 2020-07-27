@@ -10,7 +10,7 @@ from copy import deepcopy
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-OUTLIER_PERC = 0.0
+OUTLIER_PERC = 0.2
 
 
 def analyze_bohb(log_dir):
@@ -25,7 +25,7 @@ def analyze_bohb(log_dir):
     result_wo = deepcopy(result)
     result_re = deepcopy(result)
 
-    #analyze_result_order(result, id2conf)
+    analyze_result_order(result, id2conf)
 
     get_w(result_w, spec="w3")
     get_w(result_wo, spec="wo3")
@@ -68,31 +68,42 @@ def get_w(result, spec):
 def analyze_result_order(result, id2conf):
     order_list = []
     w_3 = []
-    wo_3 = []
+    w_2 = []
+    wo_23 = []
     for key, value1 in result.data.items():
         for value2 in value1.results.values():
             loss = value2['loss']
             order = ast.literal_eval(value2['info']['order'])
+            timings = ast.literal_eval(value2['info']['timings'])
+            different_envs = id2conf[key]['config']['gtn_different_envs']
+            pretrain_agent = id2conf[key]['config']['gtn_pretrain_agent']
             optim_with_actor = id2conf[key]['config']['td3_optim_env_with_actor']
             optim_with_critic = id2conf[key]['config']['td3_optim_env_with_critic']
+            match_weight_actor = id2conf[key]['config']['td3_match_weight_actor']
+            match_weight_critic = id2conf[key]['config']['td3_match_weight_critic']
             lr = id2conf[key]['config']['em_lr']
             steps = id2conf[key]['config']['em_max_steps']
             step_size = id2conf[key]['config']['em_step_size']
-            gamma = id2conf[key]['config']['em_gamma']
-            batch_size = id2conf[key]['config']['em_batch_size']
-            order_list.append((loss, order, optim_with_actor, optim_with_critic, lr, steps, step_size, gamma, batch_size))
+
+            order_list.append((loss, order, timings, different_envs, pretrain_agent, optim_with_actor, optim_with_critic, match_weight_actor, match_weight_critic, lr, steps, step_size))
+
+            if different_envs > 1:
+                continue
+
             if 3 in order:
                 w_3.append(loss)
+            elif 2 in order:
+                w_2.append(loss)
             else:
-                wo_3.append(loss)
+                wo_23.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
         print(elem)
 
     print(sum(w_3)/len(w_3))
-    print(sum(wo_3)/len(wo_3))
-
+    print(sum(w_2)/len(w_2))
+    print(sum(wo_23)/len(wo_23))
 
 
 def plot_accuracy_over_budget(result, plot_str):
@@ -127,7 +138,6 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 
-
 def remove_outliers(result):
     lut = []
     for key, value1 in result.data.items():
@@ -157,7 +167,8 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-16-16-latest-greatest'
+    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
+    log_dir = '../results'
     analyze_bohb(log_dir)
 
 

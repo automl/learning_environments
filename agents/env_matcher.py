@@ -8,7 +8,7 @@ from utils import AverageMeter, ReplayBuffer
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, grad_enabled=True, oversampling=1.1, replay_buffer=None):
+def match_loss(real_env, virtual_env, input_seed, batch_size, multi_step=1, more_info=False, grad_enabled=True, oversampling=1.1, replay_buffer=None):
     with torch.set_grad_enabled(grad_enabled):
 
         real_env.reset()
@@ -24,13 +24,19 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
                 # todo fabio: maybe improve (access member variables)
                 actions_list.append(real_env.get_random_action() * oversampling)
                 states_list.append(real_env.get_random_state() * oversampling)
-                next_state, reward, done = real_env.step(action = actions_list[-1],
-                                                         state = states_list[-1])
+
+                next_state_tmp = states_list[-1]
+                next_state_list = []
+                for i in range(multi_step):
+                    next_state_tmp, reward, done = real_env.step(action = actions_list[-1],
+                                                                 state = next_state_tmp)
+                    next_state_list.append(next_state_tmp)
+                next_state = torch.cat(next_state_list, dim=0)
                 outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
 
             # convert to torch
-            actions = torch.stack(actions_list)
-            states = torch.stack(states_list)
+            actions = torch.stack(actions_list).to(device)
+            states = torch.stack(states_list).to(device)
             outputs_real = torch.stack(outputs_list).to(device)
 
         else:
@@ -44,21 +50,29 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, more_info=False, g
             for k in range(num_samples):
                 action = real_env.get_random_action() * oversampling
                 state = real_env.get_random_state() * oversampling
-                next_state, reward, done = real_env.step(action = action,
-                                                         state = state)
+
+                next_state_tmp = state
+                next_state_list = []
+                for i in range(multi_step):
+                    next_state_tmp, reward, done = real_env.step(action = action,
+                                                                 state = next_state_tmp)
+                    next_state_list.append(next_state_tmp)
+                next_state = torch.cat(next_state_list, dim=0)
                 replay_buffer.add(last_state=dummy, last_action=dummy, state=state, action=action, next_state=next_state, reward=reward, done=done)
 
             _, _, states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size)
-            outputs_real = torch.cat((next_states, rewards, dones), dim=1)
+            outputs_real = torch.cat((next_states, rewards, dones), dim=1).to(device)
 
         # simulate the same state/action transitions on the virtual env, create input_seeds batch
         input_seeds = input_seed.repeat(len(states), 1)
-        next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=states, input_seed=input_seeds)
-        outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1).to(device)
 
-        # print('----')
-        # print(outputs_real[0,:])
-        # print(outputs_virtual[0,:])
+        next_states_virtual_tmp = states
+        next_states_virtual_list = []
+        for i in range(multi_step):
+            next_states_virtual_tmp, rewards_virtual, dones_virtual = virtual_env.step(action=actions, state=next_states_virtual_tmp, input_seed=input_seeds)
+            next_states_virtual_list.append(next_states_virtual_tmp)
+        next_states_virtual = torch.cat(next_states_virtual_list, dim=1)
+        outputs_virtual = torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1).to(device)
 
         # todo fabio: maybe make loss as parameter (low priority)
         loss_fkt = torch.nn.L1Loss()
@@ -89,6 +103,7 @@ class EnvMatcher(nn.Module):
         self.max_steps = em_config["max_steps"]
         self.step_size = em_config["step_size"]
         self.gamma = em_config["gamma"]
+        self.multi_step = em_config["multi_step"]
         self.use_rb = em_config["use_rb"]
 
     def train(self, real_envs, virtual_env, input_seeds):
@@ -125,6 +140,7 @@ class EnvMatcher(nn.Module):
                                virtual_env=virtual_env,
                                input_seed=input_seed,
                                batch_size=batch_size_normalized,
+                               multi_step=self.multi_step,
                                more_info=True,
                                grad_enabled=True,
                                oversampling=self.oversampling,

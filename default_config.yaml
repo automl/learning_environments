@@ -5,7 +5,7 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     max_iterations: !!int 5                 # maximum number of GTN iterations
-    type_0: !!int 1                         # optimization used during iteration 1
+    type_0: !!int 2                         # optimization used during iteration 1
     type_1: !!int 2                         # optimization used during iteration 2
     type_2: !!int 3                         # optimization used during iteration 3
     type_3: !!int 1                         # optimization used during iteration 4
@@ -35,10 +35,11 @@ agents:
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
     early_out_diff: !!float 0               # break criterion for matching
-    early_out_num: !!int 50                 # based on how many training steps shall an early out happen
-    max_steps: !!int 5000                   # number of steps
-    step_size: !!int 1000                   # LR scheduler step size
+    early_out_num: !!int 100                # based on how many training steps shall an early out happen
+    max_steps: !!int 2000                   # number of steps
+    step_size: !!int 200                    # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
+    multi_step: !!int 2                     # match multiple steps at once
     use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:
@@ -118,7 +119,7 @@ envs:
     input_seed_dim: !!int 1                 # dimension of the input seed
     input_seed_mean: !!float 0.1            # mean of input seed distribution
     input_seed_range: !!float 0.1           # range (around mean) of input seed distribution
-    zero_init: !!bool True                  # use zero state or random starting state for initialization
+    zero_init: !!bool False                 # use zero state or random starting state for initialization
     weight_norm: !!bool True                # use weight normalization for virtual environment
 
   Test:
