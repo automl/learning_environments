@@ -36,13 +36,13 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_different_envs', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_match_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.05, upper=0.5, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_both_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1.2, upper=3, log=True, default_value=1.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-5, upper=1e-3, log=True, default_value=1e-4))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=1000, log=True, default_value=500))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-4))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=2000, log=True, default_value=500))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=100, upper=500, log=True, default_value=200))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-3))

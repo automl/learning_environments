@@ -31,7 +31,7 @@ agents:
 
   env_matcher:
     oversampling: !!float 1.5               # how much to sample beyond the normal state/action space
-    lr: !!float 4e-3                        # learning rate
+    lr: !!float 5e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
     early_out_diff: !!float 0               # break criterion for matching
