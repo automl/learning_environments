@@ -39,7 +39,7 @@ agents:
     max_steps: !!int 2000                   # number of steps
     step_size: !!int 200                    # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
-    multi_step: !!int 2                     # match multiple steps at once
+    multi_step: !!int 1                     # match multiple steps at once
     use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:
