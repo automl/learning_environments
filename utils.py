@@ -11,19 +11,14 @@ class ReplayBuffer:
         self.ptr = 0
         self.size = 0
 
-        self.last_state = torch.zeros((max_size, state_dim))
-        self.last_action = torch.zeros((max_size, action_dim))
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
-        self.next_state = [None]*max_size
-        #self.next_state = torch.zeros((max_size, state_dim))
+        self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
 
     # for TD3 / PPO / gym
-    def add(self, last_state, last_action, state, action, next_state, reward, done):
-        self.last_state[self.ptr] = last_state.detach()
-        self.last_action[self.ptr] = last_action.detach()
+    def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state.detach().detach()
         self.action[self.ptr] = action.detach()
         self.next_state[self.ptr] = next_state.detach()
@@ -38,12 +33,9 @@ class ReplayBuffer:
         ind = np.random.randint(0, self.size, size=batch_size)
 
         return (
-            self.last_state[ind].to(device).detach(),
-            self.last_action[ind].to(device).detach(),
             self.state[ind].to(device).detach(),
             self.action[ind].to(device).detach(),
-            torch.stack([self.next_state[idx] for idx in ind]).to(device).detach(),
-            #self.next_state[ind].to(device).detach(),
+            self.next_state[ind].to(device).detach(),
             self.reward[ind].to(device).detach(),
             self.done[ind].to(device).detach(),
         )
@@ -51,12 +43,9 @@ class ReplayBuffer:
     # for PPO
     def get_all(self):
         return (
-            self.last_state[: self.size].to(device).detach(),
-            self.last_action[: self.size].to(device).detach(),
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
-            torch.stack(self.next_state[:self.size]).to(device).detach(),
-            #self.next_state[: self.size].to(device).detach(),
+            self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
         )
@@ -101,8 +90,28 @@ class AverageMeter:
         return sum(vals) / (len(vals) + 1e-9)
 
 
-def print_abs_param_sum(model, model_name=""):
+def print_abs_param_sum(model, name=""):
     sm = 0
     for param in model.parameters():
         sm += abs(param).sum()
-    print(model_name + " " + str(sm))
+    print(name + " " + str(sm))
+
+
+def print_avg_pairwise_dist(vec_list, name=""):
+    n = len(vec_list)
+    if n < 2:
+        return 0
+
+    count = 0
+    avg_dist = 0
+    for i in range(n):
+        for k in range(i, n):
+            count += 1
+            avg_dist += torch.dist(vec_list[i], vec_list[k])
+
+    print(name + " " + str(avg_dist/count))
+
+
+
+
+

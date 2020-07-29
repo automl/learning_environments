@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from time import time
-from agents.env_matcher import match_loss
 from models.actor_critic import Actor, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from envs.env_factory import EnvFactory
@@ -31,17 +30,7 @@ class TD3(nn.Module):
         self.lr = td3_config["lr"]
         self.weight_decay = td3_config["weight_decay"]
         self.same_action_num = td3_config["same_action_num"]
-        self.optim_env_with_actor = td3_config["optim_env_with_actor"]
-        self.optim_env_with_critic = td3_config["optim_env_with_critic"]
         self.early_out_num = td3_config["early_out_num"]
-        self.match_weight_actor = td3_config["match_weight_actor"]
-        self.match_weight_critic = td3_config["match_weight_critic"]
-        self.match_batch_size = td3_config["match_batch_size"]
-        self.match_oversampling = td3_config["match_oversampling"]
-        self.match_delay = td3_config["match_delay"]
-        self.virtual_min_episodes = td3_config["virtual_min_episodes"]
-        self.both_min_episodes = td3_config["both_min_episodes"]
-
 
         self.render_env = config["render_env"]
 
@@ -55,27 +44,23 @@ class TD3(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
-        self.actor_optimizer = None
-        self.critic_optimizer = None
+        self.reset_optimizer()
 
         self.total_it = 0
 
-    def train(self, env, match_env=None, input_seed=None):
+    def train(self, env, input_seed=None):
         # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
         # env=virtual_env, input_seed given: Train on fixed virtual env
         # env=real_env: Train on real env
 
         replay_buffer       = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
-        match_replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
-
-        self.init_optimizer(env, match_env, input_seed)
 
         # training loop
         for episode in range(self.max_episodes):
-            state = env.reset()
-            last_action = None
-            last_state = None
+            #state = env.reset()
+            state = env.get_random_state()
+            state[1] = 0
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
@@ -86,8 +71,10 @@ class TD3(nn.Module):
                     else:
                         action = self.actor(state.to(device)).cpu()
 
+                    # REMOVE
+                    action = action*0
                     # live view
-                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:
+                    if self.render_env and episode % 10 == 0:# and episode >= self.init_episodes:
                         env.render(state)
 
                     # state-action transition
@@ -103,17 +90,14 @@ class TD3(nn.Module):
                         #print('early out because state is not finite')
                         break
 
-                    if last_state is not None and last_action is not None:
-                        replay_buffer.add(last_state=last_state, last_action=last_action, state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
+                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
-                    last_state = state
                     state = next_state
-                    last_action = action
                     episode_reward += reward
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer, match_replay_buffer, env, match_env, input_seed)
+                    self.update(replay_buffer)
                 if done:
                     break
 
@@ -122,26 +106,20 @@ class TD3(nn.Module):
 
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            min_episodes_to_run = self.min_episodes_to_run(env, match_env)
-            if avg_reward > env.env.solved_reward and episode >= min_episodes_to_run:
+            if avg_reward > env.env.solved_reward:
                 print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-                break
+                #break
 
         env.close()
 
         return avg_meter_reward.get_raw_data()
 
-    def update(self, replay_buffer, match_replay_buffer, env, match_env=None, input_seed=None):
-        match_virtual_env = env.is_virtual_env() and match_env is not None
+
+    def update(self, replay_buffer):
         self.total_it += 1
 
         # Sample replay buffer
-        last_states, last_actions, states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
-
-        if match_virtual_env and self.total_it % self.match_delay == 0:
-            states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
-            actions = self.actor.forward(states)
-            next_states, rewards, dones = self.run_env(env, states, actions, input_seed)
+        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
@@ -160,16 +138,6 @@ class TD3(nn.Module):
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
         # Compute matching loss
-        if match_virtual_env and self.optim_env_with_critic and self.total_it % self.match_delay == 0:
-            m_loss = match_loss(real_env=match_env,
-                                virtual_env=env,
-                                input_seed=input_seed,
-                                batch_size=self.match_batch_size,
-                                oversampling=self.match_oversampling,
-                                replay_buffer=match_replay_buffer)
-            print('critic: {} {}'.format(critic_loss, m_loss))
-            m_loss *= self.match_weight_critic
-            critic_loss += m_loss
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -178,26 +146,9 @@ class TD3(nn.Module):
 
         # Delayed policy updates
         if self.total_it % self.policy_delay == 0:
-            if match_virtual_env and self.total_it % self.match_delay == 0:
-                states, _, _ = self.run_env(env, last_states, last_actions, input_seed)
-                actions = self.actor.forward(states)
-                next_states, rewards, dones = self.run_env(env, states, actions, input_seed)
-
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
             actor_loss = (-self.critic_1(states, self.actor(states))).mean()
-
-            # Compute matching loss
-            if match_virtual_env and self.optim_env_with_actor and self.total_it % self.match_delay == 0:
-                m_loss = match_loss(real_env=match_env,
-                                    virtual_env=env,
-                                    input_seed=input_seed,
-                                    batch_size=self.match_batch_size,
-                                    oversampling=self.match_oversampling,
-                                    replay_buffer=match_replay_buffer)
-                print('actor: {} {}'.format(actor_loss, m_loss))
-                m_loss *= self.match_weight_actor
-                actor_loss += m_loss
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
@@ -214,38 +165,13 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-    def init_optimizer(self, env, match_env=None, input_seed=None):
+
+    def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
-        if env.is_virtual_env() and match_env is not None:
-            if self.optim_env_with_actor:
-                actor_params += list(env.parameters()) + [input_seed]
-            if self.optim_env_with_critic:
-                critic_params += list(env.parameters()) + [input_seed]
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
-    def run_env(self, env, states, actions, input_seed):
-        # enable gradient computation
-        input_seeds = input_seed.repeat(len(states), 1).to(device)
-        next_states, rewards, dones = env.step(action=actions, state=states, input_seed=input_seeds, same_action_num=self.same_action_num)
-
-        next_states = next_states.to(device)
-        rewards = rewards.to(device)
-        dones = dones.to(device)
-
-        return next_states, rewards, dones
-
-    def min_episodes_to_run(self, env, match_env):
-        if not env.is_virtual_env():
-            # real env
-            return self.init_episodes
-        if match_env is None:
-            # fixed virtual env
-            return self.init_episodes + self.virtual_min_episodes
-        else:
-            # variable virtual env
-            return self.init_episodes + self.both_min_episodes
 
     def get_state_dict(self):
         agent_state = {}
@@ -261,6 +187,7 @@ class TD3(nn.Module):
         if self.critic_optimizer:
             agent_state["td3_critic_optimizer"] = self.critic_optimizer.state_dict()
         return agent_state
+
 
     def set_state_dict(self, agent_state):
         self.actor.load_state_dict(agent_state["td3_actor"])

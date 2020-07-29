@@ -1,28 +1,27 @@
 env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
 seed: !!int 0                               # random initialization seed
-render_env: !!bool False                    # render environment
+render_env: !!bool True                     # render environment
 
 agents:
   gtn:
-    max_iterations: !!int 5                 # maximum number of GTN iterations
+    max_iterations: !!int 10                # maximum number of GTN iterations
     type_0: !!int 2                         # optimization used during iteration 1
     type_1: !!int 2                         # optimization used during iteration 2
-    type_2: !!int 3                         # optimization used during iteration 3
-    type_3: !!int 1                         # optimization used during iteration 4
-    type_4: !!int 1                         # optimization used during iteration 5
-    type_5: !!int 1                         # optimization used during iteration 6
-    type_6: !!int 1                         # optimization used during iteration 7
-    type_7: !!int 1                         # optimization used during iteration 8
-    type_8: !!int 1                         # optimization used during iteration 9
-    type_9: !!int 1                         # optimization used during iteration 10
-    different_envs: !!int 1                 # first env is default env
+    type_2: !!int 2                         # optimization used during iteration 3
+    type_3: !!int 2                         # optimization used during iteration 4
+    type_4: !!int 2                         # optimization used during iteration 5
+    type_5: !!int 2                         # optimization used during iteration 6
+    type_6: !!int 2                         # optimization used during iteration 7
+    type_7: !!int 2                         # optimization used during iteration 8
+    type_8: !!int 2                         # optimization used during iteration 9
+    type_9: !!int 2                         # optimization used during iteration 10
+    different_envs: !!int 5                 # first env is default env
     agent_name: !!str TD3                   # which RL agent to use for meta-training
-    match_step_size: !!float 0.1            # reptile step size when matching the two environments
+    match_step_size: !!float 1              # reptile step size when matching the two environments
     real_step_size: !!float 0.1             # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1          # reptile step size when matching the agent to the fixed virtual environment
-    both_step_size: !!float 0.1             # reptile step size when matching the agent to the variable virtual env
     pretrain_env: !!bool True               # pretrain the virtual_env?
-    pretrain_agent: !!bool True             # pretrain the agent on the default env?
+    pretrain_agent: !!bool False            # pretrain the agent on the default env?
 
   reptile:
     max_iterations: !!int 10000             # maximum number of REPTILE iteration
@@ -30,21 +29,22 @@ agents:
     agent_name: !!str TD3                   # which RL agent to use for meta-training
 
   env_matcher:
-    oversampling: !!float 1.5               # how much to sample beyond the normal state/action space
+    oversampling: !!float 1.05              # how much to sample beyond the normal state/action space
     lr: !!float 5e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
-    early_out_diff: !!float 0               # break criterion for matching
+    early_out_diff: !!float 1e-2            # break criterion for matching
     early_out_num: !!int 100                # based on how many training steps shall an early out happen
-    max_steps: !!int 2000                   # number of steps
-    step_size: !!int 200                    # LR scheduler step size
+    max_steps: !!int 5000                   # number of steps
+    step_size: !!int 500                    # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
-    multi_step: !!int 1                     # match multiple steps at once
-    use_rb: !!bool True                     # use internal replay buffer for matching
+    rb_use: !!bool True                     # use internal replay buffer for matching
+    variation_type: !!int 1                 # 1: next_state, 2: next_state/reward, 3: next_state/reward/done
+    variation_weight: !!float 0.01         # weight of variation loss w.r.t. matching loss
 
   td3:
-    max_episodes: !!int 100                 # maximum number of episodes to optimize
-    init_episodes: !!int 50                 # number of episodes to fill the replay buffer
+    max_episodes: !!int 30                  # maximum number of episodes to optimize
+    init_episodes: !!int 30                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate
@@ -59,15 +59,6 @@ agents:
     weight_norm: !!bool False               # use weight normalization
     action_std: !!float 0.2                 # action noise standard deviation
     early_out_num: 5                        # based on how many training steps shall an early out happen
-    optim_env_with_actor: !!bool True       # optimize env together with actor
-    optim_env_with_critic: !!bool True      # optimize env together with critic
-    match_weight_actor: !!float 1e4         # how much to weight matching loss wrt actor loss
-    match_weight_critic: !!float 1e4        # how much to weight matching loss wrt critic loss
-    match_batch_size: !!int 128             # matching batch size
-    match_oversampling: !!float 1.1         # oversampling factor for matching
-    match_delay: !!float 2                  # optimize environment only every i-th step
-    virtual_min_episodes: !!float 2         # minimum number of agent episodes to train on the virtual env
-    both_min_episodes: !!float 5            # minimum number of agent episodes to train on both envs
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize
@@ -99,8 +90,8 @@ envs:
     l: [0.5, 1, 1.2, True]                  # joint length [min, default, max, larger=more difficult]
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256                  # size of the hidden layer of the corresponding virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers
-    input_seed_dim: !!int 10                # dimension of the input seed
+    hidden_layer: !!int 1                   # number of hidden layers
+    input_seed_dim: !!int 3                 # dimension of the input seed
     input_seed_mean: !!float 0.1            # mean of input seed distribution
     input_seed_range: !!float 0.1           # range (around mean) of input seed distribution
     zero_init: !!bool False                 # use zero state or random starting state for initialization
@@ -108,12 +99,12 @@ envs:
 
   MountainCarContinuous-v0:
     solved_reward: !!float 50               # used for early out in RL agent training
-    max_steps: 999                          # maximum number of steps per episode
+    max_steps: 200                          # maximum number of steps per episode REMOVE
     max_speed: [0.05, 0.07, 0.1, False]     # maximum allowed vehicle velocity
     power: [0.0012, 0.0015, 0.002, False]   # strength of the vehicle engine
     goal_position: [0.45, 0.45, 0.5, True]  # x-value? of goal position
     goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
-    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: 128                        # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2                   # number of hidden layers
     input_seed_dim: !!int 1                 # dimension of the input seed
@@ -126,7 +117,7 @@ envs:
     solved_reward: !!float 50               # used for early out in RL agent training
     max_steps: 200                          # maximum number of steps per episode
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
-    hidden_size: !!int 128                  # size of the hidden layer of the corresponding virtual environment
+    hidden_size: !!int 256                  # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 1                   # number of hidden layers
     input_seed_dim: !!int 3                 # dimension of the input seed
     input_seed_mean: !!float 0.1            # mean of input seed distribution

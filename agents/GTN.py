@@ -27,7 +27,6 @@ class GTN(nn.Module):
         self.match_step_size = gtn_config["match_step_size"]
         self.real_step_size = gtn_config["real_step_size"]
         self.virtual_step_size = gtn_config["virtual_step_size"]
-        self.both_step_size = gtn_config["both_step_size"]
         self.pretrain_env = gtn_config["pretrain_env"]
         self.pretrain_agent = gtn_config["pretrain_agent"]
         self.type = []
@@ -39,23 +38,16 @@ class GTN(nn.Module):
         self.agent = select_agent(config, agent_name)
         self.env_matcher = EnvMatcher(config)
 
-        different_envs = gtn_config["different_envs"]
         self.env_factory = EnvFactory(config)
         self.virtual_env = self.env_factory.generate_default_virtual_env()
-        self.real_envs = []
-        self.input_seeds = []
+        self.real_env = self.env_factory.generate_default_real_env()
 
-        # first environment is default environment
-        self.real_envs.append(self.env_factory.generate_default_real_env())
+        different_envs = gtn_config["different_envs"]
+        self.input_seeds = []
         self.input_seeds.append(self.env_factory.generate_default_input_seed())
         # generate multiple different real envs with associated seed
         for i in range(different_envs-1):
-            if i == 0:
-                self.real_envs.append(self.env_factory.generate_interpolated_real_env(0.1))
-                self.input_seeds.append(self.env_factory.generate_interpolated_input_seed(0.1))
-            else:
-                self.real_envs.append(self.env_factory.generate_random_real_env())
-                self.input_seeds.append(self.env_factory.generate_random_input_seed())
+            self.input_seeds.append(self.env_factory.generate_random_input_seed())
 
     def print_stats(self):
         print_abs_param_sum(self.virtual_env, "VirtualEnv")
@@ -72,12 +64,15 @@ class GTN(nn.Module):
         if self.pretrain_env:
             order.append(-2)
             t = time()
-            print("-- matching virtual env to real envs ---")
-            reptile_match_env(env_matcher=self.env_matcher,
-                              real_envs=self.real_envs,
-                              virtual_env=self.virtual_env,
-                              input_seeds=self.input_seeds,
-                              step_size=self.match_step_size)
+            print("-- matching virtual env to real env ---")
+            self.env_matcher.train(real_env=self.real_env,
+                                   virtual_env=self.virtual_env,
+                                   input_seeds=self.input_seeds)
+            # reptile_match_env(env_matcher=self.env_matcher,
+            #                   real_env=self.real_env,
+            #                   virtual_env=self.virtual_env,
+            #                   input_seeds=self.input_seeds,
+            #                   step_size=self.match_step_size)
             timings.append(int(time()-t))
 
         if self.pretrain_agent:
@@ -86,34 +81,26 @@ class GTN(nn.Module):
             env_id = 0
             print("-- pretraining agent on real env with id " + str(env_id) + " --")
             reptile_train_agent(agent=self.agent,
-                                env=self.real_envs[env_id],
+                                env=self.real_env,
                                 step_size=self.real_step_size)
             timings.append(int(time()-t))
 
         for it in range(self.max_iterations):
             self.print_stats()
             t = time()
-            env_id = np.random.randint(len(self.real_envs))
             if self.type[it] == 1:
-                print("-- training on real env with id " + str(env_id) + " --")
+                print("-- training on real env --")
                 reptile_train_agent(agent=self.agent,
-                                    env=self.real_envs[env_id],
+                                    env=self.real_env,
                                     step_size=self.real_step_size)
 
             elif self.type[it] == 2:
-                print("-- training on virtual env with id " + str(env_id) + " --")
+                seed_id = np.random.randint(len(self.input_seeds))
+                print("-- training on virtual env with id " + str(seed_id) + " --")
                 reptile_train_agent(agent=self.agent,
                                     env=self.virtual_env,
-                                    input_seed=self.input_seeds[env_id],
+                                    input_seed=self.input_seeds[seed_id],
                                     step_size=self.virtual_step_size)
-
-            elif self.type[it] == 3:
-                print("-- training on both envs with id " + str(env_id) + " --")
-                reptile_train_agent(agent=self.agent,
-                                    env=self.virtual_env,
-                                    match_env=self.real_envs[env_id],
-                                    input_seed=self.input_seeds[env_id],
-                                    step_size=self.both_step_size)
 
             else:
                 print("Case that should not happen")
@@ -134,7 +121,7 @@ class GTN(nn.Module):
         # to avoid problems with wrongly initialized optimizers
         if isinstance(self.agent, TD3):
             env = self.env_factory.generate_default_real_env()
-            self.agent.init_optimizer(env=env)
+            self.agent.reset_optimizer()
 
         mean_episodes_till_solved = 0
         episodes_till_solved = []

@@ -94,19 +94,18 @@ class ExperimentWrapper():
         try:
             # generate environment
             env_fac = EnvFactory(config)
-            real_envs = []
+            real_env = env_fac.generate_default_real_env()
             input_seeds = []
             for i in range(10):
-                real_envs.append(env_fac.generate_random_real_env())
                 input_seeds.append(env_fac.generate_random_input_seed())
             virtual_env = env_fac.generate_default_virtual_env()
 
             env_matcher = EnvMatcher(config = config)
-            env_matcher.train(real_envs = real_envs,
+            env_matcher.train(real_env = real_env,
                               virtual_env = virtual_env,
                               input_seeds = input_seeds)
             loss, diff_state, diff_reward, diff_done = \
-                env_matcher.test(real_envs = real_envs,
+                env_matcher.test(real_env = real_env,
                                  virtual_env = virtual_env,
                                  input_seeds = input_seeds,
                                  oversampling = 1.5,
