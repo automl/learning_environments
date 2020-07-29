@@ -10,7 +10,7 @@ from copy import deepcopy
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-OUTLIER_PERC = 0.2
+OUTLIER_PERC = 0.0
 
 
 def analyze_bohb(log_dir):
@@ -71,7 +71,7 @@ def analyze_result_order(result, id2conf):
     w_2 = []
     wo_23 = []
     for key, value1 in result.data.items():
-        for value2 in value1.results.values():
+        for key2, value2 in value1.results.items():
             loss = value2['loss']
             order = ast.literal_eval(value2['info']['order'])
             timings = ast.literal_eval(value2['info']['timings'])
@@ -87,7 +87,10 @@ def analyze_result_order(result, id2conf):
 
             order_list.append((loss, order, timings, different_envs, pretrain_agent, optim_with_actor, optim_with_critic, match_weight_actor, match_weight_critic, lr, steps, step_size))
 
-            if different_envs > 1:
+            if different_envs == 1:
+                continue
+
+            if key2 > 1:
                 continue
 
             if 3 in order:

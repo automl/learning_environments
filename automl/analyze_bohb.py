@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.8
+OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -144,7 +144,7 @@ def plot_accuracy_over_budget(result):
 
 
 def plot_parallel_scatter(result):
-    plt.subplots(dpi=300)
+    plt.subplots(dpi=300, figsize=(8, 4))
 
     ep_m = 1e9
     ep_M = -1e9
@@ -170,13 +170,13 @@ def plot_parallel_scatter(result):
                 except:
                     print('Error in plot_parallel_scatter, continuing')
 
-    x_dev = 0.3
+    x_dev = 0.2
     r_min = 0.1
-    r_max = 4
-    alpha = 0.5
+    r_max = 3
+    alpha = 0.4
     text_x_offset = -0.1
     text_y_offset = -0.1
-    size_text = 8
+    size_text = 6
 
     index = 0
     for config_param, data in (dict(sorted(config_params.items()))).items():
@@ -271,7 +271,7 @@ def plot_parallel_scatter(result):
         index += 1
 
     plt.yticks([], [])
-    plt.xticks(np.arange(index), (tuple(sorted(config_params.keys()))), rotation=90)
+    plt.xticks(np.arange(index), (tuple(sorted(config_params.keys()))), rotation=90, fontsize=size_text)
 
 
 def linear_interpolation(x, x0, x1, y0, y1):
@@ -311,7 +311,7 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-13-21-with-order'
+    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-23-17-CMC-still-slow-and-bad'
     log_dir = '../results'
     analyze_bohb(log_dir)
 
