@@ -74,6 +74,7 @@ class TD3(nn.Module):
         # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
+            #state = env.get_random_state()
             last_action = None
             last_state = None
             episode_reward = 0
@@ -87,7 +88,7 @@ class TD3(nn.Module):
                         action = self.actor(state.to(device)).cpu()
 
                     # live view
-                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:
+                    if self.render_env and episode % 50 == 0 and episode >= self.init_episodes:
                         env.render(state)
 
                     # state-action transition
@@ -127,7 +128,7 @@ class TD3(nn.Module):
                 print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
                 break
 
-        env.close()
+            env.close()
 
         return avg_meter_reward.get_raw_data()
 
@@ -167,7 +168,7 @@ class TD3(nn.Module):
                                 batch_size=self.match_batch_size,
                                 oversampling=self.match_oversampling,
                                 replay_buffer=match_replay_buffer)
-            print('critic: {} {}'.format(critic_loss, m_loss))
+            print('critic loss: {} {}'.format(critic_loss, m_loss))
             m_loss *= self.match_weight_critic
             critic_loss += m_loss
 
@@ -195,7 +196,7 @@ class TD3(nn.Module):
                                     batch_size=self.match_batch_size,
                                     oversampling=self.match_oversampling,
                                     replay_buffer=match_replay_buffer)
-                print('actor: {} {}'.format(actor_loss, m_loss))
+                print('actor loss: {} {}'.format(actor_loss, m_loss))
                 m_loss *= self.match_weight_actor
                 actor_loss += m_loss
 
@@ -293,6 +294,6 @@ if __name__ == "__main__":
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
-    #td3.train(env=real_env)
+    td3.train(env=real_env)
     #td3.train(env=virtual_env, input_seed=input_seed)
-    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)
+    #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)

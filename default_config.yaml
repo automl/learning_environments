@@ -1,6 +1,6 @@
-env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+env_name: !!str HalfCheetah-v2    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
 seed: !!int 0                               # random initialization seed
-render_env: !!bool False                    # render environment
+render_env: !!bool True                    # render environment
 
 agents:
   gtn:
@@ -17,7 +17,7 @@ agents:
     type_9: !!int 1                         # optimization used during iteration 10
     different_envs: !!int 1                 # first env is default env
     agent_name: !!str TD3                   # which RL agent to use for meta-training
-    match_step_size: !!float 0.1            # reptile step size when matching the two environments
+    match_step_size: !!float 1              # reptile step size when matching the two environments
     real_step_size: !!float 0.1             # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1          # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1             # reptile step size when matching the agent to the variable virtual env
@@ -30,7 +30,7 @@ agents:
     agent_name: !!str TD3                   # which RL agent to use for meta-training
 
   env_matcher:
-    oversampling: !!float 1.5               # how much to sample beyond the normal state/action space
+    oversampling: !!float 1.1               # how much to sample beyond the normal state/action space
     lr: !!float 5e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
@@ -43,11 +43,11 @@ agents:
     use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:
-    max_episodes: !!int 100                 # maximum number of episodes to optimize
+    max_episodes: !!int 10000                 # maximum number of episodes to optimize
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 1e-3                        # learning rate
+    lr: !!float 1e-4                        # learning rate
     weight_decay: !!float 0                 # weight decay
     tau: !!float 0.02                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates

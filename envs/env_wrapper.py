@@ -34,7 +34,13 @@ class EnvWrapper(nn.Module):
             return next_state, reward, done
 
         else:
-            self.env.state = state.cpu().detach().numpy()
+            if self.is_mujoco_env():
+                qpos = state[:9]
+                qvel = state[9:]
+                self.env.set_state(qpos, qvel)
+            else:
+                self.env.state = state.cpu().detach().numpy()
+
             action = action.cpu().detach().numpy()
             reward_sum = 0
 
@@ -61,12 +67,20 @@ class EnvWrapper(nn.Module):
             high = np.array([np.pi, 1])
             np_random, seed = seeding.np_random()
             state_tmp = np_random.uniform(low=-high, high=high)
-            a = torch.from_numpy(np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])).float()
-            return a
+            return torch.from_numpy(np.array([np.cos(state_tmp[0]), np.sin(state_tmp[0]), state_tmp[1]])).float()
+
         elif self.env.env_name == 'MountainCarContinuous-v0':
             np_random, seed = seeding.np_random()
             return torch.from_numpy(np.array([np_random.uniform(low=-1.2, high=0.6),
                                               np_random.uniform(low=-0.1, high=0.1)])).float()
+
+        elif self.env.env_name == "HalfCheetah-v2":
+            np_random, seed = seeding.np_random()
+            qpos = np_random.uniform(low=-0.1, high=0.1, size=9)
+            qpos = qpos[1:]  # observation space does not include x dimension
+            qvel = np_random.randn(9) * 0.1
+            return torch.from_numpy(np.concatenate([qpos, qvel])).float()
+
         else:
             print("Probably wrong implementation of get_random_state")
             return torch.tensor(self.env.observation_space.sample(), dtype=torch.float32)
@@ -78,6 +92,11 @@ class EnvWrapper(nn.Module):
             else:
                 return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
         elif self.env.env_name == 'MountainCarContinuous-v0':
+            if self.is_virtual_env():
+                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
+            else:
+                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
+        elif self.env.env_name == "HalfCheetah-v2":
             if self.is_virtual_env():
                 return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
             else:
@@ -120,7 +139,7 @@ class EnvWrapper(nn.Module):
         return isinstance(self.env, VirtualEnv)
 
     def is_mujoco_env(self):
-        return issubclass(self.env, mujoco_env.MujocoEnv)
+        return isinstance(self.env, mujoco_env.MujocoEnv)
 
     def get_state_dict(self):
         if self.is_virtual_env():
