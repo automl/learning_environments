@@ -1,5 +1,5 @@
 env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
-seed: !!int 0                               # random initialization seed
+seed: !!int 10                               # random initialization seed
 render_env: !!bool True                     # render environment
 
 agents:
@@ -15,7 +15,7 @@ agents:
     type_7: !!int 2                         # optimization used during iteration 8
     type_8: !!int 2                         # optimization used during iteration 9
     type_9: !!int 2                         # optimization used during iteration 10
-    different_envs: !!int 5                 # first env is default env
+    different_envs: !!int 3                 # first env is default env
     agent_name: !!str TD3                   # which RL agent to use for meta-training
     match_step_size: !!float 1              # reptile step size when matching the two environments
     real_step_size: !!float 0.1             # reptile step size when matching the agent to the real environment
@@ -33,21 +33,21 @@ agents:
     lr: !!float 5e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
     batch_size: !!int 256                   # batch size during training
-    early_out_diff: !!float 1e-2            # break criterion for matching
+    early_out_diff: !!float 0               # break criterion for matching
     early_out_num: !!int 100                # based on how many training steps shall an early out happen
     max_steps: !!int 4000                   # number of steps
     step_size: !!int 400                    # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
     rb_use: !!bool True                     # use internal replay buffer for matching
-    variation_type: !!int 1                 # 1: next_state, 2: next_state/reward, 3: next_state/reward/done
     match_loss_state: !!str L1              # "L1" or "L2"
     match_loss_reward: !!str L2             # "L1" or "L2"
     match_loss_done: !!str L1               # "L1" or "L2"
+    variation_loss: !!int 1                 # 1: next_state, 2: next_state/reward, 3: next_state/reward/done
     variation_weight: !!float 0.001         # weight of variation loss w.r.t. matching loss
 
   td3:
-    max_episodes: !!int 100                 # maximum number of episodes to optimize
-    init_episodes: !!int 50                 # number of episodes to fill the replay buffer
+    max_episodes: !!int 150                 # maximum number of episodes to optimize
+    init_episodes: !!int 100                # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate
@@ -61,7 +61,7 @@ agents:
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
     action_std: !!float 0.2                 # action noise standard deviation
-    action_std_clip: !!float 0.3            # action noise standard deviation
+    action_std_clip: !!float 0.5            # action noise standard deviation
     early_out_num: 5                        # based on how many training steps shall an early out happen
 
   ppo:
@@ -102,7 +102,7 @@ envs:
     weight_norm: !!bool True                # use weight normalization
 
   MountainCarContinuous-v0:
-    solved_reward: !!float 50               # used for early out in RL agent training
+    solved_reward: !!float 80               # used for early out in RL agent training
     max_steps: 999                          # maximum number of steps per episode REMOVE
     max_speed: [0.05, 0.07, 0.1, False]     # maximum allowed vehicle velocity
     power: [0.0012, 0.0015, 0.002, False]   # strength of the vehicle engine

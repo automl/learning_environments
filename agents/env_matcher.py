@@ -26,10 +26,10 @@ class EnvMatcher(nn.Module):
         self.step_size = em_config["step_size"]
         self.gamma = em_config["gamma"]
         self.rb_use = em_config["rb_use"]
-        self.variation_type = em_config["variation_type"]
         self.match_loss_state = em_config["match_loss_state"]
         self.match_loss_reward = em_config["match_loss_reward"]
         self.match_loss_done = em_config["match_loss_done"]
+        self.variation_type = em_config["variation_loss"]
         self.variation_weight = em_config["variation_weight"]
 
         self.step = 0
@@ -46,7 +46,6 @@ class EnvMatcher(nn.Module):
         avg_meter_rb_size =    AverageMeter(print_str="Average rb size          ")
 
         old_loss = float('Inf')
-        n = len(input_seeds)
 
         # initialize replay buffers
         if self.rb_use:
@@ -132,22 +131,21 @@ class EnvMatcher(nn.Module):
                 outputs_virtual_list.append(torch.cat([next_states_virtual, rewards_virtual, dones_virtual], dim=1).to(device))
 
             # todo fabio: maybe make loss as parameter (low priority)
-            avg_loss = 0
+            loss = 0
             state_loss_fct = self.get_loss_function(self.match_loss_state)
             reward_loss_fct = self.get_loss_function(self.match_loss_reward)
             done_loss_fct = self.get_loss_function(self.match_loss_done)
 
             match_loss = 0
-            variation_loss = 0
-
             for i in range(len(input_seeds)):
                 # print('--------')
                 # print(outputs_real[:, -1]-outputs_virtual_list[i][:, -1])
                 match_loss += state_loss_fct(outputs_real[:, :-2], outputs_virtual_list[i][:, :-2])
                 match_loss += reward_loss_fct(outputs_real[:, -2], outputs_virtual_list[i][:, -2])
                 match_loss += done_loss_fct(outputs_real[:, -1], outputs_virtual_list[i][:, -1])
+            loss += match_loss
 
-
+            variation_loss = 0
             if self.variation_weight > 0:
                 for i in range(len(input_seeds)):
                     for k in range(i+1, len(input_seeds)):
@@ -163,16 +161,16 @@ class EnvMatcher(nn.Module):
                 if len(input_seeds) > 1:
                     variation_loss /= len(input_seeds)
                     variation_loss = -torch.log(variation_loss) * self.variation_weight
-                    avg_loss = match_loss + variation_loss
+                    loss += variation_loss
             else:
                 avg_loss = match_loss
 
             if more_info:
                 avg_diff_state, avg_diff_reward, avg_diff_done = self.get_log_information(outputs_real=outputs_real,
                                                                                           outputs_virtual_list=outputs_virtual_list)
-                return avg_loss, match_loss, variation_loss, avg_diff_state, avg_diff_reward, avg_diff_done
+                return loss, match_loss, variation_loss, avg_diff_state, avg_diff_reward, avg_diff_done
             else:
-                return avg_loss
+                return loss
 
 
     def get_loss_function(self, name):

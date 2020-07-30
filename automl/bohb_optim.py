@@ -10,7 +10,6 @@ os.chdir(par_dir)
 import random
 import numpy as np
 import time
-import yaml
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 import psutil

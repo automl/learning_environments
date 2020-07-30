@@ -9,7 +9,7 @@ from time import time
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent
 from agents.env_matcher import EnvMatcher
-from agents.REPTILE import reptile_train_agent, reptile_match_env
+from agents.REPTILE import reptile_train_agent
 from envs.env_factory import EnvFactory
 from utils import print_abs_param_sum
 
@@ -42,8 +42,7 @@ class GTN(nn.Module):
         self.real_env = self.env_factory.generate_default_real_env()
 
         different_envs = gtn_config["different_envs"]
-        self.input_seeds = []
-        self.input_seeds.append(self.env_factory.generate_default_input_seed())
+        self.input_seeds = [self.env_factory.generate_default_input_seed()]
         # generate multiple different real envs with associated seed
         for i in range(different_envs-1):
             self.input_seeds.append(self.env_factory.generate_random_input_seed())
@@ -63,7 +62,7 @@ class GTN(nn.Module):
         if self.pretrain_env:
             order.append(-2)
             t = time()
-            print("-- matching virtual env to real env ---")
+            print("-- matching virtual env to real env --")
             self.env_matcher.train(real_env=self.real_env,
                                    virtual_env=self.virtual_env,
                                    input_seeds=self.input_seeds)

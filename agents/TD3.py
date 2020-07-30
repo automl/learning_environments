@@ -47,6 +47,7 @@ class TD3(nn.Module):
 
         self.total_it = 0
 
+
     def train(self, env, input_seed=None):
         # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
         # env=virtual_env, input_seed given: Train on fixed virtual env
@@ -75,8 +76,8 @@ class TD3(nn.Module):
                     # state-action transition
                     next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
 
-                    if reward.cpu().detach().numpy() > 10:
-                        print("found reward > 10: " + str(reward.cpu().detach().numpy()) + " " + str(done.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()))
+                    if reward.cpu().detach().numpy() > 50:
+                        print("found reward > 50: " + str(reward.cpu().detach().numpy()) + " " + str(done.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()))
 
                     if t < env.max_episode_steps() - 1:
                         done_tensor = done
@@ -106,7 +107,6 @@ class TD3(nn.Module):
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
             if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
                 print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-                # REMOVE
                 break
 
         env.close()
@@ -128,7 +128,7 @@ class TD3(nn.Module):
             target_Q1 = self.critic_target_1(next_states, next_actions)
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = rewards + (1 - (dones>0.5).float()) * self.gamma * target_Q
+            target_Q = rewards + (1 - (dones > 0.5).float()) * self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
@@ -164,22 +164,13 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
+
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
-    def run_env(self, env, states, actions, input_seed):
-        # enable gradient computation
-        input_seeds = input_seed.repeat(len(states), 1).to(device)
-        next_states, rewards, dones = env.step(action=actions, state=states, input_seed=input_seeds, same_action_num=self.same_action_num)
-
-        next_states = next_states.to(device)
-        rewards = rewards.to(device)
-        dones = dones.to(device)
-
-        return next_states, rewards, dones
 
     def min_episodes_to_run(self, env, match_env):
         if not env.is_virtual_env():

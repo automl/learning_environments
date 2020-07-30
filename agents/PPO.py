@@ -120,7 +120,7 @@ class PPO(nn.Module):
 
         #calculate rewards
         for reward, done in zip(reversed(rewards), reversed(dones)):
-            if done:
+            if done > 0.5:
                 discounted_reward = 0
             discounted_reward = reward + (self.gamma * discounted_reward)
             new_rewards.insert(0, discounted_reward)
