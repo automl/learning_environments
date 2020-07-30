@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from models.actor_critic import Actor, Critic_V
+from models.actor_critic import Actor_PPO, Critic_V
 from utils import AverageMeter, ReplayBuffer
 from envs.env_factory import EnvFactory
 
@@ -31,16 +31,14 @@ class PPO(nn.Module):
 
         self.render_env = config["render_env"]
 
-        self.actor = Actor(state_dim, action_dim, agent_name,
-                           config).to(device)
+        self.actor = Actor_PPO(state_dim, action_dim, agent_name, config).to(device)
         self.critic = Critic_V(state_dim, agent_name, config).to(device)
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) +
                                           list(self.critic.parameters()),
                                           lr=ppo_config['lr'],
                                           weight_decay=ppo_config['weight_decay'])
 
-        self.actor_old = Actor(state_dim, action_dim, agent_name,
-                               config).to(device)
+        self.actor_old = Actor_PPO(state_dim, action_dim, agent_name, config).to(device)
         self.critic_old = Critic_V(state_dim, agent_name, config).to(device)
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
@@ -79,7 +77,9 @@ class PPO(nn.Module):
                     if last_state is not None and last_action is not None:
                         replay_buffer.add(last_state=last_state, last_action=last_action, state=state, action=action, next_state=next_state, reward=reward, done=done)
 
+                    last_state = state
                     state = next_state
+                    last_action = action
                     episode_reward += reward
 
                 # train after certain amount of timesteps
@@ -193,6 +193,5 @@ if __name__ == "__main__":
     ppo = PPO(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),
               config=config)
-    a = ppo.state_dict()
     ppo.train(env)
 

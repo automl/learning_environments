@@ -54,6 +54,11 @@ class VirtualEnv(nn.Module):
                                   0],
                                  device=device,
                                  dtype=torch.float32)
+        elif self.env_name == "HalfCheetah-v2":
+            qpos = np.random.uniform(low=-0.1, high=0.1, size=9)  # model.nq
+            #qpos = qpos[1:]  # observation space does not include x dimension as cheetah walks in 2D space only
+            qvel = np.random.randn(9) * 0.1  # model.nv
+            state = torch.tensor(np.concatenate([qpos, qvel]), device=device, dtype=torch.float32)
         else:
             raise NotImplementedError("Unknown environment: non-zero state reset only for supported environments.")
 
@@ -73,9 +78,11 @@ class VirtualEnv(nn.Module):
 
     def close(self):
         if self.env_name != "Test":
-            if self.viewer_env.viewer:
-                self.viewer_env.viewer.close()
-                self.viewer_env.viewer = None
+            # if self.viewer_env.viewer:
+            #     self.viewer_env.viewer.close()
+            #     self.viewer_env.viewer = None
+            if self.viewer_env:
+                self.viewer_env.close()
 
     def get_state_dict(self):
         env_state = {}

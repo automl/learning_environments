@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from time import time
-from models.actor_critic import Actor, Critic_Q
+from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from envs.env_factory import EnvFactory
 
@@ -34,8 +34,8 @@ class TD3(nn.Module):
 
         self.render_env = config["render_env"]
 
-        self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
-        self.actor_target = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
+        self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
@@ -165,13 +165,38 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-
-    def reset_optimizer(self):
+    def init_optimizer(self, env, match_env=None, input_seed=None):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
+        if env.is_virtual_env() and match_env is not None:
+            if self.optim_env_with_actor:
+                actor_params += list(env.parameters()) + [input_seed]
+            if self.optim_env_with_critic:
+                critic_params += list(env.parameters()) + [input_seed]
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
+    def run_env(self, env, states, actions, input_seed):
+        # enable gradient computation
+        input_seeds = input_seed.repeat(len(states), 1).to(device)
+        next_states, rewards, dones = env.step(action=actions, state=states, input_seed=input_seeds, same_action_num=self.same_action_num)
+
+        next_states = next_states.to(device)
+        rewards = rewards.to(device)
+        dones = dones.to(device)
+
+        return next_states, rewards, dones
+
+    def min_episodes_to_run(self, env, match_env):
+        if not env.is_virtual_env():
+            # real env
+            return self.init_episodes
+        if match_env is None:
+            # fixed virtual env
+            return self.init_episodes + self.virtual_min_episodes
+        else:
+            # variable virtual env
+            return self.init_episodes + self.both_min_episodes
 
     def get_state_dict(self):
         agent_state = {}
@@ -187,7 +212,6 @@ class TD3(nn.Module):
         if self.critic_optimizer:
             agent_state["td3_critic_optimizer"] = self.critic_optimizer.state_dict()
         return agent_state
-
 
     def set_state_dict(self, agent_state):
         self.actor.load_state_dict(agent_state["td3_actor"])
