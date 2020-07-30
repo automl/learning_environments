@@ -1,4 +1,4 @@
-env_name: !!str HalfCheetah-v2    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
 seed: !!int 0                               # random initialization seed
 render_env: !!bool False                    # render environment
 

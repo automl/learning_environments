@@ -87,7 +87,7 @@ class PPO(nn.Module):
                     self.update(replay_buffer, env, input_seed)
                     replay_buffer.clear()
                     time_step = 0
-                if done:
+                if done > 0.5:
                     break
 
             # logging
@@ -120,7 +120,7 @@ class PPO(nn.Module):
 
         #calculate rewards
         for reward, done in zip(reversed(rewards), reversed(dones)):
-            if done:
+            if done > 0.5:
                 discounted_reward = 0
             discounted_reward = reward + (self.gamma * discounted_reward)
             new_rewards.insert(0, discounted_reward)

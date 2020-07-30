@@ -76,7 +76,13 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, multi_step=1, more
 
         # todo fabio: maybe make loss as parameter (low priority)
         loss_fkt = torch.nn.L1Loss()
-        avg_loss = loss_fkt(outputs_real, outputs_virtual)
+        loss_fkt2 = torch.nn.MSELoss()
+
+        loss_state = loss_fkt(outputs_real[:, :-2].cpu(), outputs_virtual[:, :-2].cpu())
+        loss_reward = loss_fkt2(outputs_real[:, -2].cpu(), outputs_virtual[:, -2].cpu())
+        loss_done = loss_fkt(outputs_real[:, -1].cpu(), outputs_virtual[:, -1].cpu())
+
+        avg_loss = loss_done + loss_reward + loss_state
 
         avg_diff_state = abs(outputs_real[:, :-2].cpu() - outputs_virtual[:, :-2].cpu()).sum() / batch_size
         avg_diff_reward = abs(outputs_real[:, -2].cpu() - outputs_virtual[:, -2].cpu()).sum() / batch_size

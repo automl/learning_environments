@@ -114,7 +114,7 @@ class TD3(nn.Module):
                 # train
                 if episode >= self.init_episodes:
                     self.update(replay_buffer, match_replay_buffer, env, match_env, input_seed)
-                if done:
+                if done > 0.5:
                     break
 
             # logging
@@ -151,7 +151,7 @@ class TD3(nn.Module):
             target_Q1 = self.critic_target_1(next_states, next_actions)
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = rewards + (1 - dones) * self.gamma * target_Q
+            target_Q = rewards + (1 - (dones>0.5).float()) * self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
