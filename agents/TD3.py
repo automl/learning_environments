@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 from time import time
 from agents.env_matcher import match_loss
-from models.actor_critic import Actor, Critic_Q
+from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from envs.env_factory import EnvFactory
 
@@ -13,7 +13,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class TD3(nn.Module):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, state_dim, action_dim, max_action, config):
         super().__init__()
 
         agent_name = "td3"
@@ -42,11 +42,10 @@ class TD3(nn.Module):
         self.virtual_min_episodes = td3_config["virtual_min_episodes"]
         self.both_min_episodes = td3_config["both_min_episodes"]
 
-
         self.render_env = config["render_env"]
 
-        self.actor = Actor(state_dim, action_dim, agent_name, config).to(device)
-        self.actor_target = Actor(state_dim, action_dim, agent_name, config).to(device)
+        self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
+        self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
         self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
@@ -113,7 +112,7 @@ class TD3(nn.Module):
                     episode_reward += reward
 
                 # train
-                if episode > self.init_episodes:
+                if episode >= self.init_episodes:
                     self.update(replay_buffer, match_replay_buffer, env, match_env, input_seed)
                 if done:
                     break
@@ -293,7 +292,10 @@ if __name__ == "__main__":
 
     real_env.seed(seed)
 
-    td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
+    td3 = TD3(state_dim=real_env.get_state_dim(),
+              action_dim=real_env.get_action_dim(),
+              max_action=real_env.get_max_action(),
+              config=config)
     td3.train(env=real_env)
     #td3.train(env=virtual_env, input_seed=input_seed)
     #td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)

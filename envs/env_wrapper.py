@@ -86,23 +86,8 @@ class EnvWrapper(nn.Module):
             return torch.tensor(self.env.observation_space.sample(), dtype=torch.float32)
 
     def get_random_action(self):
-        if self.env.env_name == 'Pendulum-v0':
-            if self.is_virtual_env():
-                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-2, 2)
-            else:
-                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
-        elif self.env.env_name == 'MountainCarContinuous-v0':
-            if self.is_virtual_env():
-                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
-            else:
-                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
-        elif self.env.env_name == "HalfCheetah-v2":
-            if self.is_virtual_env():
-                return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-1, 1)
-            else:
-                return torch.tensor(self.env.action_space.sample(), dtype=torch.float32)
-        else:
-            raise NotImplementedError("Unknownn RL agent")
+        ma = self.get_max_action()
+        return torch.empty(self.get_action_dim(), device="cpu", dtype=torch.float32).uniform_(-ma, ma)
 
     def get_state_dim(self):
         if self.is_virtual_env():
@@ -115,6 +100,16 @@ class EnvWrapper(nn.Module):
             return self.env.action_dim
         else:
             return self.env.action_space.shape[0]
+
+    def get_max_action(self):
+        if self.env.env_name == 'Pendulum-v0':
+            return 2
+        elif self.env.env_name == 'MountainCarContinuous-v0':
+            return 1
+        elif self.env.env_name == "HalfCheetah-v2":
+            return 1
+        else:
+            raise NotImplementedError("Unknownn RL agent")
 
     def render(self, state):
         if self.is_virtual_env():
