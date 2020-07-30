@@ -24,7 +24,6 @@ class GTN(nn.Module):
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
-        self.match_step_size = gtn_config["match_step_size"]
         self.real_step_size = gtn_config["real_step_size"]
         self.virtual_step_size = gtn_config["virtual_step_size"]
         self.pretrain_env = gtn_config["pretrain_env"]
@@ -68,11 +67,6 @@ class GTN(nn.Module):
             self.env_matcher.train(real_env=self.real_env,
                                    virtual_env=self.virtual_env,
                                    input_seeds=self.input_seeds)
-            # reptile_match_env(env_matcher=self.env_matcher,
-            #                   real_env=self.real_env,
-            #                   virtual_env=self.virtual_env,
-            #                   input_seeds=self.input_seeds,
-            #                   step_size=self.match_step_size)
             timings.append(int(time()-t))
 
         if self.pretrain_agent:

@@ -87,7 +87,7 @@ class PPO(nn.Module):
                     self.update(replay_buffer, env, input_seed)
                     replay_buffer.clear()
                     time_step = 0
-                if done:
+                if done > 0.5:
                     break
 
             # logging

@@ -27,6 +27,9 @@ class EnvMatcher(nn.Module):
         self.gamma = em_config["gamma"]
         self.rb_use = em_config["rb_use"]
         self.variation_type = em_config["variation_type"]
+        self.match_loss_state = em_config["match_loss_state"]
+        self.match_loss_reward = em_config["match_loss_reward"]
+        self.match_loss_done = em_config["match_loss_done"]
         self.variation_weight = em_config["variation_weight"]
 
         self.step = 0
@@ -44,7 +47,6 @@ class EnvMatcher(nn.Module):
 
         old_loss = float('Inf')
         n = len(input_seeds)
-        #batch_size_normalized = math.ceil(self.batch_size / n)
 
         # initialize replay buffers
         if self.rb_use:
@@ -131,13 +133,20 @@ class EnvMatcher(nn.Module):
 
             # todo fabio: maybe make loss as parameter (low priority)
             avg_loss = 0
-            loss_fkt = torch.nn.L1Loss()
+            state_loss_fct = self.get_loss_function(self.match_loss_state)
+            reward_loss_fct = self.get_loss_function(self.match_loss_reward)
+            done_loss_fct = self.get_loss_function(self.match_loss_done)
 
             match_loss = 0
             variation_loss = 0
 
             for i in range(len(input_seeds)):
-                match_loss += loss_fkt(outputs_real, outputs_virtual_list[i])
+                # print('--------')
+                # print(outputs_real[:, -1]-outputs_virtual_list[i][:, -1])
+                match_loss += state_loss_fct(outputs_real[:, :-2], outputs_virtual_list[i][:, :-2])
+                match_loss += reward_loss_fct(outputs_real[:, -2], outputs_virtual_list[i][:, -2])
+                match_loss += done_loss_fct(outputs_real[:, -1], outputs_virtual_list[i][:, -1])
+
 
             if self.variation_weight > 0:
                 for i in range(len(input_seeds)):
@@ -164,6 +173,15 @@ class EnvMatcher(nn.Module):
                 return avg_loss, match_loss, variation_loss, avg_diff_state, avg_diff_reward, avg_diff_done
             else:
                 return avg_loss
+
+
+    def get_loss_function(self, name):
+        if name == 'L1':
+            return torch.nn.L1Loss()
+        elif name == 'L2':
+            return torch.nn.MSELoss()
+        else:
+            raise NotImplementedError("Unknown loss function: " + str(name))
 
 
     def get_real_env_samples(self, real_env, batch_size, num_input_seeds, replay_buffer, oversampling):
@@ -218,6 +236,7 @@ class EnvMatcher(nn.Module):
             avg_diff_state += abs(outputs_real[:, :-2].cpu() - outputs_virtual_list[i][:, :-2].cpu()) / n
             avg_diff_reward += abs(outputs_real[:, -2].cpu() - outputs_virtual_list[i][:, -2].cpu()) / n
             avg_diff_done += abs(outputs_real[:, -1].cpu() - outputs_virtual_list[i][:, -1].cpu()) / n
+
         return avg_diff_state.mean(), avg_diff_reward.mean(), avg_diff_done.mean()
 
 

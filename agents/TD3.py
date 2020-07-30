@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from time import time
 from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
 from envs.env_factory import EnvFactory
@@ -12,7 +11,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class TD3(nn.Module):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, state_dim, action_dim, max_action, config):
         super().__init__()
 
         agent_name = "td3"
@@ -53,14 +52,12 @@ class TD3(nn.Module):
         # env=virtual_env, input_seed given: Train on fixed virtual env
         # env=real_env: Train on real env
 
-        replay_buffer       = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
+        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
         for episode in range(self.max_episodes):
-            #state = env.reset()
-            state = env.get_random_state()
-            state[1] = 0
+            state = env.reset()
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
@@ -71,14 +68,15 @@ class TD3(nn.Module):
                     else:
                         action = self.actor(state.to(device)).cpu()
 
-                    # REMOVE
-                    action = action*0
                     # live view
-                    if self.render_env and episode % 10 == 0:# and episode >= self.init_episodes:
+                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes and env.is_virtual_env():
                         env.render(state)
 
                     # state-action transition
                     next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
+
+                    if reward.cpu().detach().numpy() > 10:
+                        print("found reward > 10: " + str(reward.cpu().detach().numpy()) + " " + str(done.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()))
 
                     if t < env.max_episode_steps() - 1:
                         done_tensor = done
@@ -98,7 +96,7 @@ class TD3(nn.Module):
                 # train
                 if episode > self.init_episodes:
                     self.update(replay_buffer)
-                if done:
+                if done > 0.5:
                     break
 
             # logging
@@ -106,9 +104,10 @@ class TD3(nn.Module):
 
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward > env.env.solved_reward:
+            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
                 print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-                #break
+                # REMOVE
+                break
 
         env.close()
 
@@ -129,7 +128,7 @@ class TD3(nn.Module):
             target_Q1 = self.critic_target_1(next_states, next_actions)
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = rewards + (1 - dones) * self.gamma * target_Q
+            target_Q = rewards + (1 - (dones>0.5).float()) * self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
@@ -165,14 +164,9 @@ class TD3(nn.Module):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-    def init_optimizer(self, env, match_env=None, input_seed=None):
+    def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
-        if env.is_virtual_env() and match_env is not None:
-            if self.optim_env_with_actor:
-                actor_params += list(env.parameters()) + [input_seed]
-            if self.optim_env_with_critic:
-                critic_params += list(env.parameters()) + [input_seed]
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
@@ -243,7 +237,6 @@ if __name__ == "__main__":
 
     real_env.seed(seed)
 
-    td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), config=config)
-    #td3.train(env=real_env)
+    td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), max_action=real_env.get_max_action(), config=config)
+    td3.train(env=real_env)
     #td3.train(env=virtual_env, input_seed=input_seed)
-    td3.train(env=virtual_env, match_env=real_env, input_seed=input_seed)

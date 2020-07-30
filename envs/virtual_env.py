@@ -68,7 +68,7 @@ class VirtualEnv(nn.Module):
         input = torch.cat((action, state, input_seed), dim=len(action.shape) - 1)
         next_state = self.state_net(input)
         reward = self.reward_net(input)
-        done = (self.done_net(input) > 0.5).float()
+        done = self.done_net(input)
         return next_state, reward, done
 
     def render(self, state):

@@ -9,24 +9,7 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_match_env(env_matcher, real_env, virtual_env, input_seeds, step_size):
-    old_state_dict_env = copy.deepcopy(virtual_env.state_dict())
-    old_input_seeds = copy.deepcopy(input_seeds)
-
-    env_matcher.train(real_env=real_env, virtual_env=virtual_env, input_seeds=input_seeds)
-
-    reptile_update_state_dict(target=virtual_env, old_state_dict=old_state_dict_env, step_size=step_size)
-
-    # for step_size=1 reptile is disabled
-    for i in range(len(old_input_seeds)):
-        reptile_update_tensor(target=input_seeds[i], old_tensor=old_input_seeds[i], step_size=step_size)
-
-
 def reptile_train_agent(agent, env, input_seed=None, step_size=None):
-    # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
-    # env=virtual_env, input_seed given: Train on fixed virtual env
-    # env=real_env: Train on real env
-
     old_state_dict_agent = copy.deepcopy(agent.state_dict())
 
     reward_list = agent.train(env=env, input_seed=input_seed)
