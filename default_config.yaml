@@ -17,7 +17,7 @@ agents:
     type_9: !!int 1                         # optimization used during iteration 10
     different_envs: !!int 1                 # first env is default env
     agent_name: !!str TD3                   # which RL agent to use for meta-training
-    match_step_size: !!float 1              # reptile step size when matching the two environments
+    match_step_size: !!float 0.1            # reptile step size when matching the two environments
     real_step_size: !!float 0.1             # reptile step size when matching the agent to the real environment
     virtual_step_size: !!float 0.1          # reptile step size when matching the agent to the fixed virtual environment
     both_step_size: !!float 0.1             # reptile step size when matching the agent to the variable virtual env
@@ -43,22 +43,21 @@ agents:
     use_rb: !!bool True                     # use internal replay buffer for matching
 
   td3:
-    max_episodes: !!int 10000               # maximum number of episodes to optimize
+    max_episodes: !!int 100                 # maximum number of episodes to optimize
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate
     weight_decay: !!float 0                 # weight decay
-    tau: !!float 0.01                       # target network update rate
+    tau: !!float 0.02                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
-    same_action_num: !!int 1                # how often to perform the same action subsequently
+    same_action_num: !!int 2                # how often to perform the same action subsequently
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
-    hidden_size: !!int 256                  # size of the actor/critic hidden layer
+    hidden_size: !!int 224                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
-    action_std: !!float 0.1                 # action noise standard deviation
-    action_std_clip: !!float 0.3            # action noise standard deviation
+    action_std: !!float 0.2                 # action noise standard deviation
     early_out_num: 5                        # based on how many training steps shall an early out happen
     optim_env_with_actor: !!bool True       # optimize env together with actor
     optim_env_with_critic: !!bool True      # optimize env together with critic
@@ -80,7 +79,7 @@ agents:
     vf_coef: !!float 0.5                    # value function coefficient (see PPO paper)
     ent_coef: !!float 0.01                  # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.2                   # trust region size (see PPO paper)
-    same_action_num: !!int 1                # how often to perform the same action subsequently
+    same_action_num: !!int 2                # how often to perform the same action subsequently
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
@@ -140,7 +139,7 @@ envs:
     max_steps: 1000                         # maximum number of steps per episode
     g: [-1, -9.806, -18, True]              # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
-    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str tanh               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256                  # size of the hidden layer of the corresponding virtual environment
     hidden_layer: !!int 2                   # number of hidden layers
     input_seed_dim: !!int 3                 # dimension of the input seed
@@ -148,5 +147,3 @@ envs:
     input_seed_range: !!float 0.1           # range (around mean) of input seed distribution
     zero_init: !!bool False                 # use zero state or random starting state for initialization
     weight_norm: !!bool True                # use weight normalization
-
-

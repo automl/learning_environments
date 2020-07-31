@@ -78,9 +78,9 @@ def match_loss(real_env, virtual_env, input_seed, batch_size, multi_step=1, more
         loss_fkt = torch.nn.L1Loss()
         loss_fkt2 = torch.nn.MSELoss()
 
-        loss_state = loss_fkt(outputs_real[:, :-2].cpu(), outputs_virtual[:, :-2].cpu())
-        loss_reward = loss_fkt2(outputs_real[:, -2].cpu(), outputs_virtual[:, -2].cpu())
-        loss_done = loss_fkt(outputs_real[:, -1].cpu(), outputs_virtual[:, -1].cpu())
+        loss_state = loss_fkt(outputs_real[:, :-2].to(device), outputs_virtual[:, :-2].to(device))
+        loss_reward = loss_fkt2(outputs_real[:, -2].to(device), outputs_virtual[:, -2].to(device))
+        loss_done = loss_fkt(outputs_real[:, -1].to(device), outputs_virtual[:, -1].to(device))
 
         avg_loss = loss_done + loss_reward + loss_state
 
