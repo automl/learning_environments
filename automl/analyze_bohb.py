@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.0
+EXP_LOSS = 10
+OUTLIER_PERC_WORST = 0.2
 OUTLIER_PERC_BEST = 0.0
 
 

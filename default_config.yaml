@@ -1,6 +1,6 @@
 env_name: !!str MountainCarContinuous-v0    # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
-seed: !!int 10                               # random initialization seed
-render_env: !!bool True                     # render environment
+seed: !!int 10                              # random initialization seed
+render_env: !!bool False                    # render environment
 
 agents:
   gtn:
@@ -105,7 +105,7 @@ envs:
     solved_reward: !!float 80               # used for early out in RL agent training
     max_steps: 999                          # maximum number of steps per episode REMOVE
     max_speed: [0.05, 0.07, 0.1, False]     # maximum allowed vehicle velocity
-    power: [0.0012, 0.0015, 0.002, False]   # strength of the vehicle engine
+    power: [0.001, 0.0015, 0.002, False]    # strength of the vehicle engine
     goal_position: [0.45, 0.45, 0.5, True]  # x-value? of goal position
     goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')

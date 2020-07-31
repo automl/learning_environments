@@ -23,21 +23,17 @@ def analyze_bohb(log_dir):
     result = remove_outliers(result)
     result_w = deepcopy(result)
     result_wo = deepcopy(result)
-    result_re = deepcopy(result)
 
     analyze_result_order(result, id2conf)
 
-    get_w(result_w, spec="w3")
-    get_w(result_wo, spec="wo3")
-    get_w(result_re, spec="re")
+    get_w(result_w, spec="w2")
+    get_w(result_wo, spec="wo")
 
     print(len(result_w.data))
     print(len(result_wo.data))
-    print(len(result_re.data))
 
-    plot_accuracy_over_budget(result_w,  'with variable virtual env')
-    plot_accuracy_over_budget(result_wo, 'without variable virtual env')
-    plot_accuracy_over_budget(result_re, 'with real env only')
+    plot_accuracy_over_budget(result_w,  'with virtual env')
+    plot_accuracy_over_budget(result_wo, 'without virtual env')
 
     plt.show()
 
@@ -67,9 +63,8 @@ def get_w(result, spec):
 
 def analyze_result_order(result, id2conf):
     order_list = []
-    w_3 = []
-    w_2 = []
-    wo_23 = []
+    w_1 = []
+    wo_1 = []
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             loss = value2['loss']
@@ -77,36 +72,27 @@ def analyze_result_order(result, id2conf):
             timings = ast.literal_eval(value2['info']['timings'])
             different_envs = id2conf[key]['config']['gtn_different_envs']
             pretrain_agent = id2conf[key]['config']['gtn_pretrain_agent']
-            optim_with_actor = id2conf[key]['config']['td3_optim_env_with_actor']
-            optim_with_critic = id2conf[key]['config']['td3_optim_env_with_critic']
-            match_weight_actor = id2conf[key]['config']['td3_match_weight_actor']
-            match_weight_critic = id2conf[key]['config']['td3_match_weight_critic']
             lr = id2conf[key]['config']['em_lr']
             steps = id2conf[key]['config']['em_max_steps']
             step_size = id2conf[key]['config']['em_step_size']
 
-            order_list.append((loss, order, timings, different_envs, pretrain_agent, optim_with_actor, optim_with_critic, match_weight_actor, match_weight_critic, lr, steps, step_size))
+            order_list.append((loss, order, timings, different_envs, pretrain_agent, lr, steps, step_size))
 
-            if different_envs > 1:
-                continue
-
+            # budget
             if key2 > 1:
                 continue
 
-            if 3 in order:
-                w_3.append(loss)
-            elif 2 in order:
-                w_2.append(loss)
+            if 1 in order:
+                w_1.append(loss)
             else:
-                wo_23.append(loss)
+                wo_2.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
         print(elem)
 
-    print(sum(w_3)/len(w_3))
     print(sum(w_2)/len(w_2))
-    print(sum(wo_23)/len(wo_23))
+    print(sum(wo_2)/len(wo_2))
 
 
 def plot_accuracy_over_budget(result, plot_str):

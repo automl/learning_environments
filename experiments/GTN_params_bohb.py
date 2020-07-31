@@ -69,6 +69,7 @@ class ExperimentWrapper():
         config = deepcopy(default_config)
 
         env_name = config["env_name"]
+        config["render_env"] = False
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
         config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
@@ -163,7 +164,7 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'GTN_params_reduced_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTN_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
