@@ -26,7 +26,7 @@ def analyze_bohb(log_dir):
 
     analyze_result_order(result, id2conf)
 
-    get_w(result_w, spec="w2")
+    get_w(result_w, spec="w")
     get_w(result_wo, spec="wo")
 
     print(len(result_w.data))
@@ -43,14 +43,11 @@ def get_w(result, spec):
     for key1, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             order = ast.literal_eval(value2['info']['order'])
-            if spec == "w3":    # consider all runs with variable env
-                if 3 not in order:
+            if spec == "w":    # consider all runs with virtual env
+                if 2 not in order:
                     del_list.append((key1, key2))
-            elif spec == "wo3": # consider all runs without variable env
-                if 3 in order:
-                    del_list.append((key1, key2))
-            elif spec == "re":  # consider all runs with real env only
-                if 2 in order or 3 in order:
+            elif spec == "wo":  # consider all runs with real env only
+                if 2 in order:
                     del_list.append((key1, key2))
 
     for key in del_list:
@@ -63,8 +60,8 @@ def get_w(result, spec):
 
 def analyze_result_order(result, id2conf):
     order_list = []
-    w_1 = []
-    wo_1 = []
+    w_2 = []
+    wo_2 = []
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             loss = value2['loss']
@@ -82,8 +79,8 @@ def analyze_result_order(result, id2conf):
             if key2 > 1:
                 continue
 
-            if 1 in order:
-                w_1.append(loss)
+            if 2 in order:
+                w_2.append(loss)
             else:
                 wo_2.append(loss)
 

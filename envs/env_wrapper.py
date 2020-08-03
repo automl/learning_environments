@@ -77,7 +77,7 @@ class EnvWrapper(nn.Module):
         elif self.env.env_name == "HalfCheetah-v2":
             np_random, seed = seeding.np_random()
             qpos = np_random.uniform(low=-0.1, high=0.1, size=9)
-            qpos = qpos[1:]  # observation space does not include x dimension
+            #qpos = qpos[1:]  # observation space does not include x dimension
             qvel = np_random.randn(9) * 0.1
             return torch.from_numpy(np.concatenate([qpos, qvel])).float()
 

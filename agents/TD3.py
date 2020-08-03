@@ -70,7 +70,7 @@ class TD3(nn.Module):
                         action = self.actor(state.to(device)).cpu()
 
                     # live view
-                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes and env.is_virtual_env():
+                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:# and env.is_virtual_env():
                         env.render(state)
 
                     # state-action transition
