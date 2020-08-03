@@ -29,7 +29,7 @@ class EnvMatcher(nn.Module):
         self.match_loss_state = em_config["match_loss_state"]
         self.match_loss_reward = em_config["match_loss_reward"]
         self.match_loss_done = em_config["match_loss_done"]
-        self.variation_type = em_config["variation_loss"]
+        self.variation_type = em_config["variation_type"]
         self.variation_weight = em_config["variation_weight"]
 
         self.step = 0

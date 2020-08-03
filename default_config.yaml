@@ -42,11 +42,11 @@ agents:
     match_loss_state: !!str L1              # "L1" or "L2"
     match_loss_reward: !!str L2             # "L1" or "L2"
     match_loss_done: !!str L1               # "L1" or "L2"
-    variation_loss: !!int 1                 # 1: next_state, 2: next_state/reward, 3: next_state/reward/done
+    variation_type: !!int 1                 # 1: next_state, 2: next_state/reward, 3: next_state/reward/done
     variation_weight: !!float 0.001         # weight of variation loss w.r.t. matching loss
 
   td3:
-    max_episodes: !!int 100                 # maximum number of episodes to optimize
+    max_episodes: !!int 120                 # maximum number of episodes to optimize
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor

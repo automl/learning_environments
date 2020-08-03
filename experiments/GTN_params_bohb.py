@@ -42,14 +42,13 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=128, upper=1024, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=10000, log=True, default_value=5000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_step_size', lower=100, upper=1000, log=True, default_value=500))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_variation_type', lower=1, upper=3, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='em_match_loss_state', choices=['L1', 'L2'], default_value='L1'))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='em_match_loss_reward', choices=['L1', 'L2'], default_value='L2'))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='em_match_loss_done', choices=['L1', 'L2'], default_value='L1'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_variation_loss', lower=1, upper=3, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_variation_type', lower=1, upper=3, log=True, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_variation_weight', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=1e-3, upper=2e-2, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.002, upper=0.05, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=512, log=True, default_value=256))
@@ -57,10 +56,9 @@ class ExperimentWrapper():
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_size', lower=64, upper=512, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_hidden_layer', lower=1, upper=2, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_input_seed_dim', lower=1, upper=8, log=True, default_value=4))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='env_input_seed_dim', lower=1, upper=4, log=True, default_value=4))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_mean', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='env_input_seed_range', lower=0.01, upper=10, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_zero_init', choices=[False, True], default_value=False))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_weight_norm', choices=[False, True], default_value=False))
 
         return cs
@@ -87,11 +85,10 @@ class ExperimentWrapper():
         config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
         config["agents"]['env_matcher']['max_steps'] = cso["em_max_steps"]-1
         config["agents"]['env_matcher']['step_size'] = cso["em_step_size"]
-        config["agents"]['env_matcher']['variation_type'] = cso["em_variation_type"]
         config["agents"]['env_matcher']['match_loss_state'] = cso["em_match_loss_state"]
         config["agents"]['env_matcher']['match_loss_reward'] = cso["em_match_loss_reward"]
         config["agents"]['env_matcher']['match_loss_done'] = cso["em_match_loss_done"]
-        config["agents"]['env_matcher']['variation_loss'] = cso["em_variation_loss"]
+        config["agents"]['env_matcher']['variation_type'] = cso["em_variation_type"]
         config["agents"]['env_matcher']['variation_weight'] = cso["em_variation_weight"]
 
         config["agents"]["td3"]["lr"] = cso["td3_lr"]
@@ -105,7 +102,6 @@ class ExperimentWrapper():
         config["envs"][env_name]['input_seed_dim'] = cso["env_input_seed_dim"]
         config["envs"][env_name]['input_seed_mean'] = cso["env_input_seed_mean"]
         config["envs"][env_name]['input_seed_range'] = cso["env_input_seed_range"]
-        config["envs"][env_name]['zero_init'] = cso["env_zero_init"]
         config["envs"][env_name]['weight_norm'] = cso["env_weight_norm"]
 
         return config
