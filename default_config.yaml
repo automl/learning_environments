@@ -46,7 +46,7 @@ agents:
     variation_weight: !!float 0.001         # weight of variation loss w.r.t. matching loss
 
   td3:
-    max_episodes: !!int 120                 # maximum number of episodes to optimize
+    max_episodes: !!int 100                 # maximum number of episodes to optimize
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
