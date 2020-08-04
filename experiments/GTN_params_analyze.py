@@ -10,7 +10,7 @@ from copy import deepcopy
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-OUTLIER_PERC = 0.5
+OUTLIER_PERC = 0.0
 
 
 def analyze_bohb(log_dir):

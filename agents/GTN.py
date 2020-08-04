@@ -130,7 +130,7 @@ class GTN(nn.Module):
             self.print_stats()
             # print(self.agent.actor._modules['net']._modules['0'].weight[0][0])
             env = self.env_factory.generate_interpolated_real_env(interpolate)
-            reward_list = self.agent.train(env=env)
+            reward_list, replay_buffer = self.agent.train(env=env)
             mean_episodes_till_solved += len(reward_list)
             episodes_till_solved.append(len(reward_list))
             print("episodes till solved: " + str(len(reward_list)))

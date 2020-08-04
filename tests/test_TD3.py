@@ -69,7 +69,8 @@ def train_td3(init_episodes, max_episodes):
         state_dim=env.get_state_dim(), action_dim=env.get_action_dim(), config=config
     )
 
-    return td3.train(env)
+    reward_list, replay_buffer = td3.train(env)
+    return reward_list
 
 
 def test_td3_quick():

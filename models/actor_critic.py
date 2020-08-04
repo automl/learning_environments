@@ -21,7 +21,7 @@ class Actor_TD3(nn.Module):
     def forward(self, state):
         action = torch.tanh(self.net(state)) * self.max_action
         noise = torch.clamp(self.normal.sample(), -self.action_std_clip, self.action_std_clip).to(device)
-        return action + noise
+        return torch.clamp(action + noise, -self.max_action, self.max_action)
 
 
 class Actor_PPO(nn.Module):

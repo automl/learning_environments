@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from models.actor_critic import Actor_TD3, Critic_Q
-from utils import ReplayBuffer, AverageMeter, print_abs_param_sum
+from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -30,6 +30,8 @@ class TD3(nn.Module):
         self.weight_decay = td3_config["weight_decay"]
         self.same_action_num = td3_config["same_action_num"]
         self.early_out_num = td3_config["early_out_num"]
+        self.policy_std = td3_config["action_std"]
+        self.policy_std_clip = td3_config["action_std_clip"]
 
         self.render_env = config["render_env"]
 
@@ -76,10 +78,7 @@ class TD3(nn.Module):
                     # state-action transition
                     next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
 
-                    if reward.cpu().detach().numpy() > 50:
-                        print("found reward > 50: " + str(reward.cpu().detach().numpy()) + " " + str(done.cpu().detach().numpy()) + " " + str(state.cpu().detach().numpy()) + " " + str(action.cpu().detach().numpy()))
-
-                    if t < env.max_episode_steps() - 1:
+                    if t < env.max_episode_steps():
                         done_tensor = done
                     else:
                         done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
@@ -96,7 +95,7 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer)
+                    self.update(replay_buffer, env)
                 if done > 0.5:
                     break
 
@@ -111,18 +110,23 @@ class TD3(nn.Module):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data(), replay_buffer
 
 
-    def update(self, replay_buffer):
+    def update(self, replay_buffer, env):
         self.total_it += 1
 
         # Sample replay buffer
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
+
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
-            next_actions = self.actor_target(next_states)
+            noise = (torch.randn_like(actions) * self.policy_std
+                     ).clamp(-self.policy_std_clip, self.policy_std_clip)
+            max_action = env.get_max_action()
+            next_actions = (self.actor_target(next_states) + noise
+                            ).clamp(-max_action, max_action)
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
@@ -171,17 +175,6 @@ class TD3(nn.Module):
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
 
-
-    def min_episodes_to_run(self, env, match_env):
-        if not env.is_virtual_env():
-            # real env
-            return self.init_episodes
-        if match_env is None:
-            # fixed virtual env
-            return self.init_episodes + self.virtual_min_episodes
-        else:
-            # variable virtual env
-            return self.init_episodes + self.both_min_episodes
 
     def get_state_dict(self):
         agent_state = {}
