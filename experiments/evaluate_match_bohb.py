@@ -146,7 +146,7 @@ class ExperimentWrapper():
             # then train on real env
             # ideally the reptile update works and we can train on this environment rather quickly
             print("-- training on real env --")
-            reward_list = reptile_train_agent(agent=td3,
+            reward_list, _ = reptile_train_agent(agent=td3,
                                               env=real_env,
                                               step_size=1)
             score = len(reward_list)

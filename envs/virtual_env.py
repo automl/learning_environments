@@ -55,7 +55,7 @@ class VirtualEnv(nn.Module):
                                  device=device,
                                  dtype=torch.float32)
         elif self.env_name == "HalfCheetah-v2":
-            qpos = np.random.uniform(low=-0.1, high=0.1, size=9)  # model.nq
+            qpos = np.random.uniform(low=-0.1, high=0.1, size=8)  # model.nq
             #qpos = qpos[1:]  # observation space does not include x dimension as cheetah walks in 2D space only
             qvel = np.random.randn(9) * 0.1  # model.nv
             state = torch.tensor(np.concatenate([qpos, qvel]), device=device, dtype=torch.float32)

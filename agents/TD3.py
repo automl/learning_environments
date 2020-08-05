@@ -17,8 +17,7 @@ class TD3(nn.Module):
         agent_name = "td3"
         td3_config = config["agents"][agent_name]
 
-        self.state_dim = state_dim
-        self.action_dim = action_dim
+        self.max_action = max_action
         self.gamma = td3_config["gamma"]
         self.tau = td3_config["tau"]
         self.policy_delay = td3_config["policy_delay"]
@@ -27,11 +26,10 @@ class TD3(nn.Module):
         self.max_episodes = td3_config["max_episodes"]
         self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
-        self.weight_decay = td3_config["weight_decay"]
         self.same_action_num = td3_config["same_action_num"]
         self.early_out_num = td3_config["early_out_num"]
-        self.policy_std = td3_config["action_std"]
-        self.policy_std_clip = td3_config["action_std_clip"]
+        self.policy_std = td3_config["policy_std"]
+        self.policy_std_clip = td3_config["policy_std_clip"]
 
         self.render_env = config["render_env"]
 
@@ -51,11 +49,7 @@ class TD3(nn.Module):
 
 
     def train(self, env, input_seed=None):
-        # env=virtual_env, match_env=real_env, input_seed given: Train on variable virtual env
-        # env=virtual_env, input_seed given: Train on fixed virtual env
-        # env=real_env: Train on real env
-
-        replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=self.rb_size)
+        replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
@@ -69,16 +63,18 @@ class TD3(nn.Module):
                     if episode < self.init_episodes:
                         action = env.get_random_action()
                     else:
-                        action = self.actor(state.to(device)).cpu()
+                        action = (self.actor(state.to(device)).cpu() +
+                                  torch.randn_like(action) * self.policy_std * self.max_action
+                                 ).clamp(-self.max_action, self.max_action)
 
                     # live view
-                    if self.render_env and episode % 10 == 0 and episode >= self.init_episodes:# and env.is_virtual_env():
+                    if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:# and env.is_virtual_env():
                         env.render(state)
 
                     # state-action transition
                     next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
 
-                    if t < env.max_episode_steps():
+                    if t < env.max_episode_steps() - 1:
                         done_tensor = done
                     else:
                         done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
@@ -172,8 +168,8 @@ class TD3(nn.Module):
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
-        self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr, weight_decay=self.weight_decay)
-        self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr, weight_decay=self.weight_decay)
+        self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr)
+        self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr)
 
 
     def get_state_dict(self):
@@ -214,8 +210,8 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    #real_env = env_fac.generate_interpolated_real_env(1)
-    real_env = env_fac.generate_default_real_env()
+    real_env = env_fac.generate_interpolated_real_env(0)
+    #real_env = env_fac.generate_default_real_env()
     virtual_env = env_fac.generate_default_virtual_env()
     input_seed = env_fac.generate_default_input_seed()
 

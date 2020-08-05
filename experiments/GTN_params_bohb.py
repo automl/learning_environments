@@ -35,9 +35,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_different_envs', lower=1, upper=4, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_real_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_virtual_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_pretrain_agent', choices=[False, True], default_value=True))
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_oversampling', lower=1, upper=1.3, log=True, default_value=1.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_lr', lower=1e-4, upper=1e-2, log=True, default_value=1e-4))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_batch_size', lower=128, upper=1024, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='em_max_steps', lower=1, upper=10000, log=True, default_value=5000))
@@ -49,8 +47,6 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='em_variation_weight', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=1e-3, upper=2e-2, log=True, default_value=1e-2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.002, upper=0.05, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=512, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
 
@@ -78,9 +74,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['different_envs'] = cso["gtn_different_envs"]
         config["agents"]['gtn']['real_step_size'] = cso["gtn_real_step_size"]
         config["agents"]['gtn']['virtual_step_size'] = cso["gtn_virtual_step_size"]
-        config["agents"]['gtn']['pretrain_agent'] = cso["gtn_pretrain_agent"]
 
-        config["agents"]['env_matcher']['oversampling'] = cso["em_oversampling"]
         config["agents"]['env_matcher']['lr'] = cso["em_lr"]
         config["agents"]['env_matcher']['batch_size'] = cso["em_batch_size"]
         config["agents"]['env_matcher']['max_steps'] = cso["em_max_steps"]-1
@@ -92,8 +86,6 @@ class ExperimentWrapper():
         config["agents"]['env_matcher']['variation_weight'] = cso["em_variation_weight"]
 
         config["agents"]["td3"]["lr"] = cso["td3_lr"]
-        config["agents"]["td3"]["gamma"] = 1-cso["td3_gamma"]
-        config["agents"]["td3"]["tau"] = cso["td3_tau"]
         config["agents"]["td3"]["hidden_size"] = cso["td3_hidden_size"]
         config["agents"]["td3"]["hidden_layer"] = cso["td3_hidden_layer"]
 

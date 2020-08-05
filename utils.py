@@ -53,6 +53,11 @@ class ReplayBuffer:
             self.done[: self.size].to(device).detach(),
         )
 
+    def merge(self, other_replay_buffer):
+        states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
+        for i in range(len(states)):
+            self.add(states[i], actions[i], next_states[i], rewards[i], dones[i])
+
     def get_size(self):
         return self.size
 
@@ -70,7 +75,6 @@ class ReplayBuffer:
         reward = self.reward[:self.size].cpu().numpy()
         done = self.done[:self.size].cpu().numpy()
         input = np.concatenate((state,action,next_state,reward,done), axis=1)
-        print(input.shape)
 
         neigh = NearestNeighbors(n_neighbors=2).fit(input)
         dist, ind = neigh.kneighbors(input)

@@ -16,7 +16,6 @@ class EnvMatcher(nn.Module):
 
         em_config = config["agents"]["env_matcher"]
 
-        self.oversampling = em_config["oversampling"]
         self.lr = em_config["lr"]
         self.weight_decay = em_config["weight_decay"]
         self.batch_size = em_config["batch_size"]
@@ -34,7 +33,7 @@ class EnvMatcher(nn.Module):
 
         self.step = 0
 
-    def train(self, real_env, virtual_env, input_seeds):
+    def train(self, virtual_env, input_seeds, replay_buffer):
         optimizer = torch.optim.Adam(list(virtual_env.parameters()) + input_seeds, lr=self.lr, weight_decay=self.weight_decay)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
         avg_meter_loss =       AverageMeter(print_str="Average loss       ")
@@ -47,26 +46,16 @@ class EnvMatcher(nn.Module):
 
         old_loss = float('Inf')
 
-        # initialize replay buffers
-        if self.rb_use:
-            replay_buffer = ReplayBuffer(state_dim=real_env.get_state_dim(),
-                                         action_dim=real_env.get_action_dim(),
-                                         max_size=int(1e6))
-        else:
-            replay_buffer = None
-
         for self.step in range(self.max_steps):
             # match virtual env to real env
             optimizer.zero_grad()
             loss, match_loss, var_loss, diff_state, diff_reward, diff_done = \
-                self.match_loss(real_env=real_env,
-                                virtual_env=virtual_env,
+                self.match_loss(virtual_env=virtual_env,
                                 input_seeds=input_seeds,
+                                replay_buffer=replay_buffer,
                                 batch_size=self.batch_size,
-                                oversampling=self.oversampling,
                                 more_info=True,
-                                grad_enabled=True,
-                                replay_buffer=replay_buffer)
+                                grad_enabled=True)
 
             loss.backward()
             optimizer.step()
@@ -89,42 +78,34 @@ class EnvMatcher(nn.Module):
                 print_avg_pairwise_dist(vec_list=input_seeds, name='avg. input seed distance')
                 if abs(old_loss - loss) / loss < self.early_out_diff:
                     print("early out")
-                    #break
+                    break
                 else:
                     old_loss = loss
 
         return avg_meter_loss.get_raw_data()
 
 
-    def test(self, real_env, virtual_env, input_seeds, test_samples, test_oversampling):
+    def test(self, virtual_env, input_seeds, replay_buffer, test_samples):
         loss, diff_state, diff_reward, diff_done = \
-            self.match_loss(real_env=real_env,
-                            virtual_env=virtual_env,
+            self.match_loss(virtual_env=virtual_env,
                             input_seeds=input_seeds,
+                            replay_buffer=replay_buffer,
                             batch_size=test_samples,
-                            oversampling=test_oversampling,
                             more_info=True,
                             grad_enabled=False)
 
         return loss, diff_state, diff_reward, diff_done
 
 
-    def match_loss(self, real_env, virtual_env, input_seeds, batch_size, oversampling=1.1, more_info=False, grad_enabled=True, replay_buffer=None):
+    def match_loss(self, virtual_env, input_seeds, replay_buffer, batch_size, more_info=False, grad_enabled=True):
         with torch.set_grad_enabled(grad_enabled):
-            states, actions, outputs_real = self.get_real_env_samples(real_env=real_env,
-                                                                      batch_size=batch_size,
-                                                                      num_input_seeds=len(input_seeds),
-                                                                      replay_buffer=replay_buffer,
-                                                                      oversampling=oversampling)
+            batch_size_normalized = batch_size // len(input_seeds) + 1
+            states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size_normalized)
+            outputs_real = torch.cat((next_states, rewards, dones), dim=1).to(device)
 
             outputs_virtual_list = []
-
             for input_seed in input_seeds:
                 input_seed_rep = input_seed.repeat(len(states), 1)
-
-                # distr = torch.distributions.normal.Normal(loc=torch.zeros(input_seed_rep.shape),
-                #                                          scale=torch.ones(input_seed_rep.shape)*0.01)
-                # input_seed_rep += distr.sample()
                 next_states_virtual, rewards_virtual, dones_virtual = virtual_env.step(action=actions,
                                                                                        state=states,
                                                                                        input_seed=input_seed_rep)
@@ -138,8 +119,6 @@ class EnvMatcher(nn.Module):
 
             match_loss = 0
             for i in range(len(input_seeds)):
-                # print('--------')
-                # print(outputs_real[:, -1]-outputs_virtual_list[i][:, -1])
                 match_loss += state_loss_fct(outputs_real[:, :-2], outputs_virtual_list[i][:, :-2])
                 match_loss += reward_loss_fct(outputs_real[:, -2], outputs_virtual_list[i][:, -2])
                 match_loss += done_loss_fct(outputs_real[:, -1], outputs_virtual_list[i][:, -1])
@@ -180,49 +159,6 @@ class EnvMatcher(nn.Module):
             return torch.nn.MSELoss()
         else:
             raise NotImplementedError("Unknown loss function: " + str(name))
-
-
-    def get_real_env_samples(self, real_env, batch_size, num_input_seeds, replay_buffer, oversampling):
-        with torch.no_grad():
-            real_env.reset()
-            batch_size_normalized = batch_size // num_input_seeds + 1
-
-            # do not use replay buffer
-            if replay_buffer == None:
-                actions_list = []
-                states_list = []
-                outputs_list = []
-
-                for k in range(batch_size_normalized):
-                    # run random state/actions transitions on the real env
-                    # todo fabio: maybe improve (access member variables)
-                    actions_list.append(real_env.get_random_action() * oversampling)
-                    states_list.append(real_env.get_random_state() * oversampling)
-
-                    next_state, reward, done = real_env.step(action=actions_list[-1], state=states_list[-1])
-                    outputs_list.append(torch.cat((next_state, reward.unsqueeze(0), done.unsqueeze(0)), dim=0))
-
-                # convert to torch
-                actions = torch.stack(actions_list).to(device)
-                states = torch.stack(states_list).to(device)
-                outputs_real = torch.stack(outputs_list).to(device)
-            else:
-                # first fill replay buffer with enough values
-                if replay_buffer.get_size() < batch_size:
-                    num_samples = int(batch_size * 10)
-                else:
-                    num_samples = int(batch_size / 10) + 1
-
-                for k in range(num_samples):
-                    action = real_env.get_random_action() * oversampling
-                    state = real_env.get_random_state() * oversampling
-                    next_state, reward, done = real_env.step(action=action, state=state)
-                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
-
-                states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size_normalized)
-                outputs_real = torch.cat((next_states, rewards, dones), dim=1).to(device)
-
-            return states, actions, outputs_real
 
 
     def get_log_information(self, outputs_real, outputs_virtual_list):

@@ -13,15 +13,10 @@ class Actor_TD3(nn.Module):
         super().__init__()
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
-        self.action_std_clip = config["agents"][agent_name]["action_std_clip"]
         self.max_action = max_action
-        self.action_std = config["agents"][agent_name]["action_std"]
-        self.normal = Normal(torch.zeros(action_dim), self.action_std)
 
     def forward(self, state):
-        action = torch.tanh(self.net(state)) * self.max_action
-        noise = torch.clamp(self.normal.sample(), -self.action_std_clip, self.action_std_clip).to(device)
-        return torch.clamp(action + noise, -self.max_action, self.max_action)
+        return torch.tanh(self.net(state)) * self.max_action
 
 
 class Actor_PPO(nn.Module):

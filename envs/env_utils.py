@@ -1,20 +1,15 @@
 import numpy as np
-from envs.pendulum import PendulumEnv
-from envs.test_env import TestEnv
-from envs.continuous_mountain_car import Continuous_MountainCarEnv
-from envs.half_cheetah import HalfCheetahEnv
+import gym
 
 
 def generate_env_with_kwargs(kwargs, env_name):
     # generate environment class
     if env_name == "Pendulum-v0":
-        env = PendulumEnv()
+        env = gym.make("Pendulum-v0")
     elif env_name == "MountainCarContinuous-v0":
-        env = Continuous_MountainCarEnv()
+        env = gym.make("MountainCarContinuous-v0")
     elif env_name == "HalfCheetah-v2":
-        env = HalfCheetahEnv()
-    elif env_name == "Test":
-        env = TestEnv()
+        env = gym.make("HalfCheetah-v2")
     else:
         raise NotImplementedError("Environment not supported")
 
