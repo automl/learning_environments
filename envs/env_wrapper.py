@@ -82,9 +82,9 @@ class EnvWrapper(nn.Module):
         else:
             raise NotImplementedError("Unknownn RL agent")
 
-    def render(self, state):
+    def render(self, state, action):
         if self.is_virtual_env():
-            return self.env.render(state)
+            return self.env.render(state, action)
         else:
             return self.env.render()
 

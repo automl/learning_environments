@@ -105,11 +105,6 @@ class ReplayBuffer:
         self.size = min(n + 1, self.max_size)
         self.ptr = (n + 1) % self.max_size
 
-        print(np.mean(keep))
-        print(n)
-        print(self.size)
-        print(self.ptr)
-
     def _calc_prune_values(self, dist, fac):
         del_prob = np.clip(fac/(dist + 1e-9), a_min=0, a_max=1)
         size_exp = self.size - sum(del_prob)

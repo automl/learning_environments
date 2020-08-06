@@ -68,8 +68,8 @@ class TD3(nn.Module):
                                  ).clamp(-self.max_action, self.max_action)
 
                     # live view
-                    if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:# and env.is_virtual_env():
-                        env.render(state)
+                    if self.render_env and episode % 1 == 0 and episode >= self.init_episodes and env.is_virtual_env():
+                        env.render(state, action)
 
                     # state-action transition
                     next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
@@ -218,5 +218,5 @@ if __name__ == "__main__":
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), max_action=real_env.get_max_action(), config=config)
-    td3.train(env=real_env)
-    #td3.train(env=virtual_env, input_seed=input_seed)
+    #td3.train(env=real_env)
+    td3.train(env=virtual_env, input_seed=input_seed)

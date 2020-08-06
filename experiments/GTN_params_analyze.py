@@ -67,13 +67,13 @@ def analyze_result_order(result, id2conf):
             loss = value2['loss']
             order = ast.literal_eval(value2['info']['order'])
             timings = ast.literal_eval(value2['info']['timings'])
+            ets = ast.literal_eval(value2['info']['episodes_till_solved'])
             different_envs = id2conf[key]['config']['gtn_different_envs']
-            pretrain_agent = id2conf[key]['config']['gtn_pretrain_agent']
             lr = id2conf[key]['config']['em_lr']
             steps = id2conf[key]['config']['em_max_steps']
             step_size = id2conf[key]['config']['em_step_size']
 
-            order_list.append((loss, order, timings, different_envs, pretrain_agent, lr, steps, step_size))
+            order_list.append((loss, order, ets, timings, different_envs, lr, steps, step_size))
 
             # budget
             if key2 > 1:

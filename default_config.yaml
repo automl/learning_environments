@@ -34,8 +34,8 @@ agents:
     batch_size: !!int 256                   # batch size during training
     early_out_diff: !!float 0               # break criterion for matching
     early_out_num: !!int 100                # based on how many training steps shall an early out happen
-    max_steps: !!int 2000                   # number of steps
-    step_size: !!int 200                    # LR scheduler step size
+    max_steps: !!int 1000                   # number of steps
+    step_size: !!int 100                    # LR scheduler step size
     gamma: !!float 0.5                      # LR scheduler gamma
     rb_use: !!bool True                     # use internal replay buffer for matching
     match_loss_state: !!str L1              # "L1" or "L2"
@@ -49,8 +49,8 @@ agents:
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 5e-4                        # learning rate
-    tau: !!float 0.01                       # target network update rate
+    lr: !!float 1e-3                        # learning rate
+    tau: !!float 0.02                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
@@ -117,7 +117,7 @@ envs:
     weight_norm: !!bool True                # use weight normalization for virtual environment
 
   HalfCheetah-v2:
-    solved_reward: !!float 300              # used for early out in RL agent training
+    solved_reward: !!float 3000              # used for early out in RL agent training
     max_steps: 1000                         # maximum number of steps per episode
     g: [-0.1, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
