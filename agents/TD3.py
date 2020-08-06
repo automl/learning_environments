@@ -1,4 +1,5 @@
 import yaml
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,7 +7,7 @@ import numpy as np
 from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
-
+from agents.TD3_mod import TD3_Mod
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -21,6 +22,7 @@ class TD3(nn.Module):
         self.gamma = td3_config["gamma"]
         self.tau = td3_config["tau"]
         self.policy_delay = td3_config["policy_delay"]
+        self.mod_delay = td3_config["mod_delay"]
         self.batch_size = td3_config["batch_size"]
         self.init_episodes = td3_config["init_episodes"]
         self.max_episodes = td3_config["max_episodes"]
@@ -30,7 +32,6 @@ class TD3(nn.Module):
         self.early_out_num = td3_config["early_out_num"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
-
         self.render_env = config["render_env"]
 
         self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
@@ -43,12 +44,14 @@ class TD3(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
+        self.td3_mod = TD3_Mod(state_dim, action_dim, max_action, config)
+
         self.reset_optimizer()
 
         self.total_it = 0
 
 
-    def train(self, env, input_seed=None):
+    def train(self, env, mod_step_size):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -58,40 +61,47 @@ class TD3(nn.Module):
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                with torch.no_grad():
-                    # fill replay buffer at beginning
-                    if episode < self.init_episodes:
-                        action = env.get_random_action()
-                    else:
-                        action = (self.actor(state.to(device)).cpu() +
-                                  torch.randn_like(action) * self.policy_std * self.max_action
-                                 ).clamp(-self.max_action, self.max_action)
+                # fill replay buffer at beginning
+                if episode < self.init_episodes:
+                    action = env.get_random_action()
+                else:
+                    action = (self.actor(state.to(device)).cpu() +
+                              torch.randn_like(action) * self.policy_std * self.max_action
+                             ).clamp(-self.max_action, self.max_action)
 
-                    # live view
-                    if self.render_env and episode % 1 == 0 and episode >= self.init_episodes and env.is_virtual_env():
-                        env.render(state, action)
+                # live view
+                if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
+                    env.render(state, action)
 
-                    # state-action transition
-                    next_state, reward, done = env.step(action=action, state=state, input_seed=input_seed, same_action_num=self.same_action_num)
+                # modify action
+                if episode < self.init_episodes or mod_step_size == 0:
+                    action_mod = action.clone().detach()
+                else:
+                    action_mod = self.td3_mod.modify_action(state.to(device), action.to(device), mod_step_size)
 
-                    if t < env.max_episode_steps() - 1:
-                        done_tensor = done
-                    else:
-                        done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
+                # state-action transition
+                next_state, reward, done = env.step(action=action_mod, state=state, same_action_num=self.same_action_num)
 
-                    # check
-                    if any(torch.isinf(state)) or any(torch.isnan(state)):
-                        #print('early out because state is not finite')
-                        break
+                if t < env.max_episode_steps() - 1:
+                    done_tensor = done
+                else:
+                    done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
+                # check
+                if any(torch.isinf(state)) or any(torch.isnan(state)):
+                    #print('early out because state is not finite')
+                    break
 
-                    state = next_state
-                    episode_reward += reward
+                replay_buffer.add(state=state, action=action, action_mod=action_mod, next_state=next_state, reward=reward, done=done_tensor)
+
+                state = next_state
+                episode_reward += reward
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer, env)
+                    self.update(replay_buffer)
+                    if t % self.mod_delay == 0:
+                        self.td3_mod.update(replay_buffer)
                 if done > 0.5:
                     break
 
@@ -109,20 +119,18 @@ class TD3(nn.Module):
         return avg_meter_reward.get_raw_data(), replay_buffer
 
 
-    def update(self, replay_buffer, env):
+    def update(self, replay_buffer):
         self.total_it += 1
 
         # Sample replay buffer
-        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
-
+        states, actions, _, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
             noise = (torch.randn_like(actions) * self.policy_std
                      ).clamp(-self.policy_std_clip, self.policy_std_clip)
-            max_action = env.get_max_action()
             next_actions = (self.actor_target(next_states) + noise
-                            ).clamp(-max_action, max_action)
+                            ).clamp(-self.max_action, self.max_action)
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
@@ -174,7 +182,7 @@ class TD3(nn.Module):
 
     def get_state_dict(self):
         agent_state = {}
-
+        agent_state["td3_mod"] = self.td3_mod.get_state_dict()
         agent_state["td3_actor"] = self.actor.state_dict()
         agent_state["td3_actor_target"] = self.actor_target.state_dict()
         agent_state["td3_critic_1"] = self.critic_1.state_dict()
@@ -188,6 +196,7 @@ class TD3(nn.Module):
         return agent_state
 
     def set_state_dict(self, agent_state):
+        self.td3_mod.set_state_dict(agent_state["td3_mod"])
         self.actor.load_state_dict(agent_state["td3_actor"])
         self.actor_target.load_state_dict(agent_state["td3_actor_target"])
         self.critic_1.load_state_dict(agent_state["td3_critic_1"])
@@ -210,13 +219,12 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    real_env = env_fac.generate_interpolated_real_env(0)
-    #real_env = env_fac.generate_default_real_env()
-    virtual_env = env_fac.generate_default_virtual_env()
-    input_seed = env_fac.generate_default_input_seed()
+    real_env = env_fac.generate_default_real_env()
 
     real_env.seed(seed)
 
-    td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), max_action=real_env.get_max_action(), config=config)
-    #td3.train(env=real_env)
-    td3.train(env=virtual_env, input_seed=input_seed)
+    td3 = TD3(state_dim=real_env.get_state_dim(),
+              action_dim=real_env.get_action_dim(),
+              max_action=real_env.get_max_action(),
+              config=config)
+    td3.train(env=real_env, mod_step_size=-5e-2)

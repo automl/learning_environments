@@ -9,13 +9,10 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_train_agent(agent, env, input_seed=None, step_size=None):
+def reptile_train_agent(agent, env, mod_step_size, step_size):
     old_state_dict_agent = copy.deepcopy(agent.state_dict())
-
-    reward_list, replay_buffer = agent.train(env=env, input_seed=input_seed)
-
+    reward_list, replay_buffer = agent.train(env=env, mod_step_size=mod_step_size)
     reptile_update_state_dict(target=agent, old_state_dict=old_state_dict_agent, step_size=step_size)
-
     return reward_list, replay_buffer
 
 

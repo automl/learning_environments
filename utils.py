@@ -14,14 +14,16 @@ class ReplayBuffer:
 
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
+        self.action_mod = torch.zeros((max_size, action_dim))
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
 
     # for TD3 / PPO / gym
-    def add(self, state, action, next_state, reward, done):
+    def add(self, state, action, action_mod, next_state, reward, done):
         self.state[self.ptr] = state.detach()
         self.action[self.ptr] = action.detach()
+        self.action_mod[self.ptr] = action_mod.detach()
         self.next_state[self.ptr] = next_state.detach()
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
@@ -38,6 +40,7 @@ class ReplayBuffer:
         return (
             self.state[idx].to(device).detach(),
             self.action[idx].to(device).detach(),
+            self.action_mod[idx].to(device).detach(),
             self.next_state[idx].to(device).detach(),
             self.reward[idx].to(device).detach(),
             self.done[idx].to(device).detach(),
@@ -48,67 +51,23 @@ class ReplayBuffer:
         return (
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
+            self.action_mod[: self.size].to(device).detach(),
             self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
         )
 
     def merge(self, other_replay_buffer):
-        states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
+        states, actions, actions_mod, next_states, rewards, dones = other_replay_buffer.get_all()
         for i in range(len(states)):
-            self.add(states[i], actions[i], next_states[i], rewards[i], dones[i])
+            self.add(states[i], actions[i], actions_mod[i], next_states[i], rewards[i], dones[i])
 
     def get_size(self):
         return self.size
 
     # for PPO
     def clear(self):
-        self.__init__(self.state_dim, self.action_dim, self.max_size)  #
-
-    def prune(self, size_des = float('Inf')):
-        if self.size <= size_des:
-            return
-
-        state = self.state[:self.size].cpu().numpy()
-        action = self.action[:self.size].cpu().numpy()
-        next_state = self.next_state[:self.size].cpu().numpy()
-        reward = self.reward[:self.size].cpu().numpy()
-        done = self.done[:self.size].cpu().numpy()
-        input = np.concatenate((state,action,next_state,reward,done), axis=1)
-
-        neigh = NearestNeighbors(n_neighbors=2).fit(input)
-        dist, ind = neigh.kneighbors(input)
-        dist = dist[:,1]
-
-        del_fac = 1
-        size_exp, del_prob = self._calc_prune_values(dist, del_fac)
-        if size_exp < size_des:
-            while size_exp < size_des:
-                del_fac *= 0.9
-                size_exp, del_prob = self._calc_prune_values(dist, del_fac)
-        else:
-            while size_exp >= size_des:
-                del_fac *= 1.1
-                size_exp, del_prob = self._calc_prune_values(dist, del_fac)
-
-        del_rand = np.random.rand(del_prob.size)
-        keep = np.where(del_prob < del_rand)[0]
-        n = keep.size
-
-        state, action, next_state, done, reward = self._sample_idx(keep, device='cpu')
-        self.clear()
-        self.state[:n] = state
-        self.action[:n] = action
-        self.next_state[:n] = next_state
-        self.done[:n] = done
-        self.reward[:n] = reward
-        self.size = min(n + 1, self.max_size)
-        self.ptr = (n + 1) % self.max_size
-
-    def _calc_prune_values(self, dist, fac):
-        del_prob = np.clip(fac/(dist + 1e-9), a_min=0, a_max=1)
-        size_exp = self.size - sum(del_prob)
-        return size_exp, del_prob
+        self.__init__(self.state_dim, self.action_dim, self.max_size)
 
 
 class AverageMeter:
