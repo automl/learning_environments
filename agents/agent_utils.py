@@ -1,4 +1,5 @@
 from agents.TD3 import TD3
+from agents.TD3_mod import TD3_Mod
 from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 
@@ -16,4 +17,11 @@ def select_agent(config, agent_name):
     else:
         raise NotImplementedError("Unknownn RL agent")
 
+def select_mod(config):
+    env_factory = EnvFactory(config)
+    dummy_env = env_factory.generate_default_real_env()
+    state_dim = dummy_env.get_state_dim()
+    action_dim = dummy_env.get_action_dim()
+    max_action = dummy_env.get_max_action()
 
+    return TD3_Mod(state_dim, action_dim, max_action, config)

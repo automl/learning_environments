@@ -32,8 +32,8 @@ def analyze_bohb(log_dir):
     print(len(result_w.data))
     print(len(result_wo.data))
 
-    plot_accuracy_over_budget(result_w,  'with virtual env')
-    plot_accuracy_over_budget(result_wo, 'without virtual env')
+    plot_accuracy_over_budget(result_w,  'with modified q-function')
+    plot_accuracy_over_budget(result_wo, 'without modified q-function')
 
     plt.show()
 
@@ -43,11 +43,11 @@ def get_w(result, spec):
     for key1, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             order = ast.literal_eval(value2['info']['order'])
-            if spec == "w":    # consider all runs with virtual env
-                if 2 not in order:
+            if spec == "w":    # consider all runs with modifiable q-function
+                if 2 not in order and 3 not in order:
                     del_list.append((key1, key2))
-            elif spec == "wo":  # consider all runs with real env only
-                if 2 in order:
+            elif spec == "wo":  # consider all runs without modifiable q-function
+                if 2 in order or 3 in order:
                     del_list.append((key1, key2))
 
     for key in del_list:
@@ -60,36 +60,35 @@ def get_w(result, spec):
 
 def analyze_result_order(result, id2conf):
     order_list = []
-    w_2 = []
-    wo_2 = []
+    w_23 = []
+    wo_23 = []
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
+            if key2 > 1 :
+                continue
+
             loss = value2['loss']
             order = ast.literal_eval(value2['info']['order'])
             timings = ast.literal_eval(value2['info']['timings'])
             ets = ast.literal_eval(value2['info']['episodes_till_solved'])
-            different_envs = id2conf[key]['config']['gtn_different_envs']
-            lr = id2conf[key]['config']['em_lr']
-            steps = id2conf[key]['config']['em_max_steps']
-            step_size = id2conf[key]['config']['em_step_size']
+            mod_step_size = id2conf[key]['config']['gtn_mod_step_size']
 
-            order_list.append((loss, order, ets, timings, different_envs, lr, steps, step_size))
+            # if order[0] != 1:
+            #     continue
 
-            # budget
-            if key2 > 1:
-                continue
+            order_list.append((loss, mod_step_size, order, ets, timings))
 
-            if 2 in order:
-                w_2.append(loss)
+            if 2 in order or 3 in order:
+                w_23.append(loss)
             else:
-                wo_2.append(loss)
+                wo_23.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
         print(elem)
 
-    print(sum(w_2)/len(w_2))
-    print(sum(wo_2)/len(wo_2))
+    print(sum(w_23)/len(w_23))
+    print(sum(wo_23)/len(wo_23))
 
 
 def plot_accuracy_over_budget(result, plot_str):

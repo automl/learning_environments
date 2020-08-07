@@ -17,6 +17,7 @@ agents:
     type_9: !!int 2                         # optimization used during iteration 10
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
     mod_step_size: !!float 0.1              # Q-function modulation step size
+    mod_mult: !!float 2                     # Q-function modulation multiplier
     agent_name: !!str TD3                   # which RL agent to use for meta-training
 
   reptile:
@@ -29,10 +30,9 @@ agents:
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 5e-4                        # learning rate
+    lr: !!float 1e-3                        # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
-    mod_delay: !!int 1                      # update delay of td3_mod
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
@@ -43,6 +43,9 @@ agents:
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
     early_out_num: 5                        # based on how many training steps shall an early out happen
+    mod_delay: !!int 2                      # update delay of td3_mod
+    mod_steps: !!int 2                      # number of gradient steps when modifying
+    mod_grad_norm: !!bool False             # normalize gradient to unit length
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize

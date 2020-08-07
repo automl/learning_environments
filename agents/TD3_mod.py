@@ -25,6 +25,8 @@ class TD3_Mod(nn.Module):
         self.lr = td3_config["lr"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
+        self.mod_steps = td3_config["mod_steps"]
+        self.mod_grad_norm = td3_config["mod_grad_norm"]
 
         self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
         self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
@@ -43,10 +45,22 @@ class TD3_Mod(nn.Module):
 
     def modify_action(self, state, action, mod_step_size):
         action_mod = action.clone().detach().requires_grad_(True)
-        q_val = self.critic_1(state, action_mod)
-        q_val.backward()
+        step_size = mod_step_size / self.mod_steps
+
+        for i in range(self.mod_steps):
+            q_val = self.critic_1(state, action_mod)
+            q_val.backward()
+
+            if self.mod_grad_norm:
+                grad = action_mod.grad / torch.norm(action_mod.grad)
+            else:
+                grad = action_mod.grad
+
+            with torch.no_grad():
+                action_mod += grad * step_size
+            action_mod.grad.data.zero_()
+
         action_mod.requires_grad = False
-        action_mod += action_mod.grad * mod_step_size
         return action_mod
 
 

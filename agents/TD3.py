@@ -44,14 +44,12 @@ class TD3(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
-        self.td3_mod = TD3_Mod(state_dim, action_dim, max_action, config)
-
         self.reset_optimizer()
 
         self.total_it = 0
 
 
-    def train(self, env, mod_step_size):
+    def train(self, env, mod, mod_step_size):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -77,7 +75,7 @@ class TD3(nn.Module):
                 if episode < self.init_episodes or mod_step_size == 0:
                     action_mod = action.clone().detach()
                 else:
-                    action_mod = self.td3_mod.modify_action(state.to(device), action.to(device), mod_step_size)
+                    action_mod = mod.modify_action(state.to(device), action.to(device), mod_step_size)
 
                 # state-action transition
                 next_state, reward, done = env.step(action=action_mod, state=state, same_action_num=self.same_action_num)
@@ -89,7 +87,7 @@ class TD3(nn.Module):
 
                 # check
                 if any(torch.isinf(state)) or any(torch.isnan(state)):
-                    #print('early out because state is not finite')
+                    print('early out because state is not finite')
                     break
 
                 replay_buffer.add(state=state, action=action, action_mod=action_mod, next_state=next_state, reward=reward, done=done_tensor)
@@ -101,7 +99,7 @@ class TD3(nn.Module):
                 if episode > self.init_episodes:
                     self.update(replay_buffer)
                     if t % self.mod_delay == 0:
-                        self.td3_mod.update(replay_buffer)
+                        mod.update(replay_buffer)
                 if done > 0.5:
                     break
 
@@ -116,7 +114,7 @@ class TD3(nn.Module):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data()
 
 
     def update(self, replay_buffer):
@@ -182,7 +180,6 @@ class TD3(nn.Module):
 
     def get_state_dict(self):
         agent_state = {}
-        agent_state["td3_mod"] = self.td3_mod.get_state_dict()
         agent_state["td3_actor"] = self.actor.state_dict()
         agent_state["td3_actor_target"] = self.actor_target.state_dict()
         agent_state["td3_critic_1"] = self.critic_1.state_dict()
@@ -196,7 +193,6 @@ class TD3(nn.Module):
         return agent_state
 
     def set_state_dict(self, agent_state):
-        self.td3_mod.set_state_dict(agent_state["td3_mod"])
         self.actor.load_state_dict(agent_state["td3_actor"])
         self.actor_target.load_state_dict(agent_state["td3_actor_target"])
         self.critic_1.load_state_dict(agent_state["td3_critic_1"])

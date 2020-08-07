@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 3
-OUTLIER_PERC_WORST = 0.0
+EXP_LOSS = 1
+OUTLIER_PERC_WORST = 0.3
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -172,7 +172,7 @@ def plot_parallel_scatter(result):
 
     x_dev = 0.2
     r_min = 0.1
-    r_max = 3
+    r_max = 6
     alpha = 0.4
     text_x_offset = -0.1
     text_y_offset = -0.1

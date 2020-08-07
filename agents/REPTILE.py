@@ -3,27 +3,54 @@ import copy
 import torch
 import torch.nn as nn
 import numpy as np
+from utils import print_abs_param_sum
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_train_agent(agent, env, mod_step_size, step_size):
-    old_state_dict_agent = copy.deepcopy(agent.state_dict())
-    reward_list, replay_buffer = agent.train(env=env, mod_step_size=mod_step_size)
-    reptile_update_state_dict(target=agent, old_state_dict=old_state_dict_agent, step_size=step_size)
-    return reward_list, replay_buffer
+def reptile_train_agent_serial(agent, mod, env, mod_step_size, step_size):
+    print('serial mod_step_size: ' + str(mod_step_size))
+    old_state_dict = copy.deepcopy(agent.state_dict())
+    agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
+    new_state_dict = copy.deepcopy(agent.state_dict())
+
+    reptile_update_state_dict_serial(agent=agent,
+                                     old_state_dict=old_state_dict,
+                                     new_state_dict=new_state_dict,
+                                     step_size=step_size)
 
 
-def reptile_update_state_dict(target, old_state_dict, step_size):
-    new_state_dict = target.state_dict()
+def reptile_train_agent_parallel(agent, mod, env, mod_step_sizes, step_size):
+    old_state_dict = copy.deepcopy(agent.state_dict())
+    new_state_dicts = []
+
+    for mod_step_size in mod_step_sizes:
+        print('parallel mod_step_size: ' + str(mod_step_size))
+        agent.load_state_dict(copy.deepcopy(old_state_dict))
+        agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
+        new_state_dicts.append(copy.deepcopy(agent.state_dict()))
+
+    reptile_update_state_dict_parallel(agent=agent,
+                                       old_state_dict=old_state_dict,
+                                       new_state_dicts=new_state_dicts,
+                                       step_size=step_size)
+
+
+def reptile_update_state_dict_serial(agent, old_state_dict, new_state_dict, step_size):
+    agent_state_dict = agent.state_dict()
     for key, value in new_state_dict.items():
-        new_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * step_size
+        agent_state_dict[key] = old_state_dict[key] + (new_state_dict[key] - old_state_dict[key]) * step_size
 
 
-def reptile_update_tensor(target, old_tensor, step_size):
-    target.data = old_tensor.data + (target.data - old_tensor.data) * step_size
+def reptile_update_state_dict_parallel(agent, old_state_dict, new_state_dicts, step_size):
+    n = len(new_state_dicts)
+    agent.load_state_dict(copy.deepcopy(old_state_dict))
+    agent_state_dict = agent.state_dict()
+    for new_state_dict in new_state_dicts:
+        for key, value in new_state_dict.items():
+            agent_state_dict[key] += (new_state_dict[key] - old_state_dict[key]) * step_size/n
 
 
 # todo fabio: refactor

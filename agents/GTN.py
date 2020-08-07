@@ -7,8 +7,8 @@ import os
 import copy
 from time import time
 from agents.TD3 import TD3
-from agents.agent_utils import select_agent
-from agents.REPTILE import reptile_train_agent
+from agents.agent_utils import select_agent, select_mod
+from agents.REPTILE import reptile_train_agent_serial, reptile_train_agent_parallel
 from envs.env_factory import EnvFactory
 from utils import print_abs_param_sum
 
@@ -17,6 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class GTN(nn.Module):
     def __init__(self, config):
         super().__init__()
+
         # for saving/loading
         self.config = config
 
@@ -24,6 +25,8 @@ class GTN(nn.Module):
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
         self.mod_step_size = gtn_config["mod_step_size"]
+        self.mod_mult = gtn_config["mod_mult"]
+
         self.type = []
         for i in range(10):
             strng = "type_" + str(i)
@@ -31,6 +34,7 @@ class GTN(nn.Module):
 
         self.agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, self.agent_name)
+        self.mod = select_mod(config)
 
         self.env_factory = EnvFactory(config)
         self.real_env = self.env_factory.generate_default_real_env()
@@ -48,18 +52,28 @@ class GTN(nn.Module):
             print('-- type {} with mod_step_size {} --'.format(self.type[it], self.mod_step_size))
             self.print_stats()
             t = time()
+
             if self.type[it] == 1:
-                mod_step_size = 0
+                mod_step_sizes = [0]
             elif self.type[it] == 2:
-                mod_step_size = self.mod_step_size
-            elif self.type[it] == 3:
-                mod_step_size = -self.mod_step_size
+                mod_step_sizes = [0,
+                                  self.mod_step_size * self.mod_mult ** it,
+                                  -self.mod_step_size * self.mod_mult ** it]
             else:
                 raise ValueError('Case that shoud not happen')
-            reptile_train_agent(agent=self.agent,
-                                env=self.real_env,
-                                mod_step_size=mod_step_size,
-                                step_size=self.step_size)
+
+            n = len(mod_step_sizes)
+            for mod_step_size in mod_step_sizes:
+                reptile_train_agent_serial(agent=self.agent,
+                                           mod=self.mod,
+                                           env=self.real_env,
+                                           mod_step_size=mod_step_size,
+                                           step_size=self.step_size/n)
+            # reptile_train_agent_parallel(agent=self.agent,
+            #                              mod=self.mod,
+            #                              env=self.real_env,
+            #                              mod_step_sizes=mod_step_sizes,
+            #                              step_size=self.step_size)
             order.append(self.type[it])
             timings.append(int(time()-t))
 
@@ -90,7 +104,7 @@ class GTN(nn.Module):
             self.agent.set_state_dict(agent_state)
             self.print_stats()
             env = self.env_factory.generate_interpolated_real_env(interpolate)
-            reward_list, replay_buffer = self.agent.train(env=env, mod_step_size=0)
+            reward_list = self.agent.train(env=env, mod=self.mod, mod_step_size=0)
             mean_episodes_till_solved += len(reward_list)
             episodes_till_solved.append(len(reward_list))
             print("episodes till solved: " + str(len(reward_list)))

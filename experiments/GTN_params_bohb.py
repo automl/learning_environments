@@ -23,24 +23,27 @@ class ExperimentWrapper():
 
         return params
 
+
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=5, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=1, upper=3, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=1, upper=3, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=1, upper=3, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=1, upper=3, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_step_size', lower=1e-3, upper=1, log=True, default_value=1e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_step_size', lower=1e-3, upper=2, log=True, default_value=1e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_mult', lower=1, upper=2, log=True, default_value=1))
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=512, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_delay', lower=1, upper=4, log=False, default_value=2))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4, 8], default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_steps', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_grad_norm', choices=[False, True], default_value=False))
 
         return cs
+
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
@@ -56,11 +59,12 @@ class ExperimentWrapper():
         config["agents"]['gtn']['type_4'] = cso["gtn_type_4"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
         config["agents"]['gtn']['mod_step_size'] = cso["gtn_mod_step_size"]
+        config["agents"]['gtn']['mod_mult'] = cso["gtn_mod_mult"]
 
-        config["agents"]["td3"]["lr"] = cso["td3_lr"]
-        config["agents"]["td3"]["hidden_size"] = cso["td3_hidden_size"]
         config["agents"]["td3"]["hidden_layer"] = cso["td3_hidden_layer"]
         config["agents"]["td3"]["mod_delay"] = cso["td3_mod_delay"]
+        config["agents"]["td3"]["mod_steps"] = cso["td3_mod_steps"]
+        config["agents"]["td3"]["mod_grad_norm"] = cso["td3_mod_grad_norm"]
 
         return config
 
@@ -85,7 +89,7 @@ class ExperimentWrapper():
         error = ""
         try:
             gtn = GTN(config)
-            order, timings = gtn.train()
+            #order, timings = gtn.train()
             score, episodes_till_solved = gtn.test()
         except:
             score = float('Inf')
