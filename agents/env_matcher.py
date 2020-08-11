@@ -141,8 +141,6 @@ class EnvMatcher(nn.Module):
                     variation_loss /= len(input_seeds)
                     variation_loss = -torch.log(variation_loss) * self.variation_weight
                     loss += variation_loss
-            else:
-                avg_loss = match_loss
 
             if more_info:
                 avg_diff_state, avg_diff_reward, avg_diff_done = self.get_log_information(outputs_real=outputs_real,
