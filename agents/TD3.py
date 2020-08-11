@@ -218,5 +218,5 @@ if __name__ == "__main__":
     real_env.seed(seed)
 
     td3 = TD3(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), max_action=real_env.get_max_action(), config=config)
-    #td3.train(env=real_env)
-    td3.train(env=virtual_env, input_seed=input_seed)
+    td3.train(env=real_env)
+    #td3.train(env=virtual_env, input_seed=input_seed)
