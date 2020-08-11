@@ -10,10 +10,9 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_train_agent_serial(agent, mod, env, mod_step_size, step_size):
-    print('serial mod_step_size: ' + str(mod_step_size))
+def reptile_train_agent_serial(agent, mod, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
-    agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
+    agent.train(env=env, mod=mod)
     new_state_dict = copy.deepcopy(agent.state_dict())
 
     reptile_update_state_dict_serial(agent=agent,
@@ -22,20 +21,20 @@ def reptile_train_agent_serial(agent, mod, env, mod_step_size, step_size):
                                      step_size=step_size)
 
 
-def reptile_train_agent_parallel(agent, mod, env, mod_step_sizes, step_size):
-    old_state_dict = copy.deepcopy(agent.state_dict())
-    new_state_dicts = []
-
-    for mod_step_size in mod_step_sizes:
-        print('parallel mod_step_size: ' + str(mod_step_size))
-        agent.load_state_dict(copy.deepcopy(old_state_dict))
-        agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
-        new_state_dicts.append(copy.deepcopy(agent.state_dict()))
-
-    reptile_update_state_dict_parallel(agent=agent,
-                                       old_state_dict=old_state_dict,
-                                       new_state_dicts=new_state_dicts,
-                                       step_size=step_size)
+# def reptile_train_agent_parallel(agent, mod, env, mod_step_sizes, step_size):
+#     old_state_dict = copy.deepcopy(agent.state_dict())
+#     new_state_dicts = []
+#
+#     for mod_step_size in mod_step_sizes:
+#         print('parallel mod_step_size: ' + str(mod_step_size))
+#         agent.load_state_dict(copy.deepcopy(old_state_dict))
+#         agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
+#         new_state_dicts.append(copy.deepcopy(agent.state_dict()))
+#
+#     reptile_update_state_dict_parallel(agent=agent,
+#                                        old_state_dict=old_state_dict,
+#                                        new_state_dicts=new_state_dicts,
+#                                        step_size=step_size)
 
 
 def reptile_update_state_dict_serial(agent, old_state_dict, new_state_dict, step_size):

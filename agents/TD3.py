@@ -22,7 +22,6 @@ class TD3(nn.Module):
         self.gamma = td3_config["gamma"]
         self.tau = td3_config["tau"]
         self.policy_delay = td3_config["policy_delay"]
-        self.mod_delay = td3_config["mod_delay"]
         self.batch_size = td3_config["batch_size"]
         self.init_episodes = td3_config["init_episodes"]
         self.max_episodes = td3_config["max_episodes"]
@@ -49,7 +48,7 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def train(self, env, mod, mod_step_size):
+    def train(self, env, mod = None):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -72,10 +71,10 @@ class TD3(nn.Module):
                     env.render(state, action)
 
                 # modify action
-                if episode < self.init_episodes or mod_step_size == 0:
+                if episode < self.init_episodes or mod is None:
                     action_mod = action.clone().detach()
                 else:
-                    action_mod = mod.modify_action(state.to(device), action.to(device), mod_step_size)
+                    action_mod = mod.modify_action(state.to(device), action.to(device))
 
                 # state-action transition
                 next_state, reward, done = env.step(action=action_mod, state=state, same_action_num=self.same_action_num)
@@ -98,7 +97,7 @@ class TD3(nn.Module):
                 # train
                 if episode > self.init_episodes:
                     self.update(replay_buffer)
-                    if t % self.mod_delay == 0:
+                    if mod is not None:
                         mod.update(replay_buffer)
                 if done > 0.5:
                     break
@@ -223,4 +222,4 @@ if __name__ == "__main__":
               action_dim=real_env.get_action_dim(),
               max_action=real_env.get_max_action(),
               config=config)
-    td3.train(env=real_env, mod_step_size=-5e-2)
+    td3.train(env=real_env)

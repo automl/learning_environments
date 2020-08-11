@@ -8,7 +8,7 @@ import copy
 from time import time
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent, select_mod
-from agents.REPTILE import reptile_train_agent_serial, reptile_train_agent_parallel
+from agents.REPTILE import reptile_train_agent_serial
 from envs.env_factory import EnvFactory
 from utils import print_abs_param_sum
 
@@ -24,8 +24,6 @@ class GTN(nn.Module):
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
-        self.mod_step_size = gtn_config["mod_step_size"]
-        self.mod_mult = gtn_config["mod_mult"]
 
         self.type = []
         for i in range(10):
@@ -49,26 +47,16 @@ class GTN(nn.Module):
         timings = []
 
         for it in range(self.max_iterations):
-            print('-- type {} with mod_step_size {} --'.format(self.type[it], self.mod_step_size))
+            print('-- type {} --'.format(self.type[it]))
             self.print_stats()
             t = time()
 
-            if self.type[it] == 1:
-                mod_step_sizes = [0]
-            elif self.type[it] == 2:
-                mod_step_sizes = [0,
-                                  self.mod_step_size * self.mod_mult ** it,
-                                  -self.mod_step_size * self.mod_mult ** it]
-            else:
-                raise ValueError('Case that shoud not happen')
-
-            n = len(mod_step_sizes)
-            for mod_step_size in mod_step_sizes:
-                reptile_train_agent_serial(agent=self.agent,
-                                           mod=self.mod,
-                                           env=self.real_env,
-                                           mod_step_size=mod_step_size,
-                                           step_size=self.step_size/n)
+            self.mod.set_mod_type(self.type[it] )
+            reptile_train_agent_serial(agent=self.agent,
+                                       mod=self.mod,
+                                       env=self.real_env,
+                                       step_size=self.step_size)
+            self.mod.update_mod_mult()
             # reptile_train_agent_parallel(agent=self.agent,
             #                              mod=self.mod,
             #                              env=self.real_env,
@@ -102,9 +90,10 @@ class GTN(nn.Module):
 
         for interpolate in interpolate_vals:
             self.agent.set_state_dict(agent_state)
+            self.mod.set_mod_type(0)    # deactivate mod
             self.print_stats()
             env = self.env_factory.generate_interpolated_real_env(interpolate)
-            reward_list = self.agent.train(env=env, mod=self.mod, mod_step_size=0)
+            reward_list = self.agent.train(env=env, mod=self.mod)
             mean_episodes_till_solved += len(reward_list)
             episodes_till_solved.append(len(reward_list))
             print("episodes till solved: " + str(len(reward_list)))

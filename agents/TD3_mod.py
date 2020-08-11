@@ -25,8 +25,15 @@ class TD3_Mod(nn.Module):
         self.lr = td3_config["lr"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
-        self.mod_steps = td3_config["mod_steps"]
-        self.mod_grad_norm = td3_config["mod_grad_norm"]
+        self.mod_delay = td3_config["mod_delay"]
+        self.mod_type = td3_config["mod_type"]
+        self.mod_grad_type = td3_config["mod_grad_type"]
+        self.mod_grad_step_size = td3_config["mod_grad_step_size"]
+        self.mod_grad_steps = td3_config["mod_grad_steps"]
+        self.mod_noise_type = td3_config["mod_noise_type"]
+        self.mod_noise_std = td3_config["mod_noise_std"]
+        self.mod_mult = td3_config["mod_mult"]
+        self.mod_mult_exp = 0
 
         self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
         self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
@@ -43,29 +50,72 @@ class TD3_Mod(nn.Module):
         self.total_it = 0
 
 
-    def modify_action(self, state, action, mod_step_size):
-        action_mod = action.clone().detach().requires_grad_(True)
-        step_size = mod_step_size / self.mod_steps
+    def modify_action(self, state, action):
+        action_mod = action.clone().detach()
 
-        for i in range(self.mod_steps):
-            q_val = self.critic_1(state, action_mod)
-            q_val.backward()
+        if self.mod_type == 0:
+            pass
 
-            if self.mod_grad_norm:
-                grad = action_mod.grad / torch.norm(action_mod.grad)
+        elif self.mod_type == 1 or self.mod_type == 2:
+            action_mod.requires_grad = True
+            step_size = self.mod_grad_step_size / self.mod_grad_steps
+
+            for i in range(self.mod_grad_steps):
+                q_val = self.critic_1(state, action_mod)
+                q_val.backward()
+
+                if self.mod_grad_type == 1:
+                    # normal gradient
+                    grad = action_mod.grad
+                elif self.mod_grad_type == 2:
+                    # normalized gradient
+                    grad = action_mod.grad / torch.norm(action_mod.grad)
+                elif self.mod_grad_type == 3:
+                    # inverse gradient
+                    grad = action_mod.grad / torch.norm(action_mod.grad)**2
+                else:
+                    raise NotImplementedError("Unknownn mod_grad_type: " + str(self.mod_grad_type))
+
+                with torch.no_grad():
+                    if self.mod_type == 1:
+                        action_mod += grad * step_size * self.mod_mult ** self.mod_mult_exp
+                    else:
+                        action_mod -= grad * step_size * self.mod_mult ** self.mod_mult_exp
+                action_mod.grad.data.zero_()
+
+            action_mod.requires_grad = False
+
+        elif self.mod_type == 3:
+            if self.mod_noise_type == 1:
+                # normal distribution
+                noise = torch.randn_like(action) * self.mod_noise_std
+            elif self.mod_noise_type == 2:
+                # uniform distribution
+                noise = (torch.rand_like(action)-0.5) * 2 * self.mod_noise_std
             else:
-                grad = action_mod.grad
+                raise NotImplementedError("Unknownn mod_noise_type: " + str(self.mod_noise_type))
 
-            with torch.no_grad():
-                action_mod += grad * step_size
-            action_mod.grad.data.zero_()
+            action_mod += noise * self.mod_mult ** self.mod_mult_exp
 
-        action_mod.requires_grad = False
+        else:
+            raise NotImplementedError("Unknownn mod_type: " + str(self.mod_type))
+
         return action_mod
+
+
+    def set_mod_type(self, mod_type):
+        self.mod_type = mod_type
+
+
+    def update_mod_mult(self):
+        self.mod_mult_exp += 1
 
 
     def update(self, replay_buffer):
         self.total_it += 1
+
+        if self.total_it % self.mod_delay != 0:
+            return
 
         # Sample replay buffer
         states, _, actions_mod, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
