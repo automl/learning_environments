@@ -210,8 +210,8 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    real_env = env_fac.generate_interpolated_real_env(0)
-    #real_env = env_fac.generate_default_real_env()
+    #real_env = env_fac.generate_interpolated_real_env(0)
+    real_env = env_fac.generate_default_real_env()
     virtual_env = env_fac.generate_default_virtual_env()
     input_seed = env_fac.generate_default_input_seed()
 
