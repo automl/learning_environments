@@ -49,7 +49,7 @@ class Critic_Q(nn.Module):
     def __init__(self, state_dim, action_dim, agent_name, config):
         super().__init__()
 
-        self.net = build_nn_from_config(input_dim=state_dim + action_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
+        self.net = build_nn_from_config(input_dim=state_dim + action_dim, output_dim=1, nn_config=config["agents"][agent_name])
 
     def forward(self, state, action):
         return self.net(torch.cat([state, action], 1))
