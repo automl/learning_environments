@@ -27,15 +27,15 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=5, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=2, upper=5, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_step_size', lower=1e-3, upper=2, log=True, default_value=1e-2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_mult', lower=1, upper=2, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_step_size', lower=1e-3, upper=0.5, log=True, default_value=1e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_mult', lower=1, upper=1.5, log=True, default_value=1))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4, 8], default_value=1))
