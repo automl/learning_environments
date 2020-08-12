@@ -22,6 +22,7 @@ class GTN(nn.Module):
         self.config = config
 
         gtn_config = config["agents"]["gtn"]
+        self.mod_type = config["agents"]["td3"]["mod_type"]
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
 
@@ -51,7 +52,7 @@ class GTN(nn.Module):
                                        env=self.real_env,
                                        step_size=self.step_size)
 
-            order.append(self.type[it])
+            order.append(self.mod_type)
             timings.append(int(time()-t))
 
         self.print_stats()

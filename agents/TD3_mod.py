@@ -103,6 +103,10 @@ class TD3_Mod(nn.Module):
         return action_mod
 
 
+    def set_mod_type(self, mod_type):
+        self.mod_type = mod_type
+
+
     def update_mod_mult(self):
         if not self.mod_mult_const:
             self.mod_mult = np.random.random() * 2
