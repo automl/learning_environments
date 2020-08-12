@@ -32,8 +32,8 @@ class TD3_Mod(nn.Module):
         self.mod_grad_steps = td3_config["mod_grad_steps"]
         self.mod_noise_type = td3_config["mod_noise_type"]
         self.mod_noise_std = td3_config["mod_noise_std"]
-        self.mod_mult = td3_config["mod_mult"]
-        self.mod_mult_exp = 0
+        self.mod_mult_const = td3_config["mod_mult_const"]
+        self.mod_mult = 1
 
         self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
         self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
@@ -78,9 +78,9 @@ class TD3_Mod(nn.Module):
 
                 with torch.no_grad():
                     if self.mod_type == 1:
-                        action_mod += grad * step_size * self.mod_mult ** self.mod_mult_exp
+                        action_mod += grad * step_size * self.mod_mult
                     else:
-                        action_mod -= grad * step_size * self.mod_mult ** self.mod_mult_exp
+                        action_mod -= grad * step_size * self.mod_mult
                 action_mod.grad.data.zero_()
 
             action_mod.requires_grad = False
@@ -95,7 +95,7 @@ class TD3_Mod(nn.Module):
             else:
                 raise NotImplementedError("Unknownn mod_noise_type: " + str(self.mod_noise_type))
 
-            action_mod += noise * self.mod_mult ** self.mod_mult_exp
+            action_mod += noise * self.mod_mult
 
         else:
             raise NotImplementedError("Unknownn mod_type: " + str(self.mod_type))
@@ -103,12 +103,9 @@ class TD3_Mod(nn.Module):
         return action_mod
 
 
-    def set_mod_type(self, mod_type):
-        self.mod_type = mod_type
-
-
     def update_mod_mult(self):
-        self.mod_mult_exp += 1
+        if not self.mod_mult_const:
+            self.mod_mult = np.random.random() * 2
 
 
     def update(self, replay_buffer):

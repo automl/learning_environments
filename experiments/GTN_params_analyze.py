@@ -60,8 +60,8 @@ def get_w(result, spec):
 
 def analyze_result_order(result, id2conf):
     order_list = []
-    w_23 = []
-    wo_23 = []
+    w = []
+    wo = []
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             if key2 > 1 :
@@ -71,24 +71,23 @@ def analyze_result_order(result, id2conf):
             order = ast.literal_eval(value2['info']['order'])
             timings = ast.literal_eval(value2['info']['timings'])
             ets = ast.literal_eval(value2['info']['episodes_till_solved'])
-            mod_step_size = id2conf[key]['config']['gtn_mod_step_size']
 
             # if order[0] != 1:
             #     continue
 
-            order_list.append((loss, mod_step_size, order, ets, timings))
+            order_list.append((loss, order, ets, timings))
 
-            if 2 in order or 3 in order:
-                w_23.append(loss)
+            if 1 in order or 2 in order or 3 in order:
+                w.append(loss)
             else:
-                wo_23.append(loss)
+                wo.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
         print(elem)
 
-    print(sum(w_23)/len(w_23))
-    print(sum(wo_23)/len(wo_23))
+    print(sum(w)/len(w))
+    print(sum(wo)/len(wo))
 
 
 def plot_accuracy_over_budget(result, plot_str):

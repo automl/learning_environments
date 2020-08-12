@@ -25,11 +25,6 @@ class GTN(nn.Module):
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
 
-        self.type = []
-        for i in range(10):
-            strng = "type_" + str(i)
-            self.type.append(gtn_config[strng])
-
         self.agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, self.agent_name)
         self.mod = select_mod(config)
@@ -47,21 +42,15 @@ class GTN(nn.Module):
         timings = []
 
         for it in range(self.max_iterations):
-            print('-- type {} --'.format(self.type[it]))
             self.print_stats()
             t = time()
 
-            self.mod.set_mod_type(self.type[it] )
+            self.mod.update_mod_mult()
             reptile_train_agent_serial(agent=self.agent,
                                        mod=self.mod,
                                        env=self.real_env,
                                        step_size=self.step_size)
-            self.mod.update_mod_mult()
-            # reptile_train_agent_parallel(agent=self.agent,
-            #                              mod=self.mod,
-            #                              env=self.real_env,
-            #                              mod_step_sizes=mod_step_sizes,
-            #                              step_size=self.step_size)
+
             order.append(self.type[it])
             timings.append(int(time()-t))
 
@@ -84,7 +73,7 @@ class GTN(nn.Module):
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
         if self.config['env_name'] == 'HalfCheetah-v2':
-            interpolate_vals = [0, 0.03, 0.1, 0.4, 1]
+            interpolate_vals = [0, 0.02, 0.1, 0.4, 1]
         else:
             interpolate_vals = np.arange(0, 1.01, 0.2)
 

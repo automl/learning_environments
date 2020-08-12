@@ -5,16 +5,6 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
-    type_0: !!int 3                         # optimization used during iteration 1
-    type_1: !!int 2                         # optimization used during iteration 2
-    type_2: !!int 1                         # optimization used during iteration 3
-    type_3: !!int 0                         # optimization used during iteration 4
-    type_4: !!int 1                         # optimization used during iteration 5
-    type_5: !!int 2                         # optimization used during iteration 6
-    type_6: !!int 3                         # optimization used during iteration 7
-    type_7: !!int 2                         # optimization used during iteration 8
-    type_8: !!int 1                         # optimization used during iteration 9
-    type_9: !!int 0                         # optimization used during iteration 10
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
     agent_name: !!str TD3                   # which RL agent to use for meta-training
 
@@ -35,7 +25,7 @@ agents:
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 256                  # size of the actor/critic hidden layer
-    hidden_layer: !!int 1                   # number of hidden layers
+    hidden_layer: !!int 2                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
@@ -48,7 +38,7 @@ agents:
     mod_grad_steps: !!int 2                 # number of gradient steps when modifying
     mod_noise_type: !!int 2                 # 1: gaussian / 2: uniform
     mod_noise_std: !!float 0.1              # noise intensity
-    mod_mult: !!float 1.2                   # multiplier
+    mod_mult_const: !!bool True             # noise intensity
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize
@@ -90,7 +80,7 @@ envs:
   HalfCheetah-v2:
     solved_reward: !!float 500              # used for early out in RL agent training
     max_steps: !!int 500                    # maximum number of steps per episode
-    g: [-0.2, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
+    g: [-0.2, -9.81, -70, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
 
 

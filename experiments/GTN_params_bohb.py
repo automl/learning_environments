@@ -27,27 +27,17 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=1, upper=10, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_5', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_6', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_7', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_8', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_9', lower=0, upper=3, log=False, default_value=0))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=3, upper=10, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4, 8], default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4], default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_type', lower=0, upper=3, log=False, default_value=0))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_type', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_grad_step_size', lower=1e-3, upper=0.5, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_steps', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_noise_type', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_noise_std', lower=0.01, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_mult', lower=1, upper=1.5, log=True, default_value=1.1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_mult_const', choices=[False, True], default_value=False))
 
         return cs
 
@@ -59,26 +49,16 @@ class ExperimentWrapper():
         config["render_env"] = False
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
-        config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
-        config["agents"]['gtn']['type_1'] = cso["gtn_type_1"]
-        config["agents"]['gtn']['type_2'] = cso["gtn_type_2"]
-        config["agents"]['gtn']['type_3'] = cso["gtn_type_3"]
-        config["agents"]['gtn']['type_4'] = cso["gtn_type_4"]
-        config["agents"]['gtn']['type_5'] = cso["gtn_type_5"]
-        config["agents"]['gtn']['type_6'] = cso["gtn_type_6"]
-        config["agents"]['gtn']['type_7'] = cso["gtn_type_7"]
-        config["agents"]['gtn']['type_8'] = cso["gtn_type_8"]
-        config["agents"]['gtn']['type_9'] = cso["gtn_type_9"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
 
-        config["agents"]["td3"]["hidden_layer"] = cso["td3_hidden_layer"]
         config["agents"]["td3"]["mod_delay"] = cso["td3_mod_delay"]
+        config["agents"]["td3"]["mod_type"] = cso["td3_mod_type"]
         config["agents"]["td3"]["mod_grad_type"] = cso["td3_mod_grad_type"]
         config["agents"]["td3"]["mod_grad_step_size"] = cso["td3_mod_grad_step_size"]
         config["agents"]["td3"]["mod_grad_steps"] = cso["td3_mod_grad_steps"]
         config["agents"]["td3"]["mod_noise_type"] = cso["td3_mod_noise_type"]
         config["agents"]["td3"]["mod_noise_std"] = cso["td3_mod_noise_std"]
-        config["agents"]["td3"]["mod_mult"] = cso["td3_mod_mult"]
+        config["agents"]["td3"]["mod_mult_const"] = cso["td3_mod_mult_const"]
 
         return config
 
