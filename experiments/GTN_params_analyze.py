@@ -10,7 +10,7 @@ from copy import deepcopy
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-OUTLIER_PERC = 0.0
+OUTLIER_PERC = 0.1
 
 
 def analyze_bohb(log_dir):
@@ -21,19 +21,27 @@ def analyze_bohb(log_dir):
     id2conf = result.get_id2config_mapping()
 
     result = remove_outliers(result)
-    result_w = deepcopy(result)
-    result_wo = deepcopy(result)
+    result_0 = deepcopy(result)
+    result_1 = deepcopy(result)
+    result_2 = deepcopy(result)
+    result_3 = deepcopy(result)
 
     analyze_result_order(result, id2conf)
 
-    get_w(result_w, spec="w")
-    get_w(result_wo, spec="wo")
+    get_w(result_0, spec=0)
+    get_w(result_1, spec=1)
+    get_w(result_2, spec=2)
+    get_w(result_3, spec=3)
 
-    print(len(result_w.data))
-    print(len(result_wo.data))
+    print(len(result_0.data))
+    print(len(result_1.data))
+    print(len(result_2.data))
+    print(len(result_3.data))
 
-    plot_accuracy_over_budget(result_w,  'with modified q-function')
-    plot_accuracy_over_budget(result_wo, 'without modified q-function')
+    plot_accuracy_over_budget(result_0, '0')
+    plot_accuracy_over_budget(result_1, '1')
+    plot_accuracy_over_budget(result_2, '2')
+    plot_accuracy_over_budget(result_3, '3')
 
     plt.show()
 
@@ -43,12 +51,9 @@ def get_w(result, spec):
     for key1, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             order = ast.literal_eval(value2['info']['order'])
-            if spec == "w":    # consider all runs with modifiable q-function
-                if 2 not in order and 3 not in order:
-                    del_list.append((key1, key2))
-            elif spec == "wo":  # consider all runs without modifiable q-function
-                if 2 in order or 3 in order:
-                    del_list.append((key1, key2))
+
+            if spec not in order:
+                del_list.append((key1, key2))
 
     for key in del_list:
         key1 = key[0]
@@ -60,8 +65,10 @@ def get_w(result, spec):
 
 def analyze_result_order(result, id2conf):
     order_list = []
-    w = []
-    wo = []
+    zeros = []
+    ones = []
+    twos = []
+    threes = []
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             if key2 > 1 :
@@ -72,22 +79,32 @@ def analyze_result_order(result, id2conf):
             timings = ast.literal_eval(value2['info']['timings'])
             ets = ast.literal_eval(value2['info']['episodes_till_solved'])
 
-            # if order[0] != 1:
-            #     continue
+            config = ast.literal_eval(value2['info']['config'])
+            td3_config = config['agents']['td3']
+            mod_grad_type = td3_config['mod_grad_type']
+            mod_noise_type = td3_config['mod_noise_type']
+            mod_mult_const = td3_config['mod_mult_const']
 
-            order_list.append((loss, order, ets, timings))
+            order_list.append((loss, order[0], mod_grad_type, mod_noise_type, mod_mult_const, ets))
 
-            if 1 in order or 2 in order or 3 in order:
-                w.append(loss)
-            else:
-                wo.append(loss)
+            if 0 in order:
+                zeros.append(loss)
+            elif 1 in order:
+                ones.append(loss)
+            elif 2 in order:
+                twos.append(loss)
+            elif 3 in order:
+                threes.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
         print(elem)
 
-    print(sum(w)/len(w))
-    print(sum(wo)/len(wo))
+    print(sum(zeros)/len(zeros))
+    print(sum(ones)/len(ones))
+    print(sum(twos)/len(twos))
+    print(sum(threes)/len(threes))
+
 
 
 def plot_accuracy_over_budget(result, plot_str):
@@ -151,7 +168,7 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
+    #log_dir = '../results/GTN_params_bohb_2020-08-07-21-HalfCheetah-working-with-action-shaping'
     log_dir = '../results'
     analyze_bohb(log_dir)
 
