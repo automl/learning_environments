@@ -47,22 +47,22 @@ def analyze_bohb(log_dir):
     print('Info: ' + str(inc_info))
     # print('It achieved accuracies of %f (validation) and %f (test).' % (-inc_valid_score, inc_test_score))
 
-    # Let's plot the observed losses grouped by budget,
-    hpvis.losses_over_time(all_runs)
-
-    # the number of concurent runs,
-    hpvis.concurrent_runs_over_time(all_runs)
-
-    # and the number of finished runs.
-    hpvis.finished_runs_over_time(all_runs)
-
-    # This one visualizes the spearman rank correlation coefficients of the losses
-    # between different budgets.
-    hpvis.correlation_across_budgets(result)
-
-    # For model based optimizers, one might wonder how much the model actually helped.
-    # The next plot compares the performance of configs picked by the model vs. random ones
-    hpvis.performance_histogram_model_vs_random(all_runs, id2conf)
+    # # Let's plot the observed losses grouped by budget,
+    # hpvis.losses_over_time(all_runs)
+    #
+    # # the number of concurent runs,
+    # hpvis.concurrent_runs_over_time(all_runs)
+    #
+    # # and the number of finished runs.
+    # hpvis.finished_runs_over_time(all_runs)
+    #
+    # # This one visualizes the spearman rank correlation coefficients of the losses
+    # # between different budgets.
+    # hpvis.correlation_across_budgets(result)
+    #
+    # # For model based optimizers, one might wonder how much the model actually helped.
+    # # The next plot compares the performance of configs picked by the model vs. random ones
+    # hpvis.performance_histogram_model_vs_random(all_runs, id2conf)
 
     result = remove_outliers(result)
 
@@ -171,8 +171,8 @@ def plot_parallel_scatter(result):
                     print('Error in plot_parallel_scatter, continuing')
 
     x_dev = 0.2
-    r_min = 0.1
-    r_max = 6
+    r_min = 2
+    r_max = 3
     alpha = 0.4
     text_x_offset = -0.1
     text_y_offset = -0.1
