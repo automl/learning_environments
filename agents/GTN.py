@@ -74,7 +74,7 @@ class GTN(nn.Module):
         agent_state = copy.deepcopy(self.agent.get_state_dict())
 
         if self.config['env_name'] == 'HalfCheetah-v2':
-            interpolate_vals = [0, 0.02, 0.1, 0.4, 1]
+            interpolate_vals = [0, 0.03, 0.1, 0.4, 1]
         else:
             interpolate_vals = np.arange(0, 1.01, 0.2)
 

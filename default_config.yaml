@@ -80,7 +80,7 @@ envs:
   HalfCheetah-v2:
     solved_reward: !!float 500              # used for early out in RL agent training
     max_steps: !!int 500                    # maximum number of steps per episode
-    g: [-0.2, -9.81, -70, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
+    g: [-0.2, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
 
 
