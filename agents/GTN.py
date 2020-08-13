@@ -25,6 +25,7 @@ class GTN(nn.Module):
         self.mod_type = config["agents"]["td3"]["mod_type"]
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
+        self.mod_zero_rate = gtn_config["mod_zero_rate"]
 
         self.agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, self.agent_name)
@@ -47,12 +48,19 @@ class GTN(nn.Module):
             t = time()
 
             self.mod.update_mod_mult()
+
+            if it % self.mod_zero_rate == 0:
+                self.mod.set_mod_type(0)
+                order.append(0)
+            else:
+                self.mod.reset_mod_type()
+                order.append(self.mod_type)
+
             reptile_train_agent_serial(agent=self.agent,
                                        mod=self.mod,
                                        env=self.real_env,
                                        step_size=self.step_size)
 
-            order.append(self.mod_type)
             timings.append(int(time()-t))
 
         self.print_stats()

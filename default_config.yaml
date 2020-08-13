@@ -7,6 +7,7 @@ agents:
     max_iterations: !!int 10                # maximum number of GTN iterations
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
     agent_name: !!str TD3                   # which RL agent to use for meta-training
+    mod_zero_rate: !!int 2               # use unmodified environment every i-th round
 
   reptile:
     max_iterations: !!int 10000             # maximum number of REPTILE iteration
@@ -14,7 +15,7 @@ agents:
     agent_name: !!str TD3                   # which RL agent to use for meta-training
 
   td3:
-    max_episodes: !!int 75                  # maximum number of episodes to optimize
+    max_episodes: !!int 100                 # maximum number of episodes to optimize
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -32,12 +33,13 @@ agents:
     policy_std_clip: !!float 0.5            # policy noise standard deviation
     early_out_num: 5                        # based on how many training steps shall an early out happen
     mod_delay: !!int 2                      # update delay of td3_mod
-    mod_type: !!int 1                       # 0: none / 1: positive Q-function gradient / 2: negative Q-function gradient / 3: random noise
+    mod_type: !!int 4                       # 0: none / 1: positive Q-function gradient / 2: negative Q-function gradient / 3: random noise / 4: multiplicative factor
     mod_grad_type: !!int 1                  # 1: gradient descent / 2: normalized step size / 3: inverse step size
     mod_grad_step_size: !!float 0.05        # Q-function modulation step size
     mod_grad_steps: !!int 2                 # number of gradient steps when modifying
     mod_noise_type: !!int 2                 # 1: gaussian / 2: uniform
     mod_noise_std: !!float 0.1              # noise intensity
+    mod_add_factor: !!float 0.1             # multiplicative factor used to modify the actions
     mod_mult_const: !!bool True             # noise intensity
 
   ppo:

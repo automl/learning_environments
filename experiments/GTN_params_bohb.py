@@ -29,14 +29,16 @@ class ExperimentWrapper():
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=3, upper=10, log=False, default_value=5))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_mod_zero_rate', lower=2, upper=5, log=False, default_value=3))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4], default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_type', lower=0, upper=3, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_type', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_type', lower=0, upper=5, log=False, default_value=0))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_type', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_grad_step_size', lower=1e-3, upper=0.5, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_steps', lower=1, upper=3, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_noise_type', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_noise_std', lower=0.01, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_add_factor', lower=0.01, upper=0.5, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_mult_const', choices=[False, True], default_value=False))
 
         return cs
@@ -50,6 +52,7 @@ class ExperimentWrapper():
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
+        config["agents"]['gtn']['mod_zero_rate'] = cso["gtn_mod_zero_rate"]
 
         config["agents"]["td3"]["mod_delay"] = cso["td3_mod_delay"]
         config["agents"]["td3"]["mod_type"] = cso["td3_mod_type"]
@@ -58,6 +61,7 @@ class ExperimentWrapper():
         config["agents"]["td3"]["mod_grad_steps"] = cso["td3_mod_grad_steps"]
         config["agents"]["td3"]["mod_noise_type"] = cso["td3_mod_noise_type"]
         config["agents"]["td3"]["mod_noise_std"] = cso["td3_mod_noise_std"]
+        config["agents"]["td3"]["mod_add_factor"] = cso["td3_mod_add_factor"]
         config["agents"]["td3"]["mod_mult_const"] = cso["td3_mod_mult_const"]
 
         return config

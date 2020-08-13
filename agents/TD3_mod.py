@@ -27,11 +27,13 @@ class TD3_Mod(nn.Module):
         self.policy_std_clip = td3_config["policy_std_clip"]
         self.mod_delay = td3_config["mod_delay"]
         self.mod_type = td3_config["mod_type"]
+        self.mod_type_default = td3_config["mod_type"]
         self.mod_grad_type = td3_config["mod_grad_type"]
         self.mod_grad_step_size = td3_config["mod_grad_step_size"]
         self.mod_grad_steps = td3_config["mod_grad_steps"]
         self.mod_noise_type = td3_config["mod_noise_type"]
         self.mod_noise_std = td3_config["mod_noise_std"]
+        self.mod_add_factor = td3_config["mod_add_factor"]
         self.mod_mult_const = td3_config["mod_mult_const"]
         self.mod_mult = 1
 
@@ -97,6 +99,12 @@ class TD3_Mod(nn.Module):
 
             action_mod += noise * self.mod_mult
 
+        elif self.mod_type == 4:
+            action_mod += action * self.mod_add_factor * self.mod_mult
+
+        elif self.mod_type == 5:
+            action_mod -= action * self.mod_add_factor * self.mod_mult
+
         else:
             raise NotImplementedError("Unknownn mod_type: " + str(self.mod_type))
 
@@ -106,6 +114,8 @@ class TD3_Mod(nn.Module):
     def set_mod_type(self, mod_type):
         self.mod_type = mod_type
 
+    def reset_mod_type(self):
+        self.mod_type = self.mod_type_default
 
     def update_mod_mult(self):
         if not self.mod_mult_const:
