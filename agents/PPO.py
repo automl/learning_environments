@@ -67,12 +67,7 @@ class PPO(nn.Module):
 
                     # live view
                     if self.render_env and episode % 100 == 0:
-                        env.render(state)
-
-                    # check
-                    if any(torch.isinf(state)) or any(torch.isnan(state)):
-                        print('early out because state is not finite')
-                        break
+                        env.render()
 
                     if last_state is not None and last_action is not None:
                         replay_buffer.add(last_state=last_state, last_action=last_action, state=state, action=action, next_state=next_state, reward=reward, done=done)

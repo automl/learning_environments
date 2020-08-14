@@ -171,8 +171,8 @@ def plot_parallel_scatter(result):
                     print('Error in plot_parallel_scatter, continuing')
 
     x_dev = 0.2
-    r_min = 2
-    r_max = 3
+    r_min = 1
+    r_max = 2
     alpha = 0.4
     text_x_offset = -0.1
     text_y_offset = -0.1
@@ -311,8 +311,8 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-23-17-CMC-still-slow-and-bad'
-    log_dir = '../results'
+    log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
+    #log_dir = '../results'
     analyze_bohb(log_dir)
 
 

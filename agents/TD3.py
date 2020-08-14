@@ -68,7 +68,7 @@ class TD3(nn.Module):
 
                 # live view
                 if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
-                    env.render(state, action)
+                    env.render()
 
                 # modify action
                 if episode < self.init_episodes or mod is None:
@@ -83,11 +83,6 @@ class TD3(nn.Module):
                     done_tensor = done
                 else:
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
-
-                # check
-                if any(torch.isinf(state)) or any(torch.isnan(state)):
-                    print('early out because state is not finite')
-                    break
 
                 replay_buffer.add(state=state, action=action, action_mod=action_mod, next_state=next_state, reward=reward, done=done_tensor)
 
@@ -141,7 +136,6 @@ class TD3(nn.Module):
 
         # Compute critic loss
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
-        # Compute matching loss
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()

@@ -74,6 +74,8 @@ class EnvFactory:
             env = gym.make("MountainCarContinuous-v0")
         elif env_name == "HalfCheetah-v2":
             env = gym.make("HalfCheetah-v2")
+        elif env_name == "CartPole-v0":
+            env = gym.make("CartPole-v0")
         else:
             raise NotImplementedError("Environment not supported")
 

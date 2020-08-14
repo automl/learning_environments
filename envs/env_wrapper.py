@@ -1,6 +1,8 @@
 import os
+import numpy as np
 import torch
 import torch.nn as nn
+from gym.spaces import Discrete
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -14,6 +16,9 @@ class EnvWrapper(nn.Module):
 
     def step(self, action, state, same_action_num=1):
         action = action.cpu().detach().numpy()
+        if self.is_discrete_action_space():
+            action = action.astype(int)[0]
+
         reward_sum = 0
         for i in range(same_action_num):
             state, reward, done, _ = self.env.step(action)
@@ -30,13 +35,20 @@ class EnvWrapper(nn.Module):
         return torch.from_numpy(self.env.reset()).float().cpu()
 
     def get_random_action(self):
-        return torch.from_numpy(self.env.action_space.sample())
+        action = self.env.action_space.sample()
+        if type(action) == np.ndarray:
+            return torch.from_numpy(self.env.action_space.sample())
+        elif type(action) == int:
+            return torch.tensor([action], device="cpu", dtype=torch.float32)
 
     def get_state_dim(self):
         return self.env.observation_space.shape[0]
 
     def get_action_dim(self):
-        return self.env.action_space.shape[0]
+        if self.env.action_space.shape:
+            return self.env.action_space.shape[0]
+        else:
+            return self.env.action_space.n
 
     def get_max_action(self):
         if self.env.env_name == 'Pendulum-v0':
@@ -48,7 +60,13 @@ class EnvWrapper(nn.Module):
         else:
             raise NotImplementedError("Unknownn RL agent")
 
-    def render(self, state, action):
+    def is_discrete_action_space(self):
+        if isinstance(self.env.action_space, Discrete):
+            return True
+        else:
+            return False
+
+    def render(self):
         return self.env.render()
 
     def close(self):

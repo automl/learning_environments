@@ -63,3 +63,14 @@ class Critic_V(nn.Module):
 
     def forward(self, state):
         return self.net(state)
+
+
+class Critic_DQN(nn.Module):
+    def __init__(self, state_dim, action_dim, agent_name, config):
+        super().__init__()
+
+        self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
+
+    def forward(self, state):
+        return self.net(state)
+
