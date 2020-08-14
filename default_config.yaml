@@ -5,16 +5,7 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
-    type_0: !!int 2                         # optimization used during iteration 1
-    type_1: !!int 2                         # optimization used during iteration 2
-    type_2: !!int 2                         # optimization used during iteration 3
-    type_3: !!int 2                         # optimization used during iteration 4
-    type_4: !!int 2                         # optimization used during iteration 5
-    type_5: !!int 2                         # optimization used during iteration 6
-    type_6: !!int 2                         # optimization used during iteration 7
-    type_7: !!int 2                         # optimization used during iteration 8
-    type_8: !!int 2                         # optimization used during iteration 9
-    type_9: !!int 2                         # optimization used during iteration 10
+    type: !!int 2                         # optimization used
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
     mod_step_size: !!float 0.1              # Q-function modulation step size
     mod_mult: !!float 2                     # Q-function modulation multiplier

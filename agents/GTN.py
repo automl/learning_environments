@@ -27,11 +27,7 @@ class GTN(nn.Module):
         self.mod_step_size = gtn_config["mod_step_size"]
         self.mod_mult = gtn_config["mod_mult"]
 
-        self.type = []
-        for i in range(10):
-            strng = "type_" + str(i)
-            self.type.append(gtn_config[strng])
-
+        self.type = gtn_config["type"]
         self.agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, self.agent_name)
         self.mod = select_mod(config)
@@ -49,13 +45,13 @@ class GTN(nn.Module):
         timings = []
 
         for it in range(self.max_iterations):
-            print('-- type {} with mod_step_size {} --'.format(self.type[it], self.mod_step_size))
+            print('-- type {} with mod_step_size {} --'.format(self.type, self.mod_step_size))
             self.print_stats()
             t = time()
 
-            if self.type[it] == 1:
-                mod_step_sizes = [0]
-            elif self.type[it] == 2:
+            if self.type == 1:
+                mod_step_sizes = [0,0,0]
+            elif self.type == 2:
                 mod_step_sizes = [0,
                                   self.mod_step_size * self.mod_mult ** it,
                                   -self.mod_step_size * self.mod_mult ** it]
@@ -74,7 +70,7 @@ class GTN(nn.Module):
             #                              env=self.real_env,
             #                              mod_step_sizes=mod_step_sizes,
             #                              step_size=self.step_size)
-            order.append(self.type[it])
+            order.append(self.type)
             timings.append(int(time()-t))
 
         self.print_stats()

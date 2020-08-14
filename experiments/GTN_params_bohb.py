@@ -28,11 +28,7 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=2, upper=5, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_0', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_1', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_2', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_3', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type_4', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_type', lower=1, upper=2, log=False, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_step_size', lower=1e-3, upper=0.5, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_mod_mult', lower=1, upper=1.5, log=True, default_value=1))
@@ -52,11 +48,7 @@ class ExperimentWrapper():
         config["render_env"] = False
 
         config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
-        config["agents"]['gtn']['type_0'] = cso["gtn_type_0"]
-        config["agents"]['gtn']['type_1'] = cso["gtn_type_1"]
-        config["agents"]['gtn']['type_2'] = cso["gtn_type_2"]
-        config["agents"]['gtn']['type_3'] = cso["gtn_type_3"]
-        config["agents"]['gtn']['type_4'] = cso["gtn_type_4"]
+        config["agents"]['gtn']['type'] = cso["gtn_type"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
         config["agents"]['gtn']['mod_step_size'] = cso["gtn_mod_step_size"]
         config["agents"]['gtn']['mod_mult'] = cso["gtn_mod_mult"]

@@ -71,12 +71,11 @@ def analyze_result_order(result, id2conf):
             order = ast.literal_eval(value2['info']['order'])
             timings = ast.literal_eval(value2['info']['timings'])
             ets = ast.literal_eval(value2['info']['episodes_till_solved'])
-            mod_step_size = id2conf[key]['config']['gtn_mod_step_size']
 
             # if order[0] != 1:
             #     continue
 
-            order_list.append((loss, mod_step_size, order, ets, timings))
+            order_list.append((loss, order, ets, timings))
 
             if 2 in order or 3 in order:
                 w_23.append(loss)
@@ -152,8 +151,8 @@ def remove_outliers(result):
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results'
+    log_dir = '../results/GTN_params_bohb_2020-08-11-12-HalfCheetah-more-limited-parameters'
+    #log_dir = '../results'
     analyze_bohb(log_dir)
 
 
