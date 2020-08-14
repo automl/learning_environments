@@ -25,6 +25,8 @@ def analyze_bohb(log_dir):
     result_1 = deepcopy(result)
     result_2 = deepcopy(result)
     result_3 = deepcopy(result)
+    result_4 = deepcopy(result)
+    result_5 = deepcopy(result)
 
     analyze_result_order(result, id2conf)
 
@@ -32,16 +34,23 @@ def analyze_bohb(log_dir):
     get_w(result_1, spec=1)
     get_w(result_2, spec=2)
     get_w(result_3, spec=3)
+    get_w(result_4, spec=4)
+    get_w(result_5, spec=5)
+
 
     print(len(result_0.data))
     print(len(result_1.data))
     print(len(result_2.data))
     print(len(result_3.data))
+    print(len(result_4.data))
+    print(len(result_5.data))
 
     plot_accuracy_over_budget(result_0, '0')
     plot_accuracy_over_budget(result_1, '1')
     plot_accuracy_over_budget(result_2, '2')
     plot_accuracy_over_budget(result_3, '3')
+    plot_accuracy_over_budget(result_4, '4')
+    plot_accuracy_over_budget(result_5, '5')
 
     plt.show()
 
@@ -69,6 +78,9 @@ def analyze_result_order(result, id2conf):
     ones = []
     twos = []
     threes = []
+    fours = []
+    fives = []
+
     for key, value1 in result.data.items():
         for key2, value2 in value1.results.items():
             if key2 > 1 :
@@ -85,16 +97,20 @@ def analyze_result_order(result, id2conf):
             mod_noise_type = td3_config['mod_noise_type']
             mod_mult_const = td3_config['mod_mult_const']
 
-            order_list.append((loss, order[0], mod_grad_type, mod_noise_type, mod_mult_const, ets))
+            order_list.append((loss, order, mod_grad_type, mod_noise_type, mod_mult_const, ets))
 
-            if 0 in order:
-                zeros.append(loss)
-            elif 1 in order:
+            if 1 in order:
                 ones.append(loss)
             elif 2 in order:
                 twos.append(loss)
             elif 3 in order:
                 threes.append(loss)
+            elif 4 in order:
+                threes.append(loss)
+            elif 5 in order:
+                threes.append(loss)
+            else:
+                zeros.append(loss)
 
     order_list.sort(key = lambda x: x[0])
     for elem in order_list:
