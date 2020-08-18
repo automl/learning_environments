@@ -1,7 +1,9 @@
 import numpy as np
 import gym
 import torch
+from envs.bandit import *
 from envs.env_wrapper import EnvWrapper
+from gym.wrappers import TimeLimit
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -76,6 +78,8 @@ class EnvFactory:
             env = gym.make("HalfCheetah-v2")
         elif env_name == "CartPole-v0":
             env = gym.make("CartPole-v0")
+        elif env_name == "Bandit-v0":
+            env = TimeLimit(BanditPermutedGaussian())
         else:
             raise NotImplementedError("Environment not supported")
 

@@ -1,6 +1,7 @@
 from agents.TD3 import TD3
 from agents.TD3_mod import TD3_Mod
 from agents.PPO import PPO
+from agents.DDQN import DDQN
 from envs.env_factory import EnvFactory
 
 def select_agent(config, agent_name):

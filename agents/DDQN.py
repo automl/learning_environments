@@ -4,11 +4,11 @@ import torch.nn as nn
 import gym
 import numpy as np
 import math
+import random
 import torch.nn.functional as F
 from models.actor_critic import Critic_DQN
 from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
-import random
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -43,123 +43,61 @@ class DDQN(nn.Module):
         self.it = 0
 
 
-    def act(self, state, epsilon=None):
-        if epsilon is None: epsilon = self.eps_min
-        if random.random() > epsilon:
-            state = torch.tensor(state, dtype=torch.float).unsqueeze(0)
-            state = state.cuda()
-            q_value = self.model.forward(state)
-            action = q_value.max(1)[1].item()
-        else:
-            action = random.randrange(2)
-        action = np.array([action])
-        return action
+    def train(self, env, mod = None):
+        replay_buffer = ReplayBuffer(env.get_state_dim(), 1, max_size=self.rb_size)
+        avg_meter_reward = AverageMeter(print_str="Average reward: ")
+        avg_meter_eps = AverageMeter(print_str="Average eps: ")
 
+        # training loop
+        for episode in range(self.max_episodes):
+            state = env.reset()
+            episode_reward = 0
 
-    def train(self, env):
-        buffer = ReplayBuffer(4, 1, self.rb_size)
+            choose_random = 0
 
-        losses = []
-        all_rewards = []
-        episode_reward = 0
-        ep_num = 0
+            for t in range(0, env.max_episode_steps(), self.same_action_num):
+                if random.random() < self.eps:
+                    choose_random += 1
+                    action = env.get_random_action()
+                else:
+                    qvals = self.model(state.to(device))
+                    action = torch.argmax(qvals).unsqueeze(0).detach()
 
-        state = env.reset()
+                # live view
+                if self.render_env and episode % 10 == 0:
+                    env.render()
 
-        epsilon = self.eps
-        for fr in range(1,100000):
-            #epsilon = self.epsilon_by_frame(fr)
+                # state-action transition
+                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+                replay_buffer.add(state=state, action=action, action_mod=action.clone(), next_state=next_state, reward=reward, done=done)
+                state = next_state
+                episode_reward += reward
 
-            if np.random.rand() < epsilon:
-                action = env.get_random_action()
-            else:
-                q_value = self.model.forward(state.to(device))
-                action = torch.argmax(q_value).unsqueeze(0).detach()
+                # train
+                if episode > self.init_episodes:
+                    self.update(replay_buffer)
 
-            # action = self.act(state.cpu().detach().numpy(),
-            #                   epsilon)
-            # action = torch.tensor(action)
-            next_state, reward, done = env.step(action, state)
+                if done > 0.5:
+                    #print(str(action) + " " + str(choose_random/(t+1)))
+                    break
 
-            buffer.add(state = state,
-                       action = action,
-                       action_mod = action,
-                       reward = reward,
-                       next_state = next_state,
-                       done = done)
+            # logging
+            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
+            avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
 
-            state = next_state
-            episode_reward += reward
+            # update eps
+            self.eps *= self.eps_decay
+            self.eps = max(self.eps, self.eps_min)
 
-            loss = 0
-            if buffer.get_size() > self.batch_size:
-                loss = self.update(buffer)
-                losses.append(loss)
+            # quit training if environment is solved
+            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+            if avg_reward >= env.env.solved_reward:
+                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
+                break
 
-            if fr % 200 == 0:
-                print("frames: %5d, reward: %5f, loss: %4f episode: %4d" % (fr, np.mean(all_rewards[-10:]), loss, ep_num))
+        env.close()
 
-            if done:
-                epsilon *= self.eps_decay
-                epsilon = max(epsilon, self.eps_min)
-                state = env.reset()
-                all_rewards.append(episode_reward)
-                episode_reward = 0
-                ep_num += 1
-
-
-    # def train(self, env, mod = None):
-    #     replay_buffer = ReplayBuffer(env.get_state_dim(), 1, max_size=self.rb_size)
-    #     avg_meter_reward = AverageMeter(print_str="Average reward: ")
-    #     avg_meter_eps = AverageMeter(print_str="Average eps: ")
-    #
-    #     # training loop
-    #     for episode in range(self.max_episodes):
-    #         state = env.reset()
-    #         episode_reward = 0
-    #
-    #         for t in range(0, env.max_episode_steps(), self.same_action_num):
-    #             if np.random.randn() < self.eps:
-    #                 action = env.get_random_action()
-    #             else:
-    #                 qvals = self.model(state.to(device))
-    #                 action = torch.argmax(qvals).unsqueeze(0).detach()
-    #
-    #             # live view
-    #             if self.render_env and episode % 10 == 0:
-    #                 env.render()
-    #
-    #             # state-action transition
-    #             next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
-    #             replay_buffer.add(state=state, action=action, action_mod=action.clone(), next_state=next_state, reward=reward, done=done)
-    #
-    #             state = next_state
-    #             episode_reward += reward
-    #
-    #             # train
-    #             if episode > self.init_episodes:
-    #                 self.update(replay_buffer)
-    #
-    #             if done > 0.5:
-    #                 break
-    #
-    #         # logging
-    #         avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
-    #         avg_meter_eps.update(self.eps, print_rate=self.early_out_num*10)
-    #
-    #         # update eps
-    #         self.eps *= self.eps_decay
-    #         self.eps = max(self.eps, self.eps_min)
-    #
-    #         # quit training if environment is solved
-    #         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-    #         if avg_reward >= env.env.solved_reward:
-    #             print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-    #             break
-    #
-    #     env.close()
-    #
-    #     return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data()
 
 
     def update(self, replay_buffer):
@@ -173,6 +111,10 @@ class DDQN(nn.Module):
         rewards = rewards.squeeze()
         dones = dones.squeeze()
 
+        if len(states.shape) == 1:
+            states = states.unsqueeze(1)
+            next_states = next_states.unsqueeze(1)
+
         q_values = self.model(states)
         next_q_values = self.model(next_states)
         next_q_state_values = self.model_target(next_states)
@@ -180,7 +122,6 @@ class DDQN(nn.Module):
         q_value = q_values.gather(1, actions.long().unsqueeze(1)).squeeze(1)
         next_q_value = next_q_state_values.gather(1, next_q_values.max(1)[1].unsqueeze(1)).squeeze(1)
         expected_q_value = rewards + self.gamma * next_q_value * (1 - dones)
-        # Notice that detach the expected_q_value
         loss = F.mse_loss(q_value, expected_q_value.detach())
 
         self.optimizer.zero_grad()
@@ -188,11 +129,8 @@ class DDQN(nn.Module):
         self.optimizer.step()
 
         # target network update
-        if self.it % self.tau == 0:
-            self.model_target.load_state_dict(self.model.state_dict())
-
-        # for target_param, param in zip(self.model_target.parameters(), self.model.parameters()):
-        #     target_param.data.copy_(self.tau * param + (1 - self.tau) * target_param)
+        for target_param, param in zip(self.model_target.parameters(), self.model.parameters()):
+            target_param.data.copy_(self.tau * param + (1 - self.tau) * target_param)
         return loss
 
 

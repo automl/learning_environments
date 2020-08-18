@@ -29,10 +29,18 @@ class EnvWrapper(nn.Module):
         next_state_torch = torch.tensor(state, device="cpu", dtype=torch.float32)
         reward_torch = torch.tensor(reward_sum, device="cpu", dtype=torch.float32)
         done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
+
+        if next_state_torch.dim() == 0:
+            next_state_torch = next_state_torch.unsqueeze(0)
+
         return next_state_torch, reward_torch, done_torch
 
     def reset(self):
-        return torch.from_numpy(self.env.reset()).float().cpu()
+        val = self.env.reset()
+        if type(val) == np.ndarray:
+            return torch.from_numpy(val).float().cpu()
+        elif type(val) == int:
+            return torch.tensor([val], device="cpu", dtype=torch.float32)
 
     def get_random_action(self):
         action = self.env.action_space.sample()
@@ -42,7 +50,10 @@ class EnvWrapper(nn.Module):
             return torch.tensor([action], device="cpu", dtype=torch.float32)
 
     def get_state_dim(self):
-        return self.env.observation_space.shape[0]
+        if self.env.observation_space.shape:
+            return self.env.observation_space.shape[0]
+        else:
+            return self.env.observation_space.n
 
     def get_action_dim(self):
         if self.env.action_space.shape:
@@ -58,7 +69,8 @@ class EnvWrapper(nn.Module):
         elif self.env.env_name == "HalfCheetah-v2":
             return 1
         else:
-            raise NotImplementedError("Unknownn RL agent")
+            print("Unknownn env, performance may decrease")
+            return 0
 
     def is_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):

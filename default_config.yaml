@@ -1,12 +1,12 @@
-env_name: !!str CartPole-v0                 # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
-seed: !!int 20                               # random initialization seed
-render_env: !!bool True                    # render environment
+env_name: !!str HalfCheetah-v2                 # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+seed: !!int 22                               # random initialization seed
+render_env: !!bool False                    # render environment
 
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
-    agent_name: !!str TD3                   # which RL agent to use for meta-training
+    agent_name: !!str TD3                  # which RL agent to use for meta-training
     mod_zero_rate: !!int 2                  # use unmodified environment every i-th round
 
   reptile:
@@ -18,15 +18,15 @@ agents:
     max_episodes: !!int 10000               # maximum number of episodes to optimize
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int  128                  # batch size when running a policy update step
-    gamma: !!float 0.99                     # discount factor
-    lr: !!float 1e-3                        # learning rate
-    tau: !!int 100                          # target network update rate
-    eps_init: !!float 1
-    eps_min: !!float 0.01
-    eps_decay: !!float 0.9
-    rb_size: !!int 1000                     # size of the replay buffer
+    gamma: !!float 0.95                     # discount factor
+    lr: !!float 1e-4                        # learning rate
+    tau: !!float 0.01                       # target network update rate
+    eps_init: !!float 1                     # initial random action percentage
+    eps_min: !!float 0.01                   # final random action percentage
+    eps_decay: !!float 0.5                  # random action decay factor
+    rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
@@ -71,7 +71,7 @@ agents:
     ent_coef: !!float 0.01                  # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.2                   # trust region size (see PPO paper)
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
@@ -104,6 +104,9 @@ envs:
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
 
   CartPole-v0:
-    solved_reward: !!float 198
-    max_steps: !!int 200
+    solved_reward: !!float 201              # used for early out in RL agent training
+    max_steps: !!int 200                    # maximum number of steps per episode
 
+  Bandit-v0:
+    solved_reward: !!float 100
+    max_steps: !!int 100

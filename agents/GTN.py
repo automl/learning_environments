@@ -35,9 +35,10 @@ class GTN(nn.Module):
         self.real_env = self.env_factory.generate_default_real_env()
 
     def print_stats(self):
-        print_abs_param_sum(self.agent.actor, "Actor")
-        print_abs_param_sum(self.agent.critic_1, "Critic1")
-        print_abs_param_sum(self.agent.critic_2, "Critic2")
+        if self.agent_name == 'TD3':
+            print_abs_param_sum(self.agent.actor, "Actor")
+            print_abs_param_sum(self.agent.critic_1, "Critic1")
+            print_abs_param_sum(self.agent.critic_2, "Critic2")
 
     def train(self):
         order = []
