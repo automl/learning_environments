@@ -38,7 +38,7 @@ class DDQN(nn.Module):
         self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(device)
         self.model_target.load_state_dict(self.model.state_dict())
 
-        self.reset()
+        self.reset_optimizer()
 
         self.it = 0
 
@@ -49,6 +49,7 @@ class DDQN(nn.Module):
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
 
         # training loop
+        self.eps = self.eps_init
         for episode in range(self.max_episodes):
             state = env.reset()
             episode_reward = 0
@@ -134,8 +135,7 @@ class DDQN(nn.Module):
         return loss
 
 
-    def reset(self):
-        self.eps = self.eps_init
+    def reset_optimizer(self):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
 

@@ -47,7 +47,7 @@ class TD3_Mod(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
-        self.reset()
+        self.reset_optimizer()
 
         self.total_it = 0
 

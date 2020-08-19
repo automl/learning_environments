@@ -43,7 +43,7 @@ class TD3(nn.Module):
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
-        self.reset()
+        self.reset_optimizer()
 
         self.total_it = 0
 
@@ -164,7 +164,7 @@ class TD3(nn.Module):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
 
-    def reset(self):
+    def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
         self.actor_optimizer = torch.optim.Adam(actor_params, lr=self.lr)

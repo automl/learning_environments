@@ -56,6 +56,8 @@ class REPTILE(nn.Module):
     def __init__(self, config):
         super().__init__()
 
+        self.config = config
+
         reptile_config = config["agents"]["reptile"]
         self.max_iterations = reptile_config["max_iterations"]
         self.step_size = reptile_config["step_size"]
@@ -85,12 +87,12 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     # set seeds
-    seed = config["seed"]
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    # seed = config["seed"]
+    # torch.manual_seed(seed)
+    # np.random.seed(seed)
 
     reptile = REPTILE(config)
-    reptile.train()
+    #reptile.train()
     result = test(agent=reptile.agent,
                   env_factory=reptile.env_factory,
                   config=reptile.config)

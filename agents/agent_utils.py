@@ -49,7 +49,7 @@ def test(agent, env_factory, config, mod=None):
     # N.B. we have to reset the state of the agent before every iteration
 
     # to avoid problems with wrongly initialized optimizers
-    agent.reset()
+    agent.reset_optimizer()
 
     mean_episodes_till_solved = 0
     episodes_till_solved = []
@@ -61,7 +61,7 @@ def test(agent, env_factory, config, mod=None):
         interpolate_vals = np.arange(0, 1.01, 0.2)
 
     for interpolate in interpolate_vals:
-        agent.reset()
+        agent.reset_optimizer()
         agent.set_state_dict(agent_state)
         if mod is not None:
             mod.set_mod_type(0)    # deactivate mod
