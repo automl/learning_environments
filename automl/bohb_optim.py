@@ -156,6 +156,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         nameserver_port=ns_port,
         min_budget=bohb_params['min_budget'],
         max_budget=bohb_params['max_budget'],
+        random_fraction=bohb_params['random_fraction'],
         result_logger=result_logger)
 
     #res = bohb.run(n_iterations=bohb_params['iterations'])
@@ -197,6 +198,7 @@ def run_bohb_serial(run_id, experiment_wrapper):
         eta=bohb_params['eta'],
         min_budget=bohb_params['min_budget'],
         max_budget=bohb_params['max_budget'],
+        random_fraction=bohb_params['random_fraction'],
         nameserver="127.0.0.1",
         nameserver_port=port,
         result_logger=result_logger)

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.0
+OUTLIER_PERC_WORST = 0.2
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -41,7 +41,6 @@ def analyze_bohb(log_dir):
     inc_config = id2conf[inc_id]['config']
     inc_info = inc_run['info']
 
-    print()
     print('Best found configuration :' + str(inc_config))
     print('Score: ' + str(inc_valid_score))
     print('Info: ' + str(inc_info))
@@ -66,11 +65,75 @@ def analyze_bohb(log_dir):
 
     result = remove_outliers(result)
 
+    print_configs_sorted_by_loss(result)
+
+    print_avg_per_value(result)
+
     plot_accuracy_over_budget(result)
 
     plot_parallel_scatter(result)
 
     plt.show()
+
+
+def print_configs_sorted_by_loss(result):
+    lst = []
+
+    for k1, v1 in result.data.items():
+        for k2, v2 in v1.results.items():
+            loss = v2['loss']
+            config = v1.config
+            lst.append((loss,config))
+
+    lst.sort(key = lambda x: x[0])
+
+    for elem in lst:
+        print(elem)
+
+
+def print_avg_per_value(result):
+
+    # get all possible keys
+    min_epoch = float('Inf')
+
+    config_params = {}
+    for value in result.data.values():
+        for config_param, config_param_val in value.config.items():
+            for epoch, epoch_result in value.results.items():
+                try:
+                    loss = epoch_result["loss"]
+
+                    min_epoch = min(min_epoch, epoch)
+
+                    if config_param in config_params.keys():
+                        config_params[config_param].append((config_param_val, epoch, loss))
+                    else:
+                        config_params[config_param] = [(config_param_val, epoch, loss)]
+                except:
+                    print('Error in get_avg_per_value, continuing')
+
+
+    for config_param, data in (dict(sorted(config_params.items()))).items():
+        print(config_param)
+
+        # get all unique possible values for each config parameter
+        values = set(elem[0] for elem in data)
+        values = sorted(list(values))
+
+        if len(values) > 20:
+            continue
+
+        for value in values:
+            count = 0
+            sm = 0
+
+            for elem in data:
+                val, epoch, loss = elem
+                if val == value and epoch == min_epoch:
+                    sm += loss
+                    count += 1
+
+            print(str(value) + ' ' + str(sm/count))
 
 
 def remove_outliers(result):
@@ -171,8 +234,8 @@ def plot_parallel_scatter(result):
                     print('Error in plot_parallel_scatter, continuing')
 
     x_dev = 0.2
-    r_min = 1
-    r_max = 2
+    r_min = 3
+    r_max = 4
     alpha = 0.4
     text_x_offset = -0.1
     text_y_offset = -0.1
@@ -200,7 +263,6 @@ def plot_parallel_scatter(result):
                     colors[k, :] = get_color(acc)
 
         # check for type (categorical,int,float,log)
-        # yeah, I know that this type of loop is stupid and slow, but it's not called that often anyway
         if type(values[0]) is bool:
             y_dev = x_dev / 2
             for i in range(len(values)):
@@ -311,8 +373,8 @@ def get_bright_random_color():
 
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    #log_dir = '../results'
+    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
+    log_dir = '../results'
     analyze_bohb(log_dir)
 
 

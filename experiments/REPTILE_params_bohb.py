@@ -18,6 +18,7 @@ class ExperimentWrapper():
         params['max_budget'] = 4
         params['eta'] = 2
         params['iterations'] = 1000
+        params['random_fraction'] = 1
 
         return params
 
