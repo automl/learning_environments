@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.2
+OUTLIER_PERC_WORST = 0.05
 OUTLIER_PERC_BEST = 0.0
 
 

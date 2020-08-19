@@ -15,7 +15,7 @@ class ExperimentWrapper():
         params = {}
         params['seed'] = 42
         params['min_budget'] = 1
-        params['max_budget'] = 4
+        params['max_budget'] = 2
         params['eta'] = 2
         params['iterations'] = 1000
         params['random_fraction'] = 1
