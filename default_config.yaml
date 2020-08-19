@@ -10,14 +10,14 @@ agents:
     mod_zero_rate: !!int 2                  # use unmodified environment every i-th round
 
   reptile:
-    max_iterations: !!int 5                 # maximum number of REPTILE iteration
-    step_size: !!float 1                    # step size when updating the model parameters
+    max_iterations: !!int 20                # maximum number of REPTILE iteration
+    step_size: !!float 0.1                  # step size when updating the model parameters
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
-    parallel_update: !!bool False           # serial or parallel retile updates?
+    parallel_update: !!bool True            # serial or parallel reptile updates?
     env_num: !!int 5                        # number of different training envs
 
   ddqn:
-    max_episodes: !!int 200                 # maximum number of episodes to optimize
+    max_episodes: !!int 5                   # maximum number of episodes to optimize
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int  128                  # batch size when running a policy update step
     gamma: !!float 0.95                     # discount factor

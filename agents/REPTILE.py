@@ -2,7 +2,6 @@ import yaml
 import copy
 import torch
 import torch.nn as nn
-import numpy as np
 from agents.agent_utils import test, print_stats
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
@@ -46,9 +45,29 @@ def reptile_update_state_dict_parallel(agent, old_state_dict, new_state_dicts, s
     n = len(new_state_dicts)
     agent.load_state_dict(copy.deepcopy(old_state_dict))
     agent_state_dict = agent.state_dict()
+
     for new_state_dict in new_state_dicts:
         for key, value in new_state_dict.items():
+            # if key == 'model.net.0.net.bias':
+            #     print(key)
+            #     print('- before -')
+            #     print(agent_state_dict[key][0])
+            #     print(new_state_dict[key][0])
+            #     print(old_state_dict[key][0])
+
             agent_state_dict[key] += (new_state_dict[key] - old_state_dict[key]) * step_size/n
+
+            # if key == 'model.net.0.net.bias':
+            #     print('- after -')
+            #     print(agent_state_dict[key][0])
+            #     a = agent.state_dict()
+            #     print(a[key][0])
+
+    sum_diff = 0
+    for key, value in new_state_dict.items():
+        sum_diff += torch.sum(torch.abs(agent_state_dict[key]-old_state_dict[key]))
+
+    print(sum_diff)
 
 
 # todo fabio: refactor
@@ -75,12 +94,12 @@ class REPTILE(nn.Module):
     def train(self):
         for it in range(self.max_iterations):
             print('-- REPTILE iteration {} --'.format(it))
+            print_stats(self.agent)
             if self.parallel_update:
                 reptile_train_agent_parallel(agent=self.agent, mod=None, envs=self.envs, step_size=self.step_size)
             else:
                 for env in self.envs:
                     reptile_train_agent_serial(agent=self.agent, mod=None, env=env, step_size=self.step_size)
-                    print_stats(self.agent)
 
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
@@ -92,9 +111,11 @@ if __name__ == "__main__":
     # np.random.seed(seed)
 
     reptile = REPTILE(config)
-    #reptile.train()
+    reptile.train()
     result = test(agent=reptile.agent,
                   env_factory=reptile.env_factory,
-                  config=reptile.config)
+                  config=reptile.config,
+                  max_episodes=300,
+                  num_envs=10)
     print(result)
 
