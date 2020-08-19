@@ -28,6 +28,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_max_iterations', choices=[0, 1, 5, 10, 20]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_step_size', choices=[0.01, 0.1, 1]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_parallel_update', choices=[False, True]))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_env_num', choices=[1,5]))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_max_episodes', choices=[0,1,2,5,10,20,50,100]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_dropout', choices=[0, 0.05, 0.1, 0.2, 0.5]))
@@ -44,6 +45,7 @@ class ExperimentWrapper():
         config["agents"]['reptile']['max_iterations'] = cso["rep_max_iterations"]
         config["agents"]['reptile']['step_size'] = cso["rep_step_size"]
         config["agents"]['reptile']['parallel_update'] = cso["rep_parallel_update"]
+        config["agents"]['reptile']['env_num'] = cso["rep_env_num"]
 
         config["agents"]["ddqn"]["max_episodes"] = cso["ddqn_max_episodes"]
         config["agents"]["ddqn"]["dropout"] = cso["ddqn_dropout"]
