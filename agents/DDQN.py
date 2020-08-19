@@ -38,7 +38,7 @@ class DDQN(nn.Module):
         self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(device)
         self.model_target.load_state_dict(self.model.state_dict())
 
-        self.reset_optimizer()
+        self.reset()
 
         self.it = 0
 
@@ -83,7 +83,7 @@ class DDQN(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
-            avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
+            #avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
 
             # update eps
             self.eps *= self.eps_decay
@@ -134,7 +134,8 @@ class DDQN(nn.Module):
         return loss
 
 
-    def reset_optimizer(self):
+    def reset(self):
+        self.eps = self.eps_init
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
 

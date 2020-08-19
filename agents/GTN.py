@@ -4,13 +4,10 @@ import torch
 import torch.nn as nn
 import numpy as np
 import os
-import copy
 from time import time
-from agents.TD3 import TD3
-from agents.agent_utils import select_agent, select_mod
+from agents.agent_utils import select_agent, select_mod, test
 from agents.REPTILE import reptile_train_agent_serial
 from envs.env_factory import EnvFactory
-from utils import print_abs_param_sum
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -33,12 +30,6 @@ class GTN(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.real_env = self.env_factory.generate_default_real_env()
-
-    def print_stats(self):
-        if self.agent_name == 'TD3':
-            print_abs_param_sum(self.agent.actor, "Actor")
-            print_abs_param_sum(self.agent.critic_1, "Critic1")
-            print_abs_param_sum(self.agent.critic_2, "Critic2")
 
     def train(self):
         order = []
@@ -67,40 +58,6 @@ class GTN(nn.Module):
         self.print_stats()
 
         return order, timings
-
-    def test(self):
-        # generate 10 different deterministic environments with increasing difficulty
-        # and check for every environment how many episodes it takes the agent to solve it
-        # N.B. we have to reset the state of the agent before every iteration
-
-        # todo future: fine-tuning, then test
-        # to avoid problems with wrongly initialized optimizers
-        if isinstance(self.agent, TD3):
-            self.agent.reset_optimizer()
-
-        mean_episodes_till_solved = 0
-        episodes_till_solved = []
-        agent_state = copy.deepcopy(self.agent.get_state_dict())
-
-        if self.config['env_name'] == 'HalfCheetah-v2':
-            interpolate_vals = [0, 0.03, 0.1, 0.4, 1]
-        else:
-            interpolate_vals = np.arange(0, 1.01, 0.2)
-
-        for interpolate in interpolate_vals:
-            self.agent.set_state_dict(agent_state)
-            self.mod.set_mod_type(0)    # deactivate mod
-            self.print_stats()
-            env = self.env_factory.generate_interpolated_real_env(interpolate)
-            reward_list = self.agent.train(env=env, mod=self.mod)
-            mean_episodes_till_solved += len(reward_list)
-            episodes_till_solved.append(len(reward_list))
-            print("episodes till solved: " + str(len(reward_list)))
-
-        self.agent.set_state_dict(agent_state)
-        mean_episodes_till_solved /= len(interpolate_vals)
-
-        return mean_episodes_till_solved, episodes_till_solved
 
     def save(self, path):
         # not sure if working
@@ -140,5 +97,8 @@ if __name__ == "__main__":
 
     gtn = GTN(config)
     gtn.train()
-    result = gtn.test()
+    result = test(agent=gtn.agent,
+                  env_factory=gtn.env_factory,
+                  config=gtn.config,
+                  mod=gtn.mod)
     print(result)

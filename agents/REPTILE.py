@@ -3,7 +3,7 @@ import copy
 import torch
 import torch.nn as nn
 import numpy as np
-from utils import print_abs_param_sum
+from agents.agent_utils import test, print_stats
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
@@ -21,20 +21,19 @@ def reptile_train_agent_serial(agent, mod, env, step_size):
                                      step_size=step_size)
 
 
-# def reptile_train_agent_parallel(agent, mod, env, mod_step_sizes, step_size):
-#     old_state_dict = copy.deepcopy(agent.state_dict())
-#     new_state_dicts = []
-#
-#     for mod_step_size in mod_step_sizes:
-#         print('parallel mod_step_size: ' + str(mod_step_size))
-#         agent.load_state_dict(copy.deepcopy(old_state_dict))
-#         agent.train(env=env, mod=mod, mod_step_size=mod_step_size)
-#         new_state_dicts.append(copy.deepcopy(agent.state_dict()))
-#
-#     reptile_update_state_dict_parallel(agent=agent,
-#                                        old_state_dict=old_state_dict,
-#                                        new_state_dicts=new_state_dicts,
-#                                        step_size=step_size)
+def reptile_train_agent_parallel(agent, mod, envs, step_size):
+    old_state_dict = copy.deepcopy(agent.state_dict())
+    new_state_dicts = []
+
+    for env in envs:
+        agent.load_state_dict(copy.deepcopy(old_state_dict))
+        agent.train(env=env, mod=mod)
+        new_state_dicts.append(copy.deepcopy(agent.state_dict()))
+
+    reptile_update_state_dict_parallel(agent=agent,
+                                       old_state_dict=old_state_dict,
+                                       new_state_dicts=new_state_dicts,
+                                       step_size=step_size)
 
 
 def reptile_update_state_dict_serial(agent, old_state_dict, new_state_dict, step_size):
@@ -60,20 +59,26 @@ class REPTILE(nn.Module):
         reptile_config = config["agents"]["reptile"]
         self.max_iterations = reptile_config["max_iterations"]
         self.step_size = reptile_config["step_size"]
+        self.parallel_update = reptile_config["parallel_update"]
+        self.env_num = reptile_config["env_num"]
 
         agent_name = reptile_config["agent_name"]
         self.env_factory = EnvFactory(config)
         self.agent = select_agent(config, agent_name)
 
+        self.envs = []
+        for i in range(self.env_num):
+            self.envs.append(self.env_factory.generate_random_real_env())
+
     def train(self):
         for it in range(self.max_iterations):
-            old_state_dict = copy.deepcopy(self.agent.state_dict())
-
-            env = self.env_factory.generate_random_real_env()
-            self.agent.train(env=env)
-
-            reptile_update_state_dict(self.agent, old_state_dict, self.step_size)
-
+            print('-- REPTILE iteration {} --'.format(it))
+            if self.parallel_update:
+                reptile_train_agent_parallel(agent=self.agent, mod=None, envs=self.envs, step_size=self.step_size)
+            else:
+                for env in self.envs:
+                    reptile_train_agent_serial(agent=self.agent, mod=None, env=env, step_size=self.step_size)
+                    print_stats(self.agent)
 
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
@@ -86,3 +91,8 @@ if __name__ == "__main__":
 
     reptile = REPTILE(config)
     reptile.train()
+    result = test(agent=reptile.agent,
+                  env_factory=reptile.env_factory,
+                  config=reptile.config)
+    print(result)
+

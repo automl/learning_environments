@@ -1,18 +1,20 @@
-env_name: !!str HalfCheetah-v2                 # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
-seed: !!int 22                               # random initialization seed
+env_name: !!str Bandit-v0               # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+seed: !!int 22                              # random initialization seed
 render_env: !!bool False                    # render environment
 
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
     step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
-    agent_name: !!str TD3                  # which RL agent to use for meta-training
+    agent_name: !!str TD3                   # which RL agent to use for meta-training
     mod_zero_rate: !!int 2                  # use unmodified environment every i-th round
 
   reptile:
     max_iterations: !!int 10000             # maximum number of REPTILE iteration
-    step_size: !!float 0.1                  # step size when updating the model parameters
-    agent_name: !!str TD3                   # which RL agent to use for meta-training
+    step_size: !!float 1                  # step size when updating the model parameters
+    agent_name: !!str DDQN                  # which RL agent to use for meta-training
+    parallel_update: !!bool False           # serial or parallel retile updates?
+    env_num: !!int 5                        # number of different training envs
 
   ddqn:
     max_episodes: !!int 10000               # maximum number of episodes to optimize
@@ -23,17 +25,17 @@ agents:
     tau: !!float 0.01                       # target network update rate
     eps_init: !!float 1                     # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
-    eps_decay: !!float 0.5                  # random action decay factor
+    eps_decay: !!float 0.8                  # random action decay factor
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
-    early_out_num: 5                        # based on how many training steps shall an early out happen
+    early_out_num: 10                       # based on how many training steps shall an early out happen
 
   td3:
-    max_episodes: !!int 100                 # maximum number of episodes to optimize
+    max_episodes: !!int 2000                # maximum number of episodes to optimize
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -98,15 +100,15 @@ envs:
     goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
 
   HalfCheetah-v2:
-    solved_reward: !!float 500              # used for early out in RL agent training
-    max_steps: !!int 500                    # maximum number of steps per episode
+    solved_reward: !!float 10000            # used for early out in RL agent training
+    max_steps: !!int 1000                   # maximum number of steps per episode
     g: [-0.2, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
 
   CartPole-v0:
-    solved_reward: !!float 201              # used for early out in RL agent training
+    solved_reward: !!float 195              # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
 
   Bandit-v0:
-    solved_reward: !!float 100
+    solved_reward: !!float 98
     max_steps: !!int 100
