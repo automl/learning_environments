@@ -71,7 +71,7 @@ class ExperimentWrapper():
 
         try:
             reptile = REPTILE(config)
-            #reptile.update()
+            reptile.update()
             score, episodes_till_solved = test(agent=reptile.agent,
                                                env_factory=reptile.env_factory,
                                                config=reptile.config,
