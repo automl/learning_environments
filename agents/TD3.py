@@ -48,7 +48,7 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def train(self, env, mod = None):
+    def update(self, env, mod = None):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -91,9 +91,9 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer)
+                    self.learn(replay_buffer)
                     if mod is not None:
-                        mod.update(replay_buffer)
+                        mod.learn(replay_buffer)
                 if done > 0.5:
                     break
 
@@ -111,7 +111,7 @@ class TD3(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def update(self, replay_buffer):
+    def learn(self, replay_buffer):
         self.total_it += 1
 
         # Sample replay buffer
@@ -216,4 +216,4 @@ if __name__ == "__main__":
               action_dim=real_env.get_action_dim(),
               max_action=real_env.get_max_action(),
               config=config)
-    td3.train(env=real_env)
+    td3.update(env=real_env)

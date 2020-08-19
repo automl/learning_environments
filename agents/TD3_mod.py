@@ -122,7 +122,7 @@ class TD3_Mod(nn.Module):
             self.mod_mult = np.random.random() * 2
 
 
-    def update(self, replay_buffer):
+    def learn(self, replay_buffer):
         self.total_it += 1
 
         if self.total_it % self.mod_delay != 0:

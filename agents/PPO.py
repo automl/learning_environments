@@ -44,7 +44,7 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def train(self, env, input_seed=torch.tensor([0])):
+    def update(self, env, input_seed=torch.tensor([0])):
         replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, max_size=int(1e6))
         avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
@@ -79,7 +79,7 @@ class PPO(nn.Module):
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
-                    self.update(replay_buffer, env, input_seed)
+                    self.learn(replay_buffer, env, input_seed)
                     replay_buffer.clear()
                     time_step = 0
                 if done > 0.5:
@@ -99,7 +99,7 @@ class PPO(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def update(self, replay_buffer, env, input_seed):
+    def learn(self, replay_buffer, env, input_seed):
         # Monte Carlo estimate of rewards:
         new_rewards = []
         discounted_reward = 0
@@ -188,5 +188,5 @@ if __name__ == "__main__":
     ppo = PPO(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),
               config=config)
-    ppo.train(env)
+    ppo.update(env)
 

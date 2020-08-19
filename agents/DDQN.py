@@ -43,13 +43,19 @@ class DDQN(nn.Module):
         self.it = 0
 
 
-    def train(self, env, mod = None):
+    def update(self, env, mod = None):
         replay_buffer = ReplayBuffer(env.get_state_dim(), 1, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
 
-        # training loop
         self.eps = self.eps_init
+        self.model.reset_dropout()
+        self.model_target.reset_dropout(self.model)
+
+        #self.model.print_dropout()
+        #self.model_target.print_dropout()
+
+        # training loop
         for episode in range(self.max_episodes):
             state = env.reset()
             episode_reward = 0
@@ -76,7 +82,7 @@ class DDQN(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer)
+                    self.learn(replay_buffer)
 
                 if done > 0.5:
                     #print(str(action) + " " + str(choose_random/(t+1)))
@@ -101,7 +107,7 @@ class DDQN(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def update(self, replay_buffer):
+    def learn(self, replay_buffer):
         self.it += 1
 
         states, actions, _, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
@@ -159,28 +165,19 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    seed = config["seed"]
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    # seed = config["seed"]
+    # torch.manual_seed(seed)
+    # np.random.seed(seed)
 
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_default_real_env()
-
-    real_env.seed(seed)
-
-    env = gym.make('CartPole-v0')
+    # real_env.seed(seed)
 
     ddqn = DDQN(state_dim=real_env.get_state_dim(),
                 action_dim=real_env.get_action_dim(),
                 config=config)
 
-    ddqn.train(env=real_env)
+    ddqn.update(env=real_env)
 
-
-    #ddqn.train(env=env)
-
-    # ddqn = DDQN(state_dim=4,
-    #             action_dim=2,
-    #             config=config)
 

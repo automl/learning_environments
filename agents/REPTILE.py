@@ -9,9 +9,9 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_train_agent_serial(agent, mod, env, step_size):
+def reptile_update_agent_serial(agent, mod, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
-    agent.train(env=env, mod=mod)
+    agent.update(env=env, mod=mod)
     new_state_dict = copy.deepcopy(agent.state_dict())
 
     reptile_update_state_dict_serial(agent=agent,
@@ -20,13 +20,13 @@ def reptile_train_agent_serial(agent, mod, env, step_size):
                                      step_size=step_size)
 
 
-def reptile_train_agent_parallel(agent, mod, envs, step_size):
+def reptile_update_agent_parallel(agent, mod, envs, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
     new_state_dicts = []
 
     for env in envs:
         agent.load_state_dict(copy.deepcopy(old_state_dict))
-        agent.train(env=env, mod=mod)
+        agent.update(env=env, mod=mod)
         new_state_dicts.append(copy.deepcopy(agent.state_dict()))
 
     reptile_update_state_dict_parallel(agent=agent,
@@ -48,20 +48,7 @@ def reptile_update_state_dict_parallel(agent, old_state_dict, new_state_dicts, s
 
     for new_state_dict in new_state_dicts:
         for key, value in new_state_dict.items():
-            # if key == 'model.net.0.net.bias':
-            #     print(key)
-            #     print('- before -')
-            #     print(agent_state_dict[key][0])
-            #     print(new_state_dict[key][0])
-            #     print(old_state_dict[key][0])
-
             agent_state_dict[key] += (new_state_dict[key] - old_state_dict[key]) * step_size/n
-
-            # if key == 'model.net.0.net.bias':
-            #     print('- after -')
-            #     print(agent_state_dict[key][0])
-            #     a = agent.state_dict()
-            #     print(a[key][0])
 
     sum_diff = 0
     for key, value in new_state_dict.items():
@@ -91,15 +78,16 @@ class REPTILE(nn.Module):
         for i in range(self.env_num):
             self.envs.append(self.env_factory.generate_random_real_env())
 
-    def train(self):
+    def update(self):
+        self.train()
         for it in range(self.max_iterations):
             print('-- REPTILE iteration {} --'.format(it))
             print_stats(self.agent)
             if self.parallel_update:
-                reptile_train_agent_parallel(agent=self.agent, mod=None, envs=self.envs, step_size=self.step_size)
+                reptile_update_agent_parallel(agent=self.agent, mod=None, envs=self.envs, step_size=self.step_size)
             else:
                 for env in self.envs:
-                    reptile_train_agent_serial(agent=self.agent, mod=None, env=env, step_size=self.step_size)
+                    reptile_update_agent_serial(agent=self.agent, mod=None, env=env, step_size=self.step_size)
 
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
@@ -111,7 +99,7 @@ if __name__ == "__main__":
     # np.random.seed(seed)
 
     reptile = REPTILE(config)
-    reptile.train()
+    reptile.update()
     result = test(agent=reptile.agent,
                   env_factory=reptile.env_factory,
                   config=reptile.config,

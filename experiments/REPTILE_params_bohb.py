@@ -30,6 +30,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_parallel_update', choices=[False, True]))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_max_episodes', choices=[0,1,2,5,10,20,50,100]))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_dropout', choices=[0, 0.05, 0.2, 0.5]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['relu', 'leakyrelu', 'tanh']))
 
         return cs
@@ -45,6 +46,7 @@ class ExperimentWrapper():
         config["agents"]['reptile']['parallel_update'] = cso["rep_parallel_update"]
 
         config["agents"]["ddqn"]["max_episodes"] = cso["ddqn_max_episodes"]
+        config["agents"]["ddqn"]["dropout"] = cso["ddqn_dropout"]
         config["agents"]["ddqn"]["activation_fn"] = cso["ddqn_activation_fn"]
 
         return config
@@ -69,7 +71,7 @@ class ExperimentWrapper():
 
         try:
             reptile = REPTILE(config)
-            #reptile.train()
+            #reptile.update()
             score, episodes_till_solved = test(agent=reptile.agent,
                                                env_factory=reptile.env_factory,
                                                config=reptile.config,
@@ -103,7 +105,7 @@ if __name__ == "__main__":
     # torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'GTN_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'REPTILE_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

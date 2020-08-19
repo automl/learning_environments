@@ -31,7 +31,7 @@ class GTN(nn.Module):
         self.env_factory = EnvFactory(config)
         self.real_env = self.env_factory.generate_default_real_env()
 
-    def train(self):
+    def update(self):
         order = []
         timings = []
 
@@ -48,7 +48,7 @@ class GTN(nn.Module):
                 self.mod.reset_mod_type()
                 order.append(self.mod_type)
 
-            reptile_train_agent_serial(agent=self.agent,
+            reptile_update_agent_serial(agent=self.agent,
                                        mod=self.mod,
                                        env=self.real_env,
                                        step_size=self.step_size)
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
 
     gtn = GTN(config)
-    gtn.train()
+    gtn.update()
     result = test(agent=gtn.agent,
                   env_factory=gtn.env_factory,
                   config=gtn.config,

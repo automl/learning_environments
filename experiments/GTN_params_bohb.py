@@ -87,7 +87,7 @@ class ExperimentWrapper():
         error = ""
         try:
             gtn = GTN(config)
-            order, timings = gtn.train()
+            order, timings = gtn.update()
             score, episodes_till_solved = gtn.test()
         except:
             score = float('Inf')

@@ -24,6 +24,7 @@ def select_agent(config, agent_name):
     else:
         raise NotImplementedError("Unknownn RL agent")
 
+
 def select_mod(config):
     env_factory = EnvFactory(config)
     dummy_env = env_factory.generate_default_real_env()
@@ -52,6 +53,7 @@ def test(agent, env_factory, config, mod=None, max_episodes=100, num_envs=10):
 
     # to avoid problems with wrongly initialized optimizers
     agent.reset_optimizer()
+    agent.eval()
     agent.max_episodes = max_episodes
 
     mean_episodes_till_solved = 0
@@ -70,7 +72,7 @@ def test(agent, env_factory, config, mod=None, max_episodes=100, num_envs=10):
             mod.set_mod_type(0)    # deactivate mod
         print_stats(agent=agent)
         env = env_factory.generate_interpolated_real_env(interpolate)
-        reward_list = agent.train(env=env, mod=mod)
+        reward_list = agent.update(env=env, mod=mod)
         mean_episodes_till_solved += len(reward_list)
         episodes_till_solved.append(len(reward_list))
         print("episodes till solved: " + str(len(reward_list)))

@@ -85,7 +85,7 @@ class ExperimentWrapper():
         td3 = TD3(state_dim=env.get_state_dim(),
                   action_dim=env.get_action_dim(),
                   config=config)
-        rewards = td3.train(env)
+        rewards = td3.update(env)
         score = len(rewards)
 
         info['config'] = str(config)

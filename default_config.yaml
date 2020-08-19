@@ -17,13 +17,13 @@ agents:
     env_num: !!int 5                        # number of different training envs
 
   ddqn:
-    max_episodes: !!int 5                   # maximum number of episodes to optimize
+    max_episodes: !!int 200                 # maximum number of episodes to optimize
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int  128                  # batch size when running a policy update step
     gamma: !!float 0.95                     # discount factor
     lr: !!float 1e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
-    eps_init: !!float 1                     # initial random action percentage
+    eps_init: !!float 0.2                   # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.5                  # random action decay factor
     rb_size: !!int 1000000                  # size of the replay buffer
@@ -32,6 +32,7 @@ agents:
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
+    dropout: !!float 0                      # dropout rate
     early_out_num: 10                       # based on how many training steps shall an early out happen
 
   td3:
@@ -48,6 +49,7 @@ agents:
     hidden_size: !!int 256                  # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
     weight_norm: !!bool False               # use weight normalization
+    dropout: !!float 0                      # dropout rate
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
