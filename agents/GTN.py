@@ -42,7 +42,7 @@ class GTN(nn.Module):
 
             timings.append(int(time()-t))
 
-        self.print_stats()
+        print_stats(self.agent)
 
         return order, timings
 
