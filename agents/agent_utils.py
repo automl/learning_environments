@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 from agents.TD3 import TD3
-from agents.TD3_mod import TD3_Mod
 from agents.PPO import PPO
 from agents.DDQN import DDQN
 from envs.env_factory import EnvFactory
@@ -25,16 +24,6 @@ def select_agent(config, agent_name):
         raise NotImplementedError("Unknownn RL agent")
 
 
-def select_mod(config):
-    env_factory = EnvFactory(config)
-    dummy_env = env_factory.generate_default_real_env()
-    state_dim = dummy_env.get_state_dim()
-    action_dim = dummy_env.get_action_dim()
-    max_action = dummy_env.get_max_action()
-
-    return TD3_Mod(state_dim, action_dim, max_action, config)
-
-
 def print_stats(agent):
     if isinstance(agent, TD3):
         print_abs_param_sum(agent.actor, "Actor")
@@ -44,7 +33,7 @@ def print_stats(agent):
         print_abs_param_sum(agent.model, "Model")
 
 
-def test(agent, env_factory, config, mod=None, max_episodes=100, num_envs=10):
+def test(agent, env_factory, config, max_episodes=100, num_envs=10):
     # generate 6 different deterministic environments with increasing difficulty
     # and check for every environment how many episodes it takes the agent to solve it
     # N.B. we have to reset the state of the agent before every iteration
@@ -68,11 +57,10 @@ def test(agent, env_factory, config, mod=None, max_episodes=100, num_envs=10):
     for interpolate in interpolate_vals:
         agent.reset_optimizer()
         agent.set_state_dict(agent_state)
-        if mod is not None:
-            mod.set_mod_type(0)    # deactivate mod
+
         print_stats(agent=agent)
         env = env_factory.generate_interpolated_real_env(interpolate)
-        reward_list = agent.update(env=env, mod=mod)
+        reward_list = agent.update(env=env)
         mean_episodes_till_solved += len(reward_list)
         episodes_till_solved.append(len(reward_list))
         print("episodes till solved: " + str(len(reward_list)))

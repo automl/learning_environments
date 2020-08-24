@@ -49,11 +49,6 @@ class DDQN(nn.Module):
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
 
         self.eps = self.eps_init
-        self.model.reset_dropout()
-        self.model_target.reset_dropout(self.model)
-
-        #self.model.print_dropout()
-        #self.model_target.print_dropout()
 
         # training loop
         for episode in range(self.max_episodes):
@@ -76,7 +71,7 @@ class DDQN(nn.Module):
 
                 # state-action transition
                 next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
-                replay_buffer.add(state=state, action=action, action_mod=action.clone(), next_state=next_state, reward=reward, done=done)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
 
@@ -110,7 +105,7 @@ class DDQN(nn.Module):
     def learn(self, replay_buffer):
         self.it += 1
 
-        states, actions, _, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
+        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         states = states.squeeze()
         actions = actions.squeeze()

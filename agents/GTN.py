@@ -5,8 +5,8 @@ import torch.nn as nn
 import numpy as np
 import os
 from time import time
-from agents.agent_utils import select_agent, select_mod, test
-from agents.REPTILE import reptile_train_agent_serial
+from agents.agent_utils import select_agent, test, print_stats
+from agents.REPTILE import reptile_update_agent_serial
 from envs.env_factory import EnvFactory
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -19,14 +19,11 @@ class GTN(nn.Module):
         self.config = config
 
         gtn_config = config["agents"]["gtn"]
-        self.mod_type = config["agents"]["td3"]["mod_type"]
         self.max_iterations = gtn_config["max_iterations"]
         self.step_size = gtn_config["step_size"]
-        self.mod_zero_rate = gtn_config["mod_zero_rate"]
 
         self.agent_name = gtn_config["agent_name"]
         self.agent = select_agent(config, self.agent_name)
-        self.mod = select_mod(config)
 
         self.env_factory = EnvFactory(config)
         self.real_env = self.env_factory.generate_default_real_env()
@@ -36,20 +33,10 @@ class GTN(nn.Module):
         timings = []
 
         for it in range(self.max_iterations):
-            self.print_stats()
+            print_stats(self.agent)
             t = time()
 
-            self.mod.update_mod_mult()
-
-            if it % self.mod_zero_rate == 0:
-                self.mod.set_mod_type(0)
-                order.append(0)
-            else:
-                self.mod.reset_mod_type()
-                order.append(self.mod_type)
-
             reptile_update_agent_serial(agent=self.agent,
-                                       mod=self.mod,
                                        env=self.real_env,
                                        step_size=self.step_size)
 
@@ -99,6 +86,5 @@ if __name__ == "__main__":
     gtn.update()
     result = test(agent=gtn.agent,
                   env_factory=gtn.env_factory,
-                  config=gtn.config,
-                  mod=gtn.mod)
+                  config=gtn.config)
     print(result)

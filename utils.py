@@ -14,16 +14,14 @@ class ReplayBuffer:
 
         self.state = torch.zeros((max_size, state_dim))
         self.action = torch.zeros((max_size, action_dim))
-        self.action_mod = torch.zeros((max_size, action_dim))
         self.next_state = torch.zeros((max_size, state_dim))
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
 
     # for TD3 / PPO / gym
-    def add(self, state, action, action_mod, next_state, reward, done):
+    def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state.detach()
         self.action[self.ptr] = action.detach()
-        self.action_mod[self.ptr] = action_mod.detach()
         self.next_state[self.ptr] = next_state.detach()
         self.reward[self.ptr] = reward.squeeze().detach()
         self.done[self.ptr] = done.squeeze().detach()
@@ -40,7 +38,6 @@ class ReplayBuffer:
         return (
             self.state[idx].to(device).detach(),
             self.action[idx].to(device).detach(),
-            self.action_mod[idx].to(device).detach(),
             self.next_state[idx].to(device).detach(),
             self.reward[idx].to(device).detach(),
             self.done[idx].to(device).detach(),
@@ -51,16 +48,15 @@ class ReplayBuffer:
         return (
             self.state[: self.size].to(device).detach(),
             self.action[: self.size].to(device).detach(),
-            self.action_mod[: self.size].to(device).detach(),
             self.next_state[: self.size].to(device).detach(),
             self.reward[: self.size].to(device).detach(),
             self.done[: self.size].to(device).detach(),
         )
 
     def merge(self, other_replay_buffer):
-        states, actions, actions_mod, next_states, rewards, dones = other_replay_buffer.get_all()
+        states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
         for i in range(len(states)):
-            self.add(states[i], actions[i], actions_mod[i], next_states[i], rewards[i], dones[i])
+            self.add(states[i], actions[i], next_states[i], rewards[i], dones[i])
 
     def get_size(self):
         return self.size

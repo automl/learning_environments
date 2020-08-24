@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from time import time
-from models.model_utils import build_nn_from_config, Dropout
+from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -70,21 +70,6 @@ class Critic_DQN(nn.Module):
         super().__init__()
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
-
-    def reset_dropout(self, model=None):
-        if model is None:
-            for module in self.modules():
-                if isinstance(module, Dropout):
-                    module.reset_dropout()
-        else:
-            for module, module_ref in zip(self.modules(), model.modules()):
-                if isinstance(module, Dropout):
-                    module.set_dropout(module_ref.get_dropout())
-
-    def print_dropout(self):
-        for module in self.modules():
-            if isinstance(module, Dropout):
-                print(module.get_dropout())
 
     def forward(self, state):
         return self.net(state)

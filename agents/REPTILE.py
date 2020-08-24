@@ -9,9 +9,9 @@ from agents.agent_utils import select_agent
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def reptile_update_agent_serial(agent, mod, env, step_size):
+def reptile_update_agent_serial(agent, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
-    agent.update(env=env, mod=mod)
+    agent.update(env=env)
     new_state_dict = copy.deepcopy(agent.state_dict())
 
     reptile_update_state_dict_serial(agent=agent,
@@ -20,13 +20,13 @@ def reptile_update_agent_serial(agent, mod, env, step_size):
                                      step_size=step_size)
 
 
-def reptile_update_agent_parallel(agent, mod, envs, step_size):
+def reptile_update_agent_parallel(agent, envs, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
     new_state_dicts = []
 
     for env in envs:
         agent.load_state_dict(copy.deepcopy(old_state_dict))
-        agent.update(env=env, mod=mod)
+        agent.update(env=env)
         new_state_dicts.append(copy.deepcopy(agent.state_dict()))
 
     reptile_update_state_dict_parallel(agent=agent,
@@ -84,10 +84,10 @@ class REPTILE(nn.Module):
             print('-- REPTILE iteration {} --'.format(it))
             print_stats(self.agent)
             if self.parallel_update:
-                reptile_update_agent_parallel(agent=self.agent, mod=None, envs=self.envs, step_size=self.step_size)
+                reptile_update_agent_parallel(agent=self.agent, envs=self.envs, step_size=self.step_size)
             else:
                 for env in self.envs:
-                    reptile_update_agent_serial(agent=self.agent, mod=None, env=env, step_size=self.step_size)
+                    reptile_update_agent_serial(agent=self.agent, env=env, step_size=self.step_size)
 
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:

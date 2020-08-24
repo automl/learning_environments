@@ -7,7 +7,6 @@ import numpy as np
 from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
-from agents.TD3_mod import TD3_Mod
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -48,7 +47,7 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def update(self, env, mod = None):
+    def update(self, env):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -70,21 +69,15 @@ class TD3(nn.Module):
                 if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
                     env.render()
 
-                # modify action
-                if episode < self.init_episodes or mod is None:
-                    action_mod = action.clone().detach()
-                else:
-                    action_mod = mod.modify_action(state.to(device), action.to(device))
-
                 # state-action transition
-                next_state, reward, done = env.step(action=action_mod, state=state, same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
 
                 if t < env.max_episode_steps() - 1:
                     done_tensor = done
                 else:
                     done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
 
-                replay_buffer.add(state=state, action=action, action_mod=action_mod, next_state=next_state, reward=reward, done=done_tensor)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
 
                 state = next_state
                 episode_reward += reward
@@ -92,8 +85,6 @@ class TD3(nn.Module):
                 # train
                 if episode > self.init_episodes:
                     self.learn(replay_buffer)
-                    if mod is not None:
-                        mod.learn(replay_buffer)
                 if done > 0.5:
                     break
 
@@ -115,7 +106,7 @@ class TD3(nn.Module):
         self.total_it += 1
 
         # Sample replay buffer
-        states, actions, _, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
+        states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
