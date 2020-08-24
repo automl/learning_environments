@@ -1,6 +1,6 @@
-env_name: !!str Bandit-v0               # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
+env_name: !!str LunarLander-v2              # used environment: Pendulum-v0, MountainCarContinuous-v0, Test, HalfCheetah-v2
 seed: !!int 22                              # random initialization seed
-render_env: !!bool False                    # render environment
+render_env: !!bool True                    # render environment
 
 agents:
   gtn:
@@ -21,7 +21,7 @@ agents:
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int  128                  # batch size when running a policy update step
     gamma: !!float 0.95                     # discount factor
-    lr: !!float 1e-4                        # learning rate
+    lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
     eps_init: !!float 0.2                   # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
@@ -114,3 +114,7 @@ envs:
   Bandit-v0:
     solved_reward: !!float 98
     max_steps: !!int 100
+
+  LunarLander-v2:
+    solved_reward: !!float 200
+    max_steps: !!int 1000

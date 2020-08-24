@@ -7,6 +7,8 @@ import hpbandster.core.result as hpres
 import hpbandster.visualization as hpvis
 
 from decimal import Decimal
+import numpy as np
+from scipy.stats import ttest_ind
 import matplotlib.pyplot as plt
 
 
@@ -14,7 +16,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.05
+OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -65,9 +67,11 @@ def analyze_bohb(log_dir):
 
     result = remove_outliers(result)
 
+    #result = filter_values(result)
+
     print_configs_sorted_by_loss(result)
 
-    print_avg_per_value(result)
+    print_stats_per_value(result)
 
     plot_accuracy_over_budget(result)
 
@@ -91,7 +95,7 @@ def print_configs_sorted_by_loss(result):
         print(elem)
 
 
-def print_avg_per_value(result):
+def print_stats_per_value(result):
 
     # get all possible keys
     min_epoch = float('Inf')
@@ -112,7 +116,6 @@ def print_avg_per_value(result):
                 except:
                     print('Error in get_avg_per_value, continuing')
 
-
     for config_param, data in (dict(sorted(config_params.items()))).items():
         print(config_param)
 
@@ -124,16 +127,13 @@ def print_avg_per_value(result):
             continue
 
         for value in values:
-            count = 0
-            sm = 0
-
+            losses = []
             for elem in data:
                 val, epoch, loss = elem
                 if val == value and epoch == min_epoch:
-                    sm += loss
-                    count += 1
+                    losses.append(loss)
 
-            print(str(value) + ' ' + str(sm/count))
+            print('{}  {}  {} {}'.format(value, np.mean(losses), np.std(losses), len(losses)))
 
 
 def remove_outliers(result):
@@ -171,10 +171,29 @@ def remove_outliers(result):
         elem = lut.pop(0)
         result.data.pop(elem[1], None)
 
-    # remove percentage of worst values
+    # remove percentage of best values
     for i in range(n_remove_best):
         elem = lut.pop()
         result.data.pop(elem[1], None)
+
+    return result
+
+
+def filter_values(result):
+    del_list = []
+    for key, value1 in result.data.items():
+        id = key
+        config = value1.config
+
+        rep_env_num = config['rep_env_num']
+        ddqn_dropout = config['ddqn_dropout']
+        # if not ddqn_dropout == 0:
+        #     del_list.append(id)
+        # if not rep_env_num == 5:
+        #     del_list.append(id)
+
+    for id in del_list:
+        result.data.pop(id, None)
 
     return result
 

@@ -70,14 +70,12 @@ class EnvFactory:
 
     def _generate_env_with_kwargs(self, kwargs, env_name):
         # generate environment class
-        if env_name == "Pendulum-v0":
-            env = gym.make("Pendulum-v0")
-        elif env_name == "MountainCarContinuous-v0":
-            env = gym.make("MountainCarContinuous-v0")
-        elif env_name == "HalfCheetah-v2":
-            env = gym.make("HalfCheetah-v2")
-        elif env_name == "CartPole-v0":
-            env = gym.make("CartPole-v0")
+        if (env_name == "Pendulum-v0" or
+            env_name == "MountainCarContinuous-v0" or
+            env_name == "HalfCheetah-v2" or
+            env_name == "CartPole-v0" or
+            env_name == "LunarLander-v2"):
+            env = gym.make(env_name)
         elif env_name == "Bandit-v0":
             env = TimeLimit(BanditPermutedGaussian())
         else:

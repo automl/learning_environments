@@ -29,10 +29,10 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_max_iterations', choices=[0, 1, 5, 10, 20]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_step_size', choices=[0.01, 0.1, 1]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_parallel_update', choices=[False, True]))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_env_num', choices=[1,5]))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='rep_env_num', choices=[1,3,10]))
 
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_max_episodes', choices=[0,1,2,5,10,20,50,100]))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_dropout', choices=[0, 0.05, 0.1, 0.2, 0.5]))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_dropout', choices=[0, 0.05, 0.1, 0.2]))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['relu', 'leakyrelu', 'tanh']))
 
         return cs
