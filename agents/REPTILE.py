@@ -6,8 +6,6 @@ from agents.agent_utils import test, print_stats
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 
 def reptile_update_agent_serial(agent, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())

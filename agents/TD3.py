@@ -7,7 +7,6 @@ import numpy as np
 from models.actor_critic import Actor_TD3, Critic_Q
 from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class TD3(nn.Module):
@@ -17,6 +16,8 @@ class TD3(nn.Module):
         agent_name = "td3"
         td3_config = config["agents"][agent_name]
 
+        self.state_dim = state_dim
+        self.action_dim = action_dim
         self.max_action = max_action
         self.gamma = td3_config["gamma"]
         self.tau = td3_config["tau"]
@@ -31,14 +32,15 @@ class TD3(nn.Module):
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
         self.render_env = config["render_env"]
+        self.device = config["device"]
 
-        self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
-        self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(device)
+        self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
+        self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
-        self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
-        self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
-        self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(device)
+        self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
+        self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
+        self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
+        self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
@@ -48,7 +50,7 @@ class TD3(nn.Module):
 
 
     def update(self, env):
-        replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
+        replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
@@ -61,7 +63,7 @@ class TD3(nn.Module):
                 if episode < self.init_episodes:
                     action = env.get_random_action()
                 else:
-                    action = (self.actor(state.to(device)).cpu() +
+                    action = (self.actor(state.to(self.device)).cpu() +
                               torch.randn_like(action) * self.policy_std * self.max_action
                              ).clamp(-self.max_action, self.max_action)
 
@@ -70,7 +72,7 @@ class TD3(nn.Module):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
 
                 if t < env.max_episode_steps() - 1:
                     done_tensor = done
@@ -93,9 +95,9 @@ class TD3(nn.Module):
 
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
-                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-                break
+            # if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
+            #     print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
+            #     break
 
         env.close()
 
@@ -199,12 +201,10 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    real_env = env_fac.generate_default_real_env()
+    env = env_fac.generate_default_virtual_env()
 
-    real_env.seed(seed)
-
-    td3 = TD3(state_dim=real_env.get_state_dim(),
-              action_dim=real_env.get_action_dim(),
-              max_action=real_env.get_max_action(),
+    td3 = TD3(state_dim=env.get_state_dim(),
+              action_dim=env.get_action_dim(),
+              max_action=env.get_max_action(),
               config=config)
-    td3.update(env=real_env)
+    td3.update(env=env)

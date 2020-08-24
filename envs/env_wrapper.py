@@ -2,10 +2,8 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
+from envs.virtual_env import VirtualEnv
 from gym.spaces import Discrete
-
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class EnvWrapper(nn.Module):
@@ -14,26 +12,43 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, state, same_action_num=1):
-        action = action.cpu().detach().numpy()
-        if self.is_discrete_action_space():
-            action = action.astype(int)[0]
+    def step(self, action, same_action_num=1):
+        if self.is_virtual_env():
+            reward_sum = None
 
-        reward_sum = 0
-        for i in range(same_action_num):
-            state, reward, done, _ = self.env.step(action)
-            reward_sum += reward
-            if done:
-                break
+            for i in range(same_action_num):
+                state, reward, done = self.env.step(action.to(self.env.device))
+                if reward_sum is None:
+                    reward_sum = reward
+                else:
+                    reward_sum += reward
+                # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
 
-        next_state_torch = torch.tensor(state, device="cpu", dtype=torch.float32)
-        reward_torch = torch.tensor(reward_sum, device="cpu", dtype=torch.float32)
-        done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
+            reward = reward_sum.to("cpu")
+            next_state = state.to("cpu")
+            done = done.to("cpu")
+            return next_state, reward, done
 
-        if next_state_torch.dim() == 0:
-            next_state_torch = next_state_torch.unsqueeze(0)
+        else:
+            action = action.cpu().detach().numpy()
+            if self.is_discrete_action_space():
+                action = action.astype(int)[0]
 
-        return next_state_torch, reward_torch, done_torch
+            reward_sum = 0
+            for i in range(same_action_num):
+                state, reward, done, _ = self.env.step(action)
+                reward_sum += reward
+                if done:
+                    break
+
+            next_state_torch = torch.tensor(state, device="cpu", dtype=torch.float32)
+            reward_torch = torch.tensor(reward_sum, device="cpu", dtype=torch.float32)
+            done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
+
+            if next_state_torch.dim() == 0:
+                next_state_torch = next_state_torch.unsqueeze(0)
+
+            return next_state_torch, reward_torch, done_torch
 
     def reset(self):
         val = self.env.reset()
@@ -41,6 +56,8 @@ class EnvWrapper(nn.Module):
             return torch.from_numpy(val).float().cpu()
         elif type(val) == int:
             return torch.tensor([val], device="cpu", dtype=torch.float32)
+        else:   # torch
+            return val
 
     def get_random_action(self):
         action = self.env.action_space.sample()
@@ -69,7 +86,7 @@ class EnvWrapper(nn.Module):
         elif self.env.env_name == "HalfCheetah-v2":
             return 1
         else:
-            print("Unknownn env, performance may decrease")
+            print("Unknownn environment, performance may decrease")
             return 0
 
     def is_discrete_action_space(self):
@@ -79,15 +96,24 @@ class EnvWrapper(nn.Module):
             return False
 
     def render(self):
-        return self.env.render()
+        if not self.is_virtual_env():
+            return self.env.render()
 
     def close(self):
-        return self.env.close()
+        if not self.is_virtual_env():
+            return self.env.close()
 
     def max_episode_steps(self):
         return self.env._max_episode_steps
 
     def seed(self, seed):
-        return self.env.seed(seed)
+        if not self.is_virtual_env():
+            return self.env.seed(seed)
+        else:
+            print("Setting manuel seed not yet implemented, performance may decrease")
+            return 0
+
+    def is_virtual_env(self):
+        return isinstance(self.env, VirtualEnv)
 
 

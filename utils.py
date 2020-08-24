@@ -1,11 +1,9 @@
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
 import torch
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 class ReplayBuffer:
-    def __init__(self, state_dim, action_dim, max_size=int(1e6)):
+    def __init__(self, state_dim, action_dim, device, max_size=int(1e6)):
+        self.device = device
         self.max_size = max_size
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -32,25 +30,25 @@ class ReplayBuffer:
     # for TD3 / gym
     def sample(self, batch_size):
         idx = np.random.randint(0, self.size, size=batch_size)
-        return self._sample_idx(idx, device=device)
+        return self._sample_idx(idx)
 
-    def _sample_idx(self, idx, device):
+    def _sample_idx(self, idx):
         return (
-            self.state[idx].to(device).detach(),
-            self.action[idx].to(device).detach(),
-            self.next_state[idx].to(device).detach(),
-            self.reward[idx].to(device).detach(),
-            self.done[idx].to(device).detach(),
+            self.state[idx].to(self.device).detach(),
+            self.action[idx].to(self.device).detach(),
+            self.next_state[idx].to(self.device).detach(),
+            self.reward[idx].to(self.device).detach(),
+            self.done[idx].to(self.device).detach(),
         )
 
     # for PPO
     def get_all(self):
         return (
-            self.state[: self.size].to(device).detach(),
-            self.action[: self.size].to(device).detach(),
-            self.next_state[: self.size].to(device).detach(),
-            self.reward[: self.size].to(device).detach(),
-            self.done[: self.size].to(device).detach(),
+            self.state[:self.size].to(self.device).detach(),
+            self.action[:self.size].to(self.device).detach(),
+            self.next_state[:self.size].to(self.device).detach(),
+            self.reward[:self.size].to(self.device).detach(),
+            self.done[:self.size].to(self.device).detach(),
         )
 
     def merge(self, other_replay_buffer):
@@ -63,7 +61,7 @@ class ReplayBuffer:
 
     # for PPO
     def clear(self):
-        self.__init__(self.state_dim, self.action_dim, self.max_size)
+        self.__init__(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.max_size)
 
 
 class AverageMeter:

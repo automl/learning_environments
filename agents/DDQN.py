@@ -10,8 +10,6 @@ from models.actor_critic import Critic_DQN
 from utils import ReplayBuffer, AverageMeter
 from envs.env_factory import EnvFactory
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 class DDQN(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super().__init__()
@@ -33,9 +31,10 @@ class DDQN(nn.Module):
         self.rb_size = ddqn_config["rb_size"]
         self.early_out_num = ddqn_config["early_out_num"]
         self.render_env = config["render_env"]
+        self.device = config["device"]
 
-        self.model = Critic_DQN(state_dim, action_dim, agent_name, config).to(device)
-        self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(device)
+        self.model = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
+        self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
         self.model_target.load_state_dict(self.model.state_dict())
 
         self.reset_optimizer()
@@ -43,8 +42,8 @@ class DDQN(nn.Module):
         self.it = 0
 
 
-    def update(self, env, mod = None):
-        replay_buffer = ReplayBuffer(env.get_state_dim(), 1, max_size=self.rb_size)
+    def update(self, env):
+        replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
 
@@ -62,7 +61,7 @@ class DDQN(nn.Module):
                     choose_random += 1
                     action = env.get_random_action()
                 else:
-                    qvals = self.model(state.to(device))
+                    qvals = self.model(state.to(self.device))
                     action = torch.argmax(qvals).unsqueeze(0).detach()
 
                 # live view
@@ -70,7 +69,7 @@ class DDQN(nn.Module):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action, state=state, same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
@@ -85,7 +84,7 @@ class DDQN(nn.Module):
 
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
-            #avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
+            avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
 
             # update eps
             self.eps *= self.eps_decay
@@ -167,7 +166,6 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_default_real_env()
-    # real_env.seed(seed)
 
     ddqn = DDQN(state_dim=real_env.get_state_dim(),
                 action_dim=real_env.get_action_dim(),

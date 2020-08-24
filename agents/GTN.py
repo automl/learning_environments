@@ -9,8 +9,6 @@ from agents.agent_utils import select_agent, test, print_stats
 from agents.REPTILE import reptile_update_agent_serial
 from envs.env_factory import EnvFactory
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 class GTN(nn.Module):
     def __init__(self, config):
         super().__init__()

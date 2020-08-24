@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Identity(nn.Module):
     def __init__(self, module):

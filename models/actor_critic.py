@@ -1,11 +1,7 @@
 import torch
 import torch.nn as nn
-import numpy as np
-from time import time
 from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class Actor_TD3(nn.Module):
@@ -24,7 +20,7 @@ class Actor_PPO(nn.Module):
         super().__init__()
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
-        self.action_std = torch.nn.Parameter(torch.ones(action_dim, device=device) * config["agents"][agent_name]["action_std"])
+        self.action_std = torch.nn.Parameter(torch.ones(action_dim, device=config["device"]) * config["agents"][agent_name]["action_std"])
 
     def forward(self, state):
         action_mean = torch.tanh(self.net(state))
