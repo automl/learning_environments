@@ -29,6 +29,7 @@ class TD3(nn.Module):
         self.lr = td3_config["lr"]
         self.same_action_num = td3_config["same_action_num"]
         self.early_out_num = td3_config["early_out_num"]
+        self.early_out_virtual_diff = td3_config["early_out_virtual_diff"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
         self.render_env = config["render_env"]
@@ -49,12 +50,16 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def update(self, env):
+    def train(self, env, time_start=time.time(), timeout=1e9):
         replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
         for episode in range(self.max_episodes):
+            # early out if timeout
+            if self.time_is_up(avg_meter_reward=avg_meter_reward, time_start=time_start, timeout=timeout):
+                break
+
             state = env.reset()
             episode_reward = 0
 
@@ -65,7 +70,7 @@ class TD3(nn.Module):
                 else:
                     action = (self.actor(state.to(self.device)).cpu() +
                               torch.randn_like(action) * self.policy_std * self.max_action
-                             ).clamp(-self.max_action, self.max_action)
+                              ).clamp(-self.max_action, self.max_action)
 
                 # live view
                 if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
@@ -90,14 +95,13 @@ class TD3(nn.Module):
                 if done > 0.5:
                     break
 
+
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            # if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
-            #     print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
-            #     break
+            if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                break
 
         env.close()
 
@@ -157,6 +161,31 @@ class TD3(nn.Module):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
 
+    def time_is_up(self, avg_meter_reward, time_start, timeout):
+        if time.time() - time_start > timeout:
+            print("timeout")
+            # fill remaining rewards with minimum reward achieved so far
+            while len(avg_meter_reward.get_raw_data()) < self.max_episodes:
+                avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=self.early_out_num)
+            return True
+        else:
+            return False
+
+
+    def env_solved(self, env, avg_meter_reward, episode):
+        avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+        avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
+        if env.is_virtual_env():
+            if abs(avg_reward-avg_reward_last) / (avg_reward_last+1e-9) < self.early_out_virtual_diff and episode > self.init_episodes:
+                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+                return True
+        else:
+            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
+                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+                return True
+
+        return False
+
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
@@ -201,10 +230,10 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    env = env_fac.generate_default_virtual_env()
+    env = env_fac.generate_virtual_env()
 
     td3 = TD3(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),
               max_action=env.get_max_action(),
               config=config)
-    td3.update(env=env)
+    td3.train(env=env)

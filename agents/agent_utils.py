@@ -1,4 +1,5 @@
 import copy
+import time
 import numpy as np
 from agents.TD3 import TD3
 from agents.PPO import PPO
@@ -33,7 +34,7 @@ def print_stats(agent):
         print_abs_param_sum(agent.model, "Model")
 
 
-def test(agent, env_factory, config, max_episodes=100, num_envs=10):
+def test(agent, env_factory, config, max_episodes=100, num_envs=10, time_start=time.time(), timeout=1e9):
     # generate 6 different deterministic environments with increasing difficulty
     # and check for every environment how many episodes it takes the agent to solve it
     # N.B. we have to reset the state of the agent before every iteration
@@ -60,7 +61,7 @@ def test(agent, env_factory, config, max_episodes=100, num_envs=10):
 
         print_stats(agent=agent)
         env = env_factory.generate_interpolated_real_env(interpolate)
-        reward_list = agent.update(env=env)
+        reward_list = agent.train(env=env, time_start=time_start, timeout=timeout)
         mean_episodes_till_solved += len(reward_list)
         episodes_till_solved.append(len(reward_list))
         print("episodes till solved: " + str(len(reward_list)))

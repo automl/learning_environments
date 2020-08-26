@@ -81,18 +81,21 @@ class AverageMeter:
         self.it += 1
 
         if self.it % print_rate == 0:
-            mean_val = self._mean(num=print_rate)
+            mean_val = self._mean(num=print_rate, ignore_last=0)
             out = self.print_str + "{:15.6f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
             print(out)
 
     def get_mean(self, num=10):
-        return self._mean(num)
+        return self._mean(num, ignore_last=0)
+
+    def get_mean_last(self, num=10):
+        return self._mean(num, ignore_last=num)
 
     def get_raw_data(self):
         return self.vals
 
-    def _mean(self, num):
-        vals = self.vals[max(len(self.vals) - num, 0) : len(self.vals)]
+    def _mean(self, num, ignore_last):
+        vals = self.vals[max(len(self.vals) - num - ignore_last, 0) : max(len(self.vals) - ignore_last, 0)]
         return sum(vals) / (len(vals) + 1e-9)
 
 

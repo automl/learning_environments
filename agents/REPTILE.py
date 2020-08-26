@@ -9,7 +9,7 @@ from agents.agent_utils import select_agent
 
 def reptile_update_agent_serial(agent, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
-    agent.update(env=env)
+    agent.train(env=env)
     new_state_dict = copy.deepcopy(agent.state_dict())
 
     reptile_update_state_dict_serial(agent=agent,
@@ -24,7 +24,7 @@ def reptile_update_agent_parallel(agent, envs, step_size):
 
     for env in envs:
         agent.load_state_dict(copy.deepcopy(old_state_dict))
-        agent.update(env=env)
+        agent.train(env=env)
         new_state_dicts.append(copy.deepcopy(agent.state_dict()))
 
     reptile_update_state_dict_parallel(agent=agent,
@@ -76,7 +76,7 @@ class REPTILE(nn.Module):
         for i in range(self.env_num):
             self.envs.append(self.env_factory.generate_random_real_env())
 
-    def update(self):
+    def train(self):
         self.train()
         for it in range(self.max_iterations):
             print('-- REPTILE iteration {} --'.format(it))
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # np.random.seed(seed)
 
     reptile = REPTILE(config)
-    reptile.update()
+    reptile.train()
     result = test(agent=reptile.agent,
                   env_factory=reptile.env_factory,
                   config=reptile.config,

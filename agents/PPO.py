@@ -42,7 +42,7 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def update(self, env):
+    def train(self, env):
         replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=int(1e6))
         avg_meter_reward = AverageMeter(print_str='Average reward: ')
 
@@ -88,7 +88,7 @@ class PPO(nn.Module):
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
             if avg_reward > env.env.solved_reward:
-                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
+                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
                 break
 
         env.close()
@@ -180,5 +180,5 @@ if __name__ == "__main__":
     ppo = PPO(state_dim=env.get_state_dim(),
               action_dim=env.get_action_dim(),
               config=config)
-    ppo.update(env)
+    ppo.train(env)
 

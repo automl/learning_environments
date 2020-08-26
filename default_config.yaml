@@ -1,14 +1,17 @@
 env_name: !!str Pendulum-v0              # used environment: Pendulum-v0, MountainCarContinuous-v0, HalfCheetah-v2
 seed: !!int 22                              # random initialization seed
-device: !!str cuda:0                        # torch device (cuda:0 or cpu)
+device: !!str cpu                        # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
-    step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
+    population_size: !!int 10               # size of the population
+    noise_std: !!float 0.1                  # standard deviation of the noise vector
+    learning_rate: !!float 0.1              # reptile step size when matching the agent to the real environment
+    time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
+    time_max: !!float 1000                  # maximum allocated time for each iteration
     agent_name: !!str TD3                   # which RL agent to use for meta-training
-    mod_zero_rate: !!int 2                  # use unmodified environment every i-th round
 
   reptile:
     max_iterations: !!int 20                # maximum number of REPTILE iteration
@@ -32,7 +35,6 @@ agents:
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
-    dropout: !!float 0                      # dropout rate
     early_out_num: 10                       # based on how many training steps shall an early out happen
 
   td3:
@@ -51,7 +53,8 @@ agents:
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    early_out_num: 1                        # based on how many training steps shall an early out happen
+    early_out_num: !!int 1                  # based on how many training steps shall an early out happen
+    early_out_virtual_diff: !!float 2e-3    # performance difference for an early out for virtual envs
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize

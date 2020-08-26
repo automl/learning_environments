@@ -39,7 +39,7 @@ class EnvFactory:
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_default_virtual_env(self):
+    def generate_virtual_env(self):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
         print('Generating default virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))

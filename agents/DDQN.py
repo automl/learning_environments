@@ -42,7 +42,7 @@ class DDQN(nn.Module):
         self.it = 0
 
 
-    def update(self, env):
+    def train(self, env):
         replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
@@ -93,7 +93,7 @@ class DDQN(nn.Module):
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
             if avg_reward >= env.env.solved_reward:
-                print("early out after {} episodes with an average reward of {}".format(episode, avg_reward))
+                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
                 break
 
         env.close()
@@ -171,6 +171,6 @@ if __name__ == "__main__":
                 action_dim=real_env.get_action_dim(),
                 config=config)
 
-    ddqn.update(env=real_env)
+    ddqn.train(env=real_env)
 
 
