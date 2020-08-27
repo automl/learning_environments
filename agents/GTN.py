@@ -371,6 +371,7 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
+    torch.set_num_threads(config['agents']['gtn']['num_threads_per_worker'])
     run_gtn_on_single_pc(config)
 
     # seed = config["seed"]
