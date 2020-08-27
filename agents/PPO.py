@@ -2,7 +2,6 @@ import yaml
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 from models.actor_critic import Actor_PPO, Critic_V
 from utils import AverageMeter, ReplayBuffer
 from envs.env_factory import EnvFactory

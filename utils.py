@@ -99,26 +99,41 @@ class AverageMeter:
         return sum(vals) / (len(vals) + 1e-9)
 
 
+def time_is_up(avg_meter_reward, max_episodes, time_elapsed, time_remaining):
+    if time_elapsed > time_remaining:
+        print("timeout")
+        # fill remaining rewards with minimum reward achieved so far
+        if len(avg_meter_reward.get_raw_data()) == 0:
+            avg_meter_reward.update(0)
+
+        while len(avg_meter_reward.get_raw_data()) < max_episodes:
+            avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
+        return True
+    else:
+        return False
+
+
+def env_solved(agent, env, avg_meter_reward, episode):
+    avg_reward = avg_meter_reward.get_mean(num=agent.early_out_num)
+    avg_reward_last = avg_meter_reward.get_mean_last(num=agent.early_out_num)
+    if env.is_virtual_env():
+        if abs(avg_reward-avg_reward_last) / (avg_reward_last+1e-9) < agent.early_out_virtual_diff and episode > agent.init_episodes:
+            print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+            return True
+    else:
+        if avg_reward >= env.env.solved_reward and episode > agent.init_episodes:
+            print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+            return True
+
+    return False
+
+
 def print_abs_param_sum(model, name=""):
     sm = 0
     for param in model.parameters():
         sm += abs(param).sum()
     print(name + " " + str(sm))
 
-
-def print_avg_pairwise_dist(vec_list, name=""):
-    n = len(vec_list)
-    if n < 2:
-        return 0
-
-    count = 0
-    avg_dist = 0
-    for i in range(n):
-        for k in range(i, n):
-            count += 1
-            avg_dist += torch.dist(vec_list[i], vec_list[k])
-
-    print(name + " " + str(avg_dist/count))
 
 
 

@@ -1,13 +1,11 @@
 import yaml
 import torch
 import torch.nn as nn
-import gym
-import numpy as np
-import math
+import time
 import random
 import torch.nn.functional as F
 from models.actor_critic import Critic_DQN
-from utils import ReplayBuffer, AverageMeter
+from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
 from envs.env_factory import EnvFactory
 
 class DDQN(nn.Module):
@@ -30,6 +28,7 @@ class DDQN(nn.Module):
         self.eps_decay = ddqn_config["eps_decay"]
         self.rb_size = ddqn_config["rb_size"]
         self.early_out_num = ddqn_config["early_out_num"]
+        self.early_out_virtual_diff = ddqn_config["early_out_virtual_diff"]
         self.render_env = config["render_env"]
         self.device = config["device"]
 
@@ -42,7 +41,9 @@ class DDQN(nn.Module):
         self.it = 0
 
 
-    def train(self, env):
+    def train(self, env, time_remaining=1e9):
+        time_start = time.time()
+
         replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
         avg_meter_eps = AverageMeter(print_str="Average eps: ")
@@ -51,6 +52,13 @@ class DDQN(nn.Module):
 
         # training loop
         for episode in range(self.max_episodes):
+            # early out if timeout
+            if time_is_up(avg_meter_reward=avg_meter_reward,
+                          max_episodes=self.max_episodes,
+                          time_elapsed=time.time()-time_start,
+                          time_remaining=time_remaining):
+                break
+
             state = env.reset()
             episode_reward = 0
 
@@ -91,9 +99,7 @@ class DDQN(nn.Module):
             self.eps = max(self.eps, self.eps_min)
 
             # quit training if environment is solved
-            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward >= env.env.solved_reward:
-                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
                 break
 
         env.close()
@@ -165,12 +171,14 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
+    virt_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_default_real_env()
 
-    ddqn = DDQN(state_dim=real_env.get_state_dim(),
-                action_dim=real_env.get_action_dim(),
+    ddqn = DDQN(state_dim=virt_env.get_state_dim(),
+                action_dim=virt_env.get_action_dim(),
                 config=config)
 
-    ddqn.train(env=real_env)
+    ddqn.train(env=virt_env, time_remaining=50)
+    ddqn.train(env=real_env, time_remaining=50)
 
 

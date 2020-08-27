@@ -1,4 +1,3 @@
-import argparse
 import yaml
 import torch
 import torch.nn as nn
@@ -9,6 +8,7 @@ import datetime
 import uuid
 import numpy as np
 import glob
+import statistics
 from agents.agent_utils import select_agent, test
 from envs.env_factory import EnvFactory
 
@@ -29,12 +29,13 @@ class GTN_Base(nn.Module):
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
         self.noise_std = gtn_config["noise_std"]
+        self.time_sleep = gtn_config["time_sleep"]
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.device = config["device"]
 
         self.env_factory = EnvFactory(config)
-        self.virtual_env_orig = self.env_factory.generate_virtual_env()
+        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_message='GTN_Base: ')
 
         # for identifying the different workers and the master
         self.id = id
@@ -44,16 +45,15 @@ class GTN_Base(nn.Module):
         os.makedirs(self.working_dir, exist_ok=True)
 
     def get_input_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + 'input_.pt')
+        return os.path.join(self.working_dir, str(id) + '_input.pt')
 
     def get_result_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + 'result_.pt')
+        return os.path.join(self.working_dir, str(id) + '_result.pt')
 
     def clean_working_dir(self):
         files = glob.glob(os.path.join(self.working_dir, '*'))
-        print(self.working_dir)
         for file in files:
-            print(file)
+            os.remove(file)
 
 
 class GTN_Master(GTN_Base):
@@ -68,12 +68,13 @@ class GTN_Master(GTN_Base):
         self.time_max = gtn_config["time_max"]
 
         # id used as a handshake to check if resuls from workers correspond to sent data
-        self.uuid_list = [0]*(self.population_size)
+        self.uuid_list = [0]*(self.num_workers)
 
         # to store results from workers
-        self.timing_list = [None]*self.num_workers
+        self.time_list = [None]*self.num_workers
         self.score_list = [None]*self.num_workers
-        self.eps_list = [self.env_factory.generate_virtual_env() for _ in range(self.num_workers)]
+        self.score_transform_list = [None]*self.num_workers
+        self.eps_list = [self.env_factory.generate_virtual_env(print_message='GTN_Master: ') for _ in range(self.num_workers)]
 
         # for early out
         self.avg_runtime = None
@@ -81,10 +82,17 @@ class GTN_Master(GTN_Base):
 
     def run(self):
         for it in range(self.max_iterations):
+            print('Master: start iteration ' + str(it))
+            print('Master: write worker inputs')
             self.write_worker_inputs(it)
+            print('Master: read worker results')
             self.read_worker_results()
+            print('Master: rank transform')
             self.rank_transform()
+            print('Master: update env')
             self.update_env()
+            print('Master: print statistics')
+            self.print_statistics(it)
 
 
     def write_worker_inputs(self, it):
@@ -93,7 +101,7 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has deleted the file (i.e. acknowledged the previous input)
             while os.path.isfile(file_name):
-                time.sleep(0.001)
+                time.sleep(self.time_sleep)
 
             self.uuid_list[id] = str(uuid.uuid4())
             quit_flag = it == self.max_iterations-1
@@ -114,7 +122,7 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has finished calculations
             while not os.path.isfile(file_name):
-                time.sleep(0.001)
+                time.sleep(self.time_sleep)
 
             data = torch.load(file_name)
             os.remove(file_name)
@@ -126,8 +134,7 @@ class GTN_Master(GTN_Base):
 
             self.time_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
-            self.eps_list[id] = data['eps']
-
+            self.eps_list[id].load_state_dict(data['eps'])
 
 
     def rank_transform(self):
@@ -159,24 +166,35 @@ class GTN_Master(GTN_Base):
         else:
             raise ValueError("Unknown rank transform type: " + str(self.rank_transform_type))
 
-        self.score_list = scores.tolist()
+        self.score_transform_list = scores.tolist()
+
 
     def update_env(self):
         n = self.num_workers
         lr = self.learning_rate
         sig = self.noise_std
         for eps, score in zip(self.eps_list, self.score_list):
-            for l_orig, l_eps in zip(self.virtual_env_orig.modules(), self.eps.modules()):
+            for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + (lr/n/sig) * score * l_eps.weight )
+
+
+    def print_statistics(self, it):
+        mean_score = statistics.mean(self.score_list)
+        print('--------------')
+        print('GTN iteration:  ' + str(it))
+        print('GTN mean score: ' + str(mean_score))
+        print('--------------')
 
 
 class GTN_Worker(GTN_Base):
     def __init__(self, config, id):
         super().__init__(config, id)
 
-        self.virtual_env = self.env_factory.generate_virtual_env()
-        self.eps = self.env_factory.generate_virtual_env()
+        gtn_config = config["agents"]["gtn"]
+        self.num_test_envs = gtn_config["num_test_envs"]
+        self.virtual_env = self.env_factory.generate_virtual_env(print_message='GTN_Worker' + str(id) + ': ')
+        self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.uuid = None
         self.timeout = None
         self.quit_flag = False
@@ -185,43 +203,57 @@ class GTN_Worker(GTN_Base):
     def run(self):
         # read data from master
         while not self.quit_flag:
+            print('Worker {}: read worker inputs'.format(self.id))
             self.read_worker_input()
+
+            print('Worker {}: precalculation'.format(self.id))
 
             time_start = time.time()
 
             agent_add = select_agent(config, self.agent_name)
             agent_sub = select_agent(config, self.agent_name)
-            agent_sub.set_state_dict(agent_add.set_state_dict())
+            agent_sub.load_state_dict(agent_add.state_dict())
 
             self.get_random_eps()
 
+            print('Worker {}: train add'.format(self.id))
+
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
-            agent_add.train(self.virtual_env, time_start=time_start, timeout=self.timeout)
-            loss_add = self.test_agent_on_real_env(agent_add, time_start=time_start, timeout=self.timeout)
+            agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+            score_add = self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start))
+
+            print('Worker {}: train sub'.format(self.id))
 
             # second mirrored noise +N
             self.subtract_noise_from_virtual_env()
-            agent_sub.train(env=self.virtual_env, time_start=time_start, timeout=self.timeout)
-            loss_sub = self.test_agent_on_real_env(agent_sub, time_start=time_start, timeout=self.timeout)
+            agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+            score_sub = self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start))
+
+            print('Worker {}: postcalculation'.format(self.id))
 
             if self.minimize_score:
-                best_score = min(loss_add, loss_sub)
-                if loss_add < loss_sub:
+                best_score = min(score_add, score_sub)
+                if score_add < score_sub:
                     self.invert_eps()
             else:
-                best_score = max(loss_add, loss_sub)
-                if loss_add > loss_sub:
+                best_score = max(score_add, score_sub)
+                if score_add > score_sub:
                     self.invert_eps()
 
-            self.write_worker_result(score = best_score, time_elapsed = time.time()-time.start)
+            print('LOSS ADD: ' + str(score_add))
+            print('LOSS SUB: ' + str(score_sub))
+            print('LOSS BEST: ' + str(best_score))
+            print('Worker {}: write result'.format(self.id))
+
+            self.write_worker_result(score = best_score, time_elapsed = time.time()-time_start)
 
 
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
 
         while not os.path.isfile(file_name):
-            time.sleep(0.001)
+            time.sleep(self.time_sleep)
 
         data = torch.load(file_name)
         os.remove(file_name)
@@ -235,12 +267,13 @@ class GTN_Worker(GTN_Base):
         file_name = self.get_result_file_name(id=self.id)
 
         while os.path.isfile(file_name):
-            time.sleep(0.001)
+            time.sleep(self.time_sleep)
 
         data = {}
         data["eps"] = self.virtual_env.state_dict()
         data["time_elapsed"] = time_elapsed
         data["score"] = score
+        data["uuid"] = self.uuid
         torch.save(data, file_name)
 
 
@@ -266,14 +299,13 @@ class GTN_Worker(GTN_Base):
             if isinstance(l_eps, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(-l_eps.weight)
 
-    def test_agent_on_real_env(self, agent, time_start, timeout):
+    def test_agent_on_real_env(self, agent, time_remaining):
         mean_episodes_till_solved, episodes_till_solved = test(agent=agent,
                                                                env_factory=self.env_factory,
                                                                config=self.config,
-                                                               time_start=time_start,
-                                                               timeout=timeout)
+                                                               num_envs=self.num_test_envs,
+                                                               time_remaining=time_remaining)
         return mean_episodes_till_solved
-
 
 def run_gtn_on_single_pc(config):
     def run_gtn_worker(config, id):
@@ -287,17 +319,17 @@ def run_gtn_on_single_pc(config):
     p_list = []
 
     # cleanup working directory from old files
-    gtn_base = GTN_Base
+    gtn_base = GTN_Base(config, -1)
     gtn_base.clean_working_dir()
 
     # first start master
-    p = mp.Process(target=run_gtn_master, args=(config, -1))
+    p = mp.Process(target=run_gtn_master, args=(config,))
     p.start()
     p_list.append(p)
 
     # then start workers
-    population_size = config["gtn"]["population_size"]
-    for id in range(population_size):
+    num_workers = config["agents"]["gtn"]["num_workers"]
+    for id in range(num_workers):
         p = mp.Process(target=run_gtn_worker, args=(config, id))
         p.start()
         p_list.append(p)

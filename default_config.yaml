@@ -6,11 +6,13 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     max_iterations: !!int 10                # maximum number of GTN iterations
-    num_worker: !!int 2                     # size of the population
-    noise_std: !!float 0.1                  # standard deviation of the noise vector
-    learning_rate: !!float 1e-3             # reptile step size when matching the agent to the real environment
+    num_workers: !!int 2                    # size of the population
+    num_test_envs: !!int 2                  # number of different test environments (-1: genereate default test env)
+    noise_std: !!float 1e-3                 # standard deviation of the noise vector
+    learning_rate: !!float 1e-6             # reptile step size when matching the agent to the real environment
     time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
-    time_max: !!float 100                   # maximum allocated time for each iteration
+    time_max: !!float 1000                  # maximum allocated time for each iteration
+    time_sleep: !!float 1                   # sleeping time when fetching data
     minimize_score: !!bool True             # perform argmin or argmax
     score_transform_type: !!int 0           # 0: score transform / 1: rank transform / 2: log transform
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
@@ -38,9 +40,10 @@ agents:
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     early_out_num: 10                       # based on how many training steps shall an early out happen
+    early_out_virtual_diff: !!float 3e-3    # performance difference for an early out for virtual envs
 
   td3:
-    max_episodes: !!int 2000                # maximum number of episodes to optimize
+    max_episodes: !!int 200                 # maximum number of episodes to optimize
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -56,7 +59,7 @@ agents:
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
     early_out_num: !!int 1                  # based on how many training steps shall an early out happen
-    early_out_virtual_diff: !!float 2e-3    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 3e-3    # performance difference for an early out for virtual envs
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize

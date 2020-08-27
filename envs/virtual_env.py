@@ -37,11 +37,18 @@ class VirtualEnv(nn.Module):
         return self.state
 
     def step(self, action):
+        if self.action_dim > 1 and len(action) == 1:
+            action = self.to_one_hot_encoding(action)
         input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=len(action.shape) - 1)
         next_state = self.state_net(input)
         reward = self.reward_net(input)
         done = self.done_net(input)
         return next_state, reward, done
+
+    def to_one_hot_encoding(self, action):
+        action_one_hot = torch.zeros(self.action_dim)
+        action_one_hot[int(action.item())] = 1
+        return action_one_hot
 
     def get_state_dict(self):
         env_state = {}

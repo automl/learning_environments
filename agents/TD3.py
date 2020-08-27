@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from models.actor_critic import Actor_TD3, Critic_Q
-from utils import ReplayBuffer, AverageMeter
+from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
 from envs.env_factory import EnvFactory
 
 
@@ -50,14 +50,19 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def train(self, env, time_start=time.time(), timeout=1e9):
+    def train(self, env, time_remaining=1e9):
+        time_start = time.time()
+
         replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
         for episode in range(self.max_episodes):
             # early out if timeout
-            if self.time_is_up(avg_meter_reward=avg_meter_reward, time_start=time_start, timeout=timeout):
+            if time_is_up(avg_meter_reward=avg_meter_reward,
+                          max_episodes=self.max_episodes,
+                          time_elapsed=time.time()-time_start,
+                          time_remaining=time_remaining):
                 break
 
             state = env.reset()
@@ -100,7 +105,7 @@ class TD3(nn.Module):
             avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
 
             # quit training if environment is solved
-            if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
                 break
 
         env.close()
@@ -161,31 +166,6 @@ class TD3(nn.Module):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
 
-    def time_is_up(self, avg_meter_reward, time_start, timeout):
-        if time.time() - time_start > timeout:
-            print("timeout")
-            # fill remaining rewards with minimum reward achieved so far
-            while len(avg_meter_reward.get_raw_data()) < self.max_episodes:
-                avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=self.early_out_num)
-            return True
-        else:
-            return False
-
-
-    def env_solved(self, env, avg_meter_reward, episode):
-        avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-        avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
-        if env.is_virtual_env():
-            if abs(avg_reward-avg_reward_last) / (avg_reward_last+1e-9) < self.early_out_virtual_diff and episode > self.init_episodes:
-                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-                return True
-        else:
-            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
-                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-                return True
-
-        return False
-
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
         critic_params = list(self.critic_1.parameters()) + list(self.critic_2.parameters())
@@ -230,10 +210,11 @@ if __name__ == "__main__":
 
     # generate environment
     env_fac = EnvFactory(config)
-    env = env_fac.generate_virtual_env()
-
-    td3 = TD3(state_dim=env.get_state_dim(),
-              action_dim=env.get_action_dim(),
-              max_action=env.get_max_action(),
+    virt_env = env_fac.generate_virtual_env()
+    real_env= env_fac.generate_default_real_env()
+    td3 = TD3(state_dim=real_env.get_state_dim(),
+              action_dim=real_env.get_action_dim(),
+              max_action=real_env.get_max_action(),
               config=config)
-    td3.train(env=env)
+    td3.train(env=real_env, time_remaining=5)
+    td3.train(env=virt_env, time_remaining=5)
