@@ -101,7 +101,6 @@ if __name__ == "__main__":
     result = test(agent=reptile.agent,
                   env_factory=reptile.env_factory,
                   config=reptile.config,
-                  max_episodes=300,
                   num_envs=10)
     print(result)
 

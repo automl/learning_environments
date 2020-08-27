@@ -128,11 +128,15 @@ def env_solved(agent, env, avg_meter_reward, episode):
     return False
 
 
-def print_abs_param_sum(model, name=""):
+def calc_abs_param_sum(model):
     sm = 0
     for param in model.parameters():
         sm += abs(param).sum()
-    print(name + " " + str(sm))
+    return sm
+
+
+def print_abs_param_sum(model, name=""):
+    print(name + " " + str(calc_abs_param_sum(model)))
 
 
 

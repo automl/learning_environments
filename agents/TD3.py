@@ -28,6 +28,7 @@ class TD3(nn.Module):
         self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
         self.same_action_num = td3_config["same_action_num"]
+        self.print_rate = td3_config["print_rate"]
         self.early_out_num = td3_config["early_out_num"]
         self.early_out_virtual_diff = td3_config["early_out_virtual_diff"]
         self.policy_std = td3_config["policy_std"]
@@ -102,7 +103,7 @@ class TD3(nn.Module):
 
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
+            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
             if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
@@ -204,9 +205,9 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    seed = config["seed"]
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    # seed = config["seed"]
+    # torch.manual_seed(seed)
+    # np.random.seed(seed)
 
     # generate environment
     env_fac = EnvFactory(config)

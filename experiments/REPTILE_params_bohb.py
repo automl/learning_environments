@@ -78,7 +78,6 @@ class ExperimentWrapper():
             score, episodes_till_solved = test(agent=reptile.agent,
                                                env_factory=reptile.env_factory,
                                                config=reptile.config,
-                                               max_episodes=300,
                                                num_envs=10)
         except:
             score = float('Inf')

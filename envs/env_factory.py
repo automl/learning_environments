@@ -12,37 +12,37 @@ class EnvFactory:
         self.env_config = config["envs"][self.env_name]
 
         # for virtual env
-        dummy_env = self.generate_default_real_env(print_message='EnvFactory (dummy_env): ')
+        dummy_env = self.generate_default_real_env(print_str='EnvFactory (dummy_env): ')
         self.state_dim = dummy_env.get_state_dim()
         self.action_dim = dummy_env.get_action_dim()
         self.observation_space = dummy_env.env.observation_space
         self.action_space = dummy_env.env.action_space
 
-    def generate_default_real_env(self, print_message=''):
+    def generate_default_real_env(self, print_str=''):
         # generate a real environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=False)
-        print(print_message + 'Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_random_real_env(self, print_message=''):
+    def generate_random_real_env(self, print_str=''):
         # generate a real environment with random parameters within specified range
         kwargs = self._get_random_parameters()
-        print(print_message + 'Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating random real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_interpolated_real_env(self, interpolate, print_message=''):
+    def generate_interpolated_real_env(self, interpolate, print_str=''):
         # generate a real environment with random parameters within specified range
         kwargs = self._get_interpolate_parameters(interpolate)
-        print(print_message + 'Generating interpolated real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating interpolated real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_virtual_env(self, print_message=''):
+    def generate_virtual_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        print(print_message + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs)
         return EnvWrapper(env=env).to(self.device)
 

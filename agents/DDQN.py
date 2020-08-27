@@ -27,6 +27,7 @@ class DDQN(nn.Module):
         self.eps_min = ddqn_config["eps_min"]
         self.eps_decay = ddqn_config["eps_decay"]
         self.rb_size = ddqn_config["rb_size"]
+        self.print_rate = ddqn_config["print_rate"]
         self.early_out_num = ddqn_config["early_out_num"]
         self.early_out_virtual_diff = ddqn_config["early_out_virtual_diff"]
         self.render_env = config["render_env"]
@@ -91,8 +92,8 @@ class DDQN(nn.Module):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
-            avg_meter_eps.update(self.eps, print_rate=self.early_out_num)
+            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+            avg_meter_eps.update(self.eps, print_rate=self.print_rate)
 
             # update eps
             self.eps *= self.eps_decay
@@ -178,7 +179,7 @@ if __name__ == "__main__":
                 action_dim=virt_env.get_action_dim(),
                 config=config)
 
-    ddqn.train(env=virt_env, time_remaining=50)
+    #ddqn.train(env=virt_env, time_remaining=50)
     ddqn.train(env=real_env, time_remaining=50)
 
 

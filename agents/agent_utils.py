@@ -9,7 +9,7 @@ from utils import print_abs_param_sum
 
 def select_agent(config, agent_name):
     env_factory = EnvFactory(config)
-    dummy_env = env_factory.generate_default_real_env(print_message='Select Agent: ')
+    dummy_env = env_factory.generate_default_real_env(print_str='Select Agent: ')
     state_dim = dummy_env.get_state_dim()
     action_dim = dummy_env.get_action_dim()
 
@@ -33,18 +33,17 @@ def print_stats(agent):
         print_abs_param_sum(agent.model, "Model")
 
 
-def test(agent, env_factory, config, max_episodes=100, num_envs=10, time_remaining=1e9):
+def test(agent, env_factory, config, num_envs=10, time_remaining=1e9):
     # generate 6 different deterministic environments with increasing difficulty
     # and check for every environment how many episodes it takes the agent to solve it
     # N.B. we have to reset the state of the agent before every iteration
 
-    print('-- TEST --')
+    #print('Test')
 
     time_start = time.time()
 
     # to avoid problems with wrongly initialized optimizers
     agent.reset_optimizer()
-    agent.max_episodes = max_episodes
 
     mean_episodes_till_solved = 0
     episodes_till_solved = []
@@ -66,7 +65,7 @@ def test(agent, env_factory, config, max_episodes=100, num_envs=10, time_remaini
             agent.reset_optimizer()
             agent.set_state_dict(agent_state)
 
-            print_stats(agent=agent)
+            #print_stats(agent=agent)
             env = env_factory.generate_interpolated_real_env(interpolate)
             reward_list = agent.train(env=env, time_remaining=time_remaining-(time.time()-time_start))
             mean_episodes_till_solved += len(reward_list)
