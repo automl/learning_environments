@@ -104,6 +104,9 @@ class GTN_Master(GTN_Base):
 
 
     def write_worker_inputs(self, it):
+        timeout = self.calc_worker_timeout()
+        print('timeout: ' + str(timeout) + " " + str(self.time_list))
+
         for id in range(self.num_workers):
             file_name = self.get_input_file_name(id=id)
 
@@ -115,12 +118,10 @@ class GTN_Master(GTN_Base):
             quit_flag = it == self.max_iterations-1
 
             data = {}
-            data['timeout'] = self.calc_worker_timeout()
+            data['timeout'] = timeout
             data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
-
-            print('timeout: ' + str(data['timeout']) + " " + str(self.time_list))
 
             torch.save(data, file_name)
 
@@ -133,6 +134,7 @@ class GTN_Master(GTN_Base):
             while not os.path.isfile(file_name):
                 time.sleep(self.time_sleep)
 
+            time.sleep(0.2) # dirty
             data = torch.load(file_name)
             os.remove(file_name)
 
@@ -155,6 +157,7 @@ class GTN_Master(GTN_Base):
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
             scores = (scores - min(scores)) / (max(scores)-min(scores))
+            scores = scores**2
         elif self.score_transform_type == 1:
             # convert [1, 0, 5] to [0.5, 0, 1]
             s = np.argsort(scores)
@@ -167,6 +170,7 @@ class GTN_Master(GTN_Base):
             s = np.argsort(-scores)
             for i in range(lmbda):
                 scores[s[i]] = i + 1
+            scores = scores.astype(float)
             for i in range(lmbda):
                 scores[i] = max(0, np.log(lmbda / 2 + 1) - np.log(scores[i]))
             scores = scores / sum(scores) - 1 / lmbda
@@ -220,10 +224,10 @@ class GTN_Worker(GTN_Base):
     def run(self):
         # read data from master
         while not self.quit_flag:
-            print('-- Worker {}: read worker inputs'.format(self.id))
+            #print('-- Worker {}: read worker inputs'.format(self.id))
             self.read_worker_input()
 
-            print('-- Worker {}: precalculation'.format(self.id))
+            #print('-- Worker {}: precalculation'.format(self.id))
 
             time_start = time.time()
 
@@ -233,29 +237,29 @@ class GTN_Worker(GTN_Base):
 
             self.get_random_eps()
 
-            print('-- Worker {}: train add'.format(self.id))
+            #print('-- Worker {}: train add'.format(self.id))
 
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
-            print('{} {} {} {}'.format(self.id,
-                                       calc_abs_param_sum(self.virtual_env_orig),
-                                       calc_abs_param_sum(self.virtual_env),
-                                       calc_abs_param_sum(self.eps)))
+            #print('{} {} {} {}'.format(self.id,
+                                       # calc_abs_param_sum(self.virtual_env_orig),
+                                       # calc_abs_param_sum(self.virtual_env),
+                                       # calc_abs_param_sum(self.eps)))
             agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_add = self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start))
 
-            print('-- Worker {}: train sub'.format(self.id))
+            #print('-- Worker {}: train sub'.format(self.id))
 
             # second mirrored noise +N
             self.subtract_noise_from_virtual_env()
-            print('{} {} {} {}'.format(self.id,
-                                       calc_abs_param_sum(self.virtual_env_orig),
-                                       calc_abs_param_sum(self.virtual_env),
-                                       calc_abs_param_sum(self.eps)))
+            # print('{} {} {} {}'.format(self.id,
+            #                            calc_abs_param_sum(self.virtual_env_orig),
+            #                            calc_abs_param_sum(self.virtual_env),
+            #                            calc_abs_param_sum(self.eps)))
             agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_sub = self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start))
 
-            print('-- Worker {}: postcalculation'.format(self.id))
+            #print('-- Worker {}: postcalculation'.format(self.id))
 
             if self.minimize_score:
                 best_score = min(score_add, score_sub)
@@ -266,10 +270,10 @@ class GTN_Worker(GTN_Base):
                 if score_sub > score_add:
                     self.invert_eps()
 
-            print('-- LOSS ADD: ' + str(score_add))
-            print('-- LOSS SUB: ' + str(score_sub))
-            print('-- LOSS BEST: ' + str(best_score))
-            print('-- Worker {}: write result'.format(self.id))
+            # print('-- LOSS ADD: ' + str(score_add))
+            # print('-- LOSS SUB: ' + str(score_sub))
+            # print('-- LOSS BEST: ' + str(best_score))
+            # print('-- Worker {}: write result'.format(self.id))
 
             self.write_worker_result(score = best_score, time_elapsed = time.time()-time_start)
 
@@ -280,6 +284,7 @@ class GTN_Worker(GTN_Base):
         while not os.path.isfile(file_name):
             time.sleep(self.time_sleep)
 
+        time.sleep(0.2)  # dirty
         data = torch.load(file_name)
         os.remove(file_name)
 
@@ -346,7 +351,7 @@ def run_gtn_on_single_pc(config):
     # cleanup working directory from old files
     gtn_base = GTN_Base(config, -1)
     gtn_base.clean_working_dir()
-    time.sleep(1)
+    time.sleep(2)
 
     # first start master
     p = mp.Process(target=run_gtn_master, args=(config,))

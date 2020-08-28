@@ -1,22 +1,22 @@
-env_name: !!str Bandit-v0                   # used environment: Pendulum-v0, MountainCarContinuous-v0, HalfCheetah-v2
+env_name: !!str Pendulum-v0                 # used environment: Pendulum-v0, MountainCarContinuous-v0, HalfCheetah-v2
 seed: !!int 22                              # random initialization seed
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    max_iterations: !!int 10                # maximum number of GTN iterations
+    max_iterations: !!int 1000               # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
-    num_workers: !!int 8                    # size of the population
-    num_test_envs: !!int 2                  # number of different test environments (-1: genereate default test env)
-    noise_std: !!float 5e-2                 # standard deviation of the noise vector
-    learning_rate: !!float 1e-1             # reptile step size when matching the agent to the real environment
+    num_workers: !!int 10                    # size of the population
+    num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
+    noise_std: !!float 1e-2                 # standard deviation of the noise vector
+    learning_rate: !!float 1e-3             # reptile step size when matching the agent to the real environment
     time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 1000                  # maximum allocated time for first iteration
     time_sleep: !!float 0.01                # cycle sleeping time when waiting for data
     minimize_score: !!bool True             # perform argmin or argmax
     score_transform_type: !!int 2           # 0: score transform / 1: rank transform / 2: log transform
-    agent_name: !!str DDQN                  # which RL agent to use for meta-training
+    agent_name: !!str TD3                   # which RL agent to use for meta-training
 
   reptile:
     max_iterations: !!int 20                # maximum number of REPTILE iteration
@@ -40,29 +40,29 @@ agents:
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 64                   # size of the actor/critic hidden layer
     hidden_layer: !!int 0                   # number of hidden layers
-    print_rate: 10                        # update rate of avg meters
+    print_rate: 1000                        # update rate of avg meters
     early_out_num: 10                       # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 3e-3    # performance difference for an early out for virtual envs
 
   td3:
-    max_episodes: !!int 200                 # maximum number of episodes to optimize
+    max_episodes: !!int 100                 # maximum number of episodes to optimize
     init_episodes: !!int 25                 # number of episodes to fill the replay buffer
-    batch_size: !!int  256                  # batch size when running a policy update step
+    batch_size: !!int  192                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 1e-3                        # learning rate
+    lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
-    hidden_size: !!int 256                  # size of the actor/critic hidden layer
-    hidden_layer: !!int 2                   # number of hidden layers
+    hidden_size: !!int 192                  # size of the actor/critic hidden layer
+    hidden_layer: !!int 0                   # number of hidden layers
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1000                        # update rate of avg meters
-    early_out_num: !!int 1                  # based on how many training steps shall an early out happen
-    early_out_virtual_diff: !!float 3e-3    # performance difference for an early out for virtual envs
+    print_rate: 100                           # update rate of avg meters
+    early_out_num: !!int 5                  # based on how many training steps shall an early out happen
+    early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
   ppo:
     max_episodes: !!int 100000              # maximum number of episodes to optimize

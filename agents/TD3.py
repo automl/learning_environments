@@ -217,5 +217,5 @@ if __name__ == "__main__":
               action_dim=real_env.get_action_dim(),
               max_action=real_env.get_max_action(),
               config=config)
-    td3.train(env=real_env, time_remaining=5)
-    td3.train(env=virt_env, time_remaining=5)
+    td3.train(env=real_env, time_remaining=120)
+    #td3.train(env=virt_env, time_remaining=5)
