@@ -157,7 +157,6 @@ class GTN_Master(GTN_Base):
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
             scores = (scores - min(scores)) / (max(scores)-min(scores))
-            scores = scores**2
         elif self.score_transform_type == 1:
             # convert [1, 0, 5] to [0.5, 0, 1]
             s = np.argsort(scores)

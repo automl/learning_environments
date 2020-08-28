@@ -10,7 +10,7 @@ agents:
     num_workers: !!int 10                    # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-2                 # standard deviation of the noise vector
-    learning_rate: !!float 1e-3             # reptile step size when matching the agent to the real environment
+    learning_rate: !!float 1e-2             # reptile step size when matching the agent to the real environment
     time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 1000                  # maximum allocated time for first iteration
     time_sleep: !!float 0.01                # cycle sleeping time when waiting for data
