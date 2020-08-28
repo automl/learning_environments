@@ -30,7 +30,7 @@ def build_nn_from_config(input_dim, output_dim, nn_config):
     modules = []
     modules.append(nn.Linear(input_dim, hidden_size))
     modules.append(act_fn)
-    for i in range(hidden_layer):
+    for i in range(hidden_layer-1):
         modules.append(nn.Linear(hidden_size, hidden_size))
         modules.append(act_fn)
     modules.append(nn.Linear(hidden_size, output_dim))
