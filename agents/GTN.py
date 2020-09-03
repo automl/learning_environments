@@ -113,7 +113,7 @@ class GTN_Master(GTN_Base):
 
     def write_worker_inputs(self, it):
         timeout = self.calc_worker_timeout()
-        print('timeout: ' + str(timeout) + " " + str(self.time_list))
+        print('timeout: ' + str(timeout))
 
         for id in range(self.num_workers):
             file_name = self.get_input_file_name(id=id)
