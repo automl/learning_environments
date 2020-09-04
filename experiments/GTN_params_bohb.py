@@ -92,8 +92,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        res = run_bohb_parallel(id=sys.argv[1],
-                                bohb_workers=sys.argv[2],
+        res = run_bohb_parallel(id=int(sys.argv[1]),
+                                bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,
                                 experiment_wrapper=ExperimentWrapper())
     else:
