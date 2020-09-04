@@ -198,8 +198,9 @@ class GTN_Master(GTN_Base):
         lr = self.learning_rate
         sig = self.noise_std
         print('-- update env --')
-        #print(self.score_list)
-        #print(self.score_transform_list)
+        print(self.score_list)
+        print(self.score_transform_list)
+        print(sorted(self.score_transform_list))
         print(np.mean(self.score_transform_list))
         print_abs_param_sum(self.virtual_env_orig)
 
