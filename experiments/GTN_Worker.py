@@ -17,4 +17,5 @@ if __name__ == "__main__":
     bohb_id = int(sys.argv[1])
     id = int(sys.argv[2])
     worker = GTN_Worker(config=config, bohb_id=bohb_id, id=id)
+    worker.run()
 
