@@ -14,15 +14,9 @@ from utils import calc_abs_param_sum, print_abs_param_sum
 from agents.agent_utils import select_agent, test
 from envs.env_factory import EnvFactory
 
-# parser = argparse.ArgumentParser(description='GTN', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-# parser.add_argument('-p', '--purge', default=False, type=bool, help='purge workspace')
-# parser.add_argument('-i', '--id', default=-1, type=int, help='id of the population member')
-# args = parser.parse_args()
-
-
 
 class GTN_Base(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, bohb_id):
         super().__init__()
 
         # for saving/loading
@@ -36,24 +30,25 @@ class GTN_Base(nn.Module):
         self.agent_name = gtn_config["agent_name"]
         self.device = config["device"]
 
+        self.bohb_id = bohb_id
+
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
-        x = datetime.datetime.now()
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_' + x.strftime("%Y-%m-%d-%H")))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync'))
         os.makedirs(self.working_dir, exist_ok=True)
 
     def get_input_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + '_input.pt')
+        return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_input.pt')
 
     def get_input_check_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + '_input_check.pt')
+        return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_input_check.pt')
 
     def get_result_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + '_result.pt')
+        return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_result.pt')
 
     def get_result_check_file_name(self, id):
-        return os.path.join(self.working_dir, str(id) + '_result_check.pt')
+        return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_result_check.pt')
 
     def clean_working_dir(self):
         files = glob.glob(os.path.join(self.working_dir, '*'))
@@ -62,8 +57,8 @@ class GTN_Base(nn.Module):
 
 
 class GTN_Master(GTN_Base):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, bohb_id=-1):
+        super().__init__(config, bohb_id)
 
         gtn_config = config["agents"]["gtn"]
         self.num_workers = gtn_config["num_workers"]
@@ -84,6 +79,8 @@ class GTN_Master(GTN_Base):
         # for early out
         self.avg_runtime = None
 
+        print('Starting GTN Worker with bohb_id {}'.format(bohb_id))
+
 
     def run(self):
         for it in range(self.max_iterations):
@@ -101,6 +98,7 @@ class GTN_Master(GTN_Base):
             self.print_statistics(it)
 
         print('Master quitting')
+        return np.mean(self.score_list)
 
 
 
@@ -124,7 +122,12 @@ class GTN_Master(GTN_Base):
                 time.sleep(self.time_sleep)
 
             self.uuid_list[id] = str(uuid.uuid4())
-            quit_flag = it == self.max_iterations-1
+
+            # if we are not using bohb, shut everything down after last iteration
+            if self.bohb_id < 0:
+                quit_flag = it == self.max_iterations-1
+            else:
+                quit_flag = False
 
             data = {}
             data['timeout'] = timeout
@@ -176,7 +179,7 @@ class GTN_Master(GTN_Base):
             for i in range(n):
                 scores[s[i]] = i / (n-1)
         elif self.score_transform_type == 2:
-            # fitness shaping from from "Natural Evolution Strategies" (Wierstra 2014) paper
+            # fitness shaping from "Natural Evolution Strategies" (Wierstra 2014) paper
             lmbda = len(scores)
             s = np.argsort(-scores)
             for i in range(lmbda):
@@ -197,11 +200,11 @@ class GTN_Master(GTN_Base):
         n = self.num_workers
         lr = self.learning_rate
         sig = self.noise_std
-        print('-- update env --')
-        print(self.score_list)
-        print(self.score_transform_list)
-        print(sorted(self.score_transform_list))
-        print(np.mean(self.score_transform_list))
+        # print('-- update env --')
+        # print(self.score_list)
+        # print(self.score_transform_list)
+        # print(sorted(self.score_transform_list))
+        # print(np.mean(self.score_transform_list))
         print_abs_param_sum(self.virtual_env_orig)
 
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
@@ -221,8 +224,8 @@ class GTN_Master(GTN_Base):
 
 
 class GTN_Worker(GTN_Base):
-    def __init__(self, config, id):
-        super().__init__(config)
+    def __init__(self, config, id, bohb_id=-1):
+        super().__init__(config, bohb_id)
         torch.manual_seed(id+int(time.time()))
 
         gtn_config = config["agents"]["gtn"]
@@ -235,6 +238,8 @@ class GTN_Worker(GTN_Base):
 
         # for identifying the different workers
         self.id = id
+
+        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
 
     def run(self):
@@ -376,7 +381,7 @@ def run_gtn_on_single_pc(config):
     p_list = []
 
     # cleanup working directory from old files
-    gtn_base = GTN_Base(config)
+    gtn_base = GTN_Master(config)
     gtn_base.clean_working_dir()
     time.sleep(2)
 

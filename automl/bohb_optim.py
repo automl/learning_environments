@@ -20,14 +20,16 @@ from hpbandster.optimizers.config_generators.bohb import BOHB as BOHB
 
 
 class BohbWorker(Worker):
-    def __init__(self, working_dir, experiment_wrapper, *args, **kwargs):
+    def __init__(self, id, working_dir, experiment_wrapper, *args, **kwargs):
         super(BohbWorker, self).__init__(*args, **kwargs)
         print(kwargs)
+
+        self.id = id
         self.working_dir = working_dir
         self.experiment_wrapper = experiment_wrapper
 
     def compute(self, config_id, config, budget, *args, **kwargs):
-        return self.experiment_wrapper.compute(self.working_dir, config_id, config, budget, *args, **kwargs)
+        return self.experiment_wrapper.compute(self.working_dir, self.id, config_id, config, budget, *args, **kwargs)
 
 
 class BohbWrapper(Master):
@@ -122,6 +124,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         print('START NEW WORKER')
         time.sleep(10)
         w = BohbWorker(host=host,
+                       id=id,
                        run_id=run_id,
                        working_dir=working_dir,
                        experiment_wrapper = experiment_wrapper)
@@ -139,6 +142,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
     w = BohbWorker(host=host,
                    nameserver=ns_host,
                    nameserver_port=ns_port,
+                   id=id,
                    run_id=run_id,
                    working_dir=working_dir,
                    experiment_wrapper = experiment_wrapper)
@@ -183,6 +187,7 @@ def run_bohb_serial(run_id, experiment_wrapper):
     ns.start()
 
     w = BohbWorker(nameserver="127.0.0.1",
+                   id=0,
                    run_id=run_id,
                    nameserver_port=port,
                    working_dir=working_dir,

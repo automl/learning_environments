@@ -2,13 +2,10 @@ import datetime
 import sys
 import traceback
 import yaml
-import random
-import numpy as np
-import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.GTN import GTN
+from agents.GTN import GTN_Master, GTN_Worker
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 
@@ -17,8 +14,9 @@ class ExperimentWrapper():
         params = {}
         params['seed'] = 42
         params['min_budget'] = 1
-        params['max_budget'] = 4
+        params['max_budget'] = 2
         params['eta'] = 2
+        params['random_fraction'] = 0.3
         params['iterations'] = 1000
 
         return params
@@ -27,19 +25,8 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_iterations', lower=3, upper=10, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_mod_zero_rate', lower=2, upper=5, log=False, default_value=3))
-
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_delay', choices=[1, 2, 4], default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_type', lower=0, upper=5, log=False, default_value=0))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_type', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_grad_step_size', lower=1e-3, upper=0.5, log=True, default_value=1e-2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_grad_steps', lower=1, upper=3, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_mod_noise_type', lower=1, upper=2, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_noise_std', lower=0.01, upper=1, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_mod_add_factor', lower=0.01, upper=0.5, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_mod_mult_const', choices=[False, True], default_value=False))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-3, upper=1e-1, log=True, default_value=1e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_learning_rate', lower=1e-3, upper=1e-1, log=True, default_value=1e-2))
 
         return cs
 
@@ -47,27 +34,15 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        env_name = config["env_name"]
         config["render_env"] = False
 
-        config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
-        config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
-        config["agents"]['gtn']['mod_zero_rate'] = cso["gtn_mod_zero_rate"]
-
-        config["agents"]["td3"]["mod_delay"] = cso["td3_mod_delay"]
-        config["agents"]["td3"]["mod_type"] = cso["td3_mod_type"]
-        config["agents"]["td3"]["mod_grad_type"] = cso["td3_mod_grad_type"]
-        config["agents"]["td3"]["mod_grad_step_size"] = cso["td3_mod_grad_step_size"]
-        config["agents"]["td3"]["mod_grad_steps"] = cso["td3_mod_grad_steps"]
-        config["agents"]["td3"]["mod_noise_type"] = cso["td3_mod_noise_type"]
-        config["agents"]["td3"]["mod_noise_std"] = cso["td3_mod_noise_std"]
-        config["agents"]["td3"]["mod_add_factor"] = cso["td3_mod_add_factor"]
-        config["agents"]["td3"]["mod_mult_const"] = cso["td3_mod_mult_const"]
+        config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
+        config["agents"]['gtn']['learning_rate'] = cso["gtn_learning_rate"]
 
         return config
 
 
-    def compute(self, working_dir, config_id, cso, budget, *args, **kwargs):
+    def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
@@ -81,28 +56,20 @@ class ExperimentWrapper():
         print('----------------------------')
 
         info = {}
-        order = None
-        timings = None
-        episodes_till_solved = None
+        score = None
         error = ""
         try:
-            gtn = GTN(config)
-            order, timings = gtn.train()
-            score, episodes_till_solved = gtn.test()
+            gtn = GTN_Master(config, bohb_id=bohb_id)
+            score = gtn.run()
         except:
             score = float('Inf')
             error = traceback.format_exc()
             print(error)
 
-        info['config'] = str(config)
-        info['order'] = str(order)
-        info['timings'] = str(timings)
-        info['episodes_till_solved'] = str(episodes_till_solved)
         info['error'] = str(error)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
-        print('TIMINGS:     ' + str(timings))
         print("END BOHB ITERATION")
         print('----------------------------')
 
