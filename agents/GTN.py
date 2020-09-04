@@ -252,8 +252,8 @@ class GTN_Worker(GTN_Base):
 
             time_start = time.time()
 
-            agent_add = select_agent(config, self.agent_name)
-            agent_sub = select_agent(config, self.agent_name)
+            agent_add = select_agent(self.config, self.agent_name)
+            agent_sub = select_agent(self.config, self.agent_name)
             agent_sub.load_state_dict(agent_add.state_dict())
 
             self.get_random_eps()
