@@ -84,16 +84,16 @@ class GTN_Master(GTN_Base):
     def run(self):
         for it in range(self.max_iterations):
             print('-- Master: Iteration ' + str(it))
-            #print('-- Master: start iteration ' + str(it))
-            #print('-- Master: write worker inputs')
+            print('-- Master: start iteration ' + str(it))
+            print('-- Master: write worker inputs')
             self.write_worker_inputs(it)
-            #print('-- Master: read worker results')
+            print('-- Master: read worker results')
             self.read_worker_results()
-            #print('-- Master: rank transform')
+            print('-- Master: rank transform')
             self.rank_transform()
-            #print('-- Master: update env')
+            print('-- Master: update env')
             self.update_env()
-            #print('-- Master: print statistics')
+            print('-- Master: print statistics')
             self.print_statistics(it)
 
         print('Master quitting')

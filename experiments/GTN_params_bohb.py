@@ -41,7 +41,7 @@ class ExperimentWrapper():
 
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
         config["agents"]['gtn']['learning_rate'] = cso["gtn_learning_rate"]
-        config["agents"]['gtn']['virtual_env_reps'] = cso["virtual_env_reps"]
+        config["agents"]['gtn']['virtual_env_reps'] = cso["gtn_virtual_env_reps"]
         config["envs"]['Bandit-v0']['activation_fn'] = cso["env_activation_fn"]
 
         return config
