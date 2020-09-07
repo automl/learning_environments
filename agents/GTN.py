@@ -82,6 +82,8 @@ class GTN_Master(GTN_Base):
 
 
     def run(self):
+        mean_score_list = []
+
         for it in range(self.max_iterations):
             print('-- Master: Iteration ' + str(it))
             print('-- Master: start iteration ' + str(it))
@@ -96,8 +98,10 @@ class GTN_Master(GTN_Base):
             print('-- Master: print statistics')
             self.print_statistics(it)
 
+            mean_score_list.append(np.mean(self.score_list))
+
         print('Master quitting')
-        return np.mean(self.score_list), self.score_list
+        return np.mean(self.score_list), mean_score_list
 
 
 
