@@ -29,7 +29,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-3, upper=1e-1, log=True, default_value=1e-2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_learning_rate', lower=1e-2, upper=1, log=True, default_value=1e-1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_virtual_env_reps', choices=[1,3,10], default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+        #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
 
         return cs
 
@@ -42,7 +42,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
         config["agents"]['gtn']['learning_rate'] = cso["gtn_learning_rate"]
         config["agents"]['gtn']['virtual_env_reps'] = cso["gtn_virtual_env_reps"]
-        config["envs"]['Bandit-v0']['activation_fn'] = cso["env_activation_fn"]
+        #config["envs"]['Bandit-v0']['activation_fn'] = cso["env_activation_fn"]
 
         return config
 
