@@ -152,7 +152,7 @@ class BanditNonpermutedGaussian(BanditEnv):
 
         for i in range(bandits):
             r_dist.append([(i+1)/bandits, 1])
-        random.shuffle(r_dist)
+        #random.shuffle(r_dist)
         #print(r_dist)
 
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)
