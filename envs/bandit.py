@@ -140,3 +140,19 @@ class BanditPermutedGaussian(BanditEnv):
         #print(r_dist)
 
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)
+
+
+class BanditNonpermutedGaussian(BanditEnv):
+    """
+    own implementation
+    """
+    def __init__(self, bandits=20):
+        p_dist = np.full(bandits, 1)
+        r_dist = []
+
+        for i in range(bandits):
+            r_dist.append([(i+1)/bandits, 1])
+        random.shuffle(r_dist)
+        #print(r_dist)
+
+        BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)

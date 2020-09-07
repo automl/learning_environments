@@ -91,7 +91,7 @@ class EnvFactory:
             env_name == "LunarLander-v2"):
             env = gym.make(env_name)
         elif env_name == "Bandit-v0":
-            env = TimeLimit(BanditPermutedGaussian())
+            env = TimeLimit(BanditNonpermutedGaussian())
         else:
             raise NotImplementedError("Environment not supported")
 

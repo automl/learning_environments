@@ -5,7 +5,7 @@ import time
 import random
 import torch.nn.functional as F
 from models.actor_critic import Critic_DQN
-from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
+from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved, print_abs_param_sum
 from envs.env_factory import EnvFactory
 
 class DDQN(nn.Module):
@@ -43,6 +43,8 @@ class DDQN(nn.Module):
 
 
     def train(self, env, time_remaining=1e9):
+        #print_abs_param_sum(self.model, name='DDQN model weight before: ')
+
         time_start = time.time()
 
         replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
@@ -104,6 +106,8 @@ class DDQN(nn.Module):
                 break
 
         env.close()
+
+        #print_abs_param_sum(self.model, name='DDQN model weight after:  ')
 
         return avg_meter_reward.get_raw_data()
 
@@ -180,6 +184,8 @@ if __name__ == "__main__":
                 config=config)
 
     #ddqn.train(env=virt_env, time_remaining=50)
-    ddqn.train(env=real_env, time_remaining=50)
+    for i in range(1000):
+        print(i)
+        ddqn.train(env=real_env, time_remaining=50)
 
 

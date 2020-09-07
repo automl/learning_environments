@@ -5,7 +5,6 @@ import multiprocessing as mp
 import os
 import sys
 import time
-import datetime
 import uuid
 import numpy as np
 import glob
@@ -62,7 +61,7 @@ class GTN_Master(GTN_Base):
 
         gtn_config = config["agents"]["gtn"]
         self.num_workers = gtn_config["num_workers"]
-        self.learning_rate = gtn_config["learning_rate"]
+        self.step_size = gtn_config["step_size"]
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
@@ -198,7 +197,7 @@ class GTN_Master(GTN_Base):
 
     def update_env(self):
         n = self.num_workers
-        lr = self.learning_rate
+        ss = self.step_size
         sig = self.noise_std
         # print('-- update env --')
         # print(self.score_list)
@@ -210,7 +209,7 @@ class GTN_Master(GTN_Base):
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
-                    l_orig.weight = torch.nn.Parameter(l_orig.weight + (lr/n/sig) * score_transform * l_eps.weight )
+                    l_orig.weight = torch.nn.Parameter(l_orig.weight + (ss/n) * score_transform * l_eps.weight)
 
         print_abs_param_sum(self.virtual_env_orig)
 
@@ -230,6 +229,7 @@ class GTN_Worker(GTN_Base):
 
         gtn_config = config["agents"]["gtn"]
         self.num_test_envs = gtn_config["num_test_envs"]
+        self.virtual_env_reps = gtn_config["virtual_env_reps"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.uuid = None
@@ -266,7 +266,8 @@ class GTN_Worker(GTN_Base):
                                        # calc_abs_param_sum(self.virtual_env_orig),
                                        # calc_abs_param_sum(self.virtual_env),
                                        # calc_abs_param_sum(self.eps)))
-            agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+            for i in range(self.virtual_env_reps):
+                agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_add = self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start))
 
             print('-- Worker {}: train sub'.format(self.id))

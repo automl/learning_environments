@@ -54,7 +54,7 @@ def test(agent, env_factory, config, num_envs=10, time_remaining=1e9):
         reward_list = agent.train(env=env, time_remaining=time_remaining - (time.time() - time_start))
         mean_episodes_till_solved = len(reward_list)
         episodes_till_solved.append(len(reward_list))
-        #print("episodes till solved: " + str(len(reward_list)))
+        print("episodes till solved: " + str(len(reward_list)))
     else:
         if config['env_name'] == 'HalfCheetah-v2':
             interpolate_vals = [0, 0.03, 0.1, 0.4, 1]
