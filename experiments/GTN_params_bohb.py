@@ -60,21 +60,23 @@ class ExperimentWrapper():
         print('BUDGET: ' + str(budget))
         print('----------------------------')
 
-        info = {}
-        score = None
-        error = ""
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id)
-            score = gtn.run()
+            score, score_list = gtn.run()
+            error = ""
         except:
             score = float('Inf')
+            score_list = []
             error = traceback.format_exc()
             print(error)
 
+        info = {}
         info['error'] = str(error)
+        info['score_list'] = str(score_list)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
+        print('SCORE LIST:  ' + str(score_list))
         print("END BOHB ITERATION")
         print('----------------------------')
 

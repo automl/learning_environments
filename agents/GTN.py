@@ -97,7 +97,7 @@ class GTN_Master(GTN_Base):
             self.print_statistics(it)
 
         print('Master quitting')
-        return np.mean(self.score_list)
+        return np.mean(self.score_list), self.score_list
 
 
 
