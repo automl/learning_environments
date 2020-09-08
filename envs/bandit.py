@@ -146,7 +146,7 @@ class BanditNonpermutedGaussian(BanditEnv):
     """
     own implementation
     """
-    def __init__(self, bandits=20):
+    def __init__(self, bandits=10):
         p_dist = np.full(bandits, 1)
         r_dist = []
 

@@ -18,6 +18,8 @@ agents:
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
     minimize_score: !!bool True             # perform argmin or argmax
     score_transform_type: !!int 2           # 0: score transform / 1: rank transform / 2: log transform
+    log_transf_zero_mean: !!bool True       # zero-mean log transform (->Wierstra2012) or worse half with zero weight
+    log_transf_normalize: !!bool False      # normalize max log transform value to 1
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   reptile:
@@ -127,7 +129,7 @@ envs:
     solved_reward: !!float 98
     max_steps: !!int 100
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 128                        # size of the hidden layer of the virtual environment
+    hidden_size: 64                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   LunarLander-v2:

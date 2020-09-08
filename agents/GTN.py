@@ -65,6 +65,9 @@ class GTN_Master(GTN_Base):
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
+        self.log_transf_zero_mean = gtn_config["log_transf_zero_mean"]
+        self.log_transf_normalize = gtn_config["log_transf_normalize"]
+
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -190,9 +193,15 @@ class GTN_Master(GTN_Base):
             scores = scores.astype(float)
             for i in range(lmbda):
                 scores[i] = max(0, np.log(lmbda / 2 + 1) - np.log(scores[i]))
-            scores = scores / sum(scores) - 1 / lmbda
+
+            if self.log_transf_zero_mean:
+                scores = scores / sum(scores) - 1 / lmbda
+            else:
+                scores = scores / sum(scores)
             # additional normalization (not in original paper)
-            scores /= max(scores)
+
+            if self.log_transf_normalize:
+                scores /= max(scores)
         else:
             raise ValueError("Unknown rank transform type: " + str(self.rank_transform_type))
 
