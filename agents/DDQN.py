@@ -15,7 +15,8 @@ class DDQN(nn.Module):
         agent_name = "ddqn"
         ddqn_config = config["agents"][agent_name]
 
-        self.max_episodes = ddqn_config["max_episodes"]
+        self.train_episodes = ddqn_config["train_episodes"]
+        self.test_episodes = ddqn_config["test_episodes"]
         self.init_episodes = ddqn_config["init_episodes"]
         self.batch_size = ddqn_config["batch_size"]
         self.same_action_num = ddqn_config["same_action_num"]
@@ -54,10 +55,10 @@ class DDQN(nn.Module):
         self.eps = self.eps_init
 
         # training loop
-        for episode in range(self.max_episodes):
+        for episode in range(self.train_episodes):
             # early out if timeout
             if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.max_episodes,
+                          max_episodes=self.train_episodes,
                           time_elapsed=time.time()-time_start,
                           time_remaining=time_remaining):
                 break
@@ -65,11 +66,8 @@ class DDQN(nn.Module):
             state = env.reset()
             episode_reward = 0
 
-            choose_random = 0
-
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 if random.random() < self.eps:
-                    choose_random += 1
                     action = env.get_random_action()
                 else:
                     qvals = self.model(state.to(self.device))
@@ -90,7 +88,6 @@ class DDQN(nn.Module):
                     self.learn(replay_buffer)
 
                 if done > 0.5:
-                    #print(str(action) + " " + str(choose_random/(t+1)))
                     break
 
             # logging
@@ -146,6 +143,55 @@ class DDQN(nn.Module):
         return loss
 
 
+    def test(self, env, time_remaining=1e9):
+        with torch.no_grad():
+            time_start = time.time()
+
+            avg_meter_reward = AverageMeter(print_str="Average reward: ")
+
+            # training loop
+            for episode in range(self.test_episodes):
+                # early out if timeout
+                if time_is_up(avg_meter_reward=avg_meter_reward,
+                              max_episodes=self.test_episodes,
+                              time_elapsed=time.time() - time_start,
+                              time_remaining=time_remaining):
+                    break
+
+                state = env.reset()
+                episode_reward = 0
+
+                for t in range(0, env.max_episode_steps(), self.same_action_num):
+                    qvals = self.model(state.to(self.device))
+                    action = torch.argmax(qvals).unsqueeze(0).detach()
+
+                    # if t == 0:
+                    #     print(action)
+
+                    # live view
+                    if self.render_env and episode % 10 == 0:
+                        env.render()
+
+                    # state-action transition
+                    next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                    state = next_state
+                    episode_reward += reward
+
+                    if done > 0.5:
+                        break
+
+                # logging
+                avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+
+                # quit training if environment is solved
+                if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                    break
+
+            env.close()
+
+        return avg_meter_reward.get_raw_data()
+
+
     def reset_optimizer(self):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
@@ -179,6 +225,11 @@ if __name__ == "__main__":
     virt_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_default_real_env()
 
+    # ddqn = DDQN(state_dim=virt_env.get_state_dim(),
+    #             action_dim=virt_env.get_action_dim(),
+    #             config=config)
+    mean_reward_list = []
+
     ddqn = DDQN(state_dim=virt_env.get_state_dim(),
                 action_dim=virt_env.get_action_dim(),
                 config=config)
@@ -186,6 +237,17 @@ if __name__ == "__main__":
     #ddqn.train(env=virt_env, time_remaining=50)
     for i in range(1000):
         print(i)
+
+        ddqn = DDQN(state_dim=virt_env.get_state_dim(),
+                    action_dim=virt_env.get_action_dim(),
+                    config=config)
+
         ddqn.train(env=real_env, time_remaining=50)
+        reward_list = ddqn.test(env=real_env, time_remaining=50)
+        print(sum(reward_list)/len(reward_list))
+    #     mean_reward_list.append(sum(reward_list)/len(reward_list))
+    #     print(sum(mean_reward_list) / len(mean_reward_list))
+    #
+    # print(sum(mean_reward_list)/len(mean_reward_list))
 
 

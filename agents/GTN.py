@@ -10,7 +10,7 @@ import numpy as np
 import glob
 import statistics
 from utils import calc_abs_param_sum, print_abs_param_sum
-from agents.agent_utils import select_agent, test
+from agents.agent_utils import select_agent, test_average_reward
 from envs.env_factory import EnvFactory
 
 
@@ -23,7 +23,6 @@ class GTN_Base(nn.Module):
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
-        self.noise_std = gtn_config["noise_std"]
         self.time_sleep = gtn_config["time_sleep"]
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
@@ -62,12 +61,12 @@ class GTN_Master(GTN_Base):
         gtn_config = config["agents"]["gtn"]
         self.num_workers = gtn_config["num_workers"]
         self.step_size = gtn_config["step_size"]
+        self.weight_decay = gtn_config["weight_decay"]
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
         self.log_transf_zero_mean = gtn_config["log_transf_zero_mean"]
         self.log_transf_normalize = gtn_config["log_transf_normalize"]
-
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -75,6 +74,7 @@ class GTN_Master(GTN_Base):
         # to store results from workers
         self.time_list = [None]*self.num_workers
         self.score_list = [None]*self.num_workers
+        self.score_orig_list = [None]*self.num_workers
         self.score_transform_list = [None]*self.num_workers
         self.eps_list = [self.env_factory.generate_virtual_env(print_str='GTN_Master: ') for _ in range(self.num_workers)]
 
@@ -105,7 +105,6 @@ class GTN_Master(GTN_Base):
 
         print('Master quitting')
         return np.mean(self.score_list), mean_score_list
-
 
 
     def calc_worker_timeout(self):
@@ -163,6 +162,8 @@ class GTN_Master(GTN_Base):
 
             self.time_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
+            self.score_orig_list[id] = data['score_orig']
+
             self.eps_list[id].load_state_dict(data['eps'])
 
             os.remove(check_file_name)
@@ -211,24 +212,32 @@ class GTN_Master(GTN_Base):
     def update_env(self):
         n = self.num_workers
         ss = self.step_size
-        sig = self.noise_std
         # print('-- update env --')
-        # print(self.score_list)
-        # print(self.score_transform_list)
-        # print(sorted(self.score_transform_list))
-        # print(np.mean(self.score_transform_list))
+        print(self.score_orig_list)
+        print(self.score_list)
+        print(self.score_transform_list)
+        print(np.mean(self.score_transform_list))
+
+        print_abs_param_sum(self.virtual_env_orig)
+
+        # for l_orig in self.virtual_env_orig.modules():
+        #     if isinstance(l_orig, nn.Linear):
+        #         l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
+        #         l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
+
         print_abs_param_sum(self.virtual_env_orig)
 
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + (ss/n) * score_transform * l_eps.weight)
+                    l_orig.bias = torch.nn.Parameter(l_orig.bias + (ss/n) * score_transform * l_eps.bias)
 
         print_abs_param_sum(self.virtual_env_orig)
 
 
     def print_statistics(self, it):
-        mean_score = statistics.mean(self.score_list)
+        mean_score = statistics.mean(self.score_orig_list)
         print('--------------')
         print('GTN iteration:  ' + str(it))
         print('GTN mean score: ' + str(mean_score))
@@ -241,6 +250,7 @@ class GTN_Worker(GTN_Base):
         torch.manual_seed(id+int(time.time()))
 
         gtn_config = config["agents"]["gtn"]
+        self.noise_std = gtn_config["noise_std"]
         self.num_test_envs = gtn_config["num_test_envs"]
         self.virtual_env_reps = gtn_config["virtual_env_reps"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
@@ -258,44 +268,55 @@ class GTN_Worker(GTN_Base):
     def run(self):
         # read data from master
         while not self.quit_flag:
-            print('-- Worker {}: read worker inputs'.format(self.id))
+            #print('-- Worker {}: read worker inputs'.format(self.id))
             self.read_worker_input()
 
-            print('-- Worker {}: precalculation'.format(self.id))
+            #print('-- Worker {}: precalculation'.format(self.id))
+
+            # print('worker orig')
+            # print_abs_param_sum(self.virtual_env_orig)
 
             time_start = time.time()
 
+            agent_orig = select_agent(self.config, self.agent_name)
             agent_add = select_agent(self.config, self.agent_name)
             agent_sub = select_agent(self.config, self.agent_name)
-            agent_sub.load_state_dict(agent_add.state_dict())
+            agent_sub.load_state_dict(agent_orig.state_dict())
+            agent_sub.load_state_dict(agent_orig.state_dict())
+
+            for i in range(self.virtual_env_reps):
+                agent_orig.train(self.virtual_env_orig, time_remaining=self.timeout - (time.time() - time_start))
+            score_orig = self.test_agent_on_real_env(agent_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
 
-            print('-- Worker {}: train add'.format(self.id))
+            #print('-- Worker {}: train add'.format(self.id))
 
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
-            #print('{} {} {} {}'.format(self.id,
-                                       # calc_abs_param_sum(self.virtual_env_orig),
-                                       # calc_abs_param_sum(self.virtual_env),
-                                       # calc_abs_param_sum(self.eps)))
+
             for i in range(self.virtual_env_reps):
                 agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_add = self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start))
 
-            print('-- Worker {}: train sub'.format(self.id))
+            # print('worker add')
+            # print_abs_param_sum(self.virtual_env)
+            # print(score_add)
+
+            #print('-- Worker {}: train sub'.format(self.id))
 
             # second mirrored noise +N
             self.subtract_noise_from_virtual_env()
-            # print('{} {} {} {}'.format(self.id,
-            #                            calc_abs_param_sum(self.virtual_env_orig),
-            #                            calc_abs_param_sum(self.virtual_env),
-            #                            calc_abs_param_sum(self.eps)))
+
             for i in range(self.virtual_env_reps):
                 agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_sub = self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start))
 
-            print('-- Worker {}: postcalculation'.format(self.id))
+            # print('worker sub')
+            # print_abs_param_sum(self.virtual_env)
+            # print(score_sub)
+
+            #print('-- Worker {}: postcalculation'.format(self.id))
 
             if self.minimize_score:
                 best_score = min(score_add, score_sub)
@@ -311,7 +332,7 @@ class GTN_Worker(GTN_Base):
             print('-- LOSS BEST: ' + str(best_score))
             print('-- Worker {}: write result'.format(self.id))
 
-            self.write_worker_result(score = best_score, time_elapsed = time.time()-time_start)
+            self.write_worker_result(score=best_score, score_orig=score_orig, time_elapsed = time.time()-time_start)
 
         print('Agent ' + str(self.id) + ' quitting')
 
@@ -325,6 +346,7 @@ class GTN_Worker(GTN_Base):
         data = torch.load(file_name)
 
         self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
+        self.virtual_env.load_state_dict(data['virtual_env_orig'])
         self.uuid = data['uuid']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
@@ -333,7 +355,7 @@ class GTN_Worker(GTN_Base):
         os.remove(file_name)
 
 
-    def write_worker_result(self, score, time_elapsed):
+    def write_worker_result(self, score, score_orig, time_elapsed):
         file_name = self.get_result_file_name(id=self.id)
         check_file_name = self.get_result_check_file_name(id=self.id)
 
@@ -345,6 +367,7 @@ class GTN_Worker(GTN_Base):
         data["eps"] = self.eps.state_dict()
         data["time_elapsed"] = time_elapsed
         data["score"] = score
+        data["score_orig"] = score_orig
         data["uuid"] = self.uuid
         torch.save(data, file_name)
         torch.save({}, check_file_name)
@@ -354,15 +377,20 @@ class GTN_Worker(GTN_Base):
         for l_virt, l_eps in zip(self.virtual_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.weight),
-                                                               std=torch.ones_like(l_virt.weight)))
+                                                               std=torch.ones_like(l_virt.weight)) * self.noise_std)
+                l_eps.bias = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.bias),
+                                                               std=torch.ones_like(l_virt.bias)) * self.noise_std)
+
 
     def add_noise_to_virtual_env(self, add=True):
         for l_orig, l_virt, l_eps in zip(self.virtual_env_orig.modules(), self.virtual_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
                 if add: # add eps
-                    l_virt.weight = torch.nn.Parameter(l_orig.weight + l_eps.weight * self.noise_std)
+                    l_virt.weight = torch.nn.Parameter(l_orig.weight + l_eps.weight)
+                    l_virt.bias = torch.nn.Parameter(l_orig.bias + l_eps.bias)
                 else:   # subtract eps
-                    l_virt.weight = torch.nn.Parameter(l_orig.weight - l_eps.weight * self.noise_std)
+                    l_virt.weight = torch.nn.Parameter(l_orig.weight - l_eps.weight)
+                    l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
 
 
     def subtract_noise_from_virtual_env(self):
@@ -373,15 +401,23 @@ class GTN_Worker(GTN_Base):
         for l_eps in self.eps.modules():
             if isinstance(l_eps, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(-l_eps.weight)
+                l_eps.bias = torch.nn.Parameter(-l_eps.bias)
 
 
     def test_agent_on_real_env(self, agent, time_remaining):
-        mean_episodes_till_solved, episodes_till_solved = test(agent=agent,
-                                                               env_factory=self.env_factory,
-                                                               config=self.config,
-                                                               num_envs=self.num_test_envs,
-                                                               time_remaining=time_remaining)
-        return mean_episodes_till_solved
+        mean_reward, reward_list = test_average_reward(agent=agent,
+                                                       env_factory=self.env_factory,
+                                                       config=self.config,
+                                                       num_envs=self.num_test_envs,
+                                                       time_remaining=time_remaining)
+
+        return mean_reward
+        # mean_episodes_till_solved, episodes_till_solved = test(agent=agent,
+        #                                                        env_factory=self.env_factory,
+        #                                                        config=self.config,
+        #                                                        num_envs=self.num_test_envs,
+        #                                                        time_remaining=time_remaining)
+        # return mean_episodes_till_solved
 
 
 def run_gtn_on_single_pc(config):

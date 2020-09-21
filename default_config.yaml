@@ -1,25 +1,26 @@
 env_name: !!str Bandit-v0 #Pendulum-v0                 # used environment: Pendulum-v0, MountainCarContinuous-v0, HalfCheetah-v2
 seed: !!int 22                              # random initialization seed
-device: !!str cpu                          # torch device (cuda:0 or cpu)
+device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'single'                    # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 100               # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
-    num_workers: !!int 32                   # size of the population
+    num_workers: !!int 10                   # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
-    virtual_env_reps: !!int 3               # how often to train the agent on the virtual env?
-    noise_std: !!float 1e-2                 # standard deviation of the noise vector
-    step_size: !!float 0.1                  # reptile step size when matching the agent to the real environment
+    virtual_env_reps: !!int 1               # how often to train the agent on the virtual env?
+    noise_std: !!float 1e-1                 # standard deviation of the noise vector
+    step_size: !!float 0.2                    # reptile step size
+    weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
-    minimize_score: !!bool True             # perform argmin or argmax
+    minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 2           # 0: score transform / 1: rank transform / 2: log transform
-    log_transf_zero_mean: !!bool True       # zero-mean log transform (->Wierstra2012) or worse half with zero weight
-    log_transf_normalize: !!bool False      # normalize max log transform value to 1
+    log_transf_zero_mean: !!bool False      # zero-mean log transform (->Wierstra2012) or worse half with zero weight
+    log_transf_normalize: !!bool True       # normalize max log transform value to 1
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   reptile:
@@ -30,13 +31,14 @@ agents:
     env_num: !!int 5                        # number of different training envs
 
   ddqn:
-    max_episodes: !!int 200                 # maximum number of episodes to optimize
+    train_episodes: !!int 200               # maximum number of episodes to train
+    test_episodes: !!int 10                 # maximum number of episodes to test
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int  128                  # batch size when running a policy update step
     gamma: !!float 0.98                     # discount factor
     lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
-    eps_init: !!float 0.02                  # initial random action percentage
+    eps_init: !!float 0.1                   # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.8                  # random action decay factor
     rb_size: !!int 1000000                  # size of the replay buffer
@@ -46,7 +48,7 @@ agents:
     hidden_layer: !!int 1                   # number of hidden layers
     print_rate: 1000                        # update rate of avg meters
     early_out_num: 10                       # based on how many training steps shall an early out happen
-    early_out_virtual_diff: !!float 3e-3    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 1e-3    # performance difference for an early out for virtual envs
 
   td3:
     max_episodes: !!int 100                 # maximum number of episodes to optimize
@@ -123,11 +125,11 @@ envs:
     max_steps: !!int 200                    # maximum number of steps per episode
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   Bandit-v0:
-    solved_reward: !!float 95
-    max_steps: !!int 100
+    solved_reward: !!float 48
+    max_steps: !!int 50
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 4                          # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
@@ -137,4 +139,4 @@ envs:
     max_steps: !!int 1000
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
