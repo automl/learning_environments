@@ -1,6 +1,6 @@
 env_name: !!str Bandit-v0 #Pendulum-v0                 # used environment: Pendulum-v0, MountainCarContinuous-v0, HalfCheetah-v2
 seed: !!int 22                              # random initialization seed
-device: !!str cpu                           # torch device (cuda:0 or cpu)
+device: !!str cpu                          # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
@@ -36,7 +36,7 @@ agents:
     gamma: !!float 0.98                     # discount factor
     lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
-    eps_init: !!float 0.01                  # initial random action percentage
+    eps_init: !!float 0.02                  # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.8                  # random action decay factor
     rb_size: !!int 1000000                  # size of the replay buffer
@@ -126,10 +126,10 @@ envs:
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
 
   Bandit-v0:
-    solved_reward: !!float 98
+    solved_reward: !!float 95
     max_steps: !!int 100
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 64                         # size of the hidden layer of the virtual environment
+    hidden_size: 4                          # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   LunarLander-v2:

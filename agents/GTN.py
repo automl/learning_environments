@@ -291,7 +291,8 @@ class GTN_Worker(GTN_Base):
             #                            calc_abs_param_sum(self.virtual_env_orig),
             #                            calc_abs_param_sum(self.virtual_env),
             #                            calc_abs_param_sum(self.eps)))
-            agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+            for i in range(self.virtual_env_reps):
+                agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
             score_sub = self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start))
 
             print('-- Worker {}: postcalculation'.format(self.id))
@@ -341,7 +342,7 @@ class GTN_Worker(GTN_Base):
             time.sleep(self.time_sleep)
 
         data = {}
-        data["eps"] = self.virtual_env.state_dict()
+        data["eps"] = self.eps.state_dict()
         data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["uuid"] = self.uuid
