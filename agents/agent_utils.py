@@ -40,7 +40,6 @@ def test_average_reward(agent, env_factory, config, num_envs=10, time_remaining=
         env = env_factory.generate_default_real_env('Test: ')
         reward_list = agent.test(env=env, time_remaining=time_remaining - (time.time() - time_start))
         mean_reward = sum(reward_list)/len(reward_list)
-
         #print("mean_reward: " + str(mean_reward))
     else:
         raise NotImplementedError("Different environments not yet implemented")

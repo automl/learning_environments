@@ -126,7 +126,7 @@ class BanditTenArmedGaussian(BanditEnv):
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)
 
 
-class BanditPermutedGaussian(BanditEnv):
+class BanditRandomPermutedGaussian(BanditEnv):
     """
     own implementation
     """
@@ -137,12 +137,11 @@ class BanditPermutedGaussian(BanditEnv):
         for i in range(bandits):
             r_dist.append([(i+1)/bandits, 1])
         random.shuffle(r_dist)
-        #print(r_dist)
 
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)
 
 
-class BanditNonpermutedGaussian(BanditEnv):
+class BanditFixedPermutedGaussian(BanditEnv):
     """
     own implementation
     """
@@ -153,7 +152,5 @@ class BanditNonpermutedGaussian(BanditEnv):
         for i in range(bandits):
             r_dist.append([(i+1)/bandits, 1])
         random.Random(0).shuffle(r_dist)
-        #random.shuffle(r_dist)
-        #print(r_dist)
 
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)

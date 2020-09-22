@@ -3,6 +3,7 @@ from envs.bandit import *
 from envs.virtual_env import VirtualEnv
 from envs.env_wrapper import EnvWrapper
 from gym.wrappers import TimeLimit
+import gym_minigrid
 
 
 class EnvFactory:
@@ -88,10 +89,11 @@ class EnvFactory:
             env_name == "MountainCarContinuous-v0" or
             env_name == "HalfCheetah-v2" or
             env_name == "CartPole-v0" or
-            env_name == "LunarLander-v2"):
+            env_name == "LunarLander-v2" or
+            env_name == 'MiniGrid-Empty-5x5-v0'):
             env = gym.make(env_name)
         elif env_name == "Bandit-v0":
-            env = TimeLimit(BanditNonpermutedGaussian())
+            env = TimeLimit(BanditFixedPermutedGaussian())
         else:
             raise NotImplementedError("Environment not supported")
 

@@ -74,8 +74,9 @@ class GTN_Master(GTN_Base):
         # to store results from workers
         self.time_list = [None]*self.num_workers
         self.score_list = [None]*self.num_workers
-        self.score_orig_list = [None]*self.num_workers
+        self.score_orig_list = [None]*self.num_workers  # for debugging
         self.score_transform_list = [None]*self.num_workers
+        self.virtual_env_list = [self.env_factory.generate_virtual_env(print_str='GTN_Master: ') for _ in range(self.num_workers)]
         self.eps_list = [self.env_factory.generate_virtual_env(print_str='GTN_Master: ') for _ in range(self.num_workers)]
 
         # for early out
@@ -88,18 +89,19 @@ class GTN_Master(GTN_Base):
         mean_score_list = []
 
         for it in range(self.max_iterations):
-            print('-- Master: Iteration ' + str(it))
-            print('-- Master: start iteration ' + str(it))
-            print('-- Master: write worker inputs')
+            t1 = time.time()
+            #print('-- Master: Iteration ' + str(it))
+            #print('-- Master: start iteration ' + str(it))
+            #print('-- Master: write worker inputs')
             self.write_worker_inputs(it)
-            print('-- Master: read worker results')
+            #print('-- Master: read worker results')
             self.read_worker_results()
-            print('-- Master: rank transform')
+            #print('-- Master: rank transform')
             self.rank_transform()
-            print('-- Master: update env')
+            #print('-- Master: update env')
             self.update_env()
-            print('-- Master: print statistics')
-            self.print_statistics(it)
+            #print('-- Master: print statistics')
+            self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
             mean_score_list.append(np.mean(self.score_list))
 
@@ -162,10 +164,9 @@ class GTN_Master(GTN_Base):
 
             self.time_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
-            self.score_orig_list[id] = data['score_orig']
-
             self.eps_list[id].load_state_dict(data['eps'])
-
+            self.score_orig_list[id] = data['score_orig']                  # for debugging
+            self.virtual_env_list[id].load_state_dict(data['virtual_env']) # for debugging
             os.remove(check_file_name)
             os.remove(file_name)
 
@@ -203,6 +204,11 @@ class GTN_Master(GTN_Base):
 
             if self.log_transf_normalize:
                 scores /= max(scores)
+        elif self.score_transform_type == 3:
+            # consider single best direction
+            scores_tmp = np.zeros(scores.size)
+            scores_tmp[np.argmax(scores)] = len(scores)
+            scores = scores_tmp
         else:
             raise ValueError("Unknown rank transform type: " + str(self.rank_transform_type))
 
@@ -213,34 +219,39 @@ class GTN_Master(GTN_Base):
         n = self.num_workers
         ss = self.step_size
         # print('-- update env --')
-        print(self.score_orig_list)
-        print(self.score_list)
-        print(self.score_transform_list)
-        print(np.mean(self.score_transform_list))
+        print('score_orig_list      ' + str(self.score_orig_list))
+        print('score_list           ' + str(self.score_list))
+        print('score_transform_list ' + str(self.score_transform_list))
+        #print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.virtual_env_list]))
+        #print('mean                 ' + str(np.mean(self.score_transform_list)))
 
-        print_abs_param_sum(self.virtual_env_orig)
+        print('weights before: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
-        # for l_orig in self.virtual_env_orig.modules():
-        #     if isinstance(l_orig, nn.Linear):
-        #         l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
-        #         l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
-
-        print_abs_param_sum(self.virtual_env_orig)
-
+        # weight update
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + (ss/n) * score_transform * l_eps.weight)
                     l_orig.bias = torch.nn.Parameter(l_orig.bias + (ss/n) * score_transform * l_eps.bias)
 
-        print_abs_param_sum(self.virtual_env_orig)
+        print('weights weight decay: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
+
+        # weight decay
+        for l_orig in self.virtual_env_orig.modules():
+            if isinstance(l_orig, nn.Linear):
+                l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
+                l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
+
+        print('weights update: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
 
-    def print_statistics(self, it):
+    def print_statistics(self, it, time_elapsed):
         mean_score = statistics.mean(self.score_orig_list)
         print('--------------')
-        print('GTN iteration:  ' + str(it))
-        print('GTN mean score: ' + str(mean_score))
+        print('GTN iteration:    ' + str(it))
+        print('GTN time_elapsed: ' + str(time_elapsed))
+        print('GTN mean score:   ' + str(mean_score))
+        print('GTN best score:   ' + str(max(self.score_list)))
         print('--------------')
 
 
@@ -252,7 +263,7 @@ class GTN_Worker(GTN_Base):
         gtn_config = config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]
         self.num_test_envs = gtn_config["num_test_envs"]
-        self.virtual_env_reps = gtn_config["virtual_env_reps"]
+        self.num_grad_evals = gtn_config["num_grad_evals"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.uuid = None
@@ -269,23 +280,17 @@ class GTN_Worker(GTN_Base):
         # read data from master
         while not self.quit_flag:
             #print('-- Worker {}: read worker inputs'.format(self.id))
+
             self.read_worker_input()
 
             #print('-- Worker {}: precalculation'.format(self.id))
 
-            # print('worker orig')
-            # print_abs_param_sum(self.virtual_env_orig)
-
             time_start = time.time()
 
+            # for evaluation purpose
+            #print('eval')
             agent_orig = select_agent(self.config, self.agent_name)
-            agent_add = select_agent(self.config, self.agent_name)
-            agent_sub = select_agent(self.config, self.agent_name)
-            agent_sub.load_state_dict(agent_orig.state_dict())
-            agent_sub.load_state_dict(agent_orig.state_dict())
-
-            for i in range(self.virtual_env_reps):
-                agent_orig.train(self.virtual_env_orig, time_remaining=self.timeout - (time.time() - time_start))
+            agent_orig.train(self.virtual_env_orig, time_remaining=self.timeout-(time.time()-time_start))
             score_orig = self.test_agent_on_real_env(agent_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
@@ -295,42 +300,47 @@ class GTN_Worker(GTN_Base):
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
 
-            for i in range(self.virtual_env_reps):
+            score_add = []
+            for i in range(self.num_grad_evals):
+                #print('add ' + str(i))
+                agent_add = select_agent(self.config, self.agent_name)
                 agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
-            score_add = self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start))
+                score_add.append(self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start)))
 
-            # print('worker add')
-            # print_abs_param_sum(self.virtual_env)
-            # print(score_add)
-
-            #print('-- Worker {}: train sub'.format(self.id))
-
-            # second mirrored noise +N
+            # # second mirrored noise +N
             self.subtract_noise_from_virtual_env()
 
-            for i in range(self.virtual_env_reps):
+            score_sub = []
+            for i in range(self.num_grad_evals):
+                #print('sub ' + str(i))
+                agent_sub = select_agent(self.config, self.agent_name)
                 agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
-            score_sub = self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start))
+                score_sub.append(self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start)))
 
-            # print('worker sub')
-            # print_abs_param_sum(self.virtual_env)
+            # #print('-- Worker {}: postcalculation'.format(self.id))
+            # print(score_add)
             # print(score_sub)
-
-            #print('-- Worker {}: postcalculation'.format(self.id))
-
             if self.minimize_score:
+                score_sub = max(score_sub)
+                score_add = max(score_add)
                 best_score = min(score_add, score_sub)
                 if score_sub < score_add:
                     self.invert_eps()
+                else:
+                    self.add_noise_to_virtual_env() # for debugging
             else:
+                score_sub = min(score_sub)
+                score_add = min(score_add)
                 best_score = max(score_add, score_sub)
                 if score_sub > score_add:
                     self.invert_eps()
+                else:
+                    self.add_noise_to_virtual_env() # for debugging
 
-            print('-- LOSS ADD: ' + str(score_add))
-            print('-- LOSS SUB: ' + str(score_sub))
-            print('-- LOSS BEST: ' + str(best_score))
-            print('-- Worker {}: write result'.format(self.id))
+            # print('-- LOSS ADD: ' + str(score_add))
+            # print('-- LOSS SUB: ' + str(score_sub))
+            # print('-- LOSS BEST: ' + str(best_score))
+            # print('-- Worker {}: write result'.format(self.id))
 
             self.write_worker_result(score=best_score, score_orig=score_orig, time_elapsed = time.time()-time_start)
 
@@ -365,6 +375,7 @@ class GTN_Worker(GTN_Base):
 
         data = {}
         data["eps"] = self.eps.state_dict()
+        data["virtual_env"] = self.virtual_env.state_dict() # for debugging
         data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["score_orig"] = score_orig
