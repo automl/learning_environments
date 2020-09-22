@@ -25,8 +25,7 @@ class EnvWrapper(nn.Module):
                 # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
 
             reward = reward_sum.to("cpu")
-            # FIXME
-            next_state = state.to("cpu")*0
+            next_state = state.to("cpu")
             done = done.to("cpu")
             return next_state, reward, done
 

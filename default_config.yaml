@@ -14,7 +14,7 @@ agents:
     step_size: !!float 1                    # reptile step size
     num_grad_evals: !!int 3                 # how often to evaluate each gradient
     weight_decay: !!float 0.0               # weight decay
-    time_mult: !!float 2                    # maximum allocated time as multiplicative of avg. time
+    time_mult: !!float 2.5                  # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
