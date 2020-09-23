@@ -54,10 +54,10 @@ class EnvWrapper(nn.Module):
         val = self.env.reset()
         if type(val) == np.ndarray:
             return torch.from_numpy(val).float().cpu()
-        elif type(val) == int:
-            return torch.tensor([val], device="cpu", dtype=torch.float32)
-        else:   # torch
+        elif torch.is_tensor(val):
             return val
+        else:   # torch
+            return torch.tensor([val], device="cpu", dtype=torch.float32)
 
     def get_random_action(self):
         action = self.env.action_space.sample()
@@ -70,7 +70,8 @@ class EnvWrapper(nn.Module):
         if self.env.observation_space.shape:
             return self.env.observation_space.shape[0]
         else:
-            return self.env.observation_space.n
+            #return self.env.observation_space.n
+            return 1
 
     def get_action_dim(self):
         if self.env.action_space.shape:

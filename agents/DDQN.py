@@ -11,7 +11,6 @@ from envs.env_factory import EnvFactory
 class DDQN(nn.Module):
     def __init__(self, state_dim, action_dim, config):
         super().__init__()
-
         agent_name = "ddqn"
         ddqn_config = config["agents"][agent_name]
 
@@ -235,16 +234,15 @@ if __name__ == "__main__":
                 config=config)
 
     #ddqn.train(env=virt_env, time_remaining=50)
-    for i in range(1000):
+    for i in range(1):
         print(i)
 
         ddqn = DDQN(state_dim=virt_env.get_state_dim(),
                     action_dim=virt_env.get_action_dim(),
                     config=config)
 
-        ddqn.train(env=real_env, time_remaining=50)
-        reward_list = ddqn.test(env=real_env, time_remaining=50)
-        print(sum(reward_list)/len(reward_list))
+        ddqn.train(env=real_env, time_remaining=500)
+        reward_list = ddqn.test(env=real_env, time_remaining=500)
     #     mean_reward_list.append(sum(reward_list)/len(reward_list))
     #     print(sum(mean_reward_list) / len(mean_reward_list))
     #

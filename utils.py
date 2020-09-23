@@ -104,7 +104,7 @@ def time_is_up(avg_meter_reward, max_episodes, time_elapsed, time_remaining):
         print("timeout")
         # fill remaining rewards with minimum reward achieved so far
         if len(avg_meter_reward.get_raw_data()) == 0:
-            avg_meter_reward.update(0)
+            avg_meter_reward.update(-1e9)
 
         while len(avg_meter_reward.get_raw_data()) < max_episodes:
             avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)

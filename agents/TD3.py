@@ -24,7 +24,8 @@ class TD3(nn.Module):
         self.policy_delay = td3_config["policy_delay"]
         self.batch_size = td3_config["batch_size"]
         self.init_episodes = td3_config["init_episodes"]
-        self.max_episodes = td3_config["max_episodes"]
+        self.train_episodes = td3_config["train_episodes"]
+        self.test_episodes = td3_config["test_episodes"]
         self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
         self.same_action_num = td3_config["same_action_num"]
@@ -58,10 +59,10 @@ class TD3(nn.Module):
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
-        for episode in range(self.max_episodes):
+        for episode in range(self.train_episodes):
             # early out if timeout
             if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.max_episodes,
+                          max_episodes=self.train_episodes,
                           time_elapsed=time.time()-time_start,
                           time_remaining=time_remaining):
                 break
@@ -100,7 +101,6 @@ class TD3(nn.Module):
                     self.learn(replay_buffer)
                 if done > 0.5:
                     break
-
 
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
@@ -173,10 +173,10 @@ class TD3(nn.Module):
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
         # training loop
-        for episode in range(self.max_episodes):
+        for episode in range(self.test_episodes):
             # early out if timeout
             if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.max_episodes,
+                          max_episodes=self.test_episodes,
                           time_elapsed=time.time()-time_start,
                           time_remaining=time_remaining):
                 break

@@ -227,6 +227,14 @@ class GTN_Master(GTN_Base):
 
         print('weights before: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
+        # weight decay
+        for l_orig in self.virtual_env_orig.modules():
+            if isinstance(l_orig, nn.Linear):
+                l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
+                l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
+
+        print('weights weight decay: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
+
         # weight update
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
@@ -234,22 +242,16 @@ class GTN_Master(GTN_Base):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + (ss/n) * score_transform * l_eps.weight)
                     l_orig.bias = torch.nn.Parameter(l_orig.bias + (ss/n) * score_transform * l_eps.bias)
 
-        print('weights weight decay: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
-
-        # weight decay
-        for l_orig in self.virtual_env_orig.modules():
-            if isinstance(l_orig, nn.Linear):
-                l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
-                l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
-
         print('weights update: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
 
     def print_statistics(self, it, time_elapsed):
-        mean_score = statistics.mean(self.score_orig_list)
+        orig_score = statistics.mean(self.score_orig_list)
+        mean_score = statistics.mean(self.score_list)
         print('--------------')
         print('GTN iteration:    ' + str(it))
         print('GTN time_elapsed: ' + str(time_elapsed))
+        print('GTN orig score:   ' + str(orig_score))
         print('GTN mean score:   ' + str(mean_score))
         print('GTN best score:   ' + str(max(self.score_list)))
         print('--------------')
@@ -288,11 +290,10 @@ class GTN_Worker(GTN_Base):
             time_start = time.time()
 
             # for evaluation purpose
-            #print('eval')
-            agent_orig = select_agent(self.config, self.agent_name)
-            agent_orig.train(self.virtual_env_orig, time_remaining=self.timeout-(time.time()-time_start))
-            score_orig = self.test_agent_on_real_env(agent_orig, time_remaining=self.timeout-(time.time()-time_start))
-
+            # agent_orig = select_agent(self.config, self.agent_name)
+            # agent_orig.train(self.virtual_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            # score_orig = self.test_agent_on_real_env(agent_orig, time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = 0
             self.get_random_eps()
 
             #print('-- Worker {}: train add'.format(self.id))
@@ -304,9 +305,13 @@ class GTN_Worker(GTN_Base):
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
                 agent_add = select_agent(self.config, self.agent_name)
+                t1 = time.time()
                 agent_add.train(self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+                t2 = time.time()
                 score_add.append(self.test_agent_on_real_env(agent_add, time_remaining=self.timeout-(time.time()-time_start)))
-
+                t3 = time.time()
+                print('{} {}'.format(t2-t1, t3-t2))
+                #print(score_add)
             # # second mirrored noise +N
             self.subtract_noise_from_virtual_env()
 
@@ -316,7 +321,7 @@ class GTN_Worker(GTN_Base):
                 agent_sub = select_agent(self.config, self.agent_name)
                 agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(self.test_agent_on_real_env(agent_sub, time_remaining=self.timeout-(time.time()-time_start)))
-
+                #print(score_sub)
             # #print('-- Worker {}: postcalculation'.format(self.id))
             # print(score_add)
             # print(score_sub)

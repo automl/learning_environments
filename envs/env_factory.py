@@ -89,9 +89,10 @@ class EnvFactory:
             env_name == "MountainCarContinuous-v0" or
             env_name == "HalfCheetah-v2" or
             env_name == "CartPole-v0" or
-            env_name == "LunarLander-v2" or
-            env_name == 'MiniGrid-Empty-5x5-v0'):
+            env_name == "LunarLander-v2"):
             env = gym.make(env_name)
+        elif env_name == 'FrozenLake-v0':
+            env = gym.make(env_name, is_slippery=False)
         elif env_name == "Bandit-v0":
             env = TimeLimit(BanditFixedPermutedGaussian())
         else:
