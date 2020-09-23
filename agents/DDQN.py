@@ -77,6 +77,7 @@ class DDQN(nn.Module):
                     env.render()
 
                 # state-action transition
+
                 next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
@@ -215,6 +216,8 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
+    #torch.set_num_threads(1)
+
     # seed = config["seed"]
     # torch.manual_seed(seed)
     # np.random.seed(seed)
@@ -224,28 +227,19 @@ if __name__ == "__main__":
     virt_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_default_real_env()
 
-    # ddqn = DDQN(state_dim=virt_env.get_state_dim(),
-    #             action_dim=virt_env.get_action_dim(),
-    #             config=config)
-    mean_reward_list = []
-
-    ddqn = DDQN(state_dim=virt_env.get_state_dim(),
-                action_dim=virt_env.get_action_dim(),
-                config=config)
-
-    #ddqn.train(env=virt_env, time_remaining=50)
-    for i in range(1):
-        print(i)
-
+    timing = []
+    for i in range(10):
         ddqn = DDQN(state_dim=virt_env.get_state_dim(),
                     action_dim=virt_env.get_action_dim(),
                     config=config)
 
-        ddqn.train(env=real_env, time_remaining=500)
-        reward_list = ddqn.test(env=real_env, time_remaining=500)
-    #     mean_reward_list.append(sum(reward_list)/len(reward_list))
-    #     print(sum(mean_reward_list) / len(mean_reward_list))
-    #
-    # print(sum(mean_reward_list)/len(mean_reward_list))
+        #ddqn.train(env=virt_env, time_remaining=50)
 
+        t1 = time.time()
+        ddqn.train(env=real_env, time_remaining=500)
+        t2 = time.time()
+        timing.append(t2-t1)
+        print(t2-t1)
+        reward_list = ddqn.test(env=real_env, time_remaining=500)
+    print('avg. ' + str(sum(timing)/len(timing)))
 
