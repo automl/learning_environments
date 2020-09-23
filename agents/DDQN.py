@@ -124,6 +124,16 @@ class DDQN(nn.Module):
             states = states.unsqueeze(1)
             next_states = next_states.unsqueeze(1)
 
+        # q_values = self.model(states)
+        # next_q_values = self.model(next_states)
+        # next_q_state_values = self.model_target(next_states)
+        #
+        # q_value = q_values.gather(1, actions.long().unsqueeze(1)).squeeze(1)
+        # next_q_value = next_q_state_values.gather(1, torch.max(next_q_values, 1)[1].unsqueeze(1)).squeeze(1)
+        # expected_q_value = rewards + self.gamma * next_q_value * (1 - dones)
+        #
+        # loss = (q_value - expected_q_value.data).pow(2).mean()
+
         q_values = self.model(states)
         next_q_values = self.model(next_states)
         next_q_state_values = self.model_target(next_states)
@@ -216,7 +226,7 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    #torch.set_num_threads(1)
+    torch.set_num_threads(1)
 
     # seed = config["seed"]
     # torch.manual_seed(seed)
@@ -236,10 +246,12 @@ if __name__ == "__main__":
         #ddqn.train(env=virt_env, time_remaining=50)
 
         t1 = time.time()
+        print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
         t2 = time.time()
         timing.append(t2-t1)
         print(t2-t1)
-        reward_list = ddqn.test(env=real_env, time_remaining=500)
+        #print('TEST')
+        #reward_list = ddqn.test(env=real_env, time_remaining=500)
     print('avg. ' + str(sum(timing)/len(timing)))
 
