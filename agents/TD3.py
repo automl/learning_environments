@@ -9,32 +9,19 @@ from envs.env_factory import EnvFactory
 
 class TD3(BaseAgent):
     def __init__(self, state_dim, action_dim, max_action, config):
-        super().__init__()
-
         agent_name = "td3"
+        super().__init__(agent_name, state_dim, action_dim, config)
+
         td3_config = config["agents"][agent_name]
 
-        self.state_dim = state_dim
-        self.action_dim = action_dim
         self.max_action = max_action
         self.gamma = td3_config["gamma"]
         self.tau = td3_config["tau"]
         self.policy_delay = td3_config["policy_delay"]
-        self.batch_size = td3_config["batch_size"]
-        self.init_episodes = td3_config["init_episodes"]
-        self.train_episodes = td3_config["train_episodes"]
-        self.test_episodes = td3_config["test_episodes"]
-        self.rb_size = td3_config["rb_size"]
         self.lr = td3_config["lr"]
-        self.same_action_num = td3_config["same_action_num"]
-        self.print_rate = td3_config["print_rate"]
-        self.early_out_num = td3_config["early_out_num"]
-        self.early_out_virtual_diff = td3_config["early_out_virtual_diff"]
         self.action_std = td3_config["action_std"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
-        self.render_env = config["render_env"]
-        self.device = config["device"]
 
         self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
         self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
@@ -51,24 +38,13 @@ class TD3(BaseAgent):
         self.total_it = 0
 
 
-    def train(self, env, time_remaining=1e9):
-        return self._train(env=env,
-                           time_remaining=time_remaining,
-                           update_parameters_per_episode_f=self._update_parameters_per_episode,
-                           select_train_action_f=self.select_train_action,
-                           learn_f=self.learn)
-
-    def test(self, env):
-        return self._test(env=env,
-                          select_test_action_f=self.select_test_action,
-                          learn_f=self.learn)
-
-
-    def learn(self, replay_buffer):
+    def learn(self, replay_buffer, env):
         self.total_it += 1
 
         # Sample replay buffer
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
+
+
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
@@ -188,6 +164,6 @@ if __name__ == "__main__":
               max_action=real_env.get_max_action(),
               config=config)
     t1 = time.time()
-    td3.train(env=real_env, time_remaining=120)
+    td3.train(env=real_env, time_remaining=1200)
     print(time.time()-t1)
     #td3.train(env=virt_env, time_remaining=5)

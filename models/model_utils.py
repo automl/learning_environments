@@ -2,6 +2,22 @@ import torch
 import torch.nn as nn
 
 
+class RBF(nn.Module):
+    def __init__(self, nodes):
+        super(RBF, self).__init__()
+        self.eps = nn.Parameter(torch.ones(nodes))
+        self.mean = nn.Parameter(torch.zeros(nodes))
+        self.counter = 0
+
+    def forward(self, x):
+        self.counter += 1
+
+        if self.counter % 5000 == 0:
+            print(sum(self.eps))
+
+        return torch.exp(-(x*self.eps).pow(2))
+
+
 class Identity(nn.Module):
     def __init__(self, module):
         super(Identity, self).__init__()

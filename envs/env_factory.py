@@ -97,7 +97,7 @@ class EnvFactory:
         elif env_name == "Bandit-v0":
             env = TimeLimit(BanditFixedPermutedGaussian())
         elif env_name == "Gridworld-v0":
-            env = TimeLimit(EmptyRoom())
+            env = TimeLimit(Cliff())
         else:
             raise NotImplementedError("Environment not supported")
 

@@ -70,8 +70,8 @@ class EnvWrapper(nn.Module):
         if self.env.observation_space.shape:
             return self.env.observation_space.shape[0]
         else:
-            #return self.env.observation_space.n
-            return 1
+            return self.env.observation_space.n
+            #return 1
 
     def get_action_dim(self):
         if self.env.action_space.shape:
@@ -92,6 +92,12 @@ class EnvWrapper(nn.Module):
 
     def has_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):
+            return True
+        else:
+            return False
+
+    def has_discrete_state_space(self):
+        if isinstance(self.env.observation_space, Discrete):
             return True
         else:
             return False

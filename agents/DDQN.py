@@ -9,16 +9,11 @@ from envs.env_factory import EnvFactory
 
 class DDQN(BaseAgent):
     def __init__(self, state_dim, action_dim, config):
-        super().__init__()
-
         agent_name = "ddqn"
+        super().__init__(agent_name, state_dim, action_dim, config)
+
         ddqn_config = config["agents"][agent_name]
 
-        self.train_episodes = ddqn_config["train_episodes"]
-        self.test_episodes = ddqn_config["test_episodes"]
-        self.init_episodes = ddqn_config["init_episodes"]
-        self.batch_size = ddqn_config["batch_size"]
-        self.same_action_num = ddqn_config["same_action_num"]
         self.gamma = ddqn_config["gamma"]
         self.lr = ddqn_config["lr"]
         self.tau = ddqn_config["tau"]
@@ -26,12 +21,6 @@ class DDQN(BaseAgent):
         self.eps_init = ddqn_config["eps_init"]
         self.eps_min = ddqn_config["eps_min"]
         self.eps_decay = ddqn_config["eps_decay"]
-        self.rb_size = ddqn_config["rb_size"]
-        self.print_rate = ddqn_config["print_rate"]
-        self.early_out_num = ddqn_config["early_out_num"]
-        self.early_out_virtual_diff = ddqn_config["early_out_virtual_diff"]
-        self.render_env = config["render_env"]
-        self.device = config["device"]
 
         self.model = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
         self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
@@ -42,20 +31,7 @@ class DDQN(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining=1e9):
-        return self._train(env=env,
-                           time_remaining=time_remaining,
-                           update_parameters_per_episode_f=self.update_parameters_per_episode,
-                           select_train_action_f=self.select_train_action,
-                           learn_f=self.learn)
-
-    def test(self, env):
-        return self._test(env=env,
-                          select_test_action_f=self.select_test_action,
-                          learn_f=self.learn)
-
-
-    def learn(self, replay_buffer):
+    def learn(self, replay_buffer, env):
         self.it += 1
 
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)

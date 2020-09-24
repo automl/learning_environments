@@ -5,16 +5,33 @@ from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
 
 
 class BaseAgent(nn.Module):
-    def __init__(self):
+    def __init__(self, agent_name, state_dim, action_dim, config):
         super().__init__()
 
-    def _train(self, env, time_remaining, update_parameters_per_episode_f, select_train_action_f, learn_f):
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+
+        agent_config = config["agents"][agent_name]
+        self.train_episodes = agent_config["train_episodes"]
+        self.test_episodes = agent_config["test_episodes"]
+        self.init_episodes = agent_config["init_episodes"]
+        self.batch_size = agent_config["batch_size"]
+        self.same_action_num = agent_config["same_action_num"]
+        self.print_rate = agent_config["print_rate"]
+        self.rb_size = agent_config["rb_size"]
+        self.early_out_num = agent_config["early_out_num"]
+        self.early_out_virtual_diff = agent_config["early_out_virtual_diff"]
+
+        self.render_env = config["render_env"]
+        self.device = config["device"]
+
+
+    def train(self, env, time_remaining):
         time_start = time.time()
 
-        if env.has_discrete_action_space():
-            replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
-        else:
-            replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.rb_size)
+        sd = 1 if env.has_discrete_state_space() else self.state_dim
+        ad = 1 if env.has_discrete_action_space() else self.action_dim
+        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -27,20 +44,19 @@ class BaseAgent(nn.Module):
                           time_remaining=time_remaining):
                 break
 
-            update_parameters_per_episode_f(episode=episode)
+            self.update_parameters_per_episode(episode=episode)
 
             state = env.reset()
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                action = select_train_action_f(state=state, env=env, episode=episode)
+                action = self.select_train_action(state=state, env=env, episode=episode)
 
                 # live view
                 if self.render_env and episode % 10 == 0:
                     env.render()
 
                 # state-action transition
-
                 next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
@@ -48,7 +64,7 @@ class BaseAgent(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    learn_f(replay_buffer)
+                    self.learn(replay_buffer=replay_buffer, env=env)
 
                 if done > 0.5:
                     break
@@ -65,7 +81,7 @@ class BaseAgent(nn.Module):
         return avg_meter_reward.get_raw_data()
 
 
-    def _test(self, env, select_test_action_f, time_remaining=1e9):
+    def test(self, env, time_remaining=1e9):
         with torch.no_grad():
             time_start = time.time()
 
@@ -84,7 +100,7 @@ class BaseAgent(nn.Module):
                 episode_reward = 0
 
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    action = select_test_action_f(state)
+                    action = self.select_test_action(state)
 
                     # live view
                     if self.render_env and episode % 10 == 0:
@@ -108,7 +124,3 @@ class BaseAgent(nn.Module):
             env.close()
 
         return avg_meter_reward.get_raw_data()
-
-
-    def _update_parameters_per_episode(self, episode):
-        pass

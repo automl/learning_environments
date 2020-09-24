@@ -55,6 +55,7 @@ class GridworldEnv(gym.Env):
         m = len(self.grid)
         n = len(self.grid[0])
 
+        # find start state
         for x in range(m):
             for y in range(n):
                 if self.grid[x][y] == 'S':
@@ -99,85 +100,98 @@ class GridworldEnv(gym.Env):
         if self.grid[x_n][y_n] == '#':
             x_n, y_n = x, y
 
-        #print('{} {} -> {} -> {} {}'.format(x, y, ac, x_n, y_n))
-
         return x_n, y_n
 
     # calculate reward flag
     def _calc_reward(self):
         x, y = self.state
         if self.grid[x][y] == 'G':
-            #print('reward 1')
-            return 1
+            return self.g_reward
         elif self.grid[x][y] == 'O':
-            #print('reward -1')
-            return -1
+            return self.o_reward
         else:
-            return 0
+            return self.step_cost
 
     # calculate done flag
     def _calc_done(self):
         x, y = self.state
         if self.grid[x][y] in ('O', 'G'):
-            #print('done')
             return True
         else:
             return False
 
     # convert from observation (int) to internal state representation (x,y)
     def _obs_to_state(self, obs):
-        m = len(self.grid)
         n = len(self.grid[0])
-
-        x = obs // m
+        x = obs // n
         y = obs % n
         return x,y
 
     # convert from internal state representation (x,y) to observation (int)
     def _state_to_obs(self, state):
-        m = len(self.grid)
+        n = len(self.grid[0])
         x,y = state
-        obs = x*m + y
+        obs = x*n + y
         return obs
 
 
 class EmptyRoom(GridworldEnv):
     def __init__(self):
-        grid = [['S', ' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' ', 'G']]
+        self.step_cost = 0
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 
 
 class WallRoom(GridworldEnv):
     def __init__(self):
-        grid = [['S', ' ', '#', ' ', ' '],
-                [' ', ' ', '#', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', '#', ' ', ' '],
-                [' ', ' ', '#', ' ', 'G']]
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', '#', ' ', ' ', 'O'],
+                [' ', ' ', '#', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', '#', ' ', ' ', ' '],
+                ['O', ' ', '#', ' ', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 
 
 class HoleRoom(GridworldEnv):
     def __init__(self):
-        grid = [['S', ' ', 'O', ' ', ' '],
-                [' ', ' ', 'O', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', 'O', ' ', ' '],
-                [' ', ' ', 'O', ' ', 'G']]
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 
 class Cliff(GridworldEnv):
     def __init__(self):
-        grid = [[' ', ' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' ', ' '],
-                ['S', 'O', 'O', 'O', 'G']]
+        self.step_cost = -0.01
+        self.g_reward = 0
+        self.o_reward = -1
+        grid = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                ['S', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 
+if __name__ == "__main__":
+    r = Cliff()
+
+    for i in range(25):
+        x,y=r._obs_to_state(i)
+        print('{} {}'.format(i,r._state_to_obs((x,y))))
+        #print(r.grid[x][y])
