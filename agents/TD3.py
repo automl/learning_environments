@@ -1,15 +1,13 @@
 import yaml
 import time
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
+from agents.base_agent import BaseAgent
 from models.actor_critic import Actor_TD3, Critic_Q
-from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
 from envs.env_factory import EnvFactory
 
 
-class TD3(nn.Module):
+class TD3(BaseAgent):
     def __init__(self, state_dim, action_dim, max_action, config):
         super().__init__()
 
@@ -32,6 +30,7 @@ class TD3(nn.Module):
         self.print_rate = td3_config["print_rate"]
         self.early_out_num = td3_config["early_out_num"]
         self.early_out_virtual_diff = td3_config["early_out_virtual_diff"]
+        self.action_std = td3_config["action_std"]
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
         self.render_env = config["render_env"]
@@ -53,65 +52,16 @@ class TD3(nn.Module):
 
 
     def train(self, env, time_remaining=1e9):
-        time_start = time.time()
+        return self._train(env=env,
+                           time_remaining=time_remaining,
+                           update_parameters_per_episode_f=self._update_parameters_per_episode,
+                           select_train_action_f=self.select_train_action,
+                           learn_f=self.learn)
 
-        replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.rb_size)
-        avg_meter_reward = AverageMeter(print_str="Average reward: ")
-
-        # training loop
-        for episode in range(self.train_episodes):
-            # early out if timeout
-            if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.train_episodes,
-                          time_elapsed=time.time()-time_start,
-                          time_remaining=time_remaining):
-                break
-
-            state = env.reset()
-            episode_reward = 0
-
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
-                # fill replay buffer at beginning
-                if episode < self.init_episodes:
-                    action = env.get_random_action()
-                else:
-                    action = (self.actor(state.to(self.device)).cpu() +
-                              torch.randn_like(action) * self.policy_std * self.max_action
-                              ).clamp(-self.max_action, self.max_action)
-
-                # live view
-                if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
-                    env.render()
-
-                # state-action transition
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-
-                if t < env.max_episode_steps() - 1:
-                    done_tensor = done
-                else:
-                    done_tensor = torch.tensor([0], device="cpu", dtype=torch.float32)
-
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done_tensor)
-
-                state = next_state
-                episode_reward += reward
-
-                # train
-                if episode > self.init_episodes:
-                    self.learn(replay_buffer)
-                if done > 0.5:
-                    break
-
-            # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-
-            # quit training if environment is solved
-            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                break
-
-        env.close()
-
-        return avg_meter_reward.get_raw_data()
+    def test(self, env):
+        return self._test(env=env,
+                          select_test_action_f=self.select_test_action,
+                          learn_f=self.learn)
 
 
     def learn(self, replay_buffer):
@@ -131,7 +81,8 @@ class TD3(nn.Module):
             target_Q1 = self.critic_target_1(next_states, next_actions)
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
-            target_Q = rewards + (1 - (dones > 0.5).float()) * self.gamma * target_Q
+            target_Q = rewards + (1 - dones) * self.gamma * target_Q
+            #target_Q = rewards + self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
@@ -167,52 +118,23 @@ class TD3(nn.Module):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
 
-    def test(self, env, time_remaining=1e9):
-        time_start = time.time()
+    def select_train_action(self, state, env, episode):
+        if episode < self.init_episodes:
+            return env.get_random_action()
+        else:
+            return (self.actor(state.to(self.device)).cpu() +
+                    torch.randn(self.action_dim) * self.action_std * self.max_action
+                    ).clamp(-self.max_action, self.max_action)
 
-        avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
-        # training loop
-        for episode in range(self.test_episodes):
-            # early out if timeout
-            if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.test_episodes,
-                          time_elapsed=time.time()-time_start,
-                          time_remaining=time_remaining):
-                break
+    def select_test_action(self, state):
+        return (self.actor(state.to(self.device)).cpu() +
+                  torch.randn(self.action_dim) * self.action_std * self.max_action
+                  ).clamp(-self.max_action, self.max_action)
 
-            state = env.reset()
-            action = env.get_random_action()
-            episode_reward = 0
 
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
-                action = (self.actor(state.to(self.device)).cpu() +
-                              torch.randn_like(action) * self.policy_std * self.max_action
-                              ).clamp(-self.max_action, self.max_action)
-
-                # live view
-                if self.render_env and episode % 5 == 0 and episode >= self.init_episodes:
-                    env.render()
-
-                # state-action transition
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-
-                state = next_state
-                episode_reward += reward
-
-                if done > 0.5:
-                    break
-
-            # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-
-            # quit training if environment is solved
-            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                break
-
-        env.close()
-
-        return avg_meter_reward.get_raw_data()
+    def update_parameters_per_episode(self, episode):
+        pass
 
 
     def reset_optimizer(self):
@@ -265,5 +187,7 @@ if __name__ == "__main__":
               action_dim=real_env.get_action_dim(),
               max_action=real_env.get_max_action(),
               config=config)
+    t1 = time.time()
     td3.train(env=real_env, time_remaining=120)
+    print(time.time()-t1)
     #td3.train(env=virt_env, time_remaining=5)

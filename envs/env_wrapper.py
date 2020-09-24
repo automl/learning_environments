@@ -31,7 +31,7 @@ class EnvWrapper(nn.Module):
 
         else:
             action = action.cpu().detach().numpy()
-            if self.is_discrete_action_space():
+            if self.has_discrete_action_space():
                 action = action.astype(int)[0]
 
             reward_sum = 0
@@ -90,7 +90,7 @@ class EnvWrapper(nn.Module):
             print("Unknownn environment, performance may decrease")
             return 0
 
-    def is_discrete_action_space(self):
+    def has_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):
             return True
         else:

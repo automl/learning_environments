@@ -1,16 +1,16 @@
 import yaml
 import torch
-import torch.nn as nn
 import time
 import random
 import torch.nn.functional as F
+from agents.base_agent import BaseAgent
 from models.actor_critic import Critic_DQN
-from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved, print_abs_param_sum
 from envs.env_factory import EnvFactory
 
-class DDQN(nn.Module):
+class DDQN(BaseAgent):
     def __init__(self, state_dim, action_dim, config):
         super().__init__()
+
         agent_name = "ddqn"
         ddqn_config = config["agents"][agent_name]
 
@@ -43,70 +43,16 @@ class DDQN(nn.Module):
 
 
     def train(self, env, time_remaining=1e9):
-        #print_abs_param_sum(self.model, name='DDQN model weight before: ')
+        return self._train(env=env,
+                           time_remaining=time_remaining,
+                           update_parameters_per_episode_f=self.update_parameters_per_episode,
+                           select_train_action_f=self.select_train_action,
+                           learn_f=self.learn)
 
-        time_start = time.time()
-
-        replay_buffer = ReplayBuffer(state_dim=env.get_state_dim(), action_dim=1, device=self.device, max_size=self.rb_size)
-        avg_meter_reward = AverageMeter(print_str="Average reward: ")
-        avg_meter_eps = AverageMeter(print_str="Average eps: ")
-
-        self.eps = self.eps_init
-
-        # training loop
-        for episode in range(self.train_episodes):
-            # early out if timeout
-            if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.train_episodes,
-                          time_elapsed=time.time()-time_start,
-                          time_remaining=time_remaining):
-                break
-
-            state = env.reset()
-            episode_reward = 0
-
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
-                if random.random() < self.eps:
-                    action = env.get_random_action()
-                else:
-                    qvals = self.model(state.to(self.device))
-                    action = torch.argmax(qvals).unsqueeze(0).detach()
-
-                # live view
-                if self.render_env and episode % 10 == 0:
-                    env.render()
-
-                # state-action transition
-
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
-                state = next_state
-                episode_reward += reward
-
-                # train
-                if episode > self.init_episodes:
-                    self.learn(replay_buffer)
-
-                if done > 0.5:
-                    break
-
-            # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-            avg_meter_eps.update(self.eps, print_rate=self.print_rate)
-
-            # update eps
-            self.eps *= self.eps_decay
-            self.eps = max(self.eps, self.eps_min)
-
-            # quit training if environment is solved
-            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                break
-
-        env.close()
-
-        #print_abs_param_sum(self.model, name='DDQN model weight after:  ')
-
-        return avg_meter_reward.get_raw_data()
+    def test(self, env):
+        return self._test(env=env,
+                          select_test_action_f=self.select_test_action,
+                          learn_f=self.learn)
 
 
     def learn(self, replay_buffer):
@@ -123,16 +69,6 @@ class DDQN(nn.Module):
         if len(states.shape) == 1:
             states = states.unsqueeze(1)
             next_states = next_states.unsqueeze(1)
-
-        # q_values = self.model(states)
-        # next_q_values = self.model(next_states)
-        # next_q_state_values = self.model_target(next_states)
-        #
-        # q_value = q_values.gather(1, actions.long().unsqueeze(1)).squeeze(1)
-        # next_q_value = next_q_state_values.gather(1, torch.max(next_q_values, 1)[1].unsqueeze(1)).squeeze(1)
-        # expected_q_value = rewards + self.gamma * next_q_value * (1 - dones)
-        #
-        # loss = (q_value - expected_q_value.data).pow(2).mean()
 
         q_values = self.model(states)
         next_q_values = self.model(next_states)
@@ -153,53 +89,25 @@ class DDQN(nn.Module):
         return loss
 
 
-    def test(self, env, time_remaining=1e9):
-        with torch.no_grad():
-            time_start = time.time()
+    def select_train_action(self, state, env, episode):
+        if random.random() < self.eps:
+            return env.get_random_action()
+        else:
+            qvals = self.model(state.to(self.device))
+            return  torch.argmax(qvals).unsqueeze(0).detach()
 
-            avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
-            # training loop
-            for episode in range(self.test_episodes):
-                # early out if timeout
-                if time_is_up(avg_meter_reward=avg_meter_reward,
-                              max_episodes=self.test_episodes,
-                              time_elapsed=time.time() - time_start,
-                              time_remaining=time_remaining):
-                    break
+    def select_test_action(self, state):
+        qvals = self.model(state.to(self.device))
+        return torch.argmax(qvals).unsqueeze(0).detach()
 
-                state = env.reset()
-                episode_reward = 0
 
-                for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    qvals = self.model(state.to(self.device))
-                    action = torch.argmax(qvals).unsqueeze(0).detach()
-
-                    # if t == 0:
-                    #     print(action)
-
-                    # live view
-                    if self.render_env and episode % 10 == 0:
-                        env.render()
-
-                    # state-action transition
-                    next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-                    state = next_state
-                    episode_reward += reward
-
-                    if done > 0.5:
-                        break
-
-                # logging
-                avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-
-                # quit training if environment is solved
-                if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                    break
-
-            env.close()
-
-        return avg_meter_reward.get_raw_data()
+    def update_parameters_per_episode(self, episode):
+        if episode == 0:
+            self.eps = self.eps_init
+        else:
+            self.eps *= self.eps_decay
+            self.eps = max(self.eps, self.eps_min)
 
 
     def reset_optimizer(self):
