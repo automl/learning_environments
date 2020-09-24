@@ -5,6 +5,7 @@ import torch.nn as nn
 import numpy as np
 import os
 import copy
+import higher
 from time import time
 from agents.TD3 import TD3
 from agents.agent_utils import select_agent
@@ -59,50 +60,50 @@ class GTN(nn.Module):
 
         self.print_stats()
 
-        t = time()
-        print("-- pretraining agent on real env --")
-        _, replay_buffer = reptile_train_agent(agent=self.agent,
-                            env=self.real_env,
-                            step_size=self.real_step_size)
-        timings.append(int(time() - t))
-
-        t = time()
-        print("-- matching virtual env to real env --")
-        self.env_matcher.train(virtual_env=self.virtual_env,
-                               input_seeds=self.input_seeds,
-                               replay_buffer=replay_buffer)
-        timings.append(int(time()-t))
+        # t = time()
+        # print("-- pretraining agent on real env --")
+        # _, replay_buffer = reptile_train_agent(agent=self.agent,
+        #                     env=self.real_env,
+        #                     step_size=self.real_step_size)
+        # timings.append(int(time() - t))
+        #
+        # t = time()
+        # print("-- matching virtual env to real env --")
+        # self.env_matcher.train(virtual_env=self.virtual_env,
+        #                        input_seeds=self.input_seeds,
+        #                        replay_buffer=replay_buffer)
+        # timings.append(int(time()-t))
 
         for it in range(self.max_iterations):
             self.print_stats()
             t = time()
-            if self.type[it] == 1:
-                print("-- training on real env --")
-                _, replay_buffer_tmp = reptile_train_agent(agent=self.agent,
-                                                           env=self.real_env,
-                                                           step_size=self.real_step_size)
-                replay_buffer.merge(replay_buffer_tmp)
-                self.env_matcher.train(virtual_env=self.virtual_env,
-                                       input_seeds=self.input_seeds,
-                                       replay_buffer=replay_buffer)
 
-            elif self.type[it] == 2:
-                seed_id = np.random.randint(len(self.input_seeds))
-                print("-- training on virtual env with id " + str(seed_id) + " --")
-                reptile_train_agent(agent=self.agent,
-                                    env=self.virtual_env,
-                                    input_seed=self.input_seeds[seed_id],
-                                    step_size=self.virtual_step_size)
+            print("-- training on virtual env --")
+            self.agent.train(env=self.virtual_env)
 
-            else:
-                print("Case that should not happen")
+            with higher.innerloop_ctx(self.agent, self.agent.actor_optimizer) as (fagent, diffopt):
 
-            order.append(self.type[it])
+                print("-- evaluate on real env and update virtual env--")
+                reward_list, _ = fagent.train(env=self.real_env, diffopt=diffopt)
+
+                loss = -reward_list
+
+                adam_params = list(self.virtual_env.parameters())
+                self.virtual_env_optimizer = torch.optim.Adam(adam_params, lr=self.lr)
+                self.virtual_env.requires_grad = True
+                self.virtual_env_optimizer.zero_grad()
+
+                loss.backward()
+
+
+
+
+
             timings.append(int(time()-t))
 
         self.print_stats()
 
-        return order, timings
+        return timings
 
     def test(self):
         # generate 10 different deterministic environments with increasing difficulty

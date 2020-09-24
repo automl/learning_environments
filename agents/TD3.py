@@ -48,7 +48,7 @@ class TD3(nn.Module):
         self.total_it = 0
 
 
-    def train(self, env, input_seed=None):
+    def train(self, env, input_seed=None, diffopt=None):
         replay_buffer = ReplayBuffer(env.get_state_dim(), env.get_action_dim(), max_size=self.rb_size)
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -91,7 +91,7 @@ class TD3(nn.Module):
 
                 # train
                 if episode > self.init_episodes:
-                    self.update(replay_buffer, env)
+                    self.update(replay_buffer, env, diffopt=diffopt)
                 if done > 0.5:
                     break
 
@@ -109,7 +109,7 @@ class TD3(nn.Module):
         return avg_meter_reward.get_raw_data(), replay_buffer
 
 
-    def update(self, replay_buffer, env):
+    def update(self, replay_buffer, env, diffopt=None):
         self.total_it += 1
 
         # Sample replay buffer
@@ -150,9 +150,12 @@ class TD3(nn.Module):
             actor_loss = (-self.critic_1(states, self.actor(states))).mean()
 
             # Optimize the actor
-            self.actor_optimizer.zero_grad()
-            actor_loss.backward()
-            self.actor_optimizer.step()
+            if diffopt:
+                diffopt.step(actor_loss)
+            else:
+                self.actor_optimizer.zero_grad()
+                actor_loss.backward()
+                self.actor_optimizer.step()
 
             # Update the frozen target models
             for param, target_param in zip(self.critic_1.parameters(), self.critic_target_1.parameters()):
