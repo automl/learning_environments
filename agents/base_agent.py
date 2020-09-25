@@ -1,7 +1,7 @@
 import time
 import torch
 import torch.nn as nn
-from utils import ReplayBuffer, AverageMeter, time_is_up, env_solved
+from utils import AverageMeter
 
 
 class BaseAgent(nn.Module):
@@ -15,10 +15,8 @@ class BaseAgent(nn.Module):
         self.train_episodes = agent_config["train_episodes"]
         self.test_episodes = agent_config["test_episodes"]
         self.init_episodes = agent_config["init_episodes"]
-        self.batch_size = agent_config["batch_size"]
         self.same_action_num = agent_config["same_action_num"]
         self.print_rate = agent_config["print_rate"]
-        self.rb_size = agent_config["rb_size"]
         self.early_out_num = agent_config["early_out_num"]
         self.early_out_virtual_diff = agent_config["early_out_virtual_diff"]
 
@@ -26,62 +24,39 @@ class BaseAgent(nn.Module):
         self.device = config["device"]
 
 
-    def train(self, env, time_remaining):
-        time_start = time.time()
+    def time_is_up(self, avg_meter_reward, max_episodes, time_elapsed, time_remaining):
+        if time_elapsed > time_remaining:
+            print("timeout")
+            # fill remaining rewards with minimum reward achieved so far
+            if len(avg_meter_reward.get_raw_data()) == 0:
+                avg_meter_reward.update(-1e9)
 
-        sd = 1 if env.has_discrete_state_space() else self.state_dim
-        ad = 1 if env.has_discrete_action_space() else self.action_dim
-        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
+            while len(avg_meter_reward.get_raw_data()) < max_episodes:
+                avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
+            return True
+        else:
+            return False
 
-        avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
-        # training loop
-        for episode in range(self.train_episodes):
-            # early out if timeout
-            if time_is_up(avg_meter_reward=avg_meter_reward,
-                          max_episodes=self.train_episodes,
-                          time_elapsed=time.time() - time_start,
-                          time_remaining=time_remaining):
-                break
+    def env_solved(self, env, avg_meter_reward, episode):
+        avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+        avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
+        if env.is_virtual_env():
+            if abs(avg_reward - avg_reward_last) / abs(avg_reward_last + 1e-9) < self.early_out_virtual_diff and \
+                    episode > self.init_episodes + self.early_out_num:
+                #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                return True
+        else:
+            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
+                print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                return True
 
-            self.update_parameters_per_episode(episode=episode)
-
-            state = env.reset()
-            episode_reward = 0
-
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
-                action = self.select_train_action(state=state, env=env, episode=episode)
-
-                # live view
-                if self.render_env and episode % 10 == 0:
-                    env.render()
-
-                # state-action transition
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
-                state = next_state
-                episode_reward += reward
-
-                # train
-                if episode > self.init_episodes:
-                    self.learn(replay_buffer=replay_buffer, env=env)
-
-                if done > 0.5:
-                    break
-
-            # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-
-            # quit training if environment is solved
-            if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                break
-
-        env.close()
-
-        return avg_meter_reward.get_raw_data()
+        return False
 
 
     def test(self, env, time_remaining=1e9):
+        #self.plot_q_function(env)
+
         with torch.no_grad():
             time_start = time.time()
 
@@ -89,18 +64,21 @@ class BaseAgent(nn.Module):
 
             # training loop
             for episode in range(self.test_episodes):
+
                 # early out if timeout
-                if time_is_up(avg_meter_reward=avg_meter_reward,
-                              max_episodes=self.test_episodes,
-                              time_elapsed=time.time() - time_start,
-                              time_remaining=time_remaining):
+                if self.time_is_up(avg_meter_reward=avg_meter_reward,
+                                   max_episodes=self.test_episodes,
+                                   time_elapsed=time.time() - time_start,
+                                   time_remaining=time_remaining):
                     break
 
                 state = env.reset()
                 episode_reward = 0
 
+                #path = [state.item()]
+
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    action = self.select_test_action(state)
+                    action = self.select_test_action(state, env)
 
                     # live view
                     if self.render_env and episode % 10 == 0:
@@ -111,6 +89,8 @@ class BaseAgent(nn.Module):
                     state = next_state
                     episode_reward += reward
 
+                    #path.append(state.item())
+
                     if done > 0.5:
                         break
 
@@ -118,9 +98,13 @@ class BaseAgent(nn.Module):
                 avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
                 # quit training if environment is solved
-                if env_solved(agent=self, env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                    #print(path)
+                    #self.plot_q_function(env)
                     break
 
             env.close()
+
+        #print(self.q1_table)
 
         return avg_meter_reward.get_raw_data()

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from models.model_utils import build_nn_from_config
-
+from utils import to_one_hot_encoding, from_one_hot_encoding
 
 class VirtualEnv(nn.Module):
     def __init__(self, kwargs):
@@ -33,22 +33,18 @@ class VirtualEnv(nn.Module):
     def reset(self):
         dist = torch.distributions.Normal(torch.zeros(self.state_dim), torch.ones(self.state_dim))
         self.state = dist.sample()
+        # FIXME
         self.state = torch.zeros(self.state_dim)
+        self.state[0] = 1
         return self.state
 
     def step(self, action):
-        if self.action_dim > 1 and len(action) == 1:
-            action = self.to_one_hot_encoding(action)
         input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=len(action.shape) - 1)
         next_state = self.state_net(input)
         reward = self.reward_net(input)
         done = self.done_net(input)
+        self.state = next_state
         return next_state, reward, done
-
-    def to_one_hot_encoding(self, action):
-        action_one_hot = torch.zeros(self.action_dim)
-        action_one_hot[int(action.item())] = 1
-        return action_one_hot
 
     def get_state_dict(self):
         env_state = {}

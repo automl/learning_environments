@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from agents.base_agent import BaseAgent
 from models.actor_critic import Critic_DQN
 from envs.env_factory import EnvFactory
+from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
+
 
 class DDQN(BaseAgent):
     def __init__(self, state_dim, action_dim, config):
@@ -14,6 +16,9 @@ class DDQN(BaseAgent):
 
         ddqn_config = config["agents"][agent_name]
 
+        self.init_episodes = ddqn_config["init_episodes"]
+        self.batch_size = ddqn_config["batch_size"]
+        self.rb_size = ddqn_config["rb_size"]
         self.gamma = ddqn_config["gamma"]
         self.lr = ddqn_config["lr"]
         self.tau = ddqn_config["tau"]
@@ -31,6 +36,61 @@ class DDQN(BaseAgent):
         self.it = 0
 
 
+    def train(self, env, time_remaining):
+        time_start = time.time()
+
+        sd = 1 if env.has_discrete_state_space() else self.state_dim
+        ad = 1 if env.has_discrete_action_space() else self.action_dim
+        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
+
+        avg_meter_reward = AverageMeter(print_str="Average reward: ")
+
+        # training loop
+        for episode in range(self.train_episodes):
+            # early out if timeout
+            if self.time_is_up(avg_meter_reward=avg_meter_reward,
+                               max_episodes=self.train_episodes,
+                               time_elapsed=time.time() - time_start,
+                               time_remaining=time_remaining):
+                break
+
+            self.update_parameters_per_episode(episode=episode)
+
+            state = env.reset()
+            episode_reward = 0
+
+            for t in range(0, env.max_episode_steps(), self.same_action_num):
+                action = self.select_train_action(state=state, env=env)
+
+                # live view
+                if self.render_env and episode % 10 == 0:
+                    env.render()
+
+                # state-action transition
+                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                state = next_state
+                episode_reward += reward
+
+                # train
+                if episode > self.init_episodes:
+                    self.learn(replay_buffer=replay_buffer, env=env)
+
+                if done > 0.5:
+                    break
+
+            # logging
+            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+
+            # quit training if environment is solved
+            if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                break
+
+        env.close()
+
+        return avg_meter_reward.get_raw_data()
+
+
     def learn(self, replay_buffer, env):
         self.it += 1
 
@@ -42,9 +102,9 @@ class DDQN(BaseAgent):
         rewards = rewards.squeeze()
         dones = dones.squeeze()
 
-        if len(states.shape) == 1:
-            states = states.unsqueeze(1)
-            next_states = next_states.unsqueeze(1)
+        if env.has_discrete_state_space():
+            states = to_one_hot_encoding(states, self.state_dim)
+            next_states = to_one_hot_encoding(next_states, self.state_dim)
 
         q_values = self.model(states)
         next_q_values = self.model(next_states)
@@ -65,15 +125,19 @@ class DDQN(BaseAgent):
         return loss
 
 
-    def select_train_action(self, state, env, episode):
+    def select_train_action(self, state, env):
         if random.random() < self.eps:
             return env.get_random_action()
         else:
+            if env.has_discrete_state_space():
+                state = to_one_hot_encoding(state, self.state_dim)
             qvals = self.model(state.to(self.device))
             return  torch.argmax(qvals).unsqueeze(0).detach()
 
 
-    def select_test_action(self, state):
+    def select_test_action(self, state, env):
+        if env.has_discrete_state_space():
+            state = to_one_hot_encoding(state, self.state_dim)
         qvals = self.model(state.to(self.device))
         return torch.argmax(qvals).unsqueeze(0).detach()
 

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from envs.virtual_env import VirtualEnv
 from gym.spaces import Discrete
-
+from utils import to_one_hot_encoding, from_one_hot_encoding
 
 class EnvWrapper(nn.Module):
     # wraps a gym/virtual environment for easier handling
@@ -15,6 +15,9 @@ class EnvWrapper(nn.Module):
     def step(self, action, same_action_num=1):
         if self.is_virtual_env():
             reward_sum = None
+
+            if self.has_discrete_action_space():
+                action = to_one_hot_encoding(action, self.get_action_dim())
 
             for i in range(same_action_num):
                 state, reward, done = self.env.step(action.to(self.env.device))
@@ -27,6 +30,10 @@ class EnvWrapper(nn.Module):
             reward = reward_sum.to("cpu")
             next_state = state.to("cpu")
             done = done.to("cpu")
+
+            if self.has_discrete_state_space():
+                next_state = from_one_hot_encoding(next_state)
+
             return next_state, reward, done
 
         else:
@@ -51,13 +58,20 @@ class EnvWrapper(nn.Module):
             return next_state_torch, reward_torch, done_torch
 
     def reset(self):
-        val = self.env.reset()
-        if type(val) == np.ndarray:
-            return torch.from_numpy(val).float().cpu()
-        elif torch.is_tensor(val):
-            return val
-        else:   # torch
-            return torch.tensor([val], device="cpu", dtype=torch.float32)
+        state = self.env.reset()
+
+        if type(state) == np.ndarray:
+            state_torch = torch.from_numpy(state).float().cpu()
+        elif torch.is_tensor(state):
+            state_torch = state
+        else:  # float
+            state_torch = torch.tensor([state], device="cpu", dtype=torch.float32)
+
+        if self.has_discrete_state_space() and self.is_virtual_env():
+            #print(from_one_hot_encoding(state_torch))
+            return from_one_hot_encoding(state_torch)
+        else:
+            return state_torch
 
     def get_random_action(self):
         action = self.env.action_space.sample()
@@ -71,7 +85,6 @@ class EnvWrapper(nn.Module):
             return self.env.observation_space.shape[0]
         else:
             return self.env.observation_space.n
-            #return 1
 
     def get_action_dim(self):
         if self.env.action_space.shape:

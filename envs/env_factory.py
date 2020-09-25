@@ -96,8 +96,8 @@ class EnvFactory:
             env = gym.make(env_name, is_slippery=False)
         elif env_name == "Bandit-v0":
             env = TimeLimit(BanditFixedPermutedGaussian())
-        elif env_name == "Gridworld-v0":
-            env = TimeLimit(Cliff())
+        elif env_name == "GridWorld-v0":
+            env = TimeLimit(EmptyRoom())
         else:
             raise NotImplementedError("Environment not supported")
 

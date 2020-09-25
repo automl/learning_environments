@@ -99,34 +99,28 @@ class AverageMeter:
         return sum(vals) / (len(vals) + 1e-9)
 
 
-def time_is_up(avg_meter_reward, max_episodes, time_elapsed, time_remaining):
-    if time_elapsed > time_remaining:
-        print("timeout")
-        # fill remaining rewards with minimum reward achieved so far
-        if len(avg_meter_reward.get_raw_data()) == 0:
-            avg_meter_reward.update(-1e9)
+def to_one_hot_encoding(normal, one_hot_dim):
+    normal = normal.squeeze()
 
-        while len(avg_meter_reward.get_raw_data()) < max_episodes:
-            avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
-        return True
+    if not torch.is_tensor(normal):
+        one_hot = torch.zeros(one_hot_dim)
+        one_hot[int(normal)] = 1
+    elif normal.dim() == 0 or (normal.dim() == 1 and len(normal) == 1):     # single torch value
+        one_hot = torch.zeros(one_hot_dim)
+        one_hot[int(normal.item())] = 1
+    elif normal.dim() == 1:     # vector of values
+        n = len(normal)
+        one_hot = torch.zeros(n, one_hot_dim)
+        for i in range(n):
+            one_hot[i] = to_one_hot_encoding(normal[i], one_hot_dim)
     else:
-        return False
+        raise NotImplementedError('One hot encoding supported only for scalar values and 1D vectors')
+
+    return one_hot
 
 
-def env_solved(agent, env, avg_meter_reward, episode):
-    avg_reward = avg_meter_reward.get_mean(num=agent.early_out_num)
-    avg_reward_last = avg_meter_reward.get_mean_last(num=agent.early_out_num)
-    if env.is_virtual_env():
-        if abs(avg_reward-avg_reward_last) / abs(avg_reward_last+1e-9) < agent.early_out_virtual_diff and \
-                episode > agent.init_episodes + agent.early_out_num:
-            print("early out on virtual env after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-            return True
-    else:
-        if avg_reward >= env.env.solved_reward and episode > agent.init_episodes:
-            print("early out on real env after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-            return True
-
-    return False
+def from_one_hot_encoding(one_hot):
+    return torch.argmax(one_hot)
 
 
 def calc_abs_param_sum(model):

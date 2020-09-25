@@ -216,13 +216,19 @@ class GTN_Master(GTN_Base):
         elif self.score_transform_type == 4:
             # consider all eps that are better than the average
             avg_score_orig = statistics.mean(self.score_orig_list)
-            scores_idx = np.where(scores>avg_score_orig,1,0)
+            scores_idx = np.where(scores > avg_score_orig,1,0)
 
-            if sum(scores_idx) > 0:
+            scores_idx = np.where(scores >= avg_score_orig,1,0)
+            if max(scores) == avg_score_orig:
+                scores = np.zeros(len(scores))
+                scores[0] = 1
+            elif sum(scores_idx) > 0:
+            #if sum(scores_idx) > 0:
                 scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig)
                 scores = scores * (len(scores)/sum(scores))
             else:
                 scores = scores_idx
+
         else:
             raise ValueError("Unknown rank transform type: " + str(self.rank_transform_type))
 
