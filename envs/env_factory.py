@@ -43,7 +43,7 @@ class EnvFactory:
     def generate_virtual_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        #print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs)
         return EnvWrapper(env=env).to(self.device)
 
@@ -76,6 +76,7 @@ class EnvFactory:
             kwargs["action_dim"] = self.action_dim
             kwargs["observation_space"] = self.observation_space
             kwargs["action_space"] = self.action_space
+            kwargs["reset_env"] = self.generate_default_real_env()
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = float(value[1])
