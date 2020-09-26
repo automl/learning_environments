@@ -1,7 +1,7 @@
 import time
 import torch
 import torch.nn as nn
-from utils import AverageMeter
+from utils import AverageMeter, ReplayBuffer
 
 
 class BaseAgent(nn.Module):
@@ -56,6 +56,10 @@ class BaseAgent(nn.Module):
 
     def test(self, env, time_remaining=1e9):
         #self.plot_q_function(env)
+        
+        sd = 1 if env.has_discrete_state_space() else self.state_dim
+        ad = 1 if env.has_discrete_action_space() else self.action_dim
+        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         with torch.no_grad():
             time_start = time.time()
@@ -86,6 +90,7 @@ class BaseAgent(nn.Module):
 
                     # state-action transition
                     next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                     state = next_state
                     episode_reward += reward
 
@@ -97,14 +102,13 @@ class BaseAgent(nn.Module):
                 # logging
                 avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
-                # quit training if environment is solved
-                if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                    #print(path)
-                    #self.plot_q_function(env)
-                    break
+                # if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+                #     #print(path)
+                #     #self.plot_q_function(env)
+                #     break
 
             env.close()
 
         #print(self.q1_table)
 
-        return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data(), replay_buffer

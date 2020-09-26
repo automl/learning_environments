@@ -5,7 +5,7 @@ import torch.nn as nn
 class RBF(nn.Module):
     def __init__(self, nodes):
         super(RBF, self).__init__()
-        self.eps = nn.Parameter(torch.ones(nodes)*0.1)
+        self.eps = nn.Parameter(torch.ones(nodes))
         self.mean = nn.Parameter(torch.zeros(nodes))
         self.counter = 0
 
@@ -16,6 +16,8 @@ class RBF(nn.Module):
             print(sum(self.eps))
 
         return torch.exp(-((x-self.mean)*self.eps).pow(2))
+        #return torch.exp(-((x)).pow(2))
+        #return torch.exp(-((x) * self.eps).pow(2))
 
 
 class Bias(nn.Module):

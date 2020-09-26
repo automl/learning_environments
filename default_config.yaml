@@ -37,12 +37,12 @@ agents:
     batch_size: !!int 128                   # batch size during training
     early_out_diff: !!float 0               # break criterion for matching
     early_out_num: !!int 100                # based on how many training steps shall an early out happen
-    max_steps: !!int 1000                   # number of steps
-    step_size: !!int 100                    # LR scheduler step size
-    gamma: !!float 0.5                      # LR scheduler gamma
-    match_loss_state: !!str L1              # "L1" or "L2"
+    max_steps: !!int 2000                   # number of steps
+    step_size: !!int 200                    # LR scheduler step size
+    gamma: !!float 0.7                      # LR scheduler gamma
+    match_loss_state: !!str L2              # "L1" or "L2"
     match_loss_reward: !!str L2             # "L1" or "L2"
-    match_loss_done: !!str L1               # "L1" or "L2"
+    match_loss_done: !!str L2               # "L1" or "L2"
 
   ddqn:
     # Bandit
@@ -119,7 +119,7 @@ agents:
 
   td3:
     train_episodes: !!int 50                # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 100                # maximum number of episodes to optimize
     init_episodes: !!int 20                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -176,7 +176,7 @@ envs:
     goal_position: [0.45, 0.45, 0.5, True]  # x-value? of goal position
     goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 64                         # size of the hidden layer of the virtual environment
+    hidden_size: 96                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
 
   HalfCheetah-v2:

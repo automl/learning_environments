@@ -24,11 +24,14 @@ class VirtualEnv(nn.Module):
         self.state_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
                                               output_dim=self.state_dim,
                                               nn_config=kwargs).to(self.device)
+        # self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
+        #                                        output_dim=1,
+        #                                        nn_config=kwargs,
+        #                                        rbf_net=True,
+        #                                        final_bias=-1).to(self.device)
         self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
                                                output_dim=1,
-                                               nn_config=kwargs,
-                                               rbf_net=True,
-                                               final_bias=-10).to(self.device)
+                                               nn_config=kwargs).to(self.device)
         self.done_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
                                              output_dim=1,
                                              nn_config=kwargs).to(self.device)

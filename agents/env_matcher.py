@@ -130,8 +130,11 @@ if __name__ == "__main__":
 
 
     agent = select_agent(config, 'TD3')
+    #print('-- train --')
     print('-- fill replay buffer --')
     reward_list, replay_buffer = agent.train(env=real_env)
+    #print('-- fill replay buffer --')
+    #reward_list, replay_buffer = agent.test(env=real_env)
     me = EnvMatcher(config)
     print('-- match --')
     me.train(virtual_env=virtual_env, replay_buffer=replay_buffer)
