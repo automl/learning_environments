@@ -43,7 +43,7 @@ class EnvFactory:
     def generate_virtual_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs)
         return EnvWrapper(env=env).to(self.device)
 
@@ -98,7 +98,7 @@ class EnvFactory:
         elif env_name == "Bandit-v0":
             env = TimeLimit(BanditFixedPermutedGaussian())
         elif env_name == "GridWorld-v0":
-            env = TimeLimit(EmptyRoom())
+            env = TimeLimit(EmptyRoomSmall())
         else:
             raise NotImplementedError("Environment not supported")
 

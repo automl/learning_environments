@@ -147,9 +147,15 @@ class QL(BaseAgent):
             # return torch.argmax(q1_vals+q2_vals).unsqueeze(0).detach()
 
 
-    def select_test_action(self, state, env):
-        qvals = torch.tensor(self.q1_table[int(state.item())])
-        return torch.argmax(qvals).unsqueeze(0).detach()
+    def select_test_action(self, state, env, gtn_iteration):
+        # qvals = torch.tensor(self.q1_table[int(state.item())])
+        # return torch.argmax(qvals).unsqueeze(0).detach()
+        if random.random() < 0:
+            action = env.get_random_action()
+            return action
+        else:
+            q1_vals = torch.tensor(self.q1_table[int(state.item())])
+            return torch.argmax(q1_vals).unsqueeze(0).detach()
 
 
     def update_eps(self, episode):
@@ -185,6 +191,7 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_default_real_env()
+    virtual_env = env_fac.generate_virtual_env()
 
     timing = []
     for i in range(10):
@@ -200,7 +207,7 @@ if __name__ == "__main__":
         t2 = time.time()
         timing.append(t2-t1)
         print('TEST')
-        reward_list = ql.test(env=real_env, time_remaining=500)
-        print(reward_list)
+        reward_list, replay_buffer = ql.test(env=real_env, time_remaining=500)
+        print(sum(reward_list)/len(reward_list))
     print('avg. ' + str(sum(timing)/len(timing)))
 

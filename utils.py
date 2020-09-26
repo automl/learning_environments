@@ -100,7 +100,8 @@ class AverageMeter:
 
 
 def to_one_hot_encoding(normal, one_hot_dim):
-    normal = normal.squeeze()
+    if torch.is_tensor(normal):
+        normal = normal.squeeze()
 
     if not torch.is_tensor(normal):
         one_hot = torch.zeros(one_hot_dim)

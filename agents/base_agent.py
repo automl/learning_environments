@@ -30,7 +30,6 @@ class BaseAgent(nn.Module):
             # fill remaining rewards with minimum reward achieved so far
             if len(avg_meter_reward.get_raw_data()) == 0:
                 avg_meter_reward.update(-1e9)
-
             while len(avg_meter_reward.get_raw_data()) < max_episodes:
                 avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
             return True
@@ -48,18 +47,17 @@ class BaseAgent(nn.Module):
                 return True
         else:
             if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
-                print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                #print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 
         return False
 
 
-    def test(self, env, time_remaining=1e9):
+    def test(self, env, time_remaining=1e9, gtn_iteration=0):
         #self.plot_q_function(env)
-        
         sd = 1 if env.has_discrete_state_space() else self.state_dim
         ad = 1 if env.has_discrete_action_space() else self.action_dim
-        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
+        replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=int(1e6))
 
         with torch.no_grad():
             time_start = time.time()
@@ -68,7 +66,6 @@ class BaseAgent(nn.Module):
 
             # training loop
             for episode in range(self.test_episodes):
-
                 # early out if timeout
                 if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                    max_episodes=self.test_episodes,
@@ -79,10 +76,8 @@ class BaseAgent(nn.Module):
                 state = env.reset()
                 episode_reward = 0
 
-                #path = [state.item()]
-
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    action = self.select_test_action(state, env)
+                    action = self.select_test_action(state, env, gtn_iteration)
 
                     # live view
                     if self.render_env and episode % 10 == 0:
@@ -93,8 +88,6 @@ class BaseAgent(nn.Module):
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                     state = next_state
                     episode_reward += reward
-
-                    #path.append(state.item())
 
                     if done > 0.5:
                         break
@@ -109,6 +102,6 @@ class BaseAgent(nn.Module):
 
             env.close()
 
-        #print(self.q1_table)
+        #self.plot_q_function(env)
 
         return avg_meter_reward.get_raw_data(), replay_buffer

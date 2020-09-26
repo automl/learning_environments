@@ -135,7 +135,7 @@ class DDQN(BaseAgent):
             return  torch.argmax(qvals).unsqueeze(0).detach()
 
 
-    def select_test_action(self, state, env):
+    def select_test_action(self, state, env, gtn_iteration):
         if env.has_discrete_state_space():
             state = to_one_hot_encoding(state, self.state_dim)
         qvals = self.model(state.to(self.device))

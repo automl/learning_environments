@@ -158,7 +158,7 @@ class TD3(BaseAgent):
                     ).clamp(-self.max_action, self.max_action)
 
 
-    def select_test_action(self, state, env):
+    def select_test_action(self, state, env, gtn_iteration):
         return (self.actor(state.to(self.device)).cpu() +
                   torch.randn(self.action_dim) * self.action_std * self.max_action
                   ).clamp(-self.max_action, self.max_action)

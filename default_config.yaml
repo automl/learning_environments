@@ -1,7 +1,7 @@
 #env_name: !!str Pendulum-v0
-env_name: !!str MountainCarContinuous-v0
+env_name: !!str GridWorld-v0
 seed: !!int 21                              # random initialization seed
-device: !!str cuda:0                        # torch device (cuda:0 or cpu)
+device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
@@ -13,8 +13,8 @@ agents:
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
-    num_grad_evals: !!int 1                 # how often to evaluate each gradient
-    weight_decay: !!float 0.0               # weight decay
+    num_grad_evals: !!int 2                 # how often to evaluate each gradient
+    weight_decay: !!float 0.00              # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
@@ -105,7 +105,7 @@ agents:
 
   ql:
     train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 100                # maximum number of episodes to optimize
     init_episodes: !!int 2                  # number of episodes to prevent an early out
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
@@ -169,7 +169,7 @@ envs:
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
 
   MountainCarContinuous-v0:
-    solved_reward: !!float 85               # used for early out in RL agent training
+    solved_reward: !!float 80               # used for early out in RL agent training
     max_steps: !!int 999                    # maximum number of steps per episode REMOVE
     max_speed: [0.05, 0.07, 0.1, False]     # maximum allowed vehicle velocity
     power: [0.001, 0.0015, 0.002, False]    # strength of the vehicle engine
@@ -180,8 +180,8 @@ envs:
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
 
   HalfCheetah-v2:
-    solved_reward: !!float 10000            # used for early out in RL agent training
-    max_steps: !!int 400                    # maximum number of steps per episode
+    solved_reward: !!float 3000             # used for early out in RL agent training
+    max_steps: !!int 1000                   # maximum number of steps per episode
     g: [-0.2, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
     cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
     activation_fn: !!str relu               # activation function of the virtual environment

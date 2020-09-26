@@ -1,12 +1,11 @@
 import torch
 import torch.nn as nn
 from models.model_utils import build_nn_from_config
-from utils import from_one_hot_encoding
+from utils import from_one_hot_encoding, to_one_hot_encoding
 
 class VirtualEnv(nn.Module):
     def __init__(self, kwargs):
         super().__init__()
-        print('init')
 
         self.input_seed = None
         self.env_name = str(kwargs["env_name"])
@@ -37,7 +36,6 @@ class VirtualEnv(nn.Module):
                                              nn_config=kwargs).to(self.device)
 
         self.state = self.reset()
-        print(self.reward_net)
 
     def reset(self):
         # dist = torch.distributions.Normal(torch.zeros(self.state_dim), torch.ones(self.state_dim))
@@ -46,15 +44,17 @@ class VirtualEnv(nn.Module):
         # self.state = torch.zeros(self.state_dim)
         # self.state[0] = -0.6 + torch.rand(1)*0.2
         self.state = torch.tensor(self.reset_env.reset())
-        if len(self.state) != self.state_dim:
+        if len(self.state) > self.state_dim:
             self.state = from_one_hot_encoding(self.state)
+        elif len(self.state) < self.state_dim:
+            self.state = to_one_hot_encoding(self.state, self.state_dim)
         return self.state
 
     def step(self, action, state=None):
         if state is None:
-            input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=len(action.shape) - 1)
+            input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=action.dim() - 1)
         else:
-            input = torch.cat((action.to(self.device), state.to(self.device)), dim=len(action.shape) - 1)
+            input = torch.cat((action.to(self.device), state.to(self.device)), dim=action.dim() - 1)
         next_state = self.state_net(input)
         reward = self.reward_net(input)
         done = self.done_net(input)
