@@ -110,17 +110,17 @@ class GTN_Master(GTN_Base):
 
         for it in range(self.max_iterations):
             t1 = time.time()
-            #print('-- Master: Iteration ' + str(it))
+            print('-- Master: Iteration ' + str(it))
             #print('-- Master: start iteration ' + str(it))
-            #print('-- Master: write worker inputs')
+            print('-- Master: write worker inputs')
             self.write_worker_inputs(it)
-            #print('-- Master: read worker results')
+            print('-- Master: read worker results')
             self.read_worker_results()
-            #print('-- Master: rank transform')
+            print('-- Master: rank transform')
             self.score_transform()
-            #print('-- Master: update env')
+            print('-- Master: update env')
             self.update_env()
-            #print('-- Master: print statistics')
+            print('-- Master: print statistics')
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
             if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
@@ -346,11 +346,11 @@ class GTN_Worker(GTN_Base):
     def run(self):
         # read data from master
         while not self.quit_flag:
-            #print('-- Worker {}: read worker inputs'.format(self.id))
+            print('-- Worker {}: read worker inputs'.format(self.id))
 
             self.read_worker_input()
 
-            #print('-- Worker {}: evaluation'.format(self.id))
+            print('-- Worker {}: evaluation'.format(self.id))
 
             time_start = time.time()
 
@@ -377,7 +377,7 @@ class GTN_Worker(GTN_Base):
 
             self.get_random_eps()
 
-            #print('-- Worker {}: train add'.format(self.id))
+            print('-- Worker {}: train add'.format(self.id))
 
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
@@ -394,7 +394,7 @@ class GTN_Worker(GTN_Base):
                                                              time_remaining=self.timeout-(time.time()-time_start),
                                                              gtn_iteration=self.gtn_iteration))
 
-            #print('-- Worker {}: train sub'.format(self.id))
+            print('-- Worker {}: train sub'.format(self.id))
 
             # # second mirrored noise -N
             self.subtract_noise_from_virtual_env()
@@ -410,6 +410,8 @@ class GTN_Worker(GTN_Base):
                 score_sub.append(self.test_agent_on_real_env(agent=agent_sub,
                                                              time_remaining=self.timeout-(time.time()-time_start),
                                                              gtn_iteration=self.gtn_iteration))
+
+            print('-- Worker {}: calc score'.format(self.id))
 
             if self.minimize_score:
                 #print('worker ' + str(self.id) + ' ' + str(score_sub) + ' ' + str(score_add) + ' ' + str(weight_sub) + ' ' + str(weight_add))
@@ -441,10 +443,10 @@ class GTN_Worker(GTN_Base):
                 else:
                     self.add_noise_to_virtual_env() # for debugging
 
-            # print('-- LOSS ADD: ' + str(score_add))
-            # print('-- LOSS SUB: ' + str(score_sub))
-            # print('-- LOSS BEST: ' + str(best_score))
-            # print('-- Worker {}: write result'.format(self.id))
+            print('-- LOSS ADD: ' + str(score_add))
+            print('-- LOSS SUB: ' + str(score_sub))
+            print('-- LOSS BEST: ' + str(best_score))
+            print('-- Worker {}: write result'.format(self.id))
 
             self.write_worker_result(score=best_score,
                                      score_orig=score_orig,
