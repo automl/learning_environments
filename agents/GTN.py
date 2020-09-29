@@ -115,7 +115,9 @@ class GTN_Master(GTN_Base):
             print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
-            self.read_worker_results()
+            skip_flag = self.read_worker_results()
+            if skip_flag:
+                continue
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
             print('-- Master: update env' + ' ' + str(time.time()-t1))
@@ -172,6 +174,8 @@ class GTN_Master(GTN_Base):
 
 
     def read_worker_results(self):
+        skip_flag = False
+
         for id in range(self.num_workers):
             file_name = self.get_result_file_name(id)
             check_file_name = self.get_result_check_file_name(id)
@@ -185,7 +189,8 @@ class GTN_Master(GTN_Base):
             uuid = data['uuid']
 
             if uuid != self.uuid_list[id]:
-                raise ValueError("UUIDs do not match")
+                skip_flag = True
+                print("UUIDs do not match")
 
             self.time_train_list[id] = data['time_train']
             self.time_test_list[id] = data['time_test']
@@ -197,6 +202,7 @@ class GTN_Master(GTN_Base):
             os.remove(check_file_name)
             os.remove(file_name)
 
+        return skip_flag
 
     def score_transform(self):
         scores = np.asarray(self.score_list)
