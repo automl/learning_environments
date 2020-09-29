@@ -86,7 +86,7 @@ class GTN_Master(GTN_Base):
         self.real_env = self.env_factory.generate_default_real_env()
         self.optimal_path = self.find_optimal_path()
 
-        print('Starting GTN Worker with bohb_id {}'.format(bohb_id))
+        print('Starting GTN Master with bohb_id {}'.format(bohb_id))
         print('optimal path: {}'.format(self.optimal_path))
 
 
