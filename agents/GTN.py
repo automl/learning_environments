@@ -110,17 +110,17 @@ class GTN_Master(GTN_Base):
 
         for it in range(self.max_iterations):
             t1 = time.time()
-            print('-- Master: Iteration ' + str(it))
+            print('-- Master: Iteration ' + str(it) + ' ' + str(time.time()-t1))
             #print('-- Master: start iteration ' + str(it))
-            print('-- Master: write worker inputs')
+            print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
-            print('-- Master: read worker results')
+            print('-- Master: read worker results' + ' ' + str(time.time()-t1))
             self.read_worker_results()
-            print('-- Master: rank transform')
+            print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
-            print('-- Master: update env')
+            print('-- Master: update env' + ' ' + str(time.time()-t1))
             self.update_env()
-            print('-- Master: print statistics')
+            print('-- Master: print statistics' + ' ' + str(time.time()-t1))
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
             if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
