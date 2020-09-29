@@ -12,12 +12,16 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, same_action_num=1):
+    def step(self, action, same_action_num=1, action_noise=0, action_noise_decay=0, gtn_iteration=0):
         if self.is_virtual_env():
             reward_sum = None
 
             if self.has_discrete_action_space():
                 action = to_one_hot_encoding(action, self.get_action_dim())
+
+            print(action)
+            action += (torch.rand_like(action)-0.5) * action_noise * action_noise_decay**gtn_iteration
+            print(action)
 
             for i in range(same_action_num):
                 state, reward, done = self.env.step(action.to(self.env.device))
@@ -68,7 +72,6 @@ class EnvWrapper(nn.Module):
             state_torch = torch.tensor([state], device="cpu", dtype=torch.float32)
 
         if self.has_discrete_state_space() and self.is_virtual_env():
-            #print(from_one_hot_encoding(state_torch))
             return from_one_hot_encoding(state_torch)
         else:
             return state_torch
@@ -122,6 +125,9 @@ class EnvWrapper(nn.Module):
     def close(self):
         if not self.is_virtual_env():
             return self.env.close()
+
+    def get_solved_reward(self):
+        return self.env.solved_reward
 
     def max_episode_steps(self):
         return self.env._max_episode_steps

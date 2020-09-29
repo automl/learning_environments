@@ -46,7 +46,7 @@ class BaseAgent(nn.Module):
                 #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
         else:
-            if avg_reward >= env.env.solved_reward and episode > self.init_episodes:
+            if avg_reward >= env.get_solved_reward() and episode > self.init_episodes:
                 #print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 

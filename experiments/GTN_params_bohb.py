@@ -25,13 +25,20 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_max_iterations', choices=[5,10,20,40], default_value=10))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=5e-1, log=True, default_value=1e-2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_virtual_env_reps', choices=[1,3], default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_score_transform_type', choices=[False,True], default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_log_transf_zero_mean', choices=[False,True], default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_log_transf_normalize', choices=[False,True], default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-2, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_weight_decay', choices=[0, 0.001, 0.01, 0.1], default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=4))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_exploration_gain', choices=[0, 0.001], default_value=0))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_correct_path_gain', choices=[0, 0.001], default_value=0))
+
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise', choices=[0, 0.1, 1, 10], default_value=0))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise_decay', choices=[0.85, 0.9, 0.95, 0.99], default_value=0.9))
+
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_size', choices=[4,16,64], default_value=16))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_layer', choices=[1,2], default_value=1))
 
         #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
 
@@ -40,15 +47,26 @@ class ExperimentWrapper():
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
+        env = config["env_name"]
 
         config["render_env"] = False
 
-        config["agents"]['gtn']['max_iterations'] = cso["gtn_max_iterations"]
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
-        config["agents"]['gtn']['virtual_env_reps'] = cso["gtn_virtual_env_reps"]
-        config["agents"]['gtn']['log_transf_zero_mean'] = cso["gtn_log_transf_zero_mean"]
-        config["agents"]['gtn']['log_transf_normalize'] = cso["gtn_log_transf_normalize"]
+        config["agents"]['gtn']['num_grad_evals'] = int(cso["gtn_num_grad_evals"])
+        config["agents"]['gtn']['grad_eval_type'] = cso["gtn_grad_eval_type"]
+        config["agents"]['gtn']['weight_decay'] = float(cso["gtn_weight_decay"])
+        config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
+        config["agents"]['gtn']['exploration_gain'] = float(cso["gtn_exploration_gain"])
+        config["agents"]['gtn']['correct_path_gain'] = float(cso["gtn_correct_path_gain"])
+
+        config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
+        config["agents"]['ql']['action_noise_decay'] = float(cso["action_noise_decay"])
+
+        config["envs"][env]['hidden_size'] = int(cso["env_hidden_size"])
+        config["envs"][env]['hidden_layer'] = int(cso["env_hidden_layer"])
+
+
 
         return config
 
@@ -68,7 +86,8 @@ class ExperimentWrapper():
 
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id)
-            score, score_list = gtn.run()
+            _, score_list = gtn.run()
+            score = len(score_list)
             error = ""
         except:
             score = float('Inf')
@@ -100,7 +119,7 @@ if __name__ == "__main__":
     # torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'GTN_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

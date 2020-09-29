@@ -20,6 +20,7 @@ class ExperimentWrapper():
         params['max_budget'] = 8
         params['eta'] = 2
         params['iterations'] = 1000
+        params['random_fraction'] = 0.3
 
         return params
 
@@ -64,7 +65,7 @@ class ExperimentWrapper():
         return config
 
 
-    def compute(self, working_dir, config_id, cso, budget, *args, **kwargs):
+    def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
@@ -84,6 +85,7 @@ class ExperimentWrapper():
 
         td3 = TD3(state_dim=env.get_state_dim(),
                   action_dim=env.get_action_dim(),
+                  max_action=env.get_max_action(),
                   config=config)
         rewards = td3.train(env)
         score = len(rewards)

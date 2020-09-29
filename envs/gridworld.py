@@ -11,12 +11,15 @@ from gym.utils import seeding
 # '#': wall
 # 'O': hole
 
+G_RIGHT = 0
+G_LEFT = 1
+G_DOWN = 2
+G_UP = 3
 
-G_LEFT = 0
-G_UP = 1
-G_RIGHT = 2
-G_DOWN = 3
-
+# G_LEFT = 0
+# G_UP = 1
+# G_RIGHT = 2
+# G_DOWN = 3
 
 class GridworldEnv(gym.Env):
     """
@@ -140,10 +143,11 @@ class EmptyRoomSmall(GridworldEnv):
         self.step_cost = -0.009
         self.g_reward = 1
         self.o_reward = -1
-        grid = [['S', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', ' '],
-                [' ', ' ', ' ', 'G']]
+        grid = [['S', ' '],
+                [' ', 'G']]
+        # grid = [['S', ' ', ' '],
+        #         [' ', ' ', ' '],
+        #         [' ', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 

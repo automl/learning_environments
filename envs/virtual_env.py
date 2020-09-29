@@ -38,11 +38,6 @@ class VirtualEnv(nn.Module):
         self.state = self.reset()
 
     def reset(self):
-        # dist = torch.distributions.Normal(torch.zeros(self.state_dim), torch.ones(self.state_dim))
-        # self.state = dist.sample()
-        # FIXME
-        # self.state = torch.zeros(self.state_dim)
-        # self.state[0] = -0.6 + torch.rand(1)*0.2
         self.state = torch.tensor(self.reset_env.reset())
         if len(self.state) > self.state_dim:
             self.state = from_one_hot_encoding(self.state)
@@ -51,14 +46,22 @@ class VirtualEnv(nn.Module):
         return self.state
 
     def step(self, action, state=None):
+
+        # if len(self.state) < self.state_dim:
+        #     self.state = to_one_hot_encoding(self.state, self.state_dim)
+
         if state is None:
             input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=action.dim() - 1)
         else:
             input = torch.cat((action.to(self.device), state.to(self.device)), dim=action.dim() - 1)
+
         next_state = self.state_net(input)
         reward = self.reward_net(input)
         done = self.done_net(input)
         self.state = next_state
+
+        #self.state = from_one_hot_encoding(next_state)
+
         return next_state, reward, done
 
     def get_state_dict(self):

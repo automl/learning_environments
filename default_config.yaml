@@ -7,21 +7,22 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'single'                    # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 100               # maximum number of GTN iterations
+    max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
-    num_workers: !!int 10                   # size of the population
+    num_workers: !!int 20                   # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
     num_grad_evals: !!int 2                 # how often to evaluate each gradient
-    weight_decay: !!float 0.00              # weight decay
+    grad_eval_type: !!str minmax            # mean or min
+    weight_decay: !!float 0.01              # weight decay
+    exploration_gain: !!float 0.01          # additional gain factor to favor exploration
+    correct_path_gain: !!float 0.01         # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
-    score_transform_type: !!int 4           # 0-4
-    log_transf_zero_mean: !!bool False      # zero-mean log transform (->Wierstra2012) or worse half with zero weight
-    log_transf_normalize: !!bool True       # normalize max log transform value to 1
+    score_transform_type: !!int 5           # 0-6
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   reptile:
@@ -105,13 +106,15 @@ agents:
 
   ql:
     train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 100                # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 2                  # number of episodes to prevent an early out
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
     eps_init: !!float 1                     # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.99                 # random action decay factor
+    action_noise: !!float 0.1               # random action decay factor
+    action_noise_decay: !!float 0.9         # random action decay factor
     same_action_num: !!int 1                # how often to perform the same action subsequently
     print_rate: 1000                        # update rate of avg meters
     early_out_num: 10                       # based on how many training steps shall an early out happen
@@ -217,11 +220,11 @@ envs:
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   GridWorld-v0:
-    solved_reward: !!float 0.7
-    max_steps: !!int 50
+    solved_reward: !!float 0.8
+    max_steps: !!int 10
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
 
   CliffWalking-v0:
     solved_reward: !!float -50

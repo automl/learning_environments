@@ -121,7 +121,7 @@ def to_one_hot_encoding(normal, one_hot_dim):
 
 
 def from_one_hot_encoding(one_hot):
-    return torch.argmax(one_hot)
+    return torch.tensor([torch.argmax(one_hot)])
 
 
 def calc_abs_param_sum(model):

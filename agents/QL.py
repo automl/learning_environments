@@ -18,17 +18,17 @@ class QL(BaseAgent):
         self.eps_init = ql_config["eps_init"]
         self.eps_min = ql_config["eps_min"]
         self.eps_decay = ql_config["eps_decay"]
-        self.q1_table = [[0]*self.action_dim for _ in range(self.state_dim)]
-        self.q2_table = [[0]*self.action_dim for _ in range(self.state_dim)]
-        self.e_table = [[0]*self.action_dim for _ in range(self.state_dim)]
+        self.action_noise = ql_config["action_noise"]
+        self.action_noise_decay = ql_config["action_noise_decay"]
+        self.q_table = [[0]*self.action_dim for _ in range(self.state_dim)]
 
         self.it = 0
 
 
-    def train(self, env, time_remaining):
+    def train(self, env, time_remaining, gtn_iteration=0):
         time_start = time.time()
 
-        replay_buffer = ReplayBuffer(state_dim=1, action_dim=1, device=self.device, max_size=1)
+        replay_buffer = ReplayBuffer(state_dim=1, action_dim=1, device=self.device, max_size=int(1e6))
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
 
@@ -54,7 +54,10 @@ class QL(BaseAgent):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action,
+                                                    same_action_num=self.same_action_num,
+                                                    action_noise=self.action_noise,
+                                                    gtn_iteration=gtn_iteration)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
@@ -74,8 +77,11 @@ class QL(BaseAgent):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data()
+        # states, _, _, _, _ = replay_buffer.get_all()
+        # states = [state.item() for state in states.int()]
+        # print(states)
 
+        return avg_meter_reward.get_raw_data(), replay_buffer
 
 
     def learn(self, replay_buffer, env):
@@ -91,34 +97,8 @@ class QL(BaseAgent):
         reward = reward.item()
         done = done.item()
 
-        delta = reward + self.gamma * max(self.q1_table[next_state]) * (done < 0.5) - self.q1_table[state][action]
-        self.q1_table[state][action] += self.alpha * delta
-
-        #print(state, end = ' ')
-
-        #print('{} {} {} {} {}'.format(state, action, next_state, reward, done))
-        # a_dash = int(self.select_train_action(torch.tensor(next_state), env).item())
-        # a_star = np.argmax(self.q_table[next_state])
-        # if self.q_table[next_state][a_dash] == self.q_table[next_state][a_star]:
-        #     a_star = a_dash
-
-        # if random.random() > 0.5:
-        #     a1_max = np.argmax(self.q1_table[next_state])
-        #     delta = reward + self.gamma * self.q2_table[next_state][a1_max] - self.q1_table[state][action]
-        #     self.q1_table[state][action] += self.alpha * delta
-        # else:
-        #     a2_max = np.argmax(self.q2_table[next_state])
-        #     delta = reward + self.gamma * self.q1_table[next_state][a2_max] - self.q2_table[state][action]
-        #     self.q2_table[state][action] += self.alpha * delta
-
-        #print('{} {} {} {} {}'.format(state, action, next_state, reward, done))
-        # delta = reward + self.gamma * max(self.q1_table[next_state]) * (done < 0.5) - self.q1_table[state][action]
-        #
-        # self.e_table[state][action] += 1
-        # for s in range(self.state_dim):
-        #     for a in range(self.action_dim):
-        #         self.q1_table[s][a] += self.alpha * delta * self.e_table[s][a]
-        #         self.e_table[s][a] *= self.gamma * delta
+        delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
+        self.q_table[state][action] += self.alpha * delta
 
 
     def plot_q_function(self, env):
@@ -131,7 +111,7 @@ class QL(BaseAgent):
         for i in range(m):
             strng = ''
             for k in range(n):
-                strng += ' {:3f}'.format(max(self.q1_table[i * n + k]))
+                strng += ' {:3f}'.format(max(self.q_table[i * n + k]))
             print(strng)
 
 
@@ -140,8 +120,12 @@ class QL(BaseAgent):
             action = env.get_random_action()
             return action
         else:
-            q1_vals = torch.tensor(self.q1_table[int(state.item())])
-            return torch.argmax(q1_vals).unsqueeze(0).detach()
+            q_vals = torch.tensor(self.q_table[int(state.item())])
+            dirs = (q_vals == torch.max(q_vals)).nonzero()
+            index = torch.randperm(dirs.numel())
+
+            #return dirs[index[0]]
+            return torch.argmax(q_vals).unsqueeze(0).detach()
             # q1_vals = torch.tensor(self.q1_table[int(state.item())])
             # q2_vals = torch.tensor(self.q2_table[int(state.item())])
             # return torch.argmax(q1_vals+q2_vals).unsqueeze(0).detach()
@@ -154,8 +138,26 @@ class QL(BaseAgent):
             action = env.get_random_action()
             return action
         else:
-            q1_vals = torch.tensor(self.q1_table[int(state.item())])
-            return torch.argmax(q1_vals).unsqueeze(0).detach()
+            q_vals = torch.tensor(self.q_table[int(state.item())])
+            dirs = (q_vals == torch.max(q_vals)).nonzero()
+            index = torch.randperm(dirs.numel())
+
+            if not hasattr(self, 'test_counter'):
+                self.test_counter = 0
+
+            if not hasattr(self, 'total_counter'):
+                self.total_counter = 0
+
+            self.total_counter += 1
+
+            if dirs.numel() > 1:
+                self.test_counter += 1
+                # print(q_vals)
+                # print(dirs)
+                # print(dirs[index[0]])
+
+            #return dirs[index[0]]
+            return torch.argmax(q_vals).unsqueeze(0).detach()
 
 
     def update_eps(self, episode):
@@ -164,9 +166,6 @@ class QL(BaseAgent):
         else:
             self.eps *= self.eps_decay
             self.eps = max(self.eps, self.eps_min)
-
-        # if episode % 10 == 0:
-        #     print(self.eps)
 
 
     def get_state_dict(self):

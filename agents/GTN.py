@@ -7,8 +7,10 @@ import sys
 import time
 import uuid
 import numpy as np
+import math
 import glob
 import statistics
+from collections import Counter
 from utils import calc_abs_param_sum, print_abs_param_sum, to_one_hot_encoding, from_one_hot_encoding
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -65,8 +67,6 @@ class GTN_Master(GTN_Base):
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
-        self.log_transf_zero_mean = gtn_config["log_transf_zero_mean"]
-        self.log_transf_normalize = gtn_config["log_transf_normalize"]
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -83,12 +83,30 @@ class GTN_Master(GTN_Base):
 
         # for early out
         self.avg_runtime = None
+        self.real_env = self.env_factory.generate_default_real_env()
+        self.optimal_path = self.find_optimal_path()
 
         print('Starting GTN Worker with bohb_id {}'.format(bohb_id))
+        print('optimal path: {}'.format(self.optimal_path))
+
+
+    def find_optimal_path(self,):
+        agent_base = select_agent(config=self.config, agent_name=self.agent_name)
+        # agent_base.train(env=self.virtual_env_orig,
+        #                  time_remaining=1e3)
+        agent_base.train(env=self.real_env,
+                         time_remaining=1e3)
+
+        agent_base.test_episodes = 1
+        _, replay_buffer = agent_base.test(env=self.real_env)
+        _, _, next_state, _, _ = replay_buffer.get_all()
+        optimal_path = [state.item() for state in next_state.int()]
+
+        return optimal_path
 
 
     def run(self):
-        mean_score_list = []
+        mean_score_orig_list = []
 
         for it in range(self.max_iterations):
             t1 = time.time()
@@ -99,16 +117,19 @@ class GTN_Master(GTN_Base):
             #print('-- Master: read worker results')
             self.read_worker_results()
             #print('-- Master: rank transform')
-            self.rank_transform()
+            self.score_transform()
             #print('-- Master: update env')
             self.update_env()
             #print('-- Master: print statistics')
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
-            mean_score_list.append(np.mean(self.score_list))
+            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
+                break
+
+            mean_score_orig_list.append(np.mean(self.score_orig_list))
 
         print('Master quitting')
-        return np.mean(self.score_list), mean_score_list
+        return np.mean(self.score_orig_list), mean_score_orig_list
 
 
     def calc_worker_timeout(self):
@@ -143,6 +164,7 @@ class GTN_Master(GTN_Base):
             data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
             data['gtn_iteration'] = it
+            data['optimal_path'] = self.optimal_path
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
 
             torch.save(data, file_name)
@@ -176,23 +198,27 @@ class GTN_Master(GTN_Base):
             os.remove(file_name)
 
 
-    def rank_transform(self):
+    def score_transform(self):
         scores = np.asarray(self.score_list)
+        scores_orig = np.asarray(self.score_orig_list)
 
         if self.minimize_score:
             scores = -scores
+            scores_orig = -scores_orig
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
             scores = (scores - min(scores)) / (max(scores)-min(scores))
+
         elif self.score_transform_type == 1:
             # convert [1, 0, 5] to [0.5, 0, 1]
             s = np.argsort(scores)
             n = len(scores)
             for i in range(n):
                 scores[s[i]] = i / (n-1)
-        elif self.score_transform_type == 2:
-            # fitness shaping from "Natural Evolution Strategies" (Wierstra 2014) paper
+
+        elif self.score_transform_type == 2 or self.score_transform_type == 3:
+            # fitness shaping from "Natural Evolution Strategies" (Wierstra 2014) paper, either with zero mean (2) or without (3)
             lmbda = len(scores)
             s = np.argsort(-scores)
             for i in range(lmbda):
@@ -201,33 +227,43 @@ class GTN_Master(GTN_Base):
             for i in range(lmbda):
                 scores[i] = max(0, np.log(lmbda / 2 + 1) - np.log(scores[i]))
 
-            if self.log_transf_zero_mean:
-                scores = scores / sum(scores) - 1 / lmbda
-            else:
-                scores = scores / sum(scores)
-            # additional normalization (not in original paper)
+            scores = scores / sum(scores)
 
-            if self.log_transf_normalize:
-                scores /= max(scores)
-        elif self.score_transform_type == 3:
+            if self.score_transform_type == 2:
+                scores -= 1 / lmbda
+
+            scores /= max(scores)
+
+        elif self.score_transform_type == 4:
             # consider single best eps
             scores_tmp = np.zeros(scores.size)
-            scores_tmp[np.argmax(scores)] = len(scores)
+            scores_tmp[np.argmax(scores)] = 1
             scores = scores_tmp
-        elif self.score_transform_type == 4:
+        elif self.score_transform_type == 5:
             # consider all eps that are better than the average
-            avg_score_orig = statistics.mean(self.score_orig_list)
+            avg_score_orig = np.mean(scores_orig)
 
-            scores_idx = np.where(scores > avg_score_orig + 1e-9,1,0)
+            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
             if sum(scores_idx) > 0:
             #if sum(scores_idx) > 0:
                 scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig)
-                scores = scores * (len(scores)/sum(scores))
+                scores /= sum(scores)
             else:
                 scores = scores_idx
 
+        elif self.score_transform_type == 6:
+            # consider single best eps that is better than the average
+            avg_score_orig = np.mean(scores_orig)
+
+            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+            if sum(scores_idx) > 0:
+                scores_tmp = np.zeros(scores.size)
+                scores_tmp[np.argmax(scores)] = 1
+                scores = scores_tmp
+            else:
+                scores = scores_idx
         else:
-            raise ValueError("Unknown rank transform type: " + str(self.rank_transform_type))
+            raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
 
         self.score_transform_list = scores.tolist()
 
@@ -244,13 +280,6 @@ class GTN_Master(GTN_Base):
 
         print('weights before: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
-        # for state in [3]:
-        #     for action in [2]:
-        #         state_torch = to_one_hot_encoding(state, self.virtual_env_orig.get_state_dim())
-        #         action_torch = to_one_hot_encoding(action, self.virtual_env_orig.get_action_dim())
-        #         out = self.virtual_env_orig.env.step(action=action_torch, state=state_torch)
-        #         print(out)
-
         # weight decay
         for l_orig in self.virtual_env_orig.modules():
             if isinstance(l_orig, nn.Linear):
@@ -263,22 +292,15 @@ class GTN_Master(GTN_Base):
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
-                    l_orig.weight = torch.nn.Parameter(l_orig.weight + (ss/n) * score_transform * l_eps.weight)
-                    l_orig.bias = torch.nn.Parameter(l_orig.bias + (ss/n) * score_transform * l_eps.bias)
-
-        # for state in [3]:
-        #     for action in [2]:
-        #         state_torch = to_one_hot_encoding(state, self.virtual_env_orig.get_state_dim())
-        #         action_torch = to_one_hot_encoding(action, self.virtual_env_orig.get_action_dim())
-        #         out = self.virtual_env_orig.env.step(action=action_torch, state=state_torch)
-        #         print(out)
+                    l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
+                    l_orig.bias = torch.nn.Parameter(l_orig.bias + ss * score_transform * l_eps.bias)
 
         print('weights update: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
 
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
-        dist_score = statistics.mean(self.score_list)
+        #dist_score = statistics.mean(self.score_list)
         mean_time_train = statistics.mean(self.time_train_list)
         mean_time_test = statistics.mean(self.time_test_list)
         mean_time_elapsed = statistics.mean(self.time_elapsed_list)
@@ -288,8 +310,8 @@ class GTN_Master(GTN_Base):
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
         print('GTN avg wo t_train: ' + str(mean_time_train))
         print('GTN avg wo t_test:  ' + str(mean_time_test))
-        print('GTN avg dist score:   ' + str(dist_score))
-        print('GTN best dist score:  ' + str(max(self.score_list)))
+        #print('GTN avg dist score:   ' + str(dist_score))
+        print('GTN best dist score:  ' + str(min(self.score_list)))
         print('GTN avg eval score:   ' + str(orig_score))
         print('--------------')
 
@@ -303,12 +325,17 @@ class GTN_Worker(GTN_Base):
         self.noise_std = gtn_config["noise_std"]
         self.num_test_envs = gtn_config["num_test_envs"]
         self.num_grad_evals = gtn_config["num_grad_evals"]
+        self.grad_eval_type = gtn_config["grad_eval_type"]
+        self.exploration_gain = gtn_config["exploration_gain"]
+        self.correct_path_gain = gtn_config["correct_path_gain"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.gtn_iteration = None
         self.uuid = None
         self.timeout = None
         self.quit_flag = False
+        self.r_states = []
+        self.r_actions = []
 
         # for identifying the different workers
         self.id = id
@@ -326,15 +353,16 @@ class GTN_Worker(GTN_Base):
             #print('-- Worker {}: evaluation'.format(self.id))
 
             time_start = time.time()
-            score_orig = 0
 
             # for evaluation purpose
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
             tt1 = time.time()
+            #print_abs_param_sum(self.virtual_env_orig)
             #print('-- Worker {}: ev train'.format(self.id))
             agent_orig.train(env=self.virtual_env_orig,
-                             time_remaining=self.timeout-(time.time()-time_start))
+                             time_remaining=self.timeout-(time.time()-time_start),
+                             gtn_iteration=self.gtn_iteration)
             tt2 = time.time()
             #print('-- Worker {}: ev test'.format(self.id))
             score_orig = self.test_agent_on_real_env(agent=agent_orig,
@@ -360,7 +388,8 @@ class GTN_Worker(GTN_Base):
                 agent_add = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_add.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start))
+                                time_remaining=self.timeout-(time.time()-time_start),
+                                gtn_iteration=self.gtn_iteration)
                 score_add.append(self.test_agent_on_real_env(agent=agent_add,
                                                              time_remaining=self.timeout-(time.time()-time_start),
                                                              gtn_iteration=self.gtn_iteration))
@@ -376,22 +405,36 @@ class GTN_Worker(GTN_Base):
                 agent_sub = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_sub.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start))
+                                time_remaining=self.timeout-(time.time()-time_start),
+                                gtn_iteration=self.gtn_iteration)
                 score_sub.append(self.test_agent_on_real_env(agent=agent_sub,
                                                              time_remaining=self.timeout-(time.time()-time_start),
                                                              gtn_iteration=self.gtn_iteration))
 
             if self.minimize_score:
-                score_sub = max(score_sub)
-                score_add = max(score_add)
+                #print('worker ' + str(self.id) + ' ' + str(score_sub) + ' ' + str(score_add) + ' ' + str(weight_sub) + ' ' + str(weight_add))
+                if self.grad_eval_type == 'mean':
+                    score_sub = statistics.mean(score_sub)
+                    score_add = statistics.mean(score_add)
+                elif self.grad_eval_type == 'minmax':
+                    score_sub = max(score_sub)
+                    score_add = max(score_add)
+                else:
+                    raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = min(score_add, score_sub)
                 if score_sub < score_add:
                     self.invert_eps()
                 else:
                     self.add_noise_to_virtual_env() # for debugging
             else:
-                score_sub = min(score_sub)
-                score_add = min(score_add)
+                if self.grad_eval_type == 'mean':
+                    score_sub = statistics.mean(score_sub)
+                    score_add = statistics.mean(score_add)
+                elif self.grad_eval_type == 'minmax':
+                    score_sub = min(score_sub)
+                    score_add = min(score_add)
+                else:
+                    raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = max(score_add, score_sub)
                 if score_sub > score_add:
                     self.invert_eps()
@@ -426,6 +469,7 @@ class GTN_Worker(GTN_Base):
         self.gtn_iteration = data['gtn_iteration']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
+        self.optimal_path = data['optimal_path']
 
         os.remove(check_file_name)
         os.remove(file_name)
@@ -484,17 +528,90 @@ class GTN_Worker(GTN_Base):
                 l_eps.bias = torch.nn.Parameter(-l_eps.bias)
 
 
+    def calc_kl_div(self, counter, num_states):
+        kl_div = 0
+
+        csm = sum(counter.values())
+        percs = [count/csm for count in counter.values()]
+
+        for perc in percs:
+            kl_div += perc * math.log(perc*num_states) # = perc * math.log(perc / (1/num_states))
+
+        return kl_div
+
+
     def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
         env = self.env_factory.generate_default_real_env('Test: ')
-        reward_list, replay_buffer = agent.test(env=env,
-                                                time_remaining=time_remaining,
-                                                gtn_iteration=gtn_iteration)
 
-        different_states = len(replay_buffer.get_all()[0].int().unique()) / env.get_state_dim()
-        #print(different_states)
+        t_s = time.time()
 
-        mean_reward = sum(reward_list) / len(reward_list) + different_states*0.3
+        all_states = []
+        reward_list = []
+        correct_path_perc = []
+        test_episodes = agent.test_episodes
+
+        agent.test_episodes = 1
+        for i in range(test_episodes):
+            reward, replay_buffer = agent.test(env=env,
+                                               time_remaining=time_remaining - (time.time()-t_s),
+                                               gtn_iteration=gtn_iteration)
+            reward_list.append(reward[0])
+            states, actions, next_states, rewards, dones = replay_buffer.get_all()
+            next_states = [next_state.item() for next_state in next_states.int()]
+            actions = [action.item() for action in actions.int()]
+
+            all_states += next_states
+
+            o_last = 0
+            o_max = len(self.optimal_path)
+            # FIXME: ignores last state
+            for state in states:
+                if state == self.optimal_path[o_last]:
+                    o_last += 1
+                if o_last == o_max - 1:
+                    break
+
+            correct_path_perc.append(o_last/o_max)
+
+        agent.test_episodes = test_episodes
+
+        #print(agent.test_counter / agent.total_counter)
+        #print(self.optimal_path)
+        #different_state_perc = len(set(all_states)) / env.get_state_dim()
+
+        state_counter = Counter(all_states)
+        kl_div = self.calc_kl_div(state_counter, env.get_state_dim())
+        correct_path_perc = statistics.mean(correct_path_perc)
+        #print('{:3f} {:3f}'.format(different_state_perc, correct_path_perc))
+        #print(correct_path_perc)
+
+        #print(set(all_states))
+        #print(agent.q_table)
+        #states_visited_during_learning = [int(abs(sum(q_vals))>1e-5) for q_vals in agent.q_table]
+        #print(states_visited_during_learning)
+        #print(agent.q_table)
+        #print(correct_path_perc)
+        #print(different_state_perc)
+        #print(kl_div)
+
+        mean_reward = sum(reward_list) / len(reward_list) \
+                      - kl_div * self.exploration_gain \
+                      + correct_path_perc * self.correct_path_gain#+ different_state_perc*0.01 #+ correct_path_perc*0.3
+        #mean_reward = sum(reward_list) / len(reward_list) - kl_div * 0.3 #+ correct_path_perc * 0.3
         return mean_reward
+
+
+    # def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
+    #     env = self.env_factory.generate_default_real_env('Test: ')
+    #     reward_list, replay_buffer = agent.test(env=env,
+    #                                             time_remaining=time_remaining,
+    #                                             gtn_iteration=gtn_iteration)
+    #
+    #     different_states = len(replay_buffer.get_all()[0].int().unique()) / env.get_state_dim()
+    #     #print(different_states)
+    #
+    #     mean_reward = sum(reward_list) / len(reward_list) + different_states*0.3
+    #     return mean_reward
 
 
 def run_gtn_on_single_pc(config):
