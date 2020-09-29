@@ -443,9 +443,9 @@ class GTN_Worker(GTN_Base):
                 else:
                     self.add_noise_to_virtual_env() # for debugging
 
-            print('-- LOSS ADD: ' + str(score_add))
-            print('-- LOSS SUB: ' + str(score_sub))
-            print('-- LOSS BEST: ' + str(best_score))
+            # print('-- LOSS ADD: ' + str(score_add))
+            # print('-- LOSS SUB: ' + str(score_sub))
+            # print('-- LOSS BEST: ' + str(best_score))
             print('-- Worker {}: write result'.format(self.id))
 
             self.write_worker_result(score=best_score,

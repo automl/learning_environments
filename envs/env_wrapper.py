@@ -19,9 +19,7 @@ class EnvWrapper(nn.Module):
             if self.has_discrete_action_space():
                 action = to_one_hot_encoding(action, self.get_action_dim())
 
-            print(action)
             action += (torch.rand_like(action)-0.5) * action_noise * action_noise_decay**gtn_iteration
-            print(action)
 
             for i in range(same_action_num):
                 state, reward, done = self.env.step(action.to(self.env.device))

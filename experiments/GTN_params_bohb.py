@@ -37,8 +37,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise', choices=[0, 0.1, 1, 10], default_value=0))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise_decay', choices=[0.85, 0.9, 0.95, 0.99], default_value=0.9))
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_size', choices=[4,16,64], default_value=16))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_layer', choices=[1,2], default_value=1))
+        #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_size', choices=[32], default_value=32))
+        #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_layer', choices=[1], default_value=1))
 
         #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
 
@@ -63,8 +63,8 @@ class ExperimentWrapper():
         config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
         config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
 
-        config["envs"][env]['hidden_size'] = int(cso["env_hidden_size"])
-        config["envs"][env]['hidden_layer'] = int(cso["env_hidden_layer"])
+        #config["envs"][env]['hidden_size'] = int(cso["env_hidden_size"])
+        #config["envs"][env]['hidden_layer'] = int(cso["env_hidden_layer"])
 
 
 
