@@ -6,7 +6,7 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'single'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 32                   # size of the population
@@ -18,7 +18,7 @@ agents:
     weight_decay: !!float 0.01              # weight decay
     exploration_gain: !!float 0.01          # additional gain factor to favor exploration
     correct_path_gain: !!float 0.01         # additional gain factor to favor exploration
-    time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
+    time_mult: !!float 10                   # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep: !!float 0.001               # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
