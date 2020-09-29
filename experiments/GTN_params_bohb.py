@@ -61,7 +61,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['correct_path_gain'] = float(cso["gtn_correct_path_gain"])
 
         config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
-        config["agents"]['ql']['action_noise_decay'] = float(cso["action_noise_decay"])
+        config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
 
         config["envs"][env]['hidden_size'] = int(cso["env_hidden_size"])
         config["envs"][env]['hidden_layer'] = int(cso["env_hidden_layer"])
