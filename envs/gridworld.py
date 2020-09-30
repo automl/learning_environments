@@ -143,8 +143,8 @@ class EmptyRoomSmall(GridworldEnv):
         self.step_cost = -0.009
         self.g_reward = 1
         self.o_reward = -1
-        grid = [['S', ' '],
-                [' ', 'G']]
+        grid = [['S', ' ', ' '],
+                [' ', ' ', 'G']]
         # grid = [['S', ' ', ' '],
         #         [' ', ' ', ' '],
         #         [' ', ' ', 'G']]
