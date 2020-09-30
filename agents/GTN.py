@@ -132,7 +132,12 @@ class GTN_Master(GTN_Base):
             mean_score_orig_list.append(np.mean(self.score_orig_list))
 
         print('Master quitting')
-        return np.mean(self.score_orig_list), mean_score_orig_list
+
+        # error handling
+        if len(mean_score_orig_list) > 0:
+            return np.mean(self.score_orig_list), mean_score_orig_list
+        else:
+            return 1e9, mean_score_orig_list
 
 
     def calc_worker_timeout(self):
