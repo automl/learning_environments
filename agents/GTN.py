@@ -9,6 +9,8 @@ import uuid
 import numpy as np
 import math
 import glob
+import random
+import string
 import statistics
 from collections import Counter
 from utils import calc_abs_param_sum, print_abs_param_sum, to_one_hot_encoding, from_one_hot_encoding
@@ -35,6 +37,7 @@ class GTN_Base(nn.Module):
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
         self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync'))
+
         os.makedirs(self.working_dir, exist_ok=True)
 
     def get_input_file_name(self, id):
@@ -68,7 +71,6 @@ class GTN_Master(GTN_Base):
         self.time_max = gtn_config["time_max"]
         self.time_sleep_master = gtn_config["time_sleep_master"]
 
-
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
 
@@ -87,8 +89,16 @@ class GTN_Master(GTN_Base):
         self.real_env = self.env_factory.generate_default_real_env()
         self.optimal_path = self.find_optimal_path()
 
+        # to store models
+        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
+        os.makedirs(self.model_dir, exist_ok=True)
+
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
         print('optimal path: {}'.format(self.optimal_path))
+
+
+    def get_model_file_name(self, file_name):
+        return os.path.join(self.model_dir, file_name)
 
 
     def find_optimal_path(self,):
@@ -126,18 +136,33 @@ class GTN_Master(GTN_Base):
             print('-- Master: print statistics' + ' ' + str(time.time()-t1))
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
+            mean_score_orig_list.append(np.mean(self.score_orig_list))
+
             if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
                 break
 
-            mean_score_orig_list.append(np.mean(self.score_orig_list))
-
         print('Master quitting')
+
+        self.save_good_model(mean_score_orig_list)
 
         # error handling
         if len(mean_score_orig_list) > 0:
             return np.mean(self.score_orig_list), mean_score_orig_list
         else:
             return 1e9, mean_score_orig_list
+
+
+    def save_good_model(self, mean_score_orig_list):
+        if len(mean_score_orig_list) > 0 and len(mean_score_orig_list) < self.max_iterations:
+            random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
+            m = len(self.real_env.env.grid)
+            n = len(self.real_env.env.grid[0])
+            file_name = self.get_model_file_name(str(m) + 'x' + str(n) + '_' + random_string + '.pt')
+            save_dict = {}
+            save_dict['model'] = self.virtual_env_orig.state_dict()
+            save_dict['agent'] = select_agent(config=self.config, agent_name=self.agent_name)
+            torch.save(save_dict, file_name)
+
 
 
     def calc_worker_timeout(self):
