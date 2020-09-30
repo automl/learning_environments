@@ -25,7 +25,6 @@ class GTN_Base(nn.Module):
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
-        self.time_sleep = gtn_config["time_sleep"]
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.device = config["device"]
@@ -67,6 +66,8 @@ class GTN_Master(GTN_Base):
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
+        self.time_sleep_master = gtn_config["time_sleep_master"]
+
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -151,8 +152,9 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has deleted the file (i.e. acknowledged the previous input)
             while os.path.isfile(file_name):
-                time.sleep(self.time_sleep)
+                time.sleep(self.time_sleep_master)
 
+            time.sleep(self.time_sleep_master)
             self.uuid_list[id] = str(uuid.uuid4())
 
             # if we are not using bohb, shut everything down after last iteration
@@ -182,7 +184,7 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has finished calculations
             while not os.path.isfile(check_file_name):
-                time.sleep(self.time_sleep)
+                time.sleep(self.time_sleep_master)
 
             data = torch.load(file_name)
 
@@ -191,6 +193,15 @@ class GTN_Master(GTN_Base):
             if uuid != self.uuid_list[id]:
                 skip_flag = True
                 print("UUIDs do not match")
+
+                input_file_name = self.get_input_file_name(id=id)
+                input_check_file_name = self.get_input_check_file_name(id=id)
+
+                if os.path.isfile(input_file_name):
+                    os.remove(input_file_name)
+
+                if os.path.isfile(input_file_name):
+                    os.remove(input_check_file_name)
 
             self.time_train_list[id] = data['time_train']
             self.time_test_list[id] = data['time_test']
@@ -214,7 +225,7 @@ class GTN_Master(GTN_Base):
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
-            scores = (scores - min(scores)) / (max(scores)-min(scores))
+            scores = (scores - min(scores)) / (max(scores)-min(scores)+1e-9)
 
         elif self.score_transform_type == 1:
             # convert [1, 0, 5] to [0.5, 0, 1]
@@ -252,7 +263,7 @@ class GTN_Master(GTN_Base):
             scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
             if sum(scores_idx) > 0:
             #if sum(scores_idx) > 0:
-                scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig)
+                scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
                 scores /= sum(scores)
             else:
                 scores = scores_idx
@@ -334,6 +345,7 @@ class GTN_Worker(GTN_Base):
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.exploration_gain = gtn_config["exploration_gain"]
         self.correct_path_gain = gtn_config["correct_path_gain"]
+        self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.gtn_iteration = None
@@ -468,7 +480,8 @@ class GTN_Worker(GTN_Base):
         check_file_name = self.get_input_check_file_name(id=self.id)
 
         while not os.path.isfile(check_file_name):
-            time.sleep(self.time_sleep)
+            time.sleep(self.time_sleep_worker)
+        time.sleep(self.time_sleep_worker)
 
         data = torch.load(file_name)
 
@@ -490,7 +503,7 @@ class GTN_Worker(GTN_Base):
 
         # wait until master has deleted the file (i.e. acknowledged the previous result)
         while os.path.isfile(file_name):
-            time.sleep(self.time_sleep)
+            time.sleep(self.time_sleep_worker)
 
         data = {}
         data["eps"] = self.eps.state_dict()

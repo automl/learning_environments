@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.0
-OUTLIER_PERC_BEST = 0.0
+OUTLIER_PERC_WORST = 0.8
+OUTLIER_PERC_BEST = 0.1
 
 
 def analyze_bohb(log_dir):
@@ -69,11 +69,11 @@ def analyze_bohb(log_dir):
 
     #result = filter_values(result)
 
-    print_configs_sorted_by_loss(result)
+    #print_configs_sorted_by_loss(result)
 
-    print_stats_per_value(result)
+    #print_stats_per_value(result)
 
-    plot_accuracy_over_budget(result)
+    #plot_accuracy_over_budget(result)
 
     plot_parallel_scatter(result)
 
@@ -156,7 +156,7 @@ def remove_outliers(result):
 
     # remove NaN's
     for i in range(len(lut)):
-        if not math.isfinite(lut[i][0]):
+        if not math.isfinite(lut[i][0]) or lut[i][0] == 0:
             lut[i][0] = worst_loss
             for key in result.data[lut[i][1]].results.keys():
                 result.data[lut[i][1]].results[key]['loss'] = worst_loss

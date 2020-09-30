@@ -26,16 +26,18 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-2, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-2, upper=10, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_weight_decay', choices=[0, 0.001, 0.01, 0.1], default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_weight_decay', lower=1e-2, upper=0.1, log=True, default_value=1e-1))
+
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=4))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_exploration_gain', choices=[0, 0.001], default_value=0))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_correct_path_gain', choices=[0, 0.001], default_value=0))
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise', choices=[0, 0.1, 1, 10], default_value=0))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ql_action_noise_decay', choices=[0.85, 0.9, 0.95, 0.99], default_value=0.9))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.7, upper=1, log=True, default_value=0.9))
+
 
         #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_size', choices=[32], default_value=32))
         #cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='env_hidden_layer', choices=[1], default_value=1))
