@@ -1,11 +1,13 @@
-import matplotlib.pyplot as plt
 import os
+import torch
+import copy
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import defaultdict
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from utils import ReplayBuffer
-import torch
-import numpy as np
-from collections import defaultdict
+from utils import ReplayBuffer, print_abs_param_sum
+
 
 # from gridworld.py
 G_RIGHT = 0
@@ -13,11 +15,18 @@ G_LEFT = 1
 G_DOWN = 2
 G_UP = 3
 
-FONTSIZE_LARGE = 14
-FONTSIZE_SMALL = 10
+NEXT_STATE_PROB_FACTOR = 3
+INTENSITY_FACTOR = 0.8
 
-NS_OFFSET = 0.3
-NS_DIFF = 0.15
+FONTSIZE_LARGE = 14
+FONTSIZE_SMALL = 14
+
+NS_OFFSET = 0.32
+NS_DIFF = 0.22
+
+RADIUS_NEXT_STATE_PERC = 0.2
+RADIUS_REWARD = 0.15
+RADIUS_Q = 0.1
 
 COLOR_R = '1f'
 COLOR_G = '77'
@@ -69,7 +78,7 @@ def plot_filled_rectangle(center, length, intensity):
 
 
 def plot_filled_circle(center, diameter, intensity):
-    rect = plt.Circle(center, diameter/2, facecolor=map_intensity_to_color(intensity), fill=True)
+    rect = plt.Circle(center, diameter/2, edgecolor='k', linewidth=0.2, facecolor=map_intensity_to_color(intensity), fill=True)
     plt.gca().add_patch(rect)
 
 
@@ -111,7 +120,7 @@ def convert_replay_buffer(replay_buffer):
     rb_dict = defaultdict(dict)
 
     states, actions, next_states, rewards, dones = replay_buffer.get_all()
-    print(states)
+
     states = convert_to_int_list(states)
     actions = convert_to_int_list(actions)
     next_states = convert_to_int_list(next_states)
@@ -137,7 +146,7 @@ def convert_replay_buffer(replay_buffer):
 
             for next_state in next_states_set:
                 next_state_idx = next_states_numpy == next_state
-                next_state_prob = np.sum(next_state_idx) / len(next_states_numpy)
+                next_state_prob = np.sum(next_state_idx) / len(states) * NEXT_STATE_PROB_FACTOR
                 avg_reward = np.sum(next_state_idx * rewards_numpy) / np.sum(next_state_idx)
                 action_dict['next_states_prob'][next_state] = next_state_prob
                 action_dict['avg_rewards'][next_state] = avg_reward
@@ -152,15 +161,25 @@ def is_correct_transition(state, action, next_state, real_env):
 
 
 def plot_agent_behaviour(rb_dict, q_table, real_env):
-    max_reward = -1e9
     min_reward = +1e9
+    max_reward = -1e9
     for state, state_dict in rb_dict.items():
         for action, action_dict in state_dict.items():
             min_reward = min(min_reward, min(action_dict['avg_rewards'].values()))
             max_reward = max(max_reward, max(action_dict['avg_rewards'].values()))
 
-    print(min_reward)
-    print(max_reward)
+    # print(min_reward)
+    # print(max_reward)
+
+    min_q = +1e9
+    max_q = -1e9
+
+    for q_vals in q_table:
+        min_q = min(min_q, min(q_vals))
+        max_q = max(max_q, max(q_vals))
+
+    # print(min_q)
+    # print(max_q)
 
     for state, state_dict in rb_dict.items():
         x_state, y_state = idx_to_xy(state)
@@ -184,29 +203,42 @@ def plot_agent_behaviour(rb_dict, q_table, real_env):
 
             n = len(next_states_prob)
             offset = [NS_DIFF*(elem-(n-1)/2) for elem in range(n)]
+            #print('{} {} {}'.format(state, action, next_states_prob))
 
             for i, next_state in enumerate(sorted(next_states_prob)):
                 x_pos = x_state + x_offset + (y_offset != 0) * offset[i]
                 y_pos = y_state + y_offset + (y_offset == 0) * (-offset[i])
 
                 mapped_reward = (avg_rewards[next_state]-min_reward)/(max_reward-min_reward)
-                print('----')
-                print(mapped_reward)
-                print(next_states_prob[next_state])
-                plot_filled_circle((x_pos,y_pos), NS_DIFF-0.02, intensity=next_states_prob[next_state])
-                plot_filled_circle((x_pos, y_pos), NS_DIFF - 0.06, intensity=mapped_reward)
+                mapped_q = (q_table[state][action] - min_q) / (max_q - min_q)
+                # print('----')
+                # print(mapped_reward)
+                # print(next_states_prob[next_state])
+                plot_filled_circle((x_pos,y_pos), RADIUS_NEXT_STATE_PERC, intensity=next_states_prob[next_state]*INTENSITY_FACTOR)
+                plot_filled_circle((x_pos, y_pos), RADIUS_REWARD, intensity=mapped_reward*INTENSITY_FACTOR)
+                plot_filled_circle((x_pos, y_pos), RADIUS_Q, intensity=mapped_q*INTENSITY_FACTOR)
                 if is_correct_transition(real_env=real_env, state=state, action=action, next_state=next_state):
                     text_color='r'
                 else:
                     text_color='k'
-                plt.gca().text(x_pos, y_pos, next_state, color=text_color, fontsize=FONTSIZE_SMALL, ha='center', va='center')
+                plt.gca().text(x_pos, y_pos-0.008, next_state, color=text_color, fontsize=FONTSIZE_SMALL, ha='center', va='center')
             # print(next_states_prob)
             # print(avg_rewards)
 
 
+def merge_q_tables(q_tables):
+    n = len(q_tables)
+    q_table = [[0]*len(q_tables[0][0]) for _ in range(len(q_tables[0]))]
+    for table in q_tables:
+        print(table)
+        for i in range(len(table)):
+            for k in range(len(table[0])):
+                q_table[i][k] += table[i][k]
+    for i in range(len(q_table)):
+        for k in range(len(q_table[0])):
+            q_table[i][k] /= n
 
-            #print('{} {}'.format(state, action))
-
+    return q_table
 
 
 
@@ -220,9 +252,8 @@ if __name__ == "__main__":
     file_name = '2x3_7_9AFZ2G.pt'
     virtual_env, real_env, config, M, N, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
 
-
-    replay_buffer_train_all = ReplayBuffer(state_dim=M*N, action_dim=4, device='cpu')
-    replay_buffer_test_all = ReplayBuffer(state_dim=M*N, action_dim=4, device='cpu')
+    replay_buffer_train_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
+    replay_buffer_test_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
     q_tables = []
     for i in range(10):
         print(i)
@@ -231,19 +262,21 @@ if __name__ == "__main__":
         reward, replay_buffer_test = agent.test(env=real_env)
         replay_buffer_train_all.merge(replay_buffer_train)
         replay_buffer_test_all.merge(replay_buffer_test)
-        print(reward)
+        q_tables.append(agent.q_table)
+
+    q_table = merge_q_tables(q_tables)
 
     rb_dict_train = convert_replay_buffer(replay_buffer_train_all)
-    #rb_dict_test = convert_replay_buffer(replay_buffer_test_all)
+    rb_dict_test = convert_replay_buffer(replay_buffer_test_all)
 
     fig, ax = plt.subplots(1,dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
     plot_tile_numbers(n_tot=M*N)
-    plot_agent_behaviour(rb_dict=rb_dict_test, q_table=[], real_env=real_env)
+    plot_agent_behaviour(rb_dict=rb_dict_test, q_table=q_table, real_env=real_env)
 
     # plot_filled_rectangle((0,1), 0.2, 0.2)
     # plot_filled_rectangle((0,1), 0.1, 0)
 
     ax.axis('equal')
-    #ax.axis('off')
+    ax.axis('off')
     plt.show()
