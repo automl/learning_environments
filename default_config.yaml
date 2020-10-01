@@ -6,7 +6,7 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'single'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
@@ -16,12 +16,12 @@ agents:
     num_grad_evals: !!int 2                 # how often to evaluate each gradient
     grad_eval_type: !!str minmax            # mean or min
     weight_decay: !!float 0.0               # weight decay
-    exploration_gain: !!float 0.001         # additional gain factor to favor exploration
-    correct_path_gain: !!float 0.001        # additional gain factor to favor exploration
+    exploration_gain: !!float 1e-4          # additional gain factor to favor exploration
+    correct_path_gain: !!float 1e-4         # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
-    time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
-    time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
+    time_sleep_master: !!float 0.1          # cycle sleeping time when waiting for data
+    time_sleep_worker: !!float 1            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 5           # 0-6
     agent_name: !!str QL                    # which RL agent to use for meta-training
@@ -222,7 +222,7 @@ envs:
 
   GridWorld-v0:
     solved_reward: !!float 0.8
-    max_steps: !!int 10
+    max_steps: !!int 20
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment

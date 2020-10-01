@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.8
-OUTLIER_PERC_BEST = 0.1
+OUTLIER_PERC_WORST = 0.6
+OUTLIER_PERC_BEST = 0.0
 
 
 def analyze_bohb(log_dir):

@@ -25,7 +25,7 @@ class QL(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining, gtn_iteration=0):
+    def train(self, env, time_remaining=1e9, gtn_iteration=0):
         time_start = time.time()
 
         replay_buffer = ReplayBuffer(state_dim=1, action_dim=1, device=self.device, max_size=int(1e6))

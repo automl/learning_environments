@@ -146,7 +146,6 @@ class EmptyRoomSmall(GridworldEnv):
         # grid = [['S', ' '],
         #         [' ', 'G']]
         grid = [['S', ' ', ' '],
-                [' ', ' ', ' '],
                 [' ', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
@@ -210,5 +209,5 @@ if __name__ == "__main__":
 
     for i in range(25):
         x,y=r._obs_to_state(i)
-        print('{} {}'.format(i,r._state_to_obs((x,y))))
+        print('{} {} {} {}'.format(i,r._state_to_obs((x,y)), x, y))
         #print(r.grid[x][y])

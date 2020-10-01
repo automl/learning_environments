@@ -29,13 +29,14 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=1, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=5, upper=6, log=False, default_value=4))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=5, upper=6, log=False, default_value=5))
         # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_exploration_gain', choices=[0.001], default_value=0))
         # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_correct_path_gain', choices=[0.001], default_value=0))
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.7, upper=1, log=True, default_value=0.9))
+
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_max_steps', choices=[10,20], default_value=10))
 
         return cs
 
@@ -43,19 +44,22 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
+        env_name = config["env_name"]
+
         config["render_env"] = False
 
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
         config["agents"]['gtn']['num_grad_evals'] = int(cso["gtn_num_grad_evals"])
         config["agents"]['gtn']['grad_eval_type'] = cso["gtn_grad_eval_type"]
-
         config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
         # config["agents"]['gtn']['exploration_gain'] = float(cso["gtn_exploration_gain"])
         # config["agents"]['gtn']['correct_path_gain'] = float(cso["gtn_correct_path_gain"])
 
         config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
         config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
+
+        config["envs"][env_name]['max_steps'] = int(cso["gtn_max_steps"])
 
         return config
 
