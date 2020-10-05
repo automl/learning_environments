@@ -6,13 +6,15 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'single'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'single'                    # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
+    rb_size: !!int 100000                   # reptile step size
+    match: !!bool False                     # pure GTN or with env matcher?
     num_grad_evals: !!int 2                 # how often to evaluate each gradient
     grad_eval_type: !!str minmax            # mean or min
     weight_decay: !!float 0.0               # weight decay
@@ -42,9 +44,9 @@ agents:
     max_steps: !!int 2000                   # number of steps
     step_size: !!int 200                    # LR scheduler step size
     gamma: !!float 0.7                      # LR scheduler gamma
-    match_loss_state: !!str L2              # "L1" or "L2"
+    match_loss_state: !!str L1              # "L1" or "L2"
     match_loss_reward: !!str L2             # "L1" or "L2"
-    match_loss_done: !!str L2               # "L1" or "L2"
+    match_loss_done: !!str L1               # "L1" or "L2"
 
   ddqn:
     # Bandit
@@ -222,7 +224,7 @@ envs:
 
   GridWorld-v0:
     solved_reward: !!float 0.8
-    max_steps: !!int 20
+    max_steps: !!int 10
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment

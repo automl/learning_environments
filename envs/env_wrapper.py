@@ -22,7 +22,7 @@ class EnvWrapper(nn.Module):
             action += (torch.rand_like(action)-0.5) * action_noise * action_noise_decay**gtn_iteration
 
             for i in range(same_action_num):
-                state, reward, done = self.env.step(action.to(self.env.device))
+                state, reward, done = self.env.step(action=action.to(self.env.device))
                 if reward_sum is None:
                     reward_sum = reward
                 else:

@@ -13,9 +13,11 @@ import random
 import string
 import statistics
 from collections import Counter
-from utils import calc_abs_param_sum, print_abs_param_sum, to_one_hot_encoding, from_one_hot_encoding
+from utils import calc_abs_param_sum, ReplayBuffer, print_abs_param_sum, to_one_hot_encoding, from_one_hot_encoding
 from agents.agent_utils import select_agent
+from agents.env_matcher import EnvMatcher
 from envs.env_factory import EnvFactory
+
 
 
 class GTN_Base(nn.Module):
@@ -28,6 +30,8 @@ class GTN_Base(nn.Module):
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
         self.minimize_score = gtn_config["minimize_score"]
+        self.match = gtn_config["match"]
+        self.rb_size = gtn_config["rb_size"]
         self.agent_name = gtn_config["agent_name"]
         self.device = config["device"]
 
@@ -56,6 +60,11 @@ class GTN_Base(nn.Module):
         files = glob.glob(os.path.join(self.working_dir, '*'))
         for file in files:
             os.remove(file)
+
+    def create_replay_buffer(self):
+        sd = 1 if self.virtual_env_orig.has_discrete_state_space() else self.state_dim
+        ad = 1 if self.virtual_env_orig.has_discrete_action_space() else self.action_dim
+        return ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
 
 class GTN_Master(GTN_Base):
@@ -91,6 +100,9 @@ class GTN_Master(GTN_Base):
 
         # to store models
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
+        # for matching
+        self.rb = self.create_replay_buffer()
+
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
@@ -133,6 +145,8 @@ class GTN_Master(GTN_Base):
             self.score_transform()
             print('-- Master: update env' + ' ' + str(time.time()-t1))
             self.update_env()
+            print('-- Master: match env' + ' ' + str(time.time()-t1))
+            self.match_env()
             print('-- Master: print statistics' + ' ' + str(time.time()-t1))
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
 
@@ -241,6 +255,13 @@ class GTN_Master(GTN_Base):
             self.eps_list[id].load_state_dict(data['eps'])
             self.score_orig_list[id] = data['score_orig']                  # for debugging
             self.virtual_env_list[id].load_state_dict(data['virtual_env']) # for debugging
+
+            self.rb.merge_vectors(states=data['rb_states'],
+                                  actions=data['rb_actions'],
+                                  next_states=data['rb_next_states'],
+                                  rewards=data['rb_rewards'],
+                                  dones=data['rb_dones'])
+
             os.remove(check_file_name)
             os.remove(file_name)
 
@@ -317,7 +338,6 @@ class GTN_Master(GTN_Base):
 
 
     def update_env(self):
-        n = self.num_workers
         ss = self.step_size
         # print('-- update env --')
         print('score_orig_list      ' + str(self.score_orig_list))
@@ -345,6 +365,22 @@ class GTN_Master(GTN_Base):
 
         print('weights update: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
 
+
+    def match_env(self):
+        if not self.match:
+            return
+
+        me = EnvMatcher(config)
+        me.train(virtual_env=self.virtual_env_orig, replay_buffer=self.rb)
+
+        states, _, next_states, _, _ = self.rb.get_all()
+
+        next_states = [state.item() for state in next_states.int()]
+        print('-- next_states -- ' + str(Counter(next_states)) + ' ' + str(len(next_states)))
+
+        agent = select_agent(config, 'QL')
+        avg_reward = agent.test(env=self.real_env)
+        print('-- avg_reward -- ' + str(avg_reward))
 
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
@@ -396,6 +432,9 @@ class GTN_Worker(GTN_Base):
         # read data from master
         while not self.quit_flag:
             t1 = time.time()
+
+            rb_all = self.create_replay_buffer()
+
             print('-- Worker {}: read worker inputs {}'.format(self.id, time.time()-t1))
 
             self.read_worker_input()
@@ -415,9 +454,11 @@ class GTN_Worker(GTN_Base):
                              gtn_iteration=self.gtn_iteration)
             tt2 = time.time()
             #print('-- Worker {}: ev test'.format(self.id))
-            score_orig = self.test_agent_on_real_env(agent=agent_orig,
-                                                     time_remaining=self.timeout-(time.time()-time_start),
-                                                     gtn_iteration=self.gtn_iteration)
+            score_orig, rb = self.test_agent_on_real_env(agent=agent_orig,
+                                                         time_remaining=self.timeout-(time.time()-time_start),
+                                                         gtn_iteration=self.gtn_iteration)
+            if self.match:
+                rb_all.merge_buffer(rb)
             tt3 = time.time()
             time_train = tt2-tt1
             time_test = tt3-tt2
@@ -440,9 +481,12 @@ class GTN_Worker(GTN_Base):
                 agent_add.train(env=self.virtual_env,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
-                score_add.append(self.test_agent_on_real_env(agent=agent_add,
-                                                             time_remaining=self.timeout-(time.time()-time_start),
-                                                             gtn_iteration=self.gtn_iteration))
+                score, rb = self.test_agent_on_real_env(agent=agent_add,
+                                                        time_remaining=self.timeout-(time.time()-time_start),
+                                                        gtn_iteration=self.gtn_iteration)
+                score_add.append(score)
+                if self.match:
+                    rb_all.merge_buffer(rb)
 
             print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
 
@@ -457,9 +501,12 @@ class GTN_Worker(GTN_Base):
                 agent_sub.train(env=self.virtual_env,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
-                score_sub.append(self.test_agent_on_real_env(agent=agent_sub,
-                                                             time_remaining=self.timeout-(time.time()-time_start),
-                                                             gtn_iteration=self.gtn_iteration))
+                score, rb = self.test_agent_on_real_env(agent=agent_sub,
+                                                        time_remaining=self.timeout-(time.time()-time_start),
+                                                        gtn_iteration=self.gtn_iteration)
+                score_sub.append(score)
+                if self.match:
+                    rb_all.merge_buffer(rb)
 
             print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
 
@@ -502,7 +549,8 @@ class GTN_Worker(GTN_Base):
                                      score_orig=score_orig,
                                      time_train=time_train,
                                      time_test=time_test,
-                                     time_elapsed = time.time()-time_start)
+                                     time_elapsed = time.time()-time_start,
+                                     replay_buffer=rb_all)
 
         print('Worker ' + str(self.id) + ' quitting')
 
@@ -528,13 +576,15 @@ class GTN_Worker(GTN_Base):
         os.remove(file_name)
 
 
-    def write_worker_result(self, score, score_orig, time_train, time_test, time_elapsed):
+    def write_worker_result(self, score, score_orig, time_train, time_test, time_elapsed, replay_buffer):
         file_name = self.get_result_file_name(id=self.id)
         check_file_name = self.get_result_check_file_name(id=self.id)
 
         # wait until master has deleted the file (i.e. acknowledged the previous result)
         while os.path.isfile(file_name):
             time.sleep(self.time_sleep_worker)
+
+        states, actions, next_states, rewards, dones = replay_buffer.get_all()
 
         data = {}
         data["eps"] = self.eps.state_dict()
@@ -545,6 +595,11 @@ class GTN_Worker(GTN_Base):
         data["score"] = score
         data["score_orig"] = score_orig
         data["uuid"] = self.uuid
+        data['rb_states'] = states
+        data['rb_actions'] = actions
+        data['rb_next_states'] = next_states
+        data['rb_rewards'] = rewards
+        data['rb_dones'] = dones
         torch.save(data, file_name)
         torch.save({}, check_file_name)
 
@@ -603,6 +658,8 @@ class GTN_Worker(GTN_Base):
         correct_path_perc = []
         test_episodes = agent.test_episodes
 
+        rb_all = self.create_replay_buffer()
+
         agent.test_episodes = 1
         for i in range(test_episodes):
             reward, replay_buffer = agent.test(env=env,
@@ -625,6 +682,7 @@ class GTN_Worker(GTN_Base):
                     break
 
             correct_path_perc.append(o_last/o_max)
+            rb_all.merge_buffer(replay_buffer)
 
         agent.test_episodes = test_episodes
 
@@ -651,7 +709,7 @@ class GTN_Worker(GTN_Base):
                       - kl_div * self.exploration_gain \
                       + correct_path_perc * self.correct_path_gain#+ different_state_perc*0.01 #+ correct_path_perc*0.3
         #mean_reward = sum(reward_list) / len(reward_list) - kl_div * 0.3 #+ correct_path_perc * 0.3
-        return mean_reward
+        return mean_reward, rb_all
 
 
     # def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):

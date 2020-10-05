@@ -260,8 +260,8 @@ if __name__ == "__main__":
         agent = select_agent(config=config, agent_name='QL')
         _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
         reward, replay_buffer_test = agent.test(env=real_env)
-        replay_buffer_train_all.merge(replay_buffer_train)
-        replay_buffer_test_all.merge(replay_buffer_test)
+        replay_buffer_train_all.merge_buffer(replay_buffer_train)
+        replay_buffer_test_all.merge_buffer(replay_buffer_test)
         q_tables.append(agent.q_table)
 
     q_table = merge_q_tables(q_tables)
@@ -272,11 +272,19 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(1,dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
     plot_tile_numbers(n_tot=M*N)
-    plot_agent_behaviour(rb_dict=rb_dict_test, q_table=q_table, real_env=real_env)
-
+    plot_agent_behaviour(rb_dict=rb_dict_train, q_table=q_table, real_env=real_env)
     # plot_filled_rectangle((0,1), 0.2, 0.2)
     # plot_filled_rectangle((0,1), 0.1, 0)
-
     ax.axis('equal')
     ax.axis('off')
+
+    fig, ax = plt.subplots(1,dpi=600)
+    plot_tiles(length=0.9, n_tot=M*N)
+    plot_tile_numbers(n_tot=M*N)
+    plot_agent_behaviour(rb_dict=rb_dict_test, q_table=q_table, real_env=real_env)
+    # plot_filled_rectangle((0,1), 0.2, 0.2)
+    # plot_filled_rectangle((0,1), 0.1, 0)
+    ax.axis('equal')
+    ax.axis('off')
+
     plt.show()

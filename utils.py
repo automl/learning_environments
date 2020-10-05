@@ -51,8 +51,11 @@ class ReplayBuffer:
             self.done[:self.size].to(self.device).detach(),
         )
 
-    def merge(self, other_replay_buffer):
+    def merge_buffer(self, other_replay_buffer):
         states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
+        self.merge_vectors(states=states, actions=actions, next_states=next_states, rewards=rewards, dones=dones)
+
+    def merge_vectors(self, states, actions, next_states, rewards, dones):
         for i in range(len(states)):
             self.add(states[i], actions[i], next_states[i], rewards[i], dones[i])
 

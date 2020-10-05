@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from utils import AverageMeter
+from utils import AverageMeter, to_one_hot_encoding
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -87,14 +87,32 @@ class EnvMatcher(nn.Module):
     def match_loss(self, virtual_env, replay_buffer, batch_size, more_info=False, grad_enabled=True):
         with torch.set_grad_enabled(grad_enabled):
             states, actions, next_states, rewards, dones = replay_buffer.sample(batch_size)
-            next_states_virtual, rewards_virtual, dones_virtual = virtual_env.env.step(state=states,
-                                                                                       action=actions)
+
+            if virtual_env.has_discrete_action_space():
+                actions = to_one_hot_encoding(actions, virtual_env.get_action_dim())
+
+            if states is not None and virtual_env.has_discrete_state_space():
+                states = to_one_hot_encoding(states, virtual_env.get_state_dim())
+                next_states = to_one_hot_encoding(next_states, virtual_env.get_state_dim())
+
+            next_states_virtual, rewards_virtual, dones_virtual = virtual_env.env.step(state=states, action=actions)
+
+            if virtual_env.has_discrete_state_space():
+                sm = torch.nn.Softmax(dim=next_states_virtual.dim()-1)
+                next_states_virtual = sm(next_states_virtual)
 
             loss = 0
             state_loss_fct = self.get_loss_function(self.match_loss_state)
             reward_loss_fct = self.get_loss_function(self.match_loss_reward)
             done_loss_fct = self.get_loss_function(self.match_loss_done)
 
+            # print('----')
+            # print('{} {}'.format(next_states.shape, next_states_virtual.shape))
+            # print('{} {}'.format(rewards.shape, rewards_virtual.shape))
+            # print('{} {}'.format(dones.shape, dones_virtual.shape))
+
+            #ns_loss = torch.nn.CrossEntropyLoss()
+            #loss += ns_loss(next_states_virtual, next_states.squeeze().long())
             loss += state_loss_fct(next_states, next_states_virtual)
             loss += reward_loss_fct(rewards, rewards_virtual)
             loss += done_loss_fct(dones, dones_virtual)
@@ -129,7 +147,7 @@ if __name__ == "__main__":
     real_env = env_fac.generate_random_real_env()
 
 
-    agent = select_agent(config, 'TD3')
+    agent = select_agent(config, 'QL')
     #print('-- train --')
     print('-- fill replay buffer --')
     reward_list, replay_buffer = agent.train(env=real_env)
@@ -139,9 +157,11 @@ if __name__ == "__main__":
     print('-- match --')
     me.train(virtual_env=virtual_env, replay_buffer=replay_buffer)
 
-    agent = select_agent(config, 'TD3')
+    agent = select_agent(config, 'QL')
     print('-- train on virtual env --')
     agent.train(env=virtual_env)
-    print(' -- train on real env --')
-    #agent.reset_optimizer()
-    agent.train(env=real_env)
+    # print(' -- train on real env --')
+    # #agent.reset_optimizer()
+    # agent.train(env=real_env)
+    avg_reward = agent.test(env=real_env)
+    print(avg_reward)
