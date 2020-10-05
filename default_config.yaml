@@ -6,7 +6,7 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'single'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
@@ -22,8 +22,8 @@ agents:
     correct_path_gain: !!float 1e-4         # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
-    time_sleep_master: !!float 0.1          # cycle sleeping time when waiting for data
-    time_sleep_worker: !!float 1            # cycle sleeping time when waiting for data
+    time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
+    time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 5           # 0-6
     agent_name: !!str QL                    # which RL agent to use for meta-training
