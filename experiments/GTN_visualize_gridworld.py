@@ -19,7 +19,7 @@ NEXT_STATE_PROB_FACTOR = 3
 INTENSITY_FACTOR = 0.8
 
 FONTSIZE_LARGE = 14
-FONTSIZE_SMALL = 14
+FONTSIZE_SMALL = 12
 
 NS_OFFSET = 0.32
 NS_DIFF = 0.22
@@ -277,6 +277,7 @@ if __name__ == "__main__":
     # plot_filled_rectangle((0,1), 0.1, 0)
     ax.axis('equal')
     ax.axis('off')
+    plt.savefig('gridworld_train.eps')
 
     fig, ax = plt.subplots(1,dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
@@ -286,5 +287,6 @@ if __name__ == "__main__":
     # plot_filled_rectangle((0,1), 0.1, 0)
     ax.axis('equal')
     ax.axis('off')
+    plt.savefig('gridworld_test.eps')
 
     plt.show()

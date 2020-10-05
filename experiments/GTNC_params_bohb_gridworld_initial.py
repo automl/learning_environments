@@ -26,7 +26,7 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=10, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=2, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=1, upper=6, log=False, default_value=5))
@@ -39,8 +39,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_init', lower=0.01, upper=1, log=True, default_value=1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_min', lower=0.01, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_decay', lower=0.5, upper=1, log=False, default_value=0.99))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.5, upper=1, log=True, default_value=0.9))
+        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
+        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.5, upper=1, log=True, default_value=0.9))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_steps', lower=1, upper=20, log=False, default_value=10))
 
@@ -68,8 +68,8 @@ class ExperimentWrapper():
         config["agents"]['ql']['eps_init'] = float(cso["ql_eps_init"])
         config["agents"]['ql']['eps_min'] = float(cso["ql_eps_min"])
         config["agents"]['ql']['eps_decay'] = float(cso["ql_eps_decay"])
-        config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
-        config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
+        #config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
+        #config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
 
         config["envs"][env_name]['max_steps'] = int(cso["gtn_max_steps"])
 

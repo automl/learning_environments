@@ -153,7 +153,8 @@ class GTN_Master(GTN_Base):
             mean_score_orig_list.append(np.mean(self.score_orig_list))
 
             if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
-                break
+                self.save_good_model(mean_score_orig_list)
+            #     break
 
         print('Master quitting')
 
@@ -177,7 +178,6 @@ class GTN_Master(GTN_Base):
             save_dict['model'] = self.virtual_env_orig.state_dict()
             save_dict['config'] = self.config
             torch.save(save_dict, file_name)
-
 
 
     def calc_worker_timeout(self):
