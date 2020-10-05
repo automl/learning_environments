@@ -40,7 +40,7 @@ class GTN_Base(nn.Module):
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_2x3'))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_3x3'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 
