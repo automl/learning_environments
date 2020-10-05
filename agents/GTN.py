@@ -130,6 +130,7 @@ class GTN_Master(GTN_Base):
 
     def run(self):
         mean_score_orig_list = []
+        model_saved = False
 
         for it in range(self.max_iterations):
             t1 = time.time()
@@ -152,8 +153,9 @@ class GTN_Master(GTN_Base):
 
             mean_score_orig_list.append(np.mean(self.score_orig_list))
 
-            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
+            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
                 self.save_good_model(mean_score_orig_list)
+                model_saved = True
             #     break
 
         print('Master quitting')
