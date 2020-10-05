@@ -20,24 +20,13 @@ class ExperimentWrapper():
         params['max_budget'] = 1
         params['eta'] = 2
         params['random_fraction'] = 1
-        params['iterations'] = 15
+        params['iterations'] = 120
 
         return params
 
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
-
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='0', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='1', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='2', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='3', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='4', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='5', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='6', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='7', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='8', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='9', lower=1e-2, upper=1, log=True, default_value=1e-1))
 
         return cs
 
