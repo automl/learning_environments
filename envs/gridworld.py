@@ -145,11 +145,11 @@ class EmptyRoomSmall(GridworldEnv):
         self.o_reward = -1
         # grid = [['S', ' '],
         #         [' ', 'G']]
-        # grid = [['S', ' ', ' '],
-        #         [' ', ' ', 'G']]
         grid = [['S', ' ', ' '],
-                [' ', ' ', ' '],
                 [' ', ' ', 'G']]
+        # grid = [['S', ' ', ' '],
+        #         [' ', ' ', ' '],
+        #         [' ', ' ', 'G']]
 
         GridworldEnv.__init__(self, grid=grid)
 

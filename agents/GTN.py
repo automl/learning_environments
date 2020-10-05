@@ -40,7 +40,7 @@ class GTN_Base(nn.Module):
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync___3x3'))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync___'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 
@@ -412,6 +412,7 @@ class GTN_Worker(GTN_Base):
         self.num_test_envs = gtn_config["num_test_envs"]
         self.num_grad_evals = gtn_config["num_grad_evals"]
         self.grad_eval_type = gtn_config["grad_eval_type"]
+        self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.exploration_gain = gtn_config["exploration_gain"]
         self.correct_path_gain = gtn_config["correct_path_gain"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
@@ -523,7 +524,7 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = min(score_add, score_sub)
-                if score_sub < score_add:
+                if score_sub < score_add or self.mirrored_sampling:
                     self.invert_eps()
                 else:
                     self.add_noise_to_virtual_env() # for debugging
@@ -537,7 +538,7 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = max(score_add, score_sub)
-                if score_sub > score_add:
+                if score_sub > score_add or self.mirrored_sampling:
                     self.invert_eps()
                 else:
                     self.add_noise_to_virtual_env() # for debugging

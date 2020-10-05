@@ -15,6 +15,7 @@ agents:
     step_size: !!float 1                    # reptile step size
     rb_size: !!int 100000                   # reptile step size
     match: !!bool False                     # pure GTN or with env matcher?
+    mirrored_sampling: !!bool False         # use normal or mirrored sampling
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
     grad_eval_type: !!str mean              # mean or min
     weight_decay: !!float 0.0               # weight decay
