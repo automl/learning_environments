@@ -15,7 +15,7 @@ G_LEFT = 1
 G_DOWN = 2
 G_UP = 3
 
-NEXT_STATE_PROB_FACTOR = 3
+NEXT_STATE_PROB_FACTOR = 2
 INTENSITY_FACTOR = 0.8
 
 FONTSIZE_LARGE = 14
@@ -248,8 +248,8 @@ if __name__ == "__main__":
     #     print('{} {} {} {}'.format(i, xy_to_idx((x,y)), x, y))
     #     #print(r.grid[x][y])
 
-    dir = '/home/dingsda/master_thesis/learning_environments/agents/results/GTN_models'
-    file_name = '2x3_7_9AFZ2G.pt'
+    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_evaluate_gridworld'
+    file_name = '2x3_25_DZCBB9.pt'
     virtual_env, real_env, config, M, N, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
 
     replay_buffer_train_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
@@ -269,7 +269,7 @@ if __name__ == "__main__":
     rb_dict_train = convert_replay_buffer(replay_buffer_train_all)
     rb_dict_test = convert_replay_buffer(replay_buffer_test_all)
 
-    fig, ax = plt.subplots(1,dpi=600)
+    fig, ax = plt.subplots(dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
     plot_tile_numbers(n_tot=M*N)
     plot_agent_behaviour(rb_dict=rb_dict_train, q_table=q_table, real_env=real_env)
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     ax.axis('off')
     plt.savefig('gridworld_train.eps')
 
-    fig, ax = plt.subplots(1,dpi=600)
+    fig, ax = plt.subplots(dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
     plot_tile_numbers(n_tot=M*N)
     plot_agent_behaviour(rb_dict=rb_dict_test, q_table=q_table, real_env=real_env)
