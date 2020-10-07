@@ -75,10 +75,12 @@ def plot_data(data_wo, data_w, savefig_name):
     plt.show()
 
 if __name__ == "__main__":
-    data_wo_mirr = get_data(with_mirrored_sampling=False, finish_after_solved=False)
-    data_w_mirr = get_data(with_mirrored_sampling=True, finish_after_solved=False)
+    # FIXME: with_mirrored_sampling flags are intentionally reversed to fix bug in GTN.py
+    data_wo_mirr = get_data(with_mirrored_sampling=True, finish_after_solved=False)
+    data_w_mirr = get_data(with_mirrored_sampling=False, finish_after_solved=False)
     plot_data(data_wo=data_wo_mirr, data_w=data_w_mirr, savefig_name='score_transform_no_finish.png')
 
-    data_wo_mirr = get_data(with_mirrored_sampling=False, finish_after_solved=True)
-    data_w_mirr = get_data(with_mirrored_sampling=True, finish_after_solved=True)
+    # FIXME: with_mirrored_sampling flags are intentionally reversed to fix bug in GTN.py
+    data_wo_mirr = get_data(with_mirrored_sampling=True, finish_after_solved=True)
+    data_w_mirr = get_data(with_mirrored_sampling=False, finish_after_solved=True)
     plot_data(data_wo=data_wo_mirr, data_w=data_w_mirr, savefig_name='score_transform_finish.png')

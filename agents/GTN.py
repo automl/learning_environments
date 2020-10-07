@@ -524,7 +524,7 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = min(score_add, score_sub)
-                if score_sub < score_add or self.mirrored_sampling:
+                if score_sub < score_add or not self.mirrored_sampling:
                     self.invert_eps()
                 else:
                     self.add_noise_to_virtual_env() # for debugging
@@ -538,7 +538,7 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = max(score_add, score_sub)
-                if score_sub > score_add or self.mirrored_sampling:
+                if score_sub > score_add or not self.mirrored_sampling:
                     self.invert_eps()
                 else:
                     self.add_noise_to_virtual_env() # for debugging
