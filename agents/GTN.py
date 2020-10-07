@@ -157,9 +157,7 @@ class GTN_Master(GTN_Base):
         it = len(mean_score_orig_list)
         if it > 0 and it < self.max_iterations-1:
             random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
-            m = len(self.real_env.env.grid)
-            n = len(self.real_env.env.grid[0])
-            file_name = self.get_model_file_name(str(m) + 'x' + str(n) + '_' + str(it) + '_' + random_string + '.pt')
+            file_name = self.get_model_file_name('pendulum_' + str(it) + '_' + random_string + '.pt')
             save_dict = {}
             save_dict['model'] = self.virtual_env_orig.state_dict()
             save_dict['config'] = self.config
