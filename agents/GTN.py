@@ -62,8 +62,8 @@ class GTN_Base(nn.Module):
             os.remove(file)
 
     def create_replay_buffer(self):
-        sd = 1 if self.virtual_env_orig.has_discrete_state_space() else self.state_dim
-        ad = 1 if self.virtual_env_orig.has_discrete_action_space() else self.action_dim
+        sd = 1 if self.virtual_env_orig.has_discrete_state_space() else self.virtual_env_orig.get_state_dim()
+        ad = 1 if self.virtual_env_orig.has_discrete_action_space() else self.virtual_env_orig.get_action_dim()
         return ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
 
@@ -96,7 +96,6 @@ class GTN_Master(GTN_Base):
         # for early out
         self.avg_runtime = None
         self.real_env = self.env_factory.generate_default_real_env()
-        self.optimal_path = self.find_optimal_path()
 
         # to store models
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
@@ -106,26 +105,11 @@ class GTN_Master(GTN_Base):
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
-        print('optimal path: {}'.format(self.optimal_path))
 
 
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
 
-
-    def find_optimal_path(self,):
-        agent_base = select_agent(config=self.config, agent_name=self.agent_name)
-        # agent_base.train(env=self.virtual_env_orig,
-        #                  time_remaining=1e3)
-        agent_base.train(env=self.real_env,
-                         time_remaining=1e3)
-
-        agent_base.test_episodes = 1
-        _, replay_buffer = agent_base.test(env=self.real_env)
-        _, _, next_state, _, _ = replay_buffer.get_all()
-        optimal_path = [state.item() for state in next_state.int()]
-
-        return optimal_path
 
 
     def run(self):
@@ -215,7 +199,6 @@ class GTN_Master(GTN_Base):
             data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
             data['gtn_iteration'] = it
-            data['optimal_path'] = self.optimal_path
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
 
             torch.save(data, file_name)
@@ -375,14 +358,10 @@ class GTN_Master(GTN_Base):
         me = EnvMatcher(config)
         me.train(virtual_env=self.virtual_env_orig, replay_buffer=self.rb)
 
-        states, _, next_states, _, _ = self.rb.get_all()
-
-        next_states = [state.item() for state in next_states.int()]
-        print('-- next_states -- ' + str(Counter(next_states)) + ' ' + str(len(next_states)))
-
-        agent = select_agent(config, 'QL')
+        agent = select_agent(config, 'TD3')
         avg_reward = agent.test(env=self.real_env)
-        print('-- avg_reward -- ' + str(avg_reward))
+        print('-- avg_reward after matching -- ' + str(avg_reward))
+
 
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
@@ -413,8 +392,6 @@ class GTN_Worker(GTN_Base):
         self.num_grad_evals = gtn_config["num_grad_evals"]
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
-        self.exploration_gain = gtn_config["exploration_gain"]
-        self.correct_path_gain = gtn_config["correct_path_gain"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
@@ -450,8 +427,6 @@ class GTN_Worker(GTN_Base):
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
             tt1 = time.time()
-            #print_abs_param_sum(self.virtual_env_orig)
-            #print('-- Worker {}: ev train'.format(self.id))
             agent_orig.train(env=self.virtual_env_orig,
                              time_remaining=self.timeout-(time.time()-time_start),
                              gtn_iteration=self.gtn_iteration)
@@ -465,9 +440,6 @@ class GTN_Worker(GTN_Base):
             tt3 = time.time()
             time_train = tt2-tt1
             time_test = tt3-tt2
-
-            #print_abs_param_sum(self.virtual_env_orig)
-            #print(score_orig)
 
             self.get_random_eps()
 
@@ -524,11 +496,14 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = min(score_add, score_sub)
-                if score_sub < score_add or self.mirrored_sampling:
+                if score_sub < score_add or not self.mirrored_sampling:
+                    print('TAKE SUB')
                     self.invert_eps()
                 else:
+                    print('TAKE ADD')
                     self.add_noise_to_virtual_env() # for debugging
             else:
+                print(score_sub)
                 if self.grad_eval_type == 'mean':
                     score_sub = statistics.mean(score_sub)
                     score_add = statistics.mean(score_add)
@@ -538,14 +513,17 @@ class GTN_Worker(GTN_Base):
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
                 best_score = max(score_add, score_sub)
-                if score_sub > score_add or self.mirrored_sampling:
+                if score_sub > score_add or not self.mirrored_sampling:
                     self.invert_eps()
+                    print('TAKE SUB')
                 else:
+                    print('TAKE ADD')
                     self.add_noise_to_virtual_env() # for debugging
 
-            # print('-- LOSS ADD: ' + str(score_add))
-            # print('-- LOSS SUB: ' + str(score_sub))
-            # print('-- LOSS BEST: ' + str(best_score))
+            print('-- LOSS ADD: ' + str(score_add))
+            print('-- LOSS SUB: ' + str(score_sub))
+            print('-- LOSS BEST: ' + str(best_score))
+
             print('-- Worker {}: write result '.format(self.id, time.time()-t1))
 
             self.write_worker_result(score=best_score,
@@ -573,7 +551,6 @@ class GTN_Worker(GTN_Base):
         self.gtn_iteration = data['gtn_iteration']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
-        self.optimal_path = data['optimal_path']
 
         os.remove(check_file_name)
         os.remove(file_name)
@@ -653,79 +630,14 @@ class GTN_Worker(GTN_Base):
 
     def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
         env = self.env_factory.generate_default_real_env('Test: ')
-
-        t_s = time.time()
-
-        all_states = []
-        reward_list = []
-        correct_path_perc = []
-        test_episodes = agent.test_episodes
-
-        rb_all = self.create_replay_buffer()
-
+        test_episodes_temp = agent.test_episodes
         agent.test_episodes = 1
-        for i in range(test_episodes):
-            reward, replay_buffer = agent.test(env=env,
-                                               time_remaining=time_remaining - (time.time()-t_s),
-                                               gtn_iteration=gtn_iteration)
-            reward_list.append(reward[0])
-            states, actions, next_states, rewards, dones = replay_buffer.get_all()
-            next_states = [next_state.item() for next_state in next_states.int()]
-            actions = [action.item() for action in actions.int()]
-
-            all_states += next_states
-
-            o_last = 0
-            o_max = len(self.optimal_path)
-            # FIXME: ignores last state
-            for state in states:
-                if state == self.optimal_path[o_last]:
-                    o_last += 1
-                if o_last == o_max - 1:
-                    break
-
-            correct_path_perc.append(o_last/o_max)
-            rb_all.merge_buffer(replay_buffer)
-
-        agent.test_episodes = test_episodes
-
-        #print(agent.test_counter / agent.total_counter)
-        #print(self.optimal_path)
-        #different_state_perc = len(set(all_states)) / env.get_state_dim()
-
-        state_counter = Counter(all_states)
-        kl_div = self.calc_kl_div(state_counter, env.get_state_dim())
-        correct_path_perc = statistics.mean(correct_path_perc)
-        #print('{:3f} {:3f}'.format(different_state_perc, correct_path_perc))
-        #print(correct_path_perc)
-
-        #print(set(all_states))
-        #print(agent.q_table)
-        #states_visited_during_learning = [int(abs(sum(q_vals))>1e-5) for q_vals in agent.q_table]
-        #print(states_visited_during_learning)
-        #print(agent.q_table)
-        #print(correct_path_perc)
-        #print(different_state_perc)
-        #print(kl_div)
-
-        mean_reward = sum(reward_list) / len(reward_list) \
-                      - kl_div * self.exploration_gain \
-                      + correct_path_perc * self.correct_path_gain#+ different_state_perc*0.01 #+ correct_path_perc*0.3
-        #mean_reward = sum(reward_list) / len(reward_list) - kl_div * 0.3 #+ correct_path_perc * 0.3
-        return mean_reward, rb_all
-
-
-    # def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
-    #     env = self.env_factory.generate_default_real_env('Test: ')
-    #     reward_list, replay_buffer = agent.test(env=env,
-    #                                             time_remaining=time_remaining,
-    #                                             gtn_iteration=gtn_iteration)
-    #
-    #     different_states = len(replay_buffer.get_all()[0].int().unique()) / env.get_state_dim()
-    #     #print(different_states)
-    #
-    #     mean_reward = sum(reward_list) / len(reward_list) + different_states*0.3
-    #     return mean_reward
+        reward_list, replay_buffer = agent.test(env=env,
+                                                time_remaining=time_remaining,
+                                                gtn_iteration=gtn_iteration)
+        agent.test_episodes = test_episodes_temp
+        mean_reward = sum(reward_list) / len(reward_list)
+        return mean_reward, replay_buffer
 
 
 def run_gtn_on_single_pc(config):
