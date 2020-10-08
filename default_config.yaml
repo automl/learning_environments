@@ -170,8 +170,8 @@ envs:
     m: [0.5, 1, 1.2, True]                  # joint mass [min, default, max, larger=more difficult]
     l: [0.5, 1, 1.2, True]                  # joint length [min, default, max, larger=more difficult]
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 64                        # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    hidden_size: 128                        # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   MountainCarContinuous-v0:
     solved_reward: !!float 80               # used for early out in RL agent training
