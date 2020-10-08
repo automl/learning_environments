@@ -628,13 +628,11 @@ class GTN_Worker(GTN_Base):
 
     def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
         env = self.env_factory.generate_default_real_env('Test: ')
-        test_episodes_temp = agent.test_episodes
-        agent.test_episodes = 1
         reward_list, replay_buffer = agent.test(env=env,
                                                 time_remaining=time_remaining,
                                                 gtn_iteration=gtn_iteration)
-        agent.test_episodes = test_episodes_temp
         mean_reward = sum(reward_list) / len(reward_list)
+        print('mean reward: ' + str(mean_reward))
         return mean_reward, replay_buffer
 
 

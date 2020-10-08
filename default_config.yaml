@@ -9,7 +9,7 @@ agents:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
-    num_workers: !!int 16                   # size of the population
+    num_workers: !!int 1                    # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
@@ -123,8 +123,8 @@ agents:
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
   td3:
-    train_episodes: !!int 60                # maximum number of episodes to optimize
-    test_episodes: !!int 1                  # maximum number of episodes to optimize
+    train_episodes: !!int 70                # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 20                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -139,7 +139,7 @@ agents:
     action_std: !!float 0.2                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1                           # update rate of avg meters
+    print_rate: 100                         # update rate of avg meters
     early_out_num: !!int 3                  # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
 

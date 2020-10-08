@@ -216,5 +216,7 @@ if __name__ == "__main__":
               config=config)
     t1 = time.time()
     td3.train(env=real_env, time_remaining=1200)
+    reward, _ = td3.test(env=real_env, time_remaining=1200)
+    print(reward)
     print(time.time()-t1)
     #td3.train(env=virt_env, time_remaining=5)
