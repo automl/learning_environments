@@ -51,8 +51,8 @@ class EnvWrapper(nn.Module):
                     break
 
             next_state_torch = torch.tensor(state, device="cpu", dtype=torch.float32)
-            reward_torch = torch.tensor(reward_sum, device="cpu", dtype=torch.float32)
-            done_torch = torch.tensor(done, device="cpu", dtype=torch.float32)
+            reward_torch = torch.tensor([reward_sum], device="cpu", dtype=torch.float32)
+            done_torch = torch.tensor([done], device="cpu", dtype=torch.float32)
 
             if next_state_torch.dim() == 0:
                 next_state_torch = next_state_torch.unsqueeze(0)

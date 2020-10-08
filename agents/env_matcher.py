@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from utils import AverageMeter, to_one_hot_encoding
+from utils import AverageMeter, ReplayBuffer, to_one_hot_encoding
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -146,22 +146,28 @@ if __name__ == "__main__":
     virtual_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_random_real_env()
 
+    rb_all = ReplayBuffer(state_dim=real_env.get_state_dim(), action_dim=real_env.get_action_dim(), device=config["device"], max_size=1000000)
 
-    agent = select_agent(config, 'QL')
-    #print('-- train --')
-    print('-- fill replay buffer --')
-    reward_list, replay_buffer = agent.train(env=real_env)
-    #print('-- fill replay buffer --')
-    #reward_list, replay_buffer = agent.test(env=real_env)
+    for i in range(3):
+        print('-- select agent --')
+        agent = select_agent(config, 'TD3')
+        print('-- fill replay buffer --')
+        reward_list, replay_buffer = agent.train(env=real_env)
+        print('-- fill replay buffer --')
+        reward_list, replay_buffer = agent.test(env=real_env)
+        print(reward_list)
+        rb_all.merge_buffer(replay_buffer)
     me = EnvMatcher(config)
-    print('-- match --')
-    me.train(virtual_env=virtual_env, replay_buffer=replay_buffer)
 
-    agent = select_agent(config, 'QL')
-    print('-- train on virtual env --')
-    agent.train(env=virtual_env)
-    # print(' -- train on real env --')
-    # #agent.reset_optimizer()
-    # agent.train(env=real_env)
-    avg_reward = agent.test(env=real_env)
-    print(avg_reward)
+    print('-- match --')
+    me.train(virtual_env=virtual_env, replay_buffer=rb_all)
+
+    for i in range(3):
+        agent = select_agent(config, 'TD3')
+        print('-- train on virtual env --')
+        agent.train(env=virtual_env)
+        # print(' -- train on real env --')
+        # #agent.reset_optimizer()
+        # agent.train(env=real_env)
+        avg_reward = agent.test(env=real_env)
+        print(avg_reward)

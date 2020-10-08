@@ -39,7 +39,7 @@ class GTN_Base(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-
+        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
         self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_pendulum'))
 
         os.makedirs(self.working_dir, exist_ok=True)
@@ -55,6 +55,9 @@ class GTN_Base(nn.Module):
 
     def get_result_check_file_name(self, id):
         return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_result_check.pt')
+
+    def get_model_file_name(self, file_name):
+        return os.path.join(self.model_dir, file_name)
 
     def clean_working_dir(self):
         files = glob.glob(os.path.join(self.working_dir, '*'))
@@ -97,19 +100,12 @@ class GTN_Master(GTN_Base):
         self.avg_runtime = None
         self.real_env = self.env_factory.generate_default_real_env()
 
-        # to store models
-        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
         # for matching
         self.rb = self.create_replay_buffer()
 
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
-
-
-    def get_model_file_name(self, file_name):
-        return os.path.join(self.model_dir, file_name)
-
 
 
     def run(self):
@@ -157,7 +153,7 @@ class GTN_Master(GTN_Base):
         it = len(mean_score_orig_list)
         if it > 0 and it < self.max_iterations-1:
             random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
-            file_name = self.get_model_file_name('pendulum_' + str(it) + '_' + random_string + '.pt')
+            file_name = self.get_model_file_name('pendulum_good_' + str(it) + '_' + random_string + '.pt')
             save_dict = {}
             save_dict['model'] = self.virtual_env_orig.state_dict()
             save_dict['config'] = self.config
@@ -359,7 +355,7 @@ class GTN_Master(GTN_Base):
         agent = select_agent(config, 'TD3')
         avg_reward = agent.test(env=self.real_env)
         print('-- avg_reward after matching -- ' + str(avg_reward))
-
+        print('-- replay buffer size -- ' + str(self.rb.size))
 
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
@@ -449,6 +445,7 @@ class GTN_Worker(GTN_Base):
             score_add = []
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
+                #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_add = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_add.train(env=self.virtual_env,
@@ -461,6 +458,10 @@ class GTN_Worker(GTN_Base):
                 if self.match:
                     rb_all.merge_buffer(rb)
 
+                if not np.isfinite(score):
+                    print('++ save bad model ++')
+                    self.save_bad_model(self.virtual_env)
+
             print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
 
             # # second mirrored noise -N
@@ -469,6 +470,7 @@ class GTN_Worker(GTN_Base):
             score_sub = []
             for i in range(self.num_grad_evals):
                 #print('sub ' + str(i))
+                #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_sub = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_sub.train(env=self.virtual_env,
@@ -480,6 +482,10 @@ class GTN_Worker(GTN_Base):
                 score_sub.append(score)
                 if self.match:
                     rb_all.merge_buffer(rb)
+
+                if not np.isfinite(score):
+                    print('++ save bad model ++')
+                    self.save_bad_model(self.virtual_env)
 
             print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
 
@@ -501,7 +507,6 @@ class GTN_Worker(GTN_Base):
                     print('TAKE ADD')
                     self.add_noise_to_virtual_env() # for debugging
             else:
-                print(score_sub)
                 if self.grad_eval_type == 'mean':
                     score_sub = statistics.mean(score_sub)
                     score_add = statistics.mean(score_add)
@@ -532,6 +537,16 @@ class GTN_Worker(GTN_Base):
                                      replay_buffer=rb_all)
 
         print('Worker ' + str(self.id) + ' quitting')
+
+
+    def save_bad_model(self, model):
+        random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
+        file_name = self.get_model_file_name('pendulum_bad_' + random_string + '.pt')
+        save_dict = {}
+        save_dict['model'] = model
+        save_dict['config'] = self.config
+        torch.save(save_dict, file_name)
+
 
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
@@ -632,7 +647,6 @@ class GTN_Worker(GTN_Base):
                                                 time_remaining=time_remaining,
                                                 gtn_iteration=gtn_iteration)
         mean_reward = sum(reward_list) / len(reward_list)
-        print('mean reward: ' + str(mean_reward))
         return mean_reward, replay_buffer
 
 

@@ -72,6 +72,12 @@ class TD3(BaseAgent):
 
                 # state-action transition
                 next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+
+                # FIXME
+                if sum(abs(state)).item() >100 or sum(abs(reward)).item() > 10000:
+                    episode_reward = -1e-9
+                    break
+
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
