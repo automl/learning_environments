@@ -119,8 +119,15 @@ class GTN_Master(GTN_Base):
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
             skip_flag = self.read_worker_results()
+
             if skip_flag:
                 continue
+
+            mean_score_orig_list.append(np.mean(self.score_orig_list))
+            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
+                self.save_good_model(mean_score_orig_list)
+                break
+
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
             print('-- Master: update env' + ' ' + str(time.time()-t1))
@@ -129,12 +136,6 @@ class GTN_Master(GTN_Base):
             self.match_env()
             print('-- Master: print statistics' + ' ' + str(time.time()-t1))
             self.print_statistics(it=it, time_elapsed=time.time()-t1)
-
-            mean_score_orig_list.append(np.mean(self.score_orig_list))
-
-            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
-                self.save_good_model(mean_score_orig_list)
-                break
 
         print('Master quitting')
 
