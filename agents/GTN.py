@@ -12,7 +12,6 @@ import glob
 import random
 import string
 import statistics
-from collections import Counter
 from utils import calc_abs_param_sum, ReplayBuffer, print_abs_param_sum, to_one_hot_encoding, from_one_hot_encoding
 from agents.agent_utils import select_agent
 from agents.env_matcher import EnvMatcher
@@ -39,8 +38,8 @@ class GTN_Base(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_pendulum'))
+        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_cartpole'))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_cartpole'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 

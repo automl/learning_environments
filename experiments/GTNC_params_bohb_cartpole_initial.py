@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'GTNC_params_bohb_pendulum_initial_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_params_bohb_cartpole_initial_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

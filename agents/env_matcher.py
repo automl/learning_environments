@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     for i in range(3):
         print('-- select agent --')
-        agent = select_agent(config, 'TD3')
+        agent = select_agent(config, 'DDQN')
         print('-- fill replay buffer --')
         reward_list, replay_buffer = agent.train(env=real_env)
         print('-- fill replay buffer --')
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     me.train(virtual_env=virtual_env, replay_buffer=rb_all)
 
     for i in range(3):
-        agent = select_agent(config, 'TD3')
+        agent = select_agent(config, 'DDQN')
         print('-- train on virtual env --')
         agent.train(env=virtual_env)
         # print(' -- train on real env --')
