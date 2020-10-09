@@ -33,9 +33,9 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=5))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_test_episodes', lower=1, upper=50, log=True, default_value=10))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=5e-4, upper=5e-2, log=False, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=3e-4, upper=3e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=False, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=2, upper=4, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=256, log=True, default_value=128))
