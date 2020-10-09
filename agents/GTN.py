@@ -387,6 +387,7 @@ class GTN_Worker(GTN_Base):
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
+        self.real_env = self.env_factory.generate_default_real_env()
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
         self.gtn_iteration = None
@@ -421,7 +422,8 @@ class GTN_Worker(GTN_Base):
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
             tt1 = time.time()
-            agent_orig.train(env=self.virtual_env_orig,
+            agent_orig.train(env=self.real_env,
+                             second_env=self.virtual_env_orig,
                              time_remaining=self.timeout-(time.time()-time_start),
                              gtn_iteration=self.gtn_iteration)
             tt2 = time.time()
@@ -448,7 +450,8 @@ class GTN_Worker(GTN_Base):
                 #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_add = select_agent(config=self.config,
                                          agent_name=self.agent_name)
-                agent_add.train(env=self.virtual_env,
+                agent_add.train(env=self.real_env,
+                                second_env=self.virtual_env,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
                 score, rb = self.test_agent_on_real_env(agent=agent_add,
@@ -473,7 +476,8 @@ class GTN_Worker(GTN_Base):
                 #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_sub = select_agent(config=self.config,
                                          agent_name=self.agent_name)
-                agent_sub.train(env=self.virtual_env,
+                agent_sub.train(env=self.real_env,
+                                second_env=self.virtual_env,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
                 score, rb = self.test_agent_on_real_env(agent=agent_sub,

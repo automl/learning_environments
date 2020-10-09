@@ -1,96 +1,15 @@
-import datetime
-import sys
-import traceback
-import yaml
-import ConfigSpace as CS
-import ConfigSpace.hyperparameters as CSH
-import random
-import numpy as np
-import torch
-from copy import deepcopy
-from agents.GTN import GTN_Master, GTN_Worker
-from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
-
-
-class ExperimentWrapper():
-    def get_bohb_parameters(self):
-        params = {}
-        params['seed'] = 42
-        params['min_budget'] = 1
-        params['max_budget'] = 1
-        params['eta'] = 2
-        params['random_fraction'] = 1
-        params['iterations'] = 120
-
-        return params
-
-
-    def get_configspace(self):
-        cs = CS.ConfigurationSpace()
-
-        return cs
-
-
-    def get_specific_config(self, cso, default_config, budget):
-        config = deepcopy(default_config)
-        return config
-
-
-    def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config.yaml", 'r') as stream:
-            default_config = yaml.safe_load(stream)
-
-        config = self.get_specific_config(cso, default_config, budget)
-
-        print('----------------------------')
-        print("START BOHB ITERATION")
-        print('CONFIG: ' + str(config))
-        print('CSO:    ' + str(cso))
-        print('BUDGET: ' + str(budget))
-        print('----------------------------')
-
-        try:
-            gtn = GTN_Master(config, bohb_id=bohb_id)
-            _, score_list = gtn.run()
-            score = len(score_list)
-            error = ""
-        except:
-            score = float('Inf')
-            score_list = []
-            error = traceback.format_exc()
-            print(error)
-
-        info = {}
-        info['error'] = str(error)
-        info['score_list'] = str(score_list)
-
-        print('----------------------------')
-        print('FINAL SCORE: ' + str(score))
-        print('SCORE LIST:  ' + str(score_list))
-        print("END BOHB ITERATION")
-        print('----------------------------')
-
-        return {
-            "loss": score,
-            "info": info
-        }
-
+from agents.GTN import *
+from agents.TD3 import TD3
 
 if __name__ == "__main__":
-    x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_gridworld_3x3_' + x.strftime("%Y-%m-%d-%H")
+    data = torch.load('/home/dingsda/master_thesis/learning_environments/agents/results/GTN_models/pendulum_LSVCZB.pt')
+    env = data['model']
+    config = data['config']
+    config['agents']['td3']['print_rate'] = 1
 
-    if len(sys.argv) > 1:
-        for arg in sys.argv[1:]:
-            print(arg)
-        random.seed(int(sys.argv[1]))
-        np.random.seed(int(sys.argv[1]))
-        torch.manual_seed(int(sys.argv[1]))
-        torch.cuda.manual_seed_all(int(sys.argv[1]))
-        res = run_bohb_parallel(id=int(sys.argv[1]),
-                                bohb_workers=int(sys.argv[2]),
-                                run_id=run_id,
-                                experiment_wrapper=ExperimentWrapper())
-    else:
-        res = run_bohb_serial(run_id=run_id,
-                              experiment_wrapper=ExperimentWrapper())
+    td3 = TD3(state_dim=env.get_state_dim(),
+              action_dim=env.get_action_dim(),
+              max_action=env.get_max_action(),
+              config=config)
+
+    td3.train(env=env, time_remaining=1200)

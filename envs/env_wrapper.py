@@ -12,7 +12,7 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, same_action_num=1, action_noise=0, action_noise_decay=0, gtn_iteration=0):
+    def step(self, action, state=None, same_action_num=1, action_noise=0, action_noise_decay=0, gtn_iteration=0):
         if self.is_virtual_env():
             reward_sum = None
 
@@ -22,7 +22,7 @@ class EnvWrapper(nn.Module):
             action += (torch.rand_like(action)-0.5) * action_noise * action_noise_decay**gtn_iteration
 
             for i in range(same_action_num):
-                state, reward, done = self.env.step(action=action.to(self.env.device))
+                state, reward, done = self.env.step(action=action.to(self.env.device), state=state.to(self.env.device))
                 if reward_sum is None:
                     reward_sum = reward
                 else:

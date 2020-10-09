@@ -30,7 +30,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-        #cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=5, upper=5, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=4, upper=6, log=False, default_value=5))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_test_episodes', lower=1, upper=50, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=5e-4, upper=5e-2, log=False, default_value=1e-3))
@@ -58,7 +58,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['mirrored_sampling'] = int(cso["gtn_mirrored_sampling"])
         config["agents"]['gtn']['num_grad_evals'] = int(cso["gtn_num_grad_evals"])
         config["agents"]['gtn']['grad_eval_type'] = cso["gtn_grad_eval_type"]
-        #config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
+        config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
 
         config["agents"]['td3']['test_episodes'] = float(cso["td3_test_episodes"])
         config["agents"]['td3']['lr'] = float(cso["td3_lr"])
