@@ -36,7 +36,7 @@ class DDQN(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining):
+    def train(self, env, time_remaining, gtn_iteration=0):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -194,7 +194,9 @@ if __name__ == "__main__":
         #ddqn.train(env=virt_env, time_remaining=50)
 
         t1 = time.time()
-        print('TRAIN')
+        #print('TRAIN virt')
+        #ddqn.train(env=virt_env, time_remaining=500)
+        print('TRAIN real')
         ddqn.train(env=real_env, time_remaining=500)
         t2 = time.time()
         timing.append(t2-t1)

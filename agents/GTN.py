@@ -136,7 +136,7 @@ class GTN_Master(GTN_Base):
             if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
                 self.save_good_model(mean_score_orig_list)
                 model_saved = True
-            #     break
+                break
 
         print('Master quitting')
 
@@ -422,8 +422,7 @@ class GTN_Worker(GTN_Base):
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
             tt1 = time.time()
-            agent_orig.train(env=self.real_env,
-                             second_env=self.virtual_env_orig,
+            agent_orig.train(env=self.virtual_env_orig,
                              time_remaining=self.timeout-(time.time()-time_start),
                              gtn_iteration=self.gtn_iteration)
             tt2 = time.time()
@@ -450,8 +449,7 @@ class GTN_Worker(GTN_Base):
                 #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_add = select_agent(config=self.config,
                                          agent_name=self.agent_name)
-                agent_add.train(env=self.real_env,
-                                second_env=self.virtual_env,
+                agent_add.train(env=self.virtual_env_orig,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
                 score, rb = self.test_agent_on_real_env(agent=agent_add,
@@ -476,8 +474,7 @@ class GTN_Worker(GTN_Base):
                 #print_abs_param_sum(self.virtual_env, name='++ abs param sum: ')
                 agent_sub = select_agent(config=self.config,
                                          agent_name=self.agent_name)
-                agent_sub.train(env=self.real_env,
-                                second_env=self.virtual_env,
+                agent_sub.train(env=self.virtual_env_orig,
                                 time_remaining=self.timeout-(time.time()-time_start),
                                 gtn_iteration=self.gtn_iteration)
                 score, rb = self.test_agent_on_real_env(agent=agent_sub,
