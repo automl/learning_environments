@@ -25,12 +25,12 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=2, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-3, upper=1, log=True, default_value=1e-1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=2, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=4, upper=6, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=5))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_test_episodes', lower=1, upper=50, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=5e-4, upper=5e-2, log=False, default_value=1e-3))

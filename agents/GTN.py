@@ -39,7 +39,7 @@ class GTN_Base(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
+        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_pendulum'))
         self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_pendulum'))
 
         os.makedirs(self.working_dir, exist_ok=True)
@@ -110,7 +110,6 @@ class GTN_Master(GTN_Base):
 
     def run(self):
         mean_score_orig_list = []
-        model_saved = False
 
         for it in range(self.max_iterations):
             t1 = time.time()
@@ -133,14 +132,11 @@ class GTN_Master(GTN_Base):
 
             mean_score_orig_list.append(np.mean(self.score_orig_list))
 
-            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
+            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward():
                 self.save_good_model(mean_score_orig_list)
-                model_saved = True
-            #     break
+                break
 
         print('Master quitting')
-
-        self.save_good_model(mean_score_orig_list)
 
         # error handling
         if len(mean_score_orig_list) > 0:
