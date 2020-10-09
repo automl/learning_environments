@@ -25,25 +25,25 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=2, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-3, upper=1, log=True, default_value=1e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=2, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2], default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=4, upper=6, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_weight_decay', lower=1e-4, upper=1e-1, log=False, default_value=1e-2))
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_test_episodes', lower=1, upper=50, log=True, default_value=10))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=5e-4, upper=5e-2, log=False, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=False, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=2, upper=4, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=64, upper=256, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.1, upper=1, log=True, default_value=0.5))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_test_episodes', lower=1, upper=50, log=True, default_value=10))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_lr', lower=3e-4, upper=3e-3, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_init', lower=0.01, upper=1, log=True, default_value=0.9))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_min', lower=0.001, upper=0.1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_decay', lower=0.001, upper=0.3, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_batch_size', lower=64, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_size', lower=64, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_layer', lower=1, upper=2, log=False, default_value=2))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
 
         return cs
 
@@ -59,19 +59,19 @@ class ExperimentWrapper():
         config["agents"]['gtn']['num_grad_evals'] = int(cso["gtn_num_grad_evals"])
         config["agents"]['gtn']['grad_eval_type'] = cso["gtn_grad_eval_type"]
         config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
+        config["agents"]['gtn']['weight_decay'] = float(cso["gtn_weight_decay"])
 
-        config["agents"]['td3']['test_episodes'] = float(cso["td3_test_episodes"])
-        config["agents"]['td3']['lr'] = float(cso["td3_lr"])
-        config["agents"]['td3']['gamma'] = 1-float(cso["td3_gamma"])
-        config["agents"]['td3']['tau'] = float(cso["td3_tau"])
-        config["agents"]['td3']['batch_size'] = float(cso["td3_batch_size"])
-        config["agents"]['td3']['policy_delay'] = int(cso["td3_policy_delay"])
-        config["agents"]['td3']['hidden_size'] = int(cso["td3_hidden_size"])
-        config["agents"]['td3']['hidden_layer'] = int(cso["td3_hidden_layer"])
-        config["agents"]['td3']['activation_fn'] = cso["td3_activation_fn"]
-        config["agents"]['td3']['action_std'] = int(cso["td3_action_std"])
-        config["agents"]['td3']['policy_std'] = int(cso["td3_policy_std"])
-        config["agents"]['td3']['policy_std_clip'] = int(cso["td3_policy_std_clip"])
+        config["agents"]['ddqn']['test_episodes'] = int(cso["ddqn_test_episodes"])
+        config["agents"]['ddqn']['lr'] = float(cso["ddqn_lr"])
+        config["agents"]['ddqn']['gamma'] = 1-float(cso["ddqn_gamma"])
+        config["agents"]['ddqn']['tau'] = float(cso["ddqn_tau"])
+        config["agents"]['ddqn']['eps_init'] = float(cso["ddqn_eps_init"])
+        config["agents"]['ddqn']['eps_min'] = int(cso["ddqn_eps_min"])
+        config["agents"]['ddqn']['eps_decay'] = 1-float(cso["ddqn_eps_decay"])
+        config["agents"]['ddqn']['batch_size'] = int(cso["ddqn_batch_size"])
+        config["agents"]['ddqn']['hidden_size'] = int(cso["ddqn_hidden_size"])
+        config["agents"]['ddqn']['hidden_layer'] = int(cso["ddqn_hidden_layer"])
+        config["agents"]['ddqn']['activation_fn'] = cso["ddqn_activation_fn"]
 
         return config
 
