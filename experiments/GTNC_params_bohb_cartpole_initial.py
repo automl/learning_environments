@@ -45,6 +45,10 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_layer', lower=1, upper=2, log=False, default_value=2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
 
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='cartpole_hidden_size', lower=64, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='cartpole_hidden_layer', lower=1, upper=2, log=False, default_value=2))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='cartpole_activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+
         return cs
 
 
@@ -72,6 +76,10 @@ class ExperimentWrapper():
         config["agents"]['ddqn']['hidden_size'] = int(cso["ddqn_hidden_size"])
         config["agents"]['ddqn']['hidden_layer'] = int(cso["ddqn_hidden_layer"])
         config["agents"]['ddqn']['activation_fn'] = cso["ddqn_activation_fn"]
+
+        config["envs"]['CartPole-v0']['hidden_size'] = int(cso["cartpole_hidden_size"])
+        config["envs"]['CartPole-v0']['hidden_layer'] = int(cso["cartpole_hidden_layer"])
+        config["envs"]['CartPole-v0']['activation_fn'] = cso["cartpole_activation_fn"]
 
         return config
 

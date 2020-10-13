@@ -102,11 +102,15 @@ if __name__ == "__main__":
 
     for i in range(10):
         print(i)
-        agent = select_agent(config=config, agent_name='DDQN')
         config['agents']['ddqn']['early_out_num'] = 20
-        _, replay_buffer_train, episode_real_lengths = agent.train(env=virtual_env, gtn_iteration=gtn_it)
+        config['agents']['ddqn']['early_out_state_diff'] = 1e-6
+        config['agents']['ddqn']['print_rate'] = 1000
+        agent = select_agent(config=config, agent_name='DDQN')
+        t1 = time.time()
+        _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
+        print(time.time()-t1)
         reward, replay_buffer_test = agent.test(env=real_env)
-        print(statistics.mean(episode_real_lengths))
+        #print(statistics.mean(episode_real_lengths))
         print(statistics.mean(reward))
         if statistics.mean(reward) > 95:
             states, _, _, _, _ = replay_buffer_train.get_all()

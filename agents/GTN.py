@@ -38,8 +38,8 @@ class GTN_Base(nn.Module):
 
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_cartpole'))
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_cartpole'))
+        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models__cartpole'))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync__cartpole'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 
@@ -189,6 +189,7 @@ class GTN_Master(GTN_Base):
             data = {}
             data['timeout'] = timeout
             data['uuid'] = self.uuid_list[id]
+            data['config'] = self.config
             data['quit_flag'] = quit_flag
             data['gtn_iteration'] = it
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
@@ -375,10 +376,20 @@ class GTN_Master(GTN_Base):
 
 class GTN_Worker(GTN_Base):
     def __init__(self, config, id, bohb_id=-1):
-        super().__init__(config, bohb_id)
-        torch.manual_seed(id+int(time.time()))
+        self.init_parameters(config, bohb_id, id)
 
-        gtn_config = config["agents"]["gtn"]
+        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
+
+
+    def init_parameters(self, config, bohb_id, id):
+        super().__init__(config, bohb_id)
+
+        # for identifying the different workers
+        self.id = id
+        torch.manual_seed(self.id + int(time.time()))
+
+        self.config = config
+        gtn_config = self.config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]
         self.num_test_envs = gtn_config["num_test_envs"]
         self.num_grad_evals = gtn_config["num_grad_evals"]
@@ -386,20 +397,12 @@ class GTN_Worker(GTN_Base):
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.real_env = self.env_factory.generate_default_real_env()
-        self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
-        self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
+        self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(self.id) + ': ')
+        self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(self.id) + ': ')
         self.gtn_iteration = None
         self.uuid = None
         self.timeout = None
         self.quit_flag = False
-        self.r_states = []
-        self.r_actions = []
-
-        # for identifying the different workers
-        self.id = id
-
-        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
-
 
     def run(self):
         # read data from master
@@ -556,7 +559,8 @@ class GTN_Worker(GTN_Base):
         time.sleep(self.time_sleep_worker)
 
         data = torch.load(file_name)
-
+        self.config = data['config']
+        self.init_parameters(self.config, self.bohb_id, self.id)
         self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
         self.virtual_env.load_state_dict(data['virtual_env_orig'])
         self.uuid = data['uuid']
