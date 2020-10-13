@@ -19,6 +19,7 @@ class BaseAgent(nn.Module):
         self.print_rate = agent_config["print_rate"]
         self.early_out_num = agent_config["early_out_num"]
         self.early_out_virtual_diff = agent_config["early_out_virtual_diff"]
+        self.early_out_state_diff = agent_config["early_out_state_diff"]
 
         self.render_env = config["render_env"]
         self.device = config["device"]
@@ -86,6 +87,9 @@ class BaseAgent(nn.Module):
                     # state-action transition
                     next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                    if sum(abs(next_state-state)) < self.early_out_state_diff:   # early out
+                        break
+
                     state = next_state
                     episode_reward += reward
 

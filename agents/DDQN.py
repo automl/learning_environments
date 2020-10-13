@@ -44,7 +44,7 @@ class DDQN(BaseAgent):
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
-
+        episode_real_lengths = []
         # training loop
         for episode in range(self.train_episodes):
             # early out if timeout
@@ -58,6 +58,7 @@ class DDQN(BaseAgent):
 
             state = env.reset()
             episode_reward = 0
+            episode_real_length = float('inf')
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 action = self.select_train_action(state=state, env=env)
@@ -68,6 +69,9 @@ class DDQN(BaseAgent):
                 # state-action transition
                 next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+                if sum(abs(next_state - state)) < self.early_out_state_diff:  # early out
+                    break
+                    
                 state = next_state
                 episode_reward += reward
 
@@ -78,9 +82,11 @@ class DDQN(BaseAgent):
                 if done > 0.5:
                     break
 
+            episode_real_length = min(env.max_episode_steps(), episode_real_length)
+
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
-
+            episode_real_lengths.append(episode_real_length)
             # quit training if environment is solved
             if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
                 break
