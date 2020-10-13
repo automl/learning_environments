@@ -195,8 +195,8 @@ envs:
     hidden_layer: !!int 3                   # number of hidden layers of the virtual environment
 
   CartPole-v0:
-    solved_reward: !!float 90               # used for early out in RL agent training
-    max_steps: !!int 100                    # maximum number of steps per episode
+    solved_reward: !!float 180              # used for early out in RL agent training
+    max_steps: !!int 200                    # maximum number of steps per episode
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
