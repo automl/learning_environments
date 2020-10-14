@@ -12,7 +12,9 @@ def load_envs_and_config(dir, file_name):
     file_path = os.path.join(dir, file_name)
     save_dict = torch.load(file_path)
     config = save_dict['config']
-
+    config['agents']['ddqn']['rb_size'] = 100000
+    # config['envs']['CartPole-v0']['solved_reward'] = 195
+    # config['envs']['CartPole-v0']['max_steps'] = 200
     env_factory = EnvFactory(config=config)
     virtual_env = env_factory.generate_virtual_env()
     virtual_env.load_state_dict(save_dict['model'])
@@ -27,7 +29,7 @@ def plot_diff(reals, virts, diffs, plot_name):
     fig, ax = plt.subplots(dpi=600)
     plt.hist(reals, 50, alpha=0.8)
     plt.hist(virts, 50, alpha=0.6)
-    plt.hist(diffs, 50, alpha=0.4)
+    #plt.hist(diffs, 50, alpha=0.4)
     plt.xlabel(plot_name)
     plt.ylabel('occurrence')
     plt.legend(('real', 'virtual', 'difference'))
@@ -82,7 +84,7 @@ def compare_env_output(virtual_env, replay_buffer):
 
 if __name__ == "__main__":
     dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_cartpole'
-    file_name = 'cartpole_good_37_GU0427.pt'
+    file_name = 'cartpole_good_21_HIK9XV.pt'
     virtual_env, real_env, config, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
     config['device'] = 'cuda'
     config['agents']['ddqn']['print_rate'] = 1
@@ -90,43 +92,58 @@ if __name__ == "__main__":
     replay_buffer_train_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
     replay_buffer_test_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
 
-    # for i in range(3):
-    #     print(i)
-    #     agent = select_agent(config=config, agent_name='DDQN')
-    #     _, replay_buffer_train = agent.train(env=real_env, gtn_iteration=gtn_it)
-    #     reward, replay_buffer_test = agent.test(env=real_env)
-    #     replay_buffer_train_all.merge_buffer(replay_buffer_train)
-    #     replay_buffer_test_all.merge_buffer(replay_buffer_test)
-    #
-    # diff_states, diff_rewards, diff_dones = compare_env_output(virtual_env, replay_buffer_train_all)
-
-    for i in range(10):
+    for i in range(3):
         print(i)
-        config['agents']['ddqn']['early_out_num'] = 20
-        config['agents']['ddqn']['early_out_state_diff'] = 1e-6
-        config['agents']['ddqn']['print_rate'] = 1000
         agent = select_agent(config=config, agent_name='DDQN')
-        t1 = time.time()
         _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
-        print(time.time()-t1)
         reward, replay_buffer_test = agent.test(env=real_env)
-        #print(statistics.mean(episode_real_lengths))
-        print(statistics.mean(reward))
+        replay_buffer_train_all.merge_buffer(replay_buffer_train)
+        replay_buffer_test_all.merge_buffer(replay_buffer_test)
+
         if statistics.mean(reward) > 95:
-            states, _, _, _, _ = replay_buffer_train.get_all()
+            real_env.render()
+            time.sleep(10)
+            states, _, _, _, _ = replay_buffer_train_all.get_all()
             for state in states:
-                print(state)
                 real_env.env.env.state = state.cpu().detach().numpy()
                 real_env.render()
-                time.sleep(0.1)
-            # print('entering inner loop')
-            # _, replay_buffer = agent.test(env=virtual_env)
-            # states, _, _, _, _ = replay_buffer.get_all()
-            # for state in states:
-            #     print(state)
-            #     real_env.env.env.state = state.cpu().detach().numpy()
-            #     real_env.render()
-            #     time.sleep(1)
+                time.sleep(0.02)
+
+            time.sleep(5)
+            states, _, _, _, _ = replay_buffer_test_all.get_all()
+            for state in states:
+                real_env.env.env.state = state.cpu().detach().numpy()
+                real_env.render()
+                time.sleep(0.02)
+
+    #diff_states, diff_rewards, diff_dones = compare_env_output(virtual_env, replay_buffer_train_all)
+
+    # for i in range(10):
+    #     print(i)
+    #     #config['agents']['ddqn']['early_out_num'] = 20
+    #     #config['agents']['ddqn']['early_out_state_diff'] = 1e-6
+    #     #config['agents']['ddqn']['print_rate'] = 1000
+    #     agent = select_agent(config=config, agent_name='DDQN')
+    #     t1 = time.time()
+    #     _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
+    #     print(time.time()-t1)
+    #     reward, replay_buffer_test = agent.test(env=real_env)
+    #     print(statistics.mean(reward))
+    #     # if statistics.mean(reward) > 95:
+    #     #     states, _, _, _, _ = replay_buffer_train.get_all()
+    #     #     for state in states:
+    #     #         print(state)
+    #     #         real_env.env.env.state = state.cpu().detach().numpy()
+    #     #         real_env.render()
+    #     #         time.sleep(0.02)
+    #         # print('entering inner loop')
+    #         # _, replay_buffer = agent.test(env=virtual_env)
+    #         # states, _, _, _, _ = replay_buffer.get_all()
+    #         # for state in states:
+    #         #     print(state)
+    #         #     real_env.env.env.state = state.cpu().detach().numpy()
+    #         #     real_env.render()
+    #         #     time.sleep(1)
 
 
 
