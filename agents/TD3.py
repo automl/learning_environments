@@ -74,7 +74,7 @@ class TD3(BaseAgent):
                 next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
 
                 if second_env is not None:
-                    _, reward, _ = second_env.step(action=action, state=state, same_action_num=self.same_action_num)
+                    next_state, _, _ = second_env.step(action=action, state=state, same_action_num=self.same_action_num)
 
                 # FIXME
                 if sum(abs(state)).item() >100 or sum(abs(reward)).item() > 10000:
