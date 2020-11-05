@@ -298,6 +298,8 @@ class GTN_Master(GTN_Base):
             else:
                 scores = scores_idx
 
+            scores /= max(scores)
+
         elif self.score_transform_type == 6:
             # consider single best eps that is better than the average
             avg_score_orig = np.mean(scores_orig)
