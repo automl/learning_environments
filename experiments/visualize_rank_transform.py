@@ -49,11 +49,9 @@ def score_transform(score_list, score_orig_list, score_transform_type):
         if sum(scores_idx) > 0:
             # if sum(scores_idx) > 0:
             scores = scores_idx * (scores - avg_score_orig) / (max(scores) - avg_score_orig + 1e-9)
-            scores /= sum(scores)
+            scores /= max(scores)
         else:
             scores = scores_idx
-
-        scores /= max(scores)
 
     elif score_transform_type == 6:
         # consider single best eps that is better than the average
