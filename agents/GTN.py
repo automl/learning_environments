@@ -310,6 +310,7 @@ class GTN_Master(GTN_Base):
             scores_tmp = np.zeros(scores.size)
             scores_tmp[np.argmax(scores)] = 1
             scores = scores_tmp
+
         elif self.score_transform_type == 5:
             # consider all eps that are better than the average
             avg_score_orig = np.mean(scores_orig)
@@ -318,7 +319,7 @@ class GTN_Master(GTN_Base):
             if sum(scores_idx) > 0:
             #if sum(scores_idx) > 0:
                 scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
-                scores /= sum(scores)
+                scores /= max(scores)
             else:
                 scores = scores_idx
 
