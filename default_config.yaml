@@ -1,5 +1,5 @@
 #env_name: !!str Pendulum-v0
-env_name: !!str CartPole-v0
+env_name: !!str GridWorld-v0
 seed: !!int 21                              # random initialization seed
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
