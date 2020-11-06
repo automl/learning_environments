@@ -319,7 +319,7 @@ class GTN_Master(GTN_Base):
             if sum(scores_idx) > 0:
             #if sum(scores_idx) > 0:
                 scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
-                scores /= max(scores)
+                scores /= sum(scores)
             else:
                 scores = scores_idx
 
@@ -524,11 +524,17 @@ class GTN_Worker(GTN_Base):
                     score_add = max(score_add)
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
-                best_score = min(score_add, score_sub)
-                if score_sub < score_add or not self.mirrored_sampling:
-                    self.invert_eps()
+
+                if self.mirrored_sampling:
+                    best_score = min(score_add, score_sub)
+                    if score_sub < score_add:
+                        self.invert_eps()
+                    else:
+                        self.add_noise_to_virtual_env()
                 else:
-                    self.add_noise_to_virtual_env() # for debugging
+                    best_score = score_sub
+                    self.invert_eps()
+
             else:
                 if self.grad_eval_type == 'mean':
                     score_sub = statistics.mean(score_sub)
@@ -538,11 +544,17 @@ class GTN_Worker(GTN_Base):
                     score_add = min(score_add)
                 else:
                     raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
-                best_score = max(score_add, score_sub)
-                if score_sub > score_add or not self.mirrored_sampling:
-                    self.invert_eps()
+
+                if self.mirrored_sampling:
+                    best_score = max(score_add, score_sub)
+
+                    if score_sub > score_add:
+                        self.invert_eps()
+                    else:
+                        self.add_noise_to_virtual_env()
                 else:
-                    self.add_noise_to_virtual_env() # for debugging
+                    best_score = score_sub
+                    self.invert_eps()
 
             # print('-- LOSS ADD: ' + str(score_add))
             # print('-- LOSS SUB: ' + str(score_sub))
