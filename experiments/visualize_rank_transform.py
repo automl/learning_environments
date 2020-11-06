@@ -49,7 +49,7 @@ def score_transform(score_list, score_orig_list, score_transform_type):
         if sum(scores_idx) > 0:
             # if sum(scores_idx) > 0:
             scores = scores_idx * (scores - avg_score_orig) / (max(scores) - avg_score_orig + 1e-9)
-            scores /= max(scores)
+            scores /= sum(scores)
         else:
             scores = scores_idx
 
