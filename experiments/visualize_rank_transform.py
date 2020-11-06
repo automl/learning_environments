@@ -73,27 +73,27 @@ def score_transform(score_list, score_orig_list, score_transform_type):
 
 
 def plot_score_transform_lists(score_list, score_orig_list, score_transform_lists):
-    fix, axes = plt.subplots(nrows=1, ncols=len(score_transform_lists), dpi=600, figsize=(14, 3.5))
+    fix, axes = plt.subplots(nrows=1, ncols=len(score_transform_lists), dpi=600, figsize=(10, 3.5))
 
     titles = ['linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'all better', 'single better']
 
     for i, score_transform_list in enumerate(score_transform_lists):
         axes[i].plot(score_list, linestyle='', marker='o')
         axes[i].plot([0, len(score_list)], [np.mean(score_orig_list), np.mean(score_orig_list)], color='r')
-        axes[i].bar(range(len(score_transform_list)), score_transform_list, alpha=0.5)
-        axes[i].set_ylim(-0.28, 1.05)
+        axes[i].bar(range(len(score_transform_list)), score_transform_list, color='#78B0D7')
+        axes[i].set_ylim(-0.45, 1.05)
         axes[i].set_title(titles[i])
 
-        axes[i].set_xlabel('population member')
 
         if i == 0:
-            axes[i].set_ylabel('performance / fitness value')
-            axes[i].legend([r'$\mathcal{R}_{G,i}$', r'$\mathcal{R}_G$', r'fitness value'])
+            axes[i].set_xlabel('i (population member)')
+            axes[i].set_ylabel('expected cumulative reward / fitness value')
+            axes[i].legend([r'$K_i$', r'$K_G$', r'$F_i$'], loc='lower left')
         else:
             axes[i].set_yticks([])
 
     #plt.show()
-    plt.savefig('visualize_rank_transform.eps')
+    plt.savefig('visualize_rank_transform.svg')
 
 
     # fig = plt.figure(dpi=200, figsize=(5, 4))
@@ -109,8 +109,8 @@ def plot_score_transform_lists(score_list, score_orig_list, score_transform_list
 
 
 if __name__ == "__main__":
-    score_list = sorted([random.random()*0.3+0.6 for _ in range(20)])
-    score_orig_list = [0.8]*20
+    score_list = sorted([random.random()*0.5+0.5 for _ in range(10)])
+    score_orig_list = [0.85]*10
 
     score_transform_lists = []
 
