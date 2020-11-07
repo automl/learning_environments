@@ -40,7 +40,7 @@ class GTN_Base(nn.Module):
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
-        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync___'))
+        self.working_dir = str(os.path.join(os.getcwd(), "results", 'GTN_sync_new_gridworld'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 
@@ -55,6 +55,9 @@ class GTN_Base(nn.Module):
 
     def get_result_check_file_name(self, id):
         return os.path.join(self.working_dir, str(self.bohb_id) + '_' + str(id) + '_result_check.pt')
+
+    def get_quit_file_name(self):
+        return os.path.join(self.working_dir, 'quit.file')
 
     def clean_working_dir(self):
         files = glob.glob(os.path.join(self.working_dir, '*'))
@@ -74,6 +77,7 @@ class GTN_Master(GTN_Base):
         gtn_config = config["agents"]["gtn"]
         self.num_workers = gtn_config["num_workers"]
         self.step_size = gtn_config["step_size"]
+        self.nes_step_size = gtn_config["nes_step_size"]
         self.weight_decay = gtn_config["weight_decay"]
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
@@ -102,6 +106,8 @@ class GTN_Master(GTN_Base):
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
         # for matching
         self.rb = self.create_replay_buffer()
+
+        self.quit_flag = False
 
         os.makedirs(self.model_dir, exist_ok=True)
 
@@ -140,8 +146,13 @@ class GTN_Master(GTN_Base):
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
             skip_flag = self.read_worker_results()
+
+            if self.quit_flag:
+                return
+
             if skip_flag:
                 continue
+
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
             print('-- Master: update env' + ' ' + str(time.time()-t1))
@@ -199,6 +210,10 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has deleted the file (i.e. acknowledged the previous input)
             while os.path.isfile(file_name):
+                if os.path.isfile(self.get_quit_file_name()):
+                    print('Master {}: Emergency quit'.format(self.bohb_id))
+                    self.quit_flag = True
+                    return
                 time.sleep(self.time_sleep_master)
 
             time.sleep(self.time_sleep_master)
@@ -231,6 +246,10 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has finished calculations
             while not os.path.isfile(check_file_name):
+                if os.path.isfile(self.get_quit_file_name()):
+                    print('Master {}: Emergency quit'.format(self.bohb_id))
+                    self.quit_flag = True
+                    return
                 time.sleep(self.time_sleep_master)
 
             data = torch.load(file_name)
@@ -312,18 +331,6 @@ class GTN_Master(GTN_Base):
             scores = scores_tmp
 
         elif self.score_transform_type == 5:
-            # consider all eps that are better than the average
-            avg_score_orig = np.mean(scores_orig)
-
-            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
-            if sum(scores_idx) > 0:
-            #if sum(scores_idx) > 0:
-                scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
-                scores /= sum(scores)
-            else:
-                scores = scores_idx
-
-        elif self.score_transform_type == 6:
             # consider single best eps that is better than the average
             avg_score_orig = np.mean(scores_orig)
 
@@ -334,8 +341,27 @@ class GTN_Master(GTN_Base):
                 scores = scores_tmp
             else:
                 scores = scores_idx
+
+        elif self.score_transform_type == 6 or self.score_transform_type == 7:
+            # consider all eps that are better than the average, normalize weight sum to 1
+            avg_score_orig = np.mean(scores_orig)
+
+            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+            if sum(scores_idx) > 0:
+            #if sum(scores_idx) > 0:
+                scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
+                if self.score_transform_type == 6:
+                    scores /= max(scores)
+                else:
+                    scores /= sum(scores)
+            else:
+                scores = scores_idx
+
         else:
             raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
+
+        if self.nes_step_size:
+            scores /= self.num_workers
 
         self.score_transform_list = scores.tolist()
 
@@ -346,7 +372,7 @@ class GTN_Master(GTN_Base):
         print('score_orig_list      ' + str(self.score_orig_list))
         print('score_list           ' + str(self.score_list))
         print('score_transform_list ' + str(self.score_transform_list))
-        #print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.virtual_env_list]))
+        print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.virtual_env_list]))
         #print('mean                 ' + str(np.mean(self.score_transform_list)))
 
         print('weights before: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
@@ -439,11 +465,14 @@ class GTN_Worker(GTN_Base):
 
             rb_all = self.create_replay_buffer()
 
-            print('-- Worker {}: read worker inputs {}'.format(self.id, time.time()-t1))
+            # print('-- Worker {}: read worker inputs {}'.format(self.id, time.time()-t1))
 
             self.read_worker_input()
 
-            print('-- Worker {}: evaluation {}'.format(self.id, time.time()-t1))
+            if self.quit_flag:
+                return
+
+            # print('-- Worker {}: evaluation {}'.format(self.id, time.time()-t1))
 
             time_start = time.time()
 
@@ -472,7 +501,7 @@ class GTN_Worker(GTN_Base):
 
             self.get_random_eps()
 
-            print('-- Worker {}: train add {}'.format(self.id, time.time()-t1))
+            # print('-- Worker {}: train add {}'.format(self.id, time.time()-t1))
 
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
@@ -492,7 +521,7 @@ class GTN_Worker(GTN_Base):
                 if self.match:
                     rb_all.merge_buffer(rb)
 
-            print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
+            # print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
 
             # # second mirrored noise -N
             self.subtract_noise_from_virtual_env()
@@ -512,7 +541,7 @@ class GTN_Worker(GTN_Base):
                 if self.match:
                     rb_all.merge_buffer(rb)
 
-            print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
+            # print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
 
             if self.minimize_score:
                 #print('worker ' + str(self.id) + ' ' + str(score_sub) + ' ' + str(score_add) + ' ' + str(weight_sub) + ' ' + str(weight_add))
@@ -532,8 +561,8 @@ class GTN_Worker(GTN_Base):
                     else:
                         self.add_noise_to_virtual_env()
                 else:
-                    best_score = score_sub
-                    self.invert_eps()
+                    best_score = score_add
+                    self.add_noise_to_virtual_env()
 
             else:
                 if self.grad_eval_type == 'mean':
@@ -553,13 +582,13 @@ class GTN_Worker(GTN_Base):
                     else:
                         self.add_noise_to_virtual_env()
                 else:
-                    best_score = score_sub
-                    self.invert_eps()
+                    best_score = score_add
+                    self.add_noise_to_virtual_env()
 
             # print('-- LOSS ADD: ' + str(score_add))
             # print('-- LOSS SUB: ' + str(score_sub))
             # print('-- LOSS BEST: ' + str(best_score))
-            print('-- Worker {}: write result '.format(self.id, time.time()-t1))
+            # print('-- Worker {}: write result '.format(self.id, time.time()-t1))
 
             self.write_worker_result(score=best_score,
                                      score_orig=score_orig,
@@ -575,6 +604,10 @@ class GTN_Worker(GTN_Base):
         check_file_name = self.get_input_check_file_name(id=self.id)
 
         while not os.path.isfile(check_file_name):
+            if os.path.isfile(self.get_quit_file_name()):
+                print('Worker {} {}: Emergency quit'.format(self.bohb_id, self.id))
+                self.quit_flag = True
+                return
             time.sleep(self.time_sleep_worker)
         time.sleep(self.time_sleep_worker)
 

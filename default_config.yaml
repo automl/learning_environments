@@ -13,6 +13,7 @@ agents:
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
+    nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     rb_size: !!int 100000                   # reptile step size
     match: !!bool False                     # pure GTN or with env matcher?
     mirrored_sampling: !!bool False         # use normal or mirrored sampling
@@ -26,7 +27,7 @@ agents:
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
-    score_transform_type: !!int 5           # 0-6
+    score_transform_type: !!int 7           # 0-7
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   reptile:
@@ -114,7 +115,7 @@ agents:
     init_episodes: !!int 5                  # number of episodes to prevent an early out
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
-    eps_init: !!float 0.5                     # initial random action percentage
+    eps_init: !!float 0.5                   # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.95                 # random action decay factor
     action_noise: !!float 0.0               # random action decay factor
@@ -225,7 +226,7 @@ envs:
 
   GridWorld-v0:
     solved_reward: !!float 0.8
-    max_steps: !!int 15
+    max_steps: !!int 10
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
