@@ -361,7 +361,7 @@ class GTN_Master(GTN_Base):
             raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
 
         if self.nes_step_size:
-            scores /= self.num_workers
+            scores = scores / self.num_workers
 
         self.score_transform_list = scores.tolist()
 
