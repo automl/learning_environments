@@ -20,7 +20,7 @@ class ExperimentWrapper():
         params['max_budget'] = 1
         params['eta'] = 2
         params['random_fraction'] = 1
-        params['iterations'] = 120
+        params['iterations'] = 100
 
         return params
 
@@ -78,7 +78,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_gridworld_3x3_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_gridworld_2x3_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
