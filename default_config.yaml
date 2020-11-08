@@ -16,7 +16,7 @@ agents:
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     rb_size: !!int 100000                   # reptile step size
     match: !!bool False                     # pure GTN or with env matcher?
-    mirrored_sampling: !!bool False         # use normal or mirrored sampling
+    mirrored_sampling: !!bool True          # use normal or mirrored sampling
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
     grad_eval_type: !!str mean              # mean or min
     weight_decay: !!float 0.0               # weight decay
