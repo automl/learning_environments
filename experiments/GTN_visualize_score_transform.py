@@ -83,26 +83,26 @@ if __name__ == "__main__":
     data_w_mirr = get_data(with_nes_step_size=False, with_mirrored_sampling=True, finish_after_solved=False)
     plot_data(data_wo=data_wo_mirr,
               data_w=data_w_mirr,
-              title='reward transform (w/o NES step size, w/o early finish)',
-              savefig_name='score_transform_wo_nes_no_finish.png')
+              title='reward transform (w/o NES step size, w/o early out)',
+              savefig_name='score_transform_wo_nes_wo_out.png')
 
     data_wo_mirr = get_data(with_nes_step_size=False, with_mirrored_sampling=False, finish_after_solved=True)
     data_w_mirr = get_data(with_nes_step_size=False, with_mirrored_sampling=True, finish_after_solved=True)
     plot_data(data_wo=data_wo_mirr,
               data_w=data_w_mirr,
-              title='reward transform (w/o NES step size, w/ early finish)',
-              savefig_name='score_transform_wo_nes_finish.png')
+              title='reward transform (w/o NES step size, w/ early out)',
+              savefig_name='score_transform_wo_nes_w_out.png')
 
     data_wo_mirr = get_data(with_nes_step_size=True, with_mirrored_sampling=False, finish_after_solved=False)
     data_w_mirr = get_data(with_nes_step_size=True, with_mirrored_sampling=True, finish_after_solved=False)
     plot_data(data_wo=data_wo_mirr,
               data_w=data_w_mirr,
-              title='reward transform (w NES step size, w/o early finish)',
-              savefig_name='score_transform_w_nes_no_finish.png')
+              title='reward transform (w/ NES step size, w/o early out)',
+              savefig_name='score_transform_w_nes_wo_out.png')
 
     data_wo_mirr = get_data(with_nes_step_size=True, with_mirrored_sampling=False, finish_after_solved=True)
     data_w_mirr = get_data(with_nes_step_size=True, with_mirrored_sampling=True, finish_after_solved=True)
     plot_data(data_wo=data_wo_mirr,
               data_w=data_w_mirr,
-              title='reward transform (w/ NES step size, w/ early finish)',
-              savefig_name='score_transform_w_nes_finish.png')
+              title='reward transform (w/ NES step size, w/ early out)',
+              savefig_name='score_transform_w_nes_w_out.png')
