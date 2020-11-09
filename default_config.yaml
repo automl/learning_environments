@@ -225,7 +225,7 @@ envs:
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
   GridWorld-v0:
-    solved_reward: !!float 0.95
+    solved_reward: !!float 0.9
     max_steps: !!int 15
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
