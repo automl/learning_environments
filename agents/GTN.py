@@ -107,8 +107,6 @@ class GTN_Master(GTN_Base):
         # for matching
         self.rb = self.create_replay_buffer()
 
-        self.quit_flag = False
-
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
@@ -145,9 +143,9 @@ class GTN_Master(GTN_Base):
             print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
-            skip_flag = self.read_worker_results()
+            skip_flag, quit_flag = self.read_worker_results()
 
-            if self.quit_flag:
+            if quit_flag:
                 return
 
             if skip_flag:
@@ -211,7 +209,6 @@ class GTN_Master(GTN_Base):
             while os.path.isfile(file_name):
                 if os.path.isfile(self.get_quit_file_name()):
                     print('Master {}: Emergency quit'.format(self.bohb_id))
-                    self.quit_flag = True
                     return
                 time.sleep(self.time_sleep_master)
 
@@ -238,6 +235,7 @@ class GTN_Master(GTN_Base):
 
     def read_worker_results(self):
         skip_flag = False
+        quit_flag = False
 
         for id in range(self.num_workers):
             file_name = self.get_result_file_name(id)
@@ -247,8 +245,8 @@ class GTN_Master(GTN_Base):
             while not os.path.isfile(check_file_name):
                 if os.path.isfile(self.get_quit_file_name()):
                     print('Master {}: Emergency quit'.format(self.bohb_id))
-                    self.quit_flag = True
-                    return
+                    quit_flag = True
+                    return skip_flag, quit_flag
                 time.sleep(self.time_sleep_master)
 
             data = torch.load(file_name)
@@ -285,7 +283,7 @@ class GTN_Master(GTN_Base):
             os.remove(check_file_name)
             os.remove(file_name)
 
-        return skip_flag
+        return skip_flag, quit_flag
 
     def score_transform(self):
         scores = np.asarray(self.score_list)
