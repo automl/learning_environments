@@ -26,7 +26,7 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=7, log=False, default_value=7))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=1, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-2, upper=5, log=True, default_value=1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=['False', 'True'], default_value='False'))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=['False', 'True'], default_value='False'))
 
