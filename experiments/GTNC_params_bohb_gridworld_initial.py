@@ -14,10 +14,10 @@ class ExperimentWrapper():
         params = {}
         params['seed'] = 42
         params['min_budget'] = 1
-        params['max_budget'] = 2
+        params['max_budget'] = 1
         params['eta'] = 2
-        params['random_fraction'] = 0.3
-        params['iterations'] = 1000
+        params['random_fraction'] = 1
+        params['iterations'] = 5000
 
         return params
 
@@ -25,24 +25,30 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=2, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_exploration_gain', choices=[0, 0.001], default_value=0))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_correct_path_gain', choices=[0, 0.001], default_value=0))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=7, log=False, default_value=7))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=1, log=True, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=['False', 'True'], default_value='False'))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=['False', 'True'], default_value='False'))
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ql_init_episodes', lower=0, upper=10, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_alpha', lower=0.01, upper=1, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_gamma', lower=0.5, upper=1, log=False, default_value=1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_init', lower=0.01, upper=1, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_min', lower=0.01, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_decay', lower=0.5, upper=1, log=False, default_value=0.99))
-        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
-        #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.5, upper=1, log=True, default_value=0.9))
-
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_steps', lower=1, upper=20, log=False, default_value=10))
+        #
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=5e-1, upper=2, log=True, default_value=1))
+        # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_num_grad_evals', choices=[1,2,3], default_value=1))
+        # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_grad_eval_type', choices=['mean', 'minmax'], default_value='minmax'))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=6, log=False, default_value=5))
+        # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_exploration_gain', choices=[0, 0.001], default_value=0))
+        # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_correct_path_gain', choices=[0, 0.001], default_value=0))
+        #
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ql_init_episodes', lower=0, upper=10, log=False, default_value=5))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_alpha', lower=0.01, upper=1, log=True, default_value=0.5))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_gamma', lower=0.5, upper=1, log=False, default_value=1))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_init', lower=0.01, upper=1, log=True, default_value=1))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_min', lower=0.01, upper=0.1, log=True, default_value=0.01))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_decay', lower=0.5, upper=1, log=False, default_value=0.99))
+        # #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise', lower=1e-2, upper=10, log=True, default_value=1e-1))
+        # #cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_action_noise_decay', lower=0.5, upper=1, log=True, default_value=0.9))
+        #
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_max_steps', lower=1, upper=20, log=False, default_value=10))
 
         return cs
 
@@ -54,24 +60,10 @@ class ExperimentWrapper():
 
         config["render_env"] = False
 
-        config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
+        config["agents"]['gtn']['score_transform_type'] = cso["gtn_score_transform_type"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
-        config["agents"]['gtn']['num_grad_evals'] = int(cso["gtn_num_grad_evals"])
-        config["agents"]['gtn']['grad_eval_type'] = cso["gtn_grad_eval_type"]
-        config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
-        config["agents"]['gtn']['exploration_gain'] = float(cso["gtn_exploration_gain"])
-        config["agents"]['gtn']['correct_path_gain'] = float(cso["gtn_correct_path_gain"])
-
-        config["agents"]['ql']['init_episodes'] = int(cso["ql_init_episodes"])
-        config["agents"]['ql']['alpha'] = float(cso["ql_alpha"])
-        config["agents"]['ql']['gamma'] = float(cso["ql_gamma"])
-        config["agents"]['ql']['eps_init'] = float(cso["ql_eps_init"])
-        config["agents"]['ql']['eps_min'] = float(cso["ql_eps_min"])
-        config["agents"]['ql']['eps_decay'] = float(cso["ql_eps_decay"])
-        #config["agents"]['ql']['action_noise'] = float(cso["ql_action_noise"])
-        #config["agents"]['ql']['action_noise_decay'] = float(cso["ql_action_noise_decay"])
-
-        config["envs"][env_name]['max_steps'] = int(cso["gtn_max_steps"])
+        config["agents"]['gtn']['mirrored_sampling'] = bool(cso["gtn_mirrored_sampling"])
+        config["agents"]['gtn']['nes_step_size'] = bool(cso["gtn_nes_step_size"])
 
         return config
 

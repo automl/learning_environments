@@ -1,6 +1,7 @@
 import os
 import torch
 import time
+import statistics
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -16,7 +17,7 @@ G_DOWN = 2
 G_UP = 3
 
 NEXT_STATE_PROB_FACTOR = 2
-INTENSITY_FACTOR = 0.8
+INTENSITY_FACTOR = 0.7
 
 FONTSIZE_LARGE = 14
 FONTSIZE_SMALL = 12
@@ -248,8 +249,8 @@ if __name__ == "__main__":
     #     print('{} {} {} {}'.format(i, xy_to_idx((x,y)), x, y))
     #     #print(r.grid[x][y])
 
-    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_evaluate_gridworld'
-    file_name = '2x3_25_DZCBB9.pt'
+    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_evaluate_gridworld_new'
+    file_name = '2x3_21_926757.pt'
     virtual_env, real_env, config, M, N, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
 
     replay_buffer_train_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
@@ -277,7 +278,7 @@ if __name__ == "__main__":
     # plot_filled_rectangle((0,1), 0.1, 0)
     ax.axis('equal')
     ax.axis('off')
-    plt.savefig('gridworld_train.eps')
+    plt.savefig('gridworld_train.svg')
 
     fig, ax = plt.subplots(dpi=600)
     plot_tiles(length=0.9, n_tot=M*N)
@@ -287,6 +288,6 @@ if __name__ == "__main__":
     # plot_filled_rectangle((0,1), 0.1, 0)
     ax.axis('equal')
     ax.axis('off')
-    plt.savefig('gridworld_test.eps')
+    plt.savefig('gridworld_test.svg')
 
     plt.show()
