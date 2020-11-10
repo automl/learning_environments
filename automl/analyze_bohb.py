@@ -342,7 +342,7 @@ def plot_parallel_scatter(result):
                     for k in range(len(data)):
                         if data[k][0] == values[i]:
                             xs[k] = index + np.random.uniform(-x_dev, x_dev)
-                            ys[k] = linear_interpolation(np.log(data[k][0]), np.log(min_val), np.log(max_val), 0, 1)
+                            ys[k] = linear_interpolation(data[k][0], min_val, max_val, 0, 1)
 
             plt.text(index + text_x_offset, 0 + text_y_offset, str(f"{Decimal(min_val):.1E}"), rotation=90, size=size_text)
             plt.text(index + text_x_offset, 0.5 + text_y_offset, str(f"{Decimal(val050):.1E}"), rotation=90, size=size_text)

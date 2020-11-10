@@ -65,7 +65,7 @@ def plot_data(data, savefig_name):
         plt.plot(mean)
         plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.1)
 
-    plt.legend(('2x2 gridworld', '2x3 gridworld', '3x3 gridworld'))
+    plt.legend(('2x2 grid world', '2x3 grid world', '3x3 grid world'))
     plt.xlim(0,49)
     plt.ylim(-0.2, 1)
     plt.xlabel('ES iteration')

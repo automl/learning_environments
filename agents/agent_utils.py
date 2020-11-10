@@ -5,6 +5,7 @@ from agents.TD3 import TD3
 from agents.PPO import PPO
 from agents.DDQN import DDQN
 from agents.QL import QL
+from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
 from utils import print_abs_param_sum
 
@@ -23,6 +24,8 @@ def select_agent(config, agent_name):
         return DDQN(state_dim, action_dim, config)
     elif agent_name == "QL":
         return QL(state_dim, action_dim, config)
+    elif agent_name == "SARSA":
+        return SARSA(state_dim, action_dim, config)
     else:
         raise NotImplementedError("Unknownn RL agent")
 

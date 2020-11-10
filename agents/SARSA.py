@@ -6,9 +6,9 @@ from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 from utils import ReplayBuffer, AverageMeter
 
-class QL(BaseAgent):
+class SARSA(BaseAgent):
     def __init__(self, state_dim, action_dim, config):
-        agent_name = "ql"
+        agent_name = "sarsa"
         super().__init__(agent_name=agent_name, state_dim=state_dim, action_dim=action_dim, config=config)
 
         ql_config = config["agents"][agent_name]
@@ -23,7 +23,6 @@ class QL(BaseAgent):
         self.q_table = [[0]*self.action_dim for _ in range(self.state_dim)]
 
         self.it = 0
-
 
     def train(self, env, time_remaining=1e9, gtn_iteration=0):
         time_start = time.time()
@@ -93,11 +92,15 @@ class QL(BaseAgent):
         state, action, next_state, reward, done = replay_buffer.sample(1)
         state = int(state.item())
         action = int(action.item())
+        next_action = self.select_train_action(state=next_state, env=env)
         next_state = int(next_state.item())
+        next_action = int(next_action.item())
         reward = reward.item()
         done = done.item()
 
-        delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
+
+
+        delta = reward + self.gamma * self.q_table[next_state][next_action] * (done < 0.5) - self.q_table[state][action]
         self.q_table[state][action] += self.alpha * delta
 
 
@@ -156,7 +159,7 @@ class QL(BaseAgent):
 
     def get_state_dict(self):
         agent_state = {}
-        agent_state["ql_q_table"] = self.q_table
+        agent_state["sarsa_q_table"] = self.q_table
         return agent_state
 
     def set_state_dict(self, agent_state):
@@ -180,17 +183,17 @@ if __name__ == "__main__":
 
     timing = []
     for i in range(100):
-        ql = QL(state_dim=real_env.get_state_dim(),
-                action_dim=real_env.get_action_dim(),
-                config=config)
+        sarsa = SARSA(state_dim=real_env.get_state_dim(),
+                      action_dim=real_env.get_action_dim(),
+                      config=config)
 
         #ddqn.train(env=virt_env, time_remaining=50)
 
         t1 = time.time()
-        ql.train(env=real_env, time_remaining=500)
+        sarsa.train(env=real_env, time_remaining=500)
         t2 = time.time()
         timing.append(t2-t1)
-        reward_list, replay_buffer = ql.test(env=real_env, time_remaining=500)
+        reward_list, replay_buffer = sarsa.test(env=real_env, time_remaining=500)
         print(sum(reward_list)/len(reward_list))
     print('avg. ' + str(sum(timing)/len(timing)))
 
