@@ -92,7 +92,6 @@ class GTN_Master(GTN_Base):
         # for early out
         self.avg_runtime = None
         self.real_env = self.env_factory.generate_default_real_env()
-        self.optimal_path = self.find_optimal_path()
 
         # to store models
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models'))
@@ -100,26 +99,10 @@ class GTN_Master(GTN_Base):
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
-        print('optimal path: {}'.format(self.optimal_path))
 
 
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
-
-
-    def find_optimal_path(self,):
-        agent_base = select_agent(config=self.config, agent_name=self.agent_name)
-        # agent_base.train(env=self.virtual_env_orig,
-        #                  time_remaining=1e3)
-        agent_base.train(env=self.real_env,
-                         time_remaining=1e3)
-
-        agent_base.test_episodes = 1
-        _, replay_buffer = agent_base.test(env=self.real_env)
-        _, _, next_state, _, _ = replay_buffer.get_all()
-        optimal_path = [state.item() for state in next_state.int()]
-
-        return optimal_path
 
 
     def run(self):
@@ -218,7 +201,6 @@ class GTN_Master(GTN_Base):
             data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
             data['gtn_iteration'] = it
-            data['optimal_path'] = self.optimal_path
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
 
             torch.save(data, file_name)
@@ -571,7 +553,6 @@ class GTN_Worker(GTN_Base):
         self.gtn_iteration = data['gtn_iteration']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
-        self.optimal_path = data['optimal_path']
 
         os.remove(check_file_name)
         os.remove(file_name)
