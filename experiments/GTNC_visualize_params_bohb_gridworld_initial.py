@@ -134,14 +134,11 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
                 min_step_size = min(min_step_size, step_size)
                 max_step_size = max(max_step_size, step_size)
 
-    print(min_step_size)
-    print(max_step_size)
-
     loss_m = 0
     loss_M = 50
 
     x_dev = 0.2
-    rad = 15
+    rad = 25
     alpha = 0.4
     text_x_offset = 0
     text_y_offset = 0
