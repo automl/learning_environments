@@ -95,6 +95,7 @@ class ExperimentWrapper():
         info = {}
         info['error'] = str(error)
         info['score_list'] = str(score_list)
+        info['config'] = str(config)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     # torch.cuda.manual_seed_all(SEED)
 
     x = datetime.datetime.now()
-    run_id = 'GTNC_params_bohb_gridworld_initial_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_step_size_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

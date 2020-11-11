@@ -12,16 +12,13 @@ agents:
     num_workers: !!int 16                   # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
-    step_size: !!float 10                   # reptile step size
+    step_size: !!float 1                    # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
-    rb_size: !!int 100000                   # reptile step size
-    match: !!bool False                     # pure GTN or with env matcher?
     mirrored_sampling: !!bool True          # use normal or mirrored sampling
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
     grad_eval_type: !!str mean              # mean or min
     weight_decay: !!float 0.0               # weight decay
     exploration_gain: !!float 1e-4          # additional gain factor to favor exploration
-    correct_path_gain: !!float 0            # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
@@ -242,7 +239,7 @@ envs:
 
   GridWorld-v0:
     solved_reward: !!float 0.8
-    max_steps: !!int 100
+    max_steps: !!int 10
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
