@@ -27,8 +27,8 @@ class ExperimentWrapper():
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=7, log=False, default_value=7))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=1e-1, upper=100, log=True, default_value=1))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=['False', 'True'], default_value='False'))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=['False', 'True'], default_value='False'))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=False))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=[False, True], default_value=False))
 
         #
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=1e-2, upper=1, log=True, default_value=1e-1))
@@ -62,8 +62,8 @@ class ExperimentWrapper():
 
         config["agents"]['gtn']['score_transform_type'] = cso["gtn_score_transform_type"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
-        config["agents"]['gtn']['mirrored_sampling'] = bool(cso["gtn_mirrored_sampling"])
-        config["agents"]['gtn']['nes_step_size'] = bool(cso["gtn_nes_step_size"])
+        config["agents"]['gtn']['mirrored_sampling'] = cso["gtn_mirrored_sampling"]
+        config["agents"]['gtn']['nes_step_size'] = cso["gtn_nes_step_size"]
 
         return config
 

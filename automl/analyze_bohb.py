@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.8
+OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -357,7 +357,7 @@ def plot_parallel_scatter(result):
 
 def linear_interpolation(x, x0, x1, y0, y1):
     # linearly interpolate between two x/y values for a given x value
-    return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    return y0 + (y1 - y0) * (x - x0) / (x1 - x0 + 1e-9)
 
 def map_to_zero_one_range(loss, loss_m, loss_M):
     if loss_M < 1 and loss_m > 0 and REVERSE_LOSS == False:
@@ -368,7 +368,7 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
         acc = -loss
     else:
         # normalize loss to the 0 (bad) - 1(good) range
-        acc = (loss-loss_m) / (loss_M - loss_m)
+        acc = (loss-loss_m) / (loss_M - loss_m + 1e-9)
         if REVERSE_LOSS:
             acc = 1-acc
 
@@ -393,7 +393,7 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results'
+    log_dir = '../results/GTNC_evaluate_step_size_2020-11-11-21'
     analyze_bohb(log_dir)
 
 
