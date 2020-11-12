@@ -29,8 +29,9 @@ def analyze_bohb(log_dir):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
-    result = transform_result(result, min_success_reward=MIN_SUCCESS_REWARD)
+    #result = transform_result(result, min_success_reward=MIN_SUCCESS_REWARD)
     #result = remove_outliers(result)
+    #result = filter_values(result)
 
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=False)
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=True)
@@ -97,12 +98,9 @@ def filter_values(result):
     del_list = []
     for key, value1 in result.data.items():
         id = key
-        if value1.config['gtn_score_transform_type'] != 7:
+        if value1.config['gtn_score_transform_type'] != 7 or \
+           value1.config['gtn_step_size'] < 1 or value1.config['gtn_step_size'] > 20:
             del_list.append(id)
-        # print('++++')
-        # print(key)
-        # print('----')
-        # print(value1)
 
     for id in del_list:
         result.data.pop(id, None)
@@ -139,10 +137,11 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
 
     x_dev = 0.2
     rad = 25
-    alpha = 0.4
+    alpha = 0.6
     text_x_offset = 0
     text_y_offset = 0
     size_text = 6
+    log_diff = 10
 
     xs = []
     ys = []
@@ -153,7 +152,7 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         colors = np.zeros([len(values[i]), 3])
 
         # log scale if min/max value differs to much
-        if max_step_size / min_step_size > 10:
+        if max_step_size / min_step_size > log_diff:
             for k in range(len(values[i])):
                 step_size, loss = values[i][k]
                 xs[k] = i+1 + np.random.uniform(-x_dev, x_dev)
@@ -172,10 +171,16 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
 
         plt.scatter(xs, ys, s=rad, c=colors, alpha=alpha, edgecolors='none')
 
-    if max_step_size / min_step_size > 10:
-        val050 = np.exp((np.log(min_step_size)+np.log(max_step_size))/2)
-    else:
-        val050 = linear_interpolation(0.50, 0, 1, min_step_size, max_step_size)
+    yvals = []
+    yticks = []
+    for i in range(11):
+        val = i/10
+        yvals.append(val)
+        if max_step_size / min_step_size > log_diff:
+            ytick = np.exp(np.log(min_step_size)+(np.log(max_step_size)-np.log(min_step_size))*val)
+        else:
+            ytick = linear_interpolation(val, 0, 1, min_step_size, max_step_size)
+        yticks.append(str(f"{Decimal(ytick):.1E}"))
 
 
     if with_nes_step_size:
@@ -189,7 +194,7 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         mir_string = 'w/o mirrored sampling'
 
     plt.title(mir_string + ', ' + nes_string)
-    plt.yticks([0, 0.5, 1], [str(f"{Decimal(min_step_size):.1E}"), str(f"{Decimal(val050):.1E}"), str(f"{Decimal(max_step_size):.1E}")])
+    plt.yticks(yvals, yticks)
     plt.xticks(np.arange(8)+1, ('linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'single better', 'all better 1', 'all better 2'), rotation=90)
 
     plt.show()
@@ -233,7 +238,7 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_params_bohb_gridworld_initial_2020-11-10-12'
+    log_dir = '../results/GTNC_evaluate_step_size_2020-11-11-21'
     analyze_bohb(log_dir)
 
 
