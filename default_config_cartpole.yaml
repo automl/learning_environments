@@ -5,7 +5,7 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'single'                    # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 100               # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
@@ -45,7 +45,6 @@ agents:
     hidden_layer: !!int 1                   # number of hidden layers
     print_rate: 1000                        # update rate of avg meters
     early_out_num: 10                       # based on how many training steps shall an early out happen
-    early_out_state_diff: !!float 1e-6      # performance difference for an early out for virtual envs
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
 envs:
