@@ -15,16 +15,18 @@ def select_agent(config, agent_name):
     state_dim = dummy_env.get_state_dim()
     action_dim = dummy_env.get_action_dim()
 
-    if agent_name == "TD3":
+    agent_name = agent_name.lower()
+
+    if agent_name == "td3":
         max_action = dummy_env.get_max_action()
         return TD3(state_dim, action_dim, max_action, config)
-    elif agent_name == "PPO":
+    elif agent_name == "ppo":
         return PPO(state_dim, action_dim, config)
-    elif agent_name == "DDQN":
+    elif agent_name == "ddqn":
         return DDQN(state_dim, action_dim, config)
-    elif agent_name == "QL":
+    elif agent_name == "ql":
         return QL(state_dim, action_dim, config)
-    elif agent_name == "SARSA":
+    elif agent_name == "sarsa":
         return SARSA(state_dim, action_dim, config)
     else:
         raise NotImplementedError("Unknownn RL agent")

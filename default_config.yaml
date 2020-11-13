@@ -1,5 +1,5 @@
 #env_name: !!str Pendulum-v0
-env_name: !!str GridWorld-v0
+env_name: !!str EmptyRoom22
 seed: !!int 21                              # random initialization seed
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
@@ -26,6 +26,7 @@ agents:
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     agent_name: !!str QL                    # which RL agent to use for meta-training
+    working_dir: !!str results/GTN_sync     # synchronization directory
 
   reptile:
     max_iterations: !!int 20                # maximum number of REPTILE iteration
@@ -216,13 +217,6 @@ envs:
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
-  Bandit-v0:
-    solved_reward: !!float 49
-    max_steps: !!int 50
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 4                          # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-
   LunarLander-v2:
     solved_reward: !!float 200
     max_steps: !!int 1000
@@ -237,16 +231,38 @@ envs:
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
 
-  GridWorld-v0:
-    solved_reward: !!float 0.8
-    max_steps: !!int 10
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
-    hidden_size: 32                         # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-
   CliffWalking-v0:
     solved_reward: !!float -50
     max_steps: !!int 100
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+
+  Bandit:
+    solved_reward: !!float 49
+    max_steps: !!int 50
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 4                          # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+
+  EmptyRoom22:
+    solved_reward: !!float 0.8
+    max_steps: !!int 10
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+
+  EmptyRoom23:
+    solved_reward: !!float 0.8
+    max_steps: !!int 15
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+
+  EmptyRoom33:
+    solved_reward: !!float 0.8
+    max_steps: !!int 20
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+

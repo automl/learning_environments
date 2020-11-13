@@ -42,7 +42,7 @@ class TD3(BaseAgent):
         self.total_it = 0
 
 
-    def train(self, env, time_remaining=1e9):
+    def train(self, env, time_remaining=1e9, gtn_iteration=0):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim

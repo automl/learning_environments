@@ -21,9 +21,6 @@ OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 MIN_SUCCESS_REWARD = 0.8
 
-def str2bool(v):
-  return v.lower() in ("yes", "true", "t", "1")
-
 
 def analyze_bohb(log_dir):
     # load the example run from the log files
@@ -109,7 +106,7 @@ def filter_values(result):
 
 
 def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
-    plt.subplots(dpi=300, figsize=(4,4))
+    plt.subplots(dpi=300, figsize=(5,5))
 
     min_step_size = 1e9
     max_step_size = -1e9
@@ -118,8 +115,8 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
     values = [[] for _ in range(8)]
     for value in result.data.values():
         config = value.config
-        mirrored_sampling = str2bool(config['gtn_mirrored_sampling'])
-        nes_step_size = str2bool(config['gtn_nes_step_size'])
+        mirrored_sampling = config['gtn_mirrored_sampling']
+        nes_step_size = config['gtn_nes_step_size']
         score_transform_type = config['gtn_score_transform_type']
         step_size = config['gtn_step_size']
 
@@ -238,7 +235,7 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_evaluate_step_size_2020-11-11-21'
+    log_dir = '../results/GTNC_evaluate_step_size_2020-11-12-18'
     analyze_bohb(log_dir)
 
 

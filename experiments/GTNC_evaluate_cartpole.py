@@ -37,7 +37,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_gridworld.yaml", 'r') as stream:
+        with open("default_config_cartpole.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -78,7 +78,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_gridworld_2x3_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

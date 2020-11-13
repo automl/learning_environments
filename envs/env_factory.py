@@ -95,10 +95,14 @@ class EnvFactory:
             env = gym.make(env_name)
         elif env_name == 'FrozenLake-v0':
             env = gym.make(env_name, is_slippery=False)
-        elif env_name == "Bandit-v0":
+        elif env_name == "Bandit":
             env = TimeLimit(BanditFixedPermutedGaussian())
-        elif env_name == "GridWorld-v0":
-            env = TimeLimit(EmptyRoomSmall())
+        elif env_name == "EmptyRoom22":
+            env = TimeLimit(EmptyRoom22())
+        elif env_name == "EmptyRoom23":
+            env = TimeLimit(EmptyRoom23())
+        elif env_name == "EmptyRoom33":
+            env = TimeLimit(EmptyRoom33())
         else:
             raise NotImplementedError("Environment not supported")
 

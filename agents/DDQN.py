@@ -36,7 +36,7 @@ class DDQN(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining):
+    def train(self, env, time_remaining=1e9, gtn_iteration=0):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -88,7 +88,7 @@ class DDQN(BaseAgent):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data(), replay_buffer
 
 
     def learn(self, replay_buffer, env):

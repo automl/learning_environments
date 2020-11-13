@@ -138,19 +138,33 @@ class GridworldEnv(gym.Env):
         return obs
 
 
-class EmptyRoomSmall(GridworldEnv):
+class EmptyRoom22(GridworldEnv):
     def __init__(self):
         self.step_cost = -0.01
         self.g_reward = 1
         self.o_reward = -1
         grid = [['S', ' '],
                 [' ', 'G']]
-        # grid = [['S', ' ', ' '],
-        #         [' ', ' ', 'G']]
-        # grid = [['S', ' ', ' '],
-        #         [' ', ' ', ' '],
-        #         [' ', ' ', 'G']]
+        GridworldEnv.__init__(self, grid=grid)
 
+
+class EmptyRoom23(GridworldEnv):
+    def __init__(self):
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', ' '],
+                [' ', ' ', 'G']]
+        GridworldEnv.__init__(self, grid=grid)
+
+class EmptyRoom33(GridworldEnv):
+    def __init__(self):
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', ' '],
+                [' ', ' ', ' '],
+                [' ', ' ', 'G']]
         GridworldEnv.__init__(self, grid=grid)
 
 

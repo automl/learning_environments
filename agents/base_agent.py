@@ -29,7 +29,7 @@ class BaseAgent(nn.Module):
             print("timeout")
             # fill remaining rewards with minimum reward achieved so far
             if len(avg_meter_reward.get_raw_data()) == 0:
-                avg_meter_reward.update(-1)
+                avg_meter_reward.update(-1e9)
             while len(avg_meter_reward.get_raw_data()) < max_episodes:
                 avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
             return True
@@ -93,7 +93,7 @@ class BaseAgent(nn.Module):
                         break
 
                 # logging
-                avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+                avg_meter_reward.update(episode_reward.item(), print_rate=self.print_rate)
 
                 # if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
                 #     #print(path)
