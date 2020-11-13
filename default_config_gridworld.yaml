@@ -1,4 +1,4 @@
-env_name: !!str EmptyRoom23
+env_name: !!str EmptyRoom22
 seed: !!int 21                              # random initialization seed
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
@@ -25,7 +25,6 @@ agents:
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     agent_name: !!str QL                    # which RL agent to use for meta-training
-    working_dir: !!str results/GTN_sync     # synchronization directory
 
   ql:
     train_episodes: !!int 100               # maximum number of episodes to optimize

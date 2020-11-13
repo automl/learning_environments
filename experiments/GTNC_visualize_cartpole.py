@@ -144,11 +144,12 @@ def barplot_variation_hyperparameters():
     plt.show()
 
 if __name__ == "__main__":
-    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models__cartpole'
-    file_names = ['cartpole_good_21_L5OV5M.pt', 'cartpole_good_21_HIK9XV.pt', 'cartpole_good_36_6MT1C2.pt']
+    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_cartpole_200'
+    file_names = ['cartpole_good_21_L5OV5M.pt', 'cartpole_good_36_6MT1C2.pt']
 
     for file_name in file_names:
         virtual_env, real_env, config, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
+        print(config)
         config['device'] = 'cuda'
         config['agents']['ddqn']['print_rate'] = 1
         config['agents']['ddqn']['test_episodes'] = 10

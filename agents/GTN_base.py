@@ -12,6 +12,7 @@ class GTN_Base(nn.Module):
         # for saving/loading
         self.config = config
         self.device = config["device"]
+        self.env_name = config['env_name']
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
@@ -23,7 +24,7 @@ class GTN_Base(nn.Module):
         self.env_factory = EnvFactory(config)
         self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
-        self.working_dir = str(os.path.join(os.getcwd(), gtn_config["working_dir"]))
+        self.working_dir = str(os.path.join(os.getcwd(), 'results/GTN_sync_' + self.env_name))
 
         os.makedirs(self.working_dir, exist_ok=True)
 

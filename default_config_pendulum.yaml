@@ -20,12 +20,11 @@ agents:
     exploration_gain: !!float 1e-4          # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 100                   # maximum allocated time for first iteration
-    time_sleep_master: !!float 0.1          # cycle sleeping time when waiting for data
-    time_sleep_worker: !!float 1            # cycle sleeping time when waiting for data
+    time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
+    time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
-    working_dir: !!str results/GTN_sync     # synchronization directory
 
   ddqn:
     train_episodes: !!int 500               # maximum number of episodes to train
