@@ -24,6 +24,8 @@ class GTN_Master(GTN_Base):
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]
         self.time_sleep_master = gtn_config["time_sleep_master"]
+        self.quit_when_solved = gtn_config["quit_when_solved"]
+
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -80,8 +82,10 @@ class GTN_Master(GTN_Base):
                 self.save_good_model(mean_score_orig_list)
                 model_saved = True
                 print(self.score_orig_list)
-                print('EARLY OUT')
-                break
+
+                if self.quit_when_solved:
+                    print('EARLY OUT')
+                    break
 
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
@@ -98,7 +102,10 @@ class GTN_Master(GTN_Base):
         if len(mean_score_orig_list) > 0:
             return np.mean(self.score_orig_list), mean_score_orig_list
         else:
-            return 1e9, mean_score_orig_list
+            if self.minimize_score:
+                return 1e9, mean_score_orig_list
+            else:
+                return -1e9, mean_score_orig_list
 
 
     def save_good_model(self, mean_score_orig_list):

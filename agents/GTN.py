@@ -53,11 +53,11 @@ def run_gtn_on_multiple_pcs(config, id):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cartpole.yaml", "r") as stream:
+    with open("../default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     gtn_config = config['agents']['gtn']
-    mode = gtn_config['mode']
+    mode = 'single'
 
     torch.set_num_threads(gtn_config['num_threads_per_worker'])
 

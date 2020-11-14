@@ -34,6 +34,8 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
+        config['agents']['gtn']['quit_when_solved'] = False
+
         return config
 
 
@@ -79,7 +81,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_gridworld_2x3_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_gridworld_different_sizes_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

@@ -5,7 +5,7 @@ render_env: !!bool False                    # render environment
 
 agents:
   gtn:
-    mode: !!str 'single'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
@@ -24,6 +24,7 @@ agents:
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
+    quit_when_solved: !!bool True           # continue training once the environment has been solved?
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   ql:
