@@ -24,7 +24,7 @@ agents:
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
-    quit_when_solved: !!bool True           # continue training once the environment has been solved?
+    quit_when_solved: !!bool False          # continue training once the environment has been solved?
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   ddqn:
