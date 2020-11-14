@@ -1,4 +1,4 @@
-env_name: !!str EmptyRoom22
+env_name: !!str EmptyRoom23
 seed: !!int 21                              # random initialization seed
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
