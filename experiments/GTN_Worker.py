@@ -5,7 +5,7 @@ from agents.GTN import GTN_Worker
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 if __name__ == "__main__":
-    with open("default_config_cartpole.yaml", "r") as stream:
+    with open("default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     gtn_config = config['agents']['gtn']
