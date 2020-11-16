@@ -92,10 +92,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1]+time.time()))
-        np.random.seed(int(sys.argv[1]+time.time()))
-        torch.manual_seed(int(sys.argv[1]+time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1]+time.time()))
+        random.seed(int(sys.argv[1])+int(time.time()))
+        np.random.seed(int(sys.argv[1])+int(time.time()))
+        torch.manual_seed(int(sys.argv[1])+int(time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
         res = run_bohb_parallel(id=int(sys.argv[1]),
                                 bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,
