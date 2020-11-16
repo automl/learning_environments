@@ -19,6 +19,7 @@ class DDQN_vary(DDQN):
             config_mod = config
 
         print(config_mod['agents'][self.agent_name]['lr'])
+        print(config_mod['agents'][self.agent_name]['batch_size'])
         print(config_mod['agents'][self.agent_name]['hidden_size'])
         print(config_mod['agents'][self.agent_name]['hidden_layer'])
 
@@ -28,11 +29,13 @@ class DDQN_vary(DDQN):
     def vary_heyperparameters(self, config_mod):
 
         lr = config_mod['agents'][self.agent_name]['lr']
+        batch_size = config_mod['agents'][self.agent_name]['batch_size']
         hidden_size = config_mod['agents'][self.agent_name]['hidden_size']
         hidden_layer = config_mod['agents'][self.agent_name]['hidden_layer']
 
         cs = CS.ConfigurationSpace()
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=lr/3, upper=lr*3, log=True, default_value=lr))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(hidden_size/3), upper=int(hidden_size*3), log=True, default_value=batch_size))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size/3), upper=int(hidden_size*3), log=True, default_value=hidden_size))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=hidden_layer-1, upper=hidden_layer+1, log=False, default_value=hidden_layer))
 
@@ -40,6 +43,7 @@ class DDQN_vary(DDQN):
 
         print(config_mod['agents'][self.agent_name])
         config_mod['agents'][self.agent_name]['lr'] = config['lr']
+        config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 

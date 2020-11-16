@@ -20,7 +20,7 @@ class ExperimentWrapper():
         params['max_budget'] = 1
         params['eta'] = 2
         params['random_fraction'] = 1
-        params['iterations'] = 4000
+        params['iterations'] = 10000
 
         return params
 
@@ -28,9 +28,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=7, log=False, default_value=5))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=[False, True], default_value=False))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=False))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_vary_vary_hp', choices=[False, True], default_value=False))
 
         return cs
 
@@ -38,15 +36,17 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]['gtn']['score_transform_type'] = int(cso["gtn_score_transform_type"])
-        config["agents"]['gtn']['nes_step_size'] = bool(cso["gtn_nes_step_size"])
-        config["agents"]['gtn']['mirrored_sampling'] = bool(cso["gtn_mirrored_sampling"])
+        env_name = config["env_name"]
+
+        config["render_env"] = False
+
+        config["agents"]['ddqn_vary']['vary_hp'] = cso["ddqn_vary_vary_hp"]
 
         return config
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config.yaml", 'r') as stream:
+        with open("default_config_cartpole.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -72,6 +72,7 @@ class ExperimentWrapper():
         info = {}
         info['error'] = str(error)
         info['score_list'] = str(score_list)
+        info['config'] = str(config)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
@@ -87,7 +88,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_score_transform_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_cartpole_vary_hp_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
