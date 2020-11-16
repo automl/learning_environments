@@ -26,7 +26,6 @@ class GTN_Worker(GTN_Base):
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
-        self.gtn_iteration = None
         self.uuid = None
         self.timeout = None
         self.quit_flag = False
@@ -62,13 +61,11 @@ class GTN_Worker(GTN_Base):
             #print_abs_param_sum(self.virtual_env_orig)
             #print('-- Worker {}: ev train'.format(self.id))
             agent_orig.train(env=self.virtual_env_orig,
-                             time_remaining=self.timeout-(time.time()-time_start),
-                             gtn_iteration=self.gtn_iteration)
+                             time_remaining=self.timeout-(time.time()-time_start))
             tt2 = time.time()
             #print('-- Worker {}: ev test'.format(self.id))
             score_orig = self.test_agent_on_real_env(agent=agent_orig,
-                                                     time_remaining=self.timeout-(time.time()-time_start),
-                                                     gtn_iteration=self.gtn_iteration)
+                                                     time_remaining=self.timeout-(time.time()-time_start))
             tt3 = time.time()
             time_train = tt2-tt1
             time_test = tt3-tt2
@@ -86,11 +83,9 @@ class GTN_Worker(GTN_Base):
                 agent_add = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_add.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start),
-                                gtn_iteration=self.gtn_iteration)
+                                time_remaining=self.timeout-(time.time()-time_start))
                 score = self.test_agent_on_real_env(agent=agent_add,
-                                                    time_remaining=self.timeout-(time.time()-time_start),
-                                                    gtn_iteration=self.gtn_iteration)
+                                                    time_remaining=self.timeout-(time.time()-time_start))
                 score_add.append(score)
 
             # print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
@@ -104,11 +99,9 @@ class GTN_Worker(GTN_Base):
                 agent_sub = select_agent(config=self.config,
                                          agent_name=self.agent_name)
                 agent_sub.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start),
-                                gtn_iteration=self.gtn_iteration)
+                                time_remaining=self.timeout-(time.time()-time_start))
                 score = self.test_agent_on_real_env(agent=agent_sub,
-                                                    time_remaining=self.timeout-(time.time()-time_start),
-                                                    gtn_iteration=self.gtn_iteration)
+                                                    time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(score)
 
             # print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
@@ -145,7 +138,6 @@ class GTN_Worker(GTN_Base):
         self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
         self.virtual_env.load_state_dict(data['virtual_env_orig'])
         self.uuid = data['uuid']
-        self.gtn_iteration = data['gtn_iteration']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
 
@@ -264,13 +256,12 @@ class GTN_Worker(GTN_Base):
         return kl_div
 
 
-    def test_agent_on_real_env(self, agent, time_remaining, gtn_iteration):
+    def test_agent_on_real_env(self, agent, time_remaining):
         env = self.env_factory.generate_default_real_env('Test: ')
         t_s = time.time()
 
         reward_list, replay_buffer = agent.test(env=env,
-                                                time_remaining=time_remaining - (time.time() - t_s),
-                                                gtn_iteration=gtn_iteration)
+                                                time_remaining=time_remaining - (time.time() - t_s))
 
         if env.has_discrete_state_space():
             all_states = []

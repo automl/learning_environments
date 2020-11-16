@@ -10,9 +10,10 @@ from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
 
 
 class DDQN(BaseAgent):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, env, config):
         agent_name = "ddqn"
-        super().__init__(agent_name, state_dim, action_dim, config)
+
+        super().__init__(agent_name=agent_name, env=env, config=config)
 
         ddqn_config = config["agents"][agent_name]
 
@@ -27,8 +28,8 @@ class DDQN(BaseAgent):
         self.eps_min = ddqn_config["eps_min"]
         self.eps_decay = ddqn_config["eps_decay"]
 
-        self.model = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
-        self.model_target = Critic_DQN(state_dim, action_dim, agent_name, config).to(self.device)
+        self.model = Critic_DQN(self.state_dim, self.action_dim, agent_name, config).to(self.device)
+        self.model_target = Critic_DQN(self.state_dim, self.action_dim, agent_name, config).to(self.device)
         self.model_target.load_state_dict(self.model.state_dict())
 
         self.reset_optimizer()
@@ -36,7 +37,7 @@ class DDQN(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining=1e9, gtn_iteration=0):
+    def train(self, env, time_remaining=1e9):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -135,7 +136,7 @@ class DDQN(BaseAgent):
             return  torch.argmax(qvals).unsqueeze(0).detach()
 
 
-    def select_test_action(self, state, env, gtn_iteration):
+    def select_test_action(self, state, env):
         if env.has_discrete_state_space():
             state = to_one_hot_encoding(state, self.state_dim)
         qvals = self.model(state.to(self.device))
@@ -183,8 +184,7 @@ if __name__ == "__main__":
 
     timing = []
     for i in range(10):
-        ddqn = DDQN(state_dim=virt_env.get_state_dim(),
-                    action_dim=virt_env.get_action_dim(),
+        ddqn = DDQN(env=real_env,
                     config=config)
 
         #ddqn.train(env=virt_env, time_remaining=50)

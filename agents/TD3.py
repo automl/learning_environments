@@ -9,9 +9,9 @@ from utils import ReplayBuffer, AverageMeter
 
 
 class TD3(BaseAgent):
-    def __init__(self, state_dim, action_dim, max_action, config):
+    def __init__(self, env, max_action, config):
         agent_name = "td3"
-        super().__init__(agent_name, state_dim, action_dim, config)
+        super().__init__(agent_name=agent_name, env=env, config=config)
 
         td3_config = config["agents"][agent_name]
 
@@ -27,13 +27,13 @@ class TD3(BaseAgent):
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
 
-        self.actor = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
-        self.actor_target = Actor_TD3(state_dim, action_dim, max_action, agent_name, config).to(self.device)
+        self.actor = Actor_TD3(self.state_dim, self.action_dim, max_action, agent_name, config).to(self.device)
+        self.actor_target = Actor_TD3(self.state_dim, self.action_dim, max_action, agent_name, config).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.critic_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
-        self.critic_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
-        self.critic_target_1 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
-        self.critic_target_2 = Critic_Q(state_dim, action_dim, agent_name, config).to(self.device)
+        self.critic_1 = Critic_Q(self.state_dim, self.action_dim, agent_name, config).to(self.device)
+        self.critic_2 = Critic_Q(self.state_dim, self.action_dim, agent_name, config).to(self.device)
+        self.critic_target_1 = Critic_Q(self.state_dim, self.action_dim, agent_name, config).to(self.device)
+        self.critic_target_2 = Critic_Q(self.state_dim, self.action_dim, agent_name, config).to(self.device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
@@ -42,7 +42,7 @@ class TD3(BaseAgent):
         self.total_it = 0
 
 
-    def train(self, env, time_remaining=1e9, gtn_iteration=0):
+    def train(self, env, time_remaining=1e9):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -158,7 +158,7 @@ class TD3(BaseAgent):
                     ).clamp(-self.max_action, self.max_action)
 
 
-    def select_test_action(self, state, env, gtn_iteration):
+    def select_test_action(self, state, env):
         return (self.actor(state.to(self.device)).cpu() +
                   torch.randn(self.action_dim) * self.action_std * self.max_action
                   ).clamp(-self.max_action, self.max_action)
@@ -199,15 +199,14 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config.yaml", "r") as stream:
+    with open("../default_config_pendulum.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # generate environment
     env_fac = EnvFactory(config)
     #virt_env = env_fac.generate_virtual_env()
     real_env= env_fac.generate_default_real_env()
-    td3 = TD3(state_dim=real_env.get_state_dim(),
-              action_dim=real_env.get_action_dim(),
+    td3 = TD3(env=real_env,
               max_action=real_env.get_max_action(),
               config=config)
     t1 = time.time()

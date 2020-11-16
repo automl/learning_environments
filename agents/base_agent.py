@@ -5,11 +5,11 @@ from utils import AverageMeter, ReplayBuffer
 
 
 class BaseAgent(nn.Module):
-    def __init__(self, agent_name, state_dim, action_dim, config):
+    def __init__(self, agent_name, env, config):
         super().__init__()
 
-        self.state_dim = state_dim
-        self.action_dim = action_dim
+        self.state_dim = env.get_state_dim()
+        self.action_dim = env.get_action_dim()
 
         agent_config = config["agents"][agent_name]
         self.train_episodes = agent_config["train_episodes"]
@@ -53,7 +53,7 @@ class BaseAgent(nn.Module):
         return False
 
 
-    def test(self, env, time_remaining=1e9, gtn_iteration=0):
+    def test(self, env, time_remaining=1e9):
         #self.plot_q_function(env)
         sd = 1 if env.has_discrete_state_space() else self.state_dim
         ad = 1 if env.has_discrete_action_space() else self.action_dim
@@ -77,7 +77,7 @@ class BaseAgent(nn.Module):
                 episode_reward = 0
 
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    action = self.select_test_action(state, env, gtn_iteration)
+                    action = self.select_test_action(state, env)
 
                     # live view
                     if self.render_env and episode % 10 == 0:

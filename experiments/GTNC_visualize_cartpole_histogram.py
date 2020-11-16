@@ -22,9 +22,7 @@ def load_envs_and_config(dir, file_name):
     virtual_env.load_state_dict(save_dict['model'])
     real_env = env_factory.generate_default_real_env()
 
-    _, gtn_it, _ = file_name.split('_')
-
-    return virtual_env, real_env, config, gtn_it
+    return virtual_env, real_env, config
 
 
 def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None):
@@ -112,7 +110,7 @@ if __name__ == "__main__":
     dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
     file_name = 'CartPole-v0_24_I8EZDI.pt'
 
-    virtual_env, real_env, config, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
+    virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
     print(config)
     config['device'] = 'cuda'
     config['agents']['ddqn']['print_rate'] = 1
@@ -122,7 +120,7 @@ if __name__ == "__main__":
     replay_buffer_test_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
 
     agent = select_agent(config=config, agent_name='DDQN')
-    _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
+    _, replay_buffer_train = agent.train(env=virtual_env)
     reward, replay_buffer_test = agent.test(env=real_env)
     replay_buffer_train_all.merge_buffer(replay_buffer_train)
     replay_buffer_test_all.merge_buffer(replay_buffer_test)

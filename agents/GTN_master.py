@@ -154,7 +154,6 @@ class GTN_Master(GTN_Base):
             data['timeout'] = timeout
             data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
-            data['gtn_iteration'] = it
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
 
             torch.save(data, file_name)

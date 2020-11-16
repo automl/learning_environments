@@ -16,7 +16,6 @@ class ReplayBuffer:
         self.reward = torch.zeros((max_size, 1))
         self.done = torch.zeros((max_size, 1))
 
-    # for TD3 / PPO / gym
     def add(self, state, action, next_state, reward, done):
         self.state[self.ptr] = state.detach()
         self.action[self.ptr] = action.detach()
@@ -27,7 +26,6 @@ class ReplayBuffer:
         self.ptr = (self.ptr + 1) % self.max_size
         self.size = min(self.size + 1, self.max_size)
 
-    # for TD3 / gym
     def sample(self, batch_size):
         idx = np.random.randint(0, self.size, size=batch_size)
         return self._sample_idx(idx)
@@ -41,7 +39,6 @@ class ReplayBuffer:
             self.done[idx].to(self.device).detach(),
         )
 
-    # for PPO
     def get_all(self):
         return (
             self.state[:self.size].to(self.device).detach(),
@@ -136,9 +133,6 @@ def calc_abs_param_sum(model):
 
 def print_abs_param_sum(model, name=""):
     print(name + " " + str(calc_abs_param_sum(model)))
-
-
-
 
 
 

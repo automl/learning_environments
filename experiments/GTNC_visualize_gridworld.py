@@ -104,9 +104,9 @@ def load_envs_and_config(dir, file_name):
     virtual_env.load_state_dict(save_dict['model'])
     real_env = env_factory.generate_default_real_env()
 
-    grid_size, gtn_it, _ = file_name.split('_')
+    grid_size, _, _ = file_name.split('_')
     M, N = grid_size.split('x')
-    return virtual_env, real_env, config, int(M), int(N), int(gtn_it)
+    return virtual_env, real_env, config, int(M), int(N)
 
 
 def convert_to_int_list(tensor_list):
@@ -251,7 +251,7 @@ if __name__ == "__main__":
 
     dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_evaluate_gridworld_new'
     file_name = '2x3_21_926757.pt'
-    virtual_env, real_env, config, M, N, gtn_it = load_envs_and_config(dir=dir, file_name=file_name)
+    virtual_env, real_env, config, M, N = load_envs_and_config(dir=dir, file_name=file_name)
 
     replay_buffer_train_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
     replay_buffer_test_all = ReplayBuffer(state_dim=1, action_dim=1, device='cpu')
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     for i in range(10):
         print(i)
         agent = select_agent(config=config, agent_name='QL')
-        _, replay_buffer_train = agent.train(env=virtual_env, gtn_iteration=gtn_it)
+        _, replay_buffer_train = agent.train(env=virtual_env)
         reward, replay_buffer_test = agent.test(env=real_env)
         replay_buffer_train_all.merge_buffer(replay_buffer_train)
         replay_buffer_test_all.merge_buffer(replay_buffer_test)

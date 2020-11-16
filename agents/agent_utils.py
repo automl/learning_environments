@@ -4,6 +4,7 @@ import numpy as np
 from agents.TD3 import TD3
 from agents.PPO import PPO
 from agents.DDQN import DDQN
+from agents.DDQN_vary import DDQN_vary
 from agents.QL import QL
 from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
@@ -12,22 +13,22 @@ from utils import print_abs_param_sum
 def select_agent(config, agent_name):
     env_factory = EnvFactory(config)
     dummy_env = env_factory.generate_default_real_env(print_str='Select Agent: ')
-    state_dim = dummy_env.get_state_dim()
-    action_dim = dummy_env.get_action_dim()
 
     agent_name = agent_name.lower()
 
     if agent_name == "td3":
         max_action = dummy_env.get_max_action()
-        return TD3(state_dim, action_dim, max_action, config)
+        return TD3(env=dummy_env, max_action=max_action, config=config)
     elif agent_name == "ppo":
-        return PPO(state_dim, action_dim, config)
+        return PPO(env=dummy_env, config=config)
     elif agent_name == "ddqn":
-        return DDQN(state_dim, action_dim, config)
+        return DDQN(env=dummy_env, config=config)
+    elif agent_name == "ddqn_vary":
+        return DDQN_vary(env=dummy_env, config=config)
     elif agent_name == "ql":
-        return QL(state_dim, action_dim, config)
+        return QL(env=dummy_env, config=config)
     elif agent_name == "sarsa":
-        return SARSA(state_dim, action_dim, config)
+        return SARSA(env=dummy_env, config=config)
     else:
         raise NotImplementedError("Unknownn RL agent")
 

@@ -12,14 +12,14 @@ class EnvWrapper(nn.Module):
         super().__init__()
         self.env = env
 
-    def step(self, action, state=None, same_action_num=1, action_noise=0, action_noise_decay=0, gtn_iteration=0):
+    def step(self, action, state=None, same_action_num=1, action_noise=0):
         if self.is_virtual_env():
             reward_sum = None
 
             if self.has_discrete_action_space():
                 action = to_one_hot_encoding(action, self.get_action_dim())
 
-            action += (torch.rand_like(action)-0.5) * action_noise * action_noise_decay**gtn_iteration
+            action += (torch.rand_like(action)-0.5) * action_noise
 
             if state is None:
                 for i in range(same_action_num):

@@ -8,14 +8,15 @@ from envs.env_factory import EnvFactory
 
 
 class PPO(nn.Module):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, env, config):
+
         super().__init__()
 
         agent_name = 'ppo'
 
         ppo_config = config['agents'][agent_name]
-        self.state_dim = state_dim
-        self.action_dim = action_dim
+        self.state_dim = env.get_state_dim()
+        self.action_dim = env.get_action_dim()
         self.gamma = ppo_config['gamma']
         self.vf_coef = ppo_config['vf_coef']
         self.ent_coef = ppo_config['ent_coef']
@@ -172,8 +173,7 @@ if __name__ == "__main__":
     env_fac = EnvFactory(config)
     env = env_fac.generate_default_real_env()
 
-    ppo = PPO(state_dim=env.get_state_dim(),
-              action_dim=env.get_action_dim(),
+    ppo = PPO(env=env,
               config=config)
     ppo.train(env)
 

@@ -36,10 +36,7 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        env_name = config["env_name"]
-
         config["render_env"] = False
-
         config["agents"]['gtn']['exploration_gain'] = cso["gtn_exploration_gain"]
 
         return config

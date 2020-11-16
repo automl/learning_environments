@@ -7,9 +7,9 @@ from envs.env_factory import EnvFactory
 from utils import ReplayBuffer, AverageMeter
 
 class QL(BaseAgent):
-    def __init__(self, state_dim, action_dim, config):
+    def __init__(self, env, config):
         agent_name = "ql"
-        super().__init__(agent_name=agent_name, state_dim=state_dim, action_dim=action_dim, config=config)
+        super().__init__(agent_name=agent_name, env=env, config=config)
 
         ql_config = config["agents"][agent_name]
 
@@ -25,7 +25,7 @@ class QL(BaseAgent):
         self.it = 0
 
 
-    def train(self, env, time_remaining=1e9, gtn_iteration=0):
+    def train(self, env, time_remaining=1e9):
         time_start = time.time()
 
         replay_buffer = ReplayBuffer(state_dim=1, action_dim=1, device=self.device, max_size=int(1e6))
@@ -56,8 +56,7 @@ class QL(BaseAgent):
                 # state-action transition
                 next_state, reward, done = env.step(action=action,
                                                     same_action_num=self.same_action_num,
-                                                    action_noise=self.action_noise,
-                                                    gtn_iteration=gtn_iteration)
+                                                    action_noise=self.action_noise)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
@@ -121,29 +120,12 @@ class QL(BaseAgent):
             return action
         else:
             q_vals = torch.tensor(self.q_table[int(state.item())])
-            dirs = (q_vals == torch.max(q_vals)).nonzero()
-            index = torch.randperm(dirs.numel())
-
-            #return dirs[index[0]]
             return torch.argmax(q_vals).unsqueeze(0).detach()
-            # q1_vals = torch.tensor(self.q1_table[int(state.item())])
-            # q2_vals = torch.tensor(self.q2_table[int(state.item())])
-            # return torch.argmax(q1_vals+q2_vals).unsqueeze(0).detach()
 
 
-    def select_test_action(self, state, env, gtn_iteration):
-        # qvals = torch.tensor(self.q1_table[int(state.item())])
-        # return torch.argmax(qvals).unsqueeze(0).detach()
-        if random.random() < 0:
-            action = env.get_random_action()
-            return action
-        else:
-            q_vals = torch.tensor(self.q_table[int(state.item())])
-            dirs = (q_vals == torch.max(q_vals)).nonzero()
-            index = torch.randperm(dirs.numel())
-
-            #return dirs[index[0]]
-            return torch.argmax(q_vals).unsqueeze(0).detach()
+    def select_test_action(self, state, env):
+        q_vals = torch.tensor(self.q_table[int(state.item())])
+        return torch.argmax(q_vals).unsqueeze(0).detach()
 
 
     def update_eps(self, episode):
@@ -176,8 +158,7 @@ if __name__ == "__main__":
 
     timing = []
     for i in range(100):
-        ql = QL(state_dim=real_env.get_state_dim(),
-                action_dim=real_env.get_action_dim(),
+        ql = QL(env=real_env,
                 config=config)
 
         #ddqn.train(env=virt_env, time_remaining=50)
