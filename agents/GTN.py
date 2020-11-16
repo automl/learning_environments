@@ -8,8 +8,8 @@ from agents.GTN_worker import GTN_Worker
 
 
 def run_gtn_on_single_pc(config):
-    def run_gtn_worker(config, id):
-        gtn = GTN_Worker(config, id)
+    def run_gtn_worker(id):
+        gtn = GTN_Worker(id)
         gtn.run()
 
     def run_gtn_master(config):
@@ -31,7 +31,7 @@ def run_gtn_on_single_pc(config):
     # then start workers
     num_workers = config["agents"]["gtn"]["num_workers"]
     for id in range(num_workers):
-        p = mp.Process(target=run_gtn_worker, args=(config, id))
+        p = mp.Process(target=run_gtn_worker, args=(id,))
         p.start()
         p_list.append(p)
 
@@ -46,7 +46,7 @@ def run_gtn_on_multiple_pcs(config, id):
         gtn_master.clean_working_dir()
         gtn_master.run()
     elif id >= 0:
-        gtn_worker = GTN_Worker(config, id)
+        gtn_worker = GTN_Worker(id)
         gtn_worker.run()
     else:
         raise ValueError("Invalid ID")

@@ -6,16 +6,30 @@ import math
 import statistics
 from collections import Counter
 from agents.GTN_base import GTN_Base
+from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
 
 class GTN_Worker(GTN_Base):
-    def __init__(self, config, id, bohb_id=-1):
-        super().__init__(config, bohb_id)
+    def __init__(self, id, bohb_id=-1):
+        super().__init__(bohb_id)
 
         torch.manual_seed(id+bohb_id+int(time.time()))
         torch.cuda.manual_seed_all(id+bohb_id+int(time.time()))
 
+        # for identifying the different workers
+        self.id = id
+
+        # flag to stop worker
+        self.quit_flag = False
+        self.time_sleep_worker = 2
+        self.timeout = None
+        self.uuid = None
+
+        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
+
+
+    def late_init(self, config):
         gtn_config = config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]
         self.num_test_envs = gtn_config["num_test_envs"]
@@ -24,55 +38,32 @@ class GTN_Worker(GTN_Base):
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.exploration_gain = gtn_config["exploration_gain"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
+        self.minimize_score = gtn_config["minimize_score"]
+        self.agent_name = gtn_config["agent_name"]
+
+        self.env_factory = EnvFactory(config)
+        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
         self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
-        self.uuid = None
-        self.timeout = None
-        self.quit_flag = False
-        self.r_states = []
-        self.r_actions = []
-
-        # for identifying the different workers
-        self.id = id
-
-        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
 
     def run(self):
         # read data from master
         while not self.quit_flag:
-            t1 = time.time()
-
-            # print('-- Worker {}: read worker inputs {}'.format(self.id, time.time()-t1))
-
             self.read_worker_input()
 
             if self.quit_flag:
                 return
-
-            # print('-- Worker {}: evaluation {}'.format(self.id, time.time()-t1))
 
             time_start = time.time()
 
             # for evaluation purpose
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
-            tt1 = time.time()
-            #print_abs_param_sum(self.virtual_env_orig)
-            #print('-- Worker {}: ev train'.format(self.id))
-            agent_orig.train(env=self.virtual_env_orig,
-                             time_remaining=self.timeout-(time.time()-time_start))
-            tt2 = time.time()
-            #print('-- Worker {}: ev test'.format(self.id))
-            score_orig = self.test_agent_on_real_env(agent=agent_orig,
-                                                     time_remaining=self.timeout-(time.time()-time_start))
-            tt3 = time.time()
-            time_train = tt2-tt1
-            time_test = tt3-tt2
+            agent_orig.train(env=self.virtual_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = self.test_agent_on_real_env(agent=agent_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
-
-            # print('-- Worker {}: train add {}'.format(self.id, time.time()-t1))
 
             # first mirrored noise +N
             self.add_noise_to_virtual_env()
@@ -80,15 +71,10 @@ class GTN_Worker(GTN_Base):
             score_add = []
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
-                agent_add = select_agent(config=self.config,
-                                         agent_name=self.agent_name)
-                agent_add.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent_on_real_env(agent=agent_add,
-                                                    time_remaining=self.timeout-(time.time()-time_start))
+                agent_add = select_agent(config=self.config, agent_name=self.agent_name)
+                agent_add.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.test_agent_on_real_env(agent=agent_add, time_remaining=self.timeout-(time.time()-time_start))
                 score_add.append(score)
-
-            # print('-- Worker {}: train sub {}'.format(self.id, time.time()-t1))
 
             # # second mirrored noise -N
             self.subtract_noise_from_virtual_env()
@@ -96,27 +82,15 @@ class GTN_Worker(GTN_Base):
             score_sub = []
             for i in range(self.num_grad_evals):
                 #print('sub ' + str(i))
-                agent_sub = select_agent(config=self.config,
-                                         agent_name=self.agent_name)
-                agent_sub.train(env=self.virtual_env,
-                                time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent_on_real_env(agent=agent_sub,
-                                                    time_remaining=self.timeout-(time.time()-time_start))
+                agent_sub = select_agent(config=self.config, agent_name=self.agent_name)
+                agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.test_agent_on_real_env(agent=agent_sub, time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(score)
-
-            # print('-- Worker {}: calc score {}'.format(self.id, time.time()-t1))
 
             score_best = self.calc_best_score(score_add=score_add, score_sub=score_sub)
 
-            # print('-- LOSS ADD: ' + str(score_add))
-            # print('-- LOSS SUB: ' + str(score_sub))
-            # print('-- LOSS BEST: ' + str(best_score))
-            # print('-- Worker {}: write result '.format(self.id, time.time()-t1))
-
             self.write_worker_result(score=score_best,
                                      score_orig=score_orig,
-                                     time_train=time_train,
-                                     time_test=time_test,
                                      time_elapsed = time.time()-time_start)
 
         print('Worker ' + str(self.id) + ' quitting')
@@ -135,17 +109,21 @@ class GTN_Worker(GTN_Base):
 
         data = torch.load(file_name)
 
-        self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
-        self.virtual_env.load_state_dict(data['virtual_env_orig'])
         self.uuid = data['uuid']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
+        self.config = data['config']
+
+        self.late_init(self.config)
+
+        self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
+        self.virtual_env.load_state_dict(data['virtual_env_orig'])
 
         os.remove(check_file_name)
         os.remove(file_name)
 
 
-    def write_worker_result(self, score, score_orig, time_train, time_test, time_elapsed):
+    def write_worker_result(self, score, score_orig, time_elapsed):
         file_name = self.get_result_file_name(id=self.id)
         check_file_name = self.get_result_check_file_name(id=self.id)
 
@@ -156,9 +134,7 @@ class GTN_Worker(GTN_Base):
         data = {}
         data["eps"] = self.eps.state_dict()
         data["virtual_env"] = self.virtual_env.state_dict() # for debugging
-        data["time_train"] = time_train
-        data["time_test"] = time_test
-        data["time_elapsed"] = time_elapsed # for debugging
+        data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["score_orig"] = score_orig
         data["uuid"] = self.uuid

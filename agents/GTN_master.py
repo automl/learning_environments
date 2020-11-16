@@ -8,14 +8,21 @@ import random
 import string
 import statistics
 from agents.GTN_base import GTN_Base
+from envs.env_factory import EnvFactory
 from utils import calc_abs_param_sum
 
 
 class GTN_Master(GTN_Base):
     def __init__(self, config, bohb_id=-1):
-        super().__init__(config, bohb_id)
+        super().__init__(bohb_id)
+        self.config = config
+        self.device = config["device"]
+        self.env_name = config['env_name']
 
         gtn_config = config["agents"]["gtn"]
+        self.max_iterations = gtn_config["max_iterations"]
+        self.minimize_score = gtn_config["minimize_score"]
+        self.agent_name = gtn_config["agent_name"]
         self.num_workers = gtn_config["num_workers"]
         self.step_size = gtn_config["step_size"]
         self.nes_step_size = gtn_config["nes_step_size"]
@@ -26,13 +33,14 @@ class GTN_Master(GTN_Base):
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
 
+        # to keep track of the reference virtual env
+        self.env_factory = EnvFactory(config)
+        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
 
         # to store results from workers
-        self.time_train_list = [None]*self.num_workers # for debugging
-        self.time_test_list = [None] * self.num_workers # for debugging
         self.time_elapsed_list = [None] * self.num_workers # for debugging
         self.score_list = [None]*self.num_workers
         self.score_orig_list = [None]*self.num_workers # for debugging
@@ -152,8 +160,9 @@ class GTN_Master(GTN_Base):
 
             data = {}
             data['timeout'] = timeout
-            data['uuid'] = self.uuid_list[id]
             data['quit_flag'] = quit_flag
+            data['uuid'] = self.uuid_list[id]
+            data['config'] = self.config
             data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
 
             torch.save(data, file_name)
@@ -192,8 +201,6 @@ class GTN_Master(GTN_Base):
                 if os.path.isfile(input_file_name):
                     os.remove(input_check_file_name)
 
-            self.time_train_list[id] = data['time_train']
-            self.time_test_list[id] = data['time_test']
             self.time_elapsed_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
             self.eps_list[id].load_state_dict(data['eps'])
@@ -316,15 +323,11 @@ class GTN_Master(GTN_Base):
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
         #dist_score = statistics.mean(self.score_list)
-        mean_time_train = statistics.mean(self.time_train_list)
-        mean_time_test = statistics.mean(self.time_test_list)
         mean_time_elapsed = statistics.mean(self.time_elapsed_list)
         print('--------------')
         print('GTN iteration:    ' + str(it))
         print('GTN mstr t_elaps: ' + str(time_elapsed))
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
-        print('GTN avg wo t_train: ' + str(mean_time_train))
-        print('GTN avg wo t_test:  ' + str(mean_time_test))
         #print('GTN avg dist score:   ' + str(dist_score))
         print('GTN best dist score:  ' + str(min(self.score_list)))
         print('GTN avg eval score:   ' + str(orig_score))

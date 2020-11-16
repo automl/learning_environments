@@ -6,25 +6,12 @@ from envs.env_factory import EnvFactory
 
 
 class GTN_Base(nn.Module):
-    def __init__(self, config, bohb_id):
+    def __init__(self, bohb_id):
         super().__init__()
-
-        # for saving/loading
-        self.config = config
-        self.device = config["device"]
-        self.env_name = config['env_name']
-
-        gtn_config = config["agents"]["gtn"]
-        self.max_iterations = gtn_config["max_iterations"]
-        self.minimize_score = gtn_config["minimize_score"]
-        self.agent_name = gtn_config["agent_name"]
 
         self.bohb_id = bohb_id
 
-        self.env_factory = EnvFactory(config)
-        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-
-        self.working_dir = str(os.path.join(os.getcwd(), 'results/GTN_sync_' + self.env_name))
+        self.working_dir = str(os.path.join(os.getcwd(), 'results/GTN_sync'))
 
         os.makedirs(self.working_dir, exist_ok=True)
 
