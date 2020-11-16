@@ -15,7 +15,6 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
-        params['seed'] = 42
         params['min_budget'] = 1
         params['max_budget'] = 8
         params['eta'] = 2
@@ -104,12 +103,6 @@ class ExperimentWrapper():
 
 
 if __name__ == "__main__":
-    # SEED = 42
-    # random.seed(SEED)
-    # np.random.seed(SEED)
-    # torch.manual_seed(SEED)
-    # torch.cuda.manual_seed_all(SEED)
-
     x = datetime.datetime.now()
     run_id = 'TD3_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 

@@ -202,10 +202,6 @@ if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    # seed = config["seed"]
-    # torch.manual_seed(seed)
-    # np.random.seed(seed)
-
     # generate environment
     env_fac = EnvFactory(config)
     #virt_env = env_fac.generate_virtual_env()

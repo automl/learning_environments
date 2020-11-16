@@ -1,4 +1,5 @@
 import datetime
+import time
 import sys
 import traceback
 import yaml
@@ -15,7 +16,6 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
-        params['seed'] = 42
         params['min_budget'] = 1
         params['max_budget'] = 1
         params['eta'] = 2
@@ -92,14 +92,18 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1]))
-        np.random.seed(int(sys.argv[1]))
-        torch.manual_seed(int(sys.argv[1]))
-        torch.cuda.manual_seed_all(int(sys.argv[1]))
+        random.seed(int(sys.argv[1]+time.time()))
+        np.random.seed(int(sys.argv[1]+time.time()))
+        torch.manual_seed(int(sys.argv[1]+time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1]+time.time()))
         res = run_bohb_parallel(id=int(sys.argv[1]),
                                 bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,
                                 experiment_wrapper=ExperimentWrapper())
     else:
+        random.seed(int(time.time()))
+        np.random.seed(int(time.time()))
+        torch.manual_seed(int(time.time()))
+        torch.cuda.manual_seed_all(int(time.time()))
         res = run_bohb_serial(run_id=run_id,
                               experiment_wrapper=ExperimentWrapper())

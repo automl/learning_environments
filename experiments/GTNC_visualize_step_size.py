@@ -26,87 +26,14 @@ def analyze_bohb(log_dir):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
-    #result = transform_result(result, min_success_reward=MIN_SUCCESS_REWARD)
-    #result = remove_outliers(result)
-    #result = filter_values(result)
-
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=False)
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=True)
     plot_parallel_scatter(result, with_mirrored_sampling=True, with_nes_step_size=False)
     plot_parallel_scatter(result, with_mirrored_sampling=True, with_nes_step_size=True)
 
 
-def transform_result(result, min_success_reward):
-    for key, value1 in result.data.items():
-        for value2 in value1.results.values():
-            score_list = value2['info']['score_list']
-            score_list = ast.literal_eval(score_list)
-            for i in range(len(score_list)):
-                if score_list[i] > min_success_reward:
-                    value2['loss'] = i
-                    break
-    return result
-
-
-def remove_outliers(result):
-    lut = []
-    for key, value1 in result.data.items():
-        for value2 in value1.results.values():
-            if value2 == None:
-                loss = float('nan')
-            else:
-                loss = value2['loss']
-            lut.append([loss, key])
-
-    filtered_lut = [x for x in lut if math.isfinite(x[0])]
-    worst_loss = sorted(filtered_lut, reverse=REVERSE_LOSS)[0][0]
-
-    if REVERSE_LOSS:
-        worst_loss += 0.01*abs(worst_loss)
-    else:
-        worst_loss -= 0.01*abs(worst_loss)
-
-    # remove NaN's
-    for i in range(len(lut)):
-        if not math.isfinite(lut[i][0]) or lut[i][0] == 0:
-            lut[i][0] = worst_loss
-            for key in result.data[lut[i][1]].results.keys():
-                result.data[lut[i][1]].results[key]['loss'] = worst_loss
-            #result.data.pop(elem[1], None)
-
-    lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
-    n_remove_worst = math.ceil(len(lut)*OUTLIER_PERC_WORST)
-    n_remove_best = math.ceil(len(lut)*OUTLIER_PERC_BEST)
-
-    # remove percentage of worst values
-    for i in range(n_remove_worst):
-        elem = lut.pop(0)
-        result.data.pop(elem[1], None)
-
-    # remove percentage of best values
-    for i in range(n_remove_best):
-        elem = lut.pop()
-        result.data.pop(elem[1], None)
-
-    return result
-
-
-def filter_values(result):
-    del_list = []
-    for key, value1 in result.data.items():
-        id = key
-        if value1.config['gtn_score_transform_type'] != 7 or \
-           value1.config['gtn_step_size'] < 1 or value1.config['gtn_step_size'] > 20:
-            del_list.append(id)
-
-    for id in del_list:
-        result.data.pop(id, None)
-
-    return result
-
-
 def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
-    plt.subplots(dpi=300, figsize=(5,5))
+    fig = plt.figure(dpi=300, figsize=(5,4))
 
     min_step_size = 1e9
     max_step_size = -1e9
@@ -133,15 +60,9 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
     loss_M = 50
 
     x_dev = 0.2
-    rad = 25
-    alpha = 0.6
-    text_x_offset = 0
-    text_y_offset = 0
-    size_text = 6
+    rad = 20
+    alpha = 1
     log_diff = 10
-
-    xs = []
-    ys = []
 
     for i in range(len(values)):
         xs = np.zeros(len(values[i]))
@@ -191,9 +112,14 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         mir_string = 'w/o mirrored sampling'
 
     plt.title(mir_string + ', ' + nes_string)
+    plt.ylabel('step size')
     plt.yticks(yvals, yticks)
     plt.xticks(np.arange(8)+1, ('linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'single better', 'all better 1', 'all better 2'), rotation=90)
 
+    savefig_name = 'visualize_step_size_' + nes_string[:3] + ' ' + mir_string[:3] + '.svg'
+    savefig_name = savefig_name.replace(' ', '_')
+    savefig_name = savefig_name.replace('/', '_')
+    plt.savefig(savefig_name, bbox_inches='tight')
     plt.show()
 
 
@@ -233,9 +159,7 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_evaluate_step_size_2020-11-13-10'
+    log_dir = '../results/GTNC_evaluate_step_size_2020-11-14-19'
     analyze_bohb(log_dir)
 
 

@@ -1,9 +1,13 @@
 import datetime
+import time
 import sys
 import traceback
 import yaml
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
+import random
+import numpy as np
+import torch
 from copy import deepcopy
 from agents.GTN import GTN_Master, GTN_Worker
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
@@ -12,7 +16,6 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
-        params['seed'] = 42
         params['min_budget'] = 1
         params['max_budget'] = 1
         params['eta'] = 2
@@ -90,22 +93,24 @@ class ExperimentWrapper():
 
 
 if __name__ == "__main__":
-    # SEED = 42
-    # random.seed(SEED)
-    # np.random.seed(SEED)
-    # torch.manual_seed(SEED)
-    # torch.cuda.manual_seed_all(SEED)
-
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_step_size_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
+        random.seed(int(sys.argv[1]+time.time()))
+        np.random.seed(int(sys.argv[1]+time.time()))
+        torch.manual_seed(int(sys.argv[1]+time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1]+time.time()))
         res = run_bohb_parallel(id=int(sys.argv[1]),
                                 bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,
                                 experiment_wrapper=ExperimentWrapper())
     else:
+        random.seed(int(time.time()))
+        np.random.seed(int(time.time()))
+        torch.manual_seed(int(time.time()))
+        torch.cuda.manual_seed_all(int(time.time()))
         res = run_bohb_serial(run_id=run_id,
                               experiment_wrapper=ExperimentWrapper())

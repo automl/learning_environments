@@ -12,7 +12,9 @@ from agents.agent_utils import select_agent
 class GTN_Worker(GTN_Base):
     def __init__(self, config, id, bohb_id=-1):
         super().__init__(config, bohb_id)
-        torch.manual_seed(id+int(time.time()))
+
+        torch.manual_seed(id+bohb_id+int(time.time()))
+        torch.cuda.manual_seed_all(id+bohb_id+int(time.time()))
 
         gtn_config = config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]

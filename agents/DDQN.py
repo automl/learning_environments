@@ -176,10 +176,6 @@ if __name__ == "__main__":
 
     torch.set_num_threads(1)
 
-    # seed = config["seed"]
-    # torch.manual_seed(seed)
-    # np.random.seed(seed)
-
     # generate environment
     env_fac = EnvFactory(config)
     virt_env = env_fac.generate_virtual_env()
