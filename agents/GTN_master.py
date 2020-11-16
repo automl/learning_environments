@@ -104,8 +104,6 @@ class GTN_Master(GTN_Base):
 
         print('Master quitting')
 
-        #self.save_good_model(mean_score_orig_list)
-
         # error handling
         if len(mean_score_orig_list) > 0:
             return np.mean(self.score_orig_list), mean_score_orig_list
@@ -322,13 +320,11 @@ class GTN_Master(GTN_Base):
 
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
-        #dist_score = statistics.mean(self.score_list)
         mean_time_elapsed = statistics.mean(self.time_elapsed_list)
         print('--------------')
         print('GTN iteration:    ' + str(it))
         print('GTN mstr t_elaps: ' + str(time_elapsed))
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
-        #print('GTN avg dist score:   ' + str(dist_score))
         print('GTN best dist score:  ' + str(min(self.score_list)))
         print('GTN avg eval score:   ' + str(orig_score))
         print('--------------')

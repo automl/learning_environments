@@ -53,6 +53,7 @@ class GTN_Worker(GTN_Base):
             self.read_worker_input()
 
             if self.quit_flag:
+                print('QUIT FLAG')
                 return
 
             time_start = time.time()
@@ -94,6 +95,7 @@ class GTN_Worker(GTN_Base):
                                      time_elapsed = time.time()-time_start)
 
         print('Worker ' + str(self.id) + ' quitting')
+
 
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
