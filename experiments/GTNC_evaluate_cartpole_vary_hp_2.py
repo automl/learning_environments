@@ -17,6 +17,7 @@ def load_envs_and_config(file_name):
     file_path = os.path.join(MODEL_DIR, file_name)
     save_dict = torch.load(file_path)
     config = save_dict['config']
+    config['device'] = 'cuda'
     env_factory = EnvFactory(config=config)
     virtual_env = env_factory.generate_virtual_env()
     virtual_env.load_state_dict(save_dict['model'])
