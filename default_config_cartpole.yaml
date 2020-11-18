@@ -24,7 +24,7 @@ agents:
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
-    agent_name: !!str DDQN_vary             # which RL agent to use for meta-training
+    agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   ddqn_vary:
     vary_hp: !!bool True                    # vary hyperparameters of underlying DDQN algorithm?
