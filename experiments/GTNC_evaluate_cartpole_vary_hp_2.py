@@ -104,4 +104,4 @@ if __name__ == "__main__":
         run_vary_hp(mode=int(int(sys.argv[1])))
     else:
         for mode in range(3):
-            run_vary_hp(mode=1)
+            run_vary_hp(mode=mode)
