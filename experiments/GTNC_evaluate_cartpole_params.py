@@ -33,11 +33,12 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.01, upper=1, log=True, default_value=0.1))
 
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_init_episodes', lower=1, upper=20, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_batch_size', lower=64, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_init', lower=0.8, upper=1, log=True, default_value=0.75))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_init', lower=0.8, upper=1, log=True, default_value=0.9))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_min', lower=0.005, upper=0.05, log=True, default_value=0.05))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_decay', lower=0.01, upper=0.2, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
@@ -57,7 +58,9 @@ class ExperimentWrapper():
         config["agents"]['gtn']['score_transform_type'] = cso["gtn_score_transform_type"]
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
         config["agents"]['gtn']['mirrored_sampling'] = cso["gtn_mirrored_sampling"]
+        config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
 
+        config["agents"]['ddqn']['init_episodes'] = cso["ddqn_init_episodes"]
         config["agents"]['ddqn']['batch_size'] = cso["ddqn_batch_size"]
         config["agents"]['ddqn']['gamma'] = 1-cso["ddqn_gamma"]
         config["agents"]['ddqn']['lr'] = cso["ddqn_lr"]
