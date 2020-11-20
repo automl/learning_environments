@@ -27,9 +27,9 @@ def analyze_bohb(log_dir):
     result = hpres.logged_results_to_HBS_result(log_dir)
 
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=False)
-    plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=True)
+    #plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=True)
     plot_parallel_scatter(result, with_mirrored_sampling=True, with_nes_step_size=False)
-    plot_parallel_scatter(result, with_mirrored_sampling=True, with_nes_step_size=True)
+    #plot_parallel_scatter(result, with_mirrored_sampling=True, with_nes_step_size=True)
 
 
 def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
@@ -47,6 +47,9 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         score_transform_type = config['gtn_score_transform_type']
         step_size = config['gtn_step_size']
 
+        if step_size > 10:
+            continue
+
         for value2 in value.results.values():
             loss = value2['loss']
 
@@ -63,6 +66,8 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
     rad = 20
     alpha = 1
     log_diff = 10
+
+    tot = 0
 
     for i in range(len(values)):
         xs = np.zeros(len(values[i]))
@@ -87,7 +92,11 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
             acc = map_to_zero_one_range(loss, loss_m, loss_M)
             colors[k, :] = get_color(acc)
 
+        tot += len(xs)
+
         plt.scatter(xs, ys, s=rad, c=colors, alpha=alpha, edgecolors='none')
+
+    print(tot)
 
     yvals = []
     yticks = []
@@ -105,13 +114,14 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         nes_string = 'w/ NES step size'
     else:
         nes_string = 'w/o NES step size'
+    nes_string = ''
 
     if with_mirrored_sampling:
         mir_string = 'w/ mirrored sampling'
     else:
         mir_string = 'w/o mirrored sampling'
 
-    plt.title(mir_string + ', ' + nes_string)
+    plt.title(mir_string + ' ' + nes_string)
     plt.ylabel('step size')
     plt.yticks(yvals, yticks)
     plt.xticks(np.arange(8)+1, ('linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'single better', 'all better 1', 'all better 2'), rotation=90)

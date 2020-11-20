@@ -22,15 +22,6 @@ G_UP = 3
 # G_DOWN = 3
 
 class GridworldEnv(gym.Env):
-    """
-    Bandit environment base to allow agents to interact with the class n-armed bandit
-    in different variations
-    p_dist:
-        A list of probabilities of the likelihood that a particular bandit will pay out
-    r_dist:
-        A list of either rewards (if number) or means and standard deviations (if list)
-        of the payout that bandit has
-    """
     def __init__(self, grid):
         m = len(grid)
         n = len(grid[0])
@@ -81,16 +72,12 @@ class GridworldEnv(gym.Env):
 
         # calculate movement direction
         if action == G_LEFT:
-            ac = 'LEFT'
             x_n, y_n = x, y-1
         elif action == G_UP:
-            ac = 'UP'
             x_n, y_n = x-1, y
         elif action == G_RIGHT:
-            ac = 'RIGHT'
             x_n, y_n = x, y+1
         elif action == G_DOWN:
-            ac = 'DOWN'
             x_n, y_n = x+1, y
         else:
             raise ValueError('Unknown action: ' + str(action))
