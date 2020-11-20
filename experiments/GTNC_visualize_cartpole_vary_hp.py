@@ -24,12 +24,12 @@ if __name__ == "__main__":
         data_list.append(reward_list_single)
         mean_list.append('mean: ' + str(statistics.mean(reward_list_single)))
 
-    data_dict = {'train: real  / HP vary': data_list[0],
-                 'train: synth. / HP vary': data_list[1],
-                 'train: synth. / no HP vary': data_list[2]}
+    data_dict = {'train: real  / HP: vary': data_list[0],
+                 'train: synth. / HP: vary': data_list[1],
+                 'train: synth. / HP: no vary': data_list[2]}
 
     df = pd.DataFrame(data=data_dict)
-    plt.figure(dpi=600, figsize=(6.5,3))
+    plt.figure(dpi=600, figsize=(7.5,3))
     ax = sns.violinplot(data=df, cut=0, inner=None)
     plt.ylabel('cumulative reward')
 
