@@ -45,9 +45,9 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_size', lower=48, upper=192, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_layer', lower=1, upper=2, log=False, default_value=2))
 
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='cartpole_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='leakyrelu'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='cartpole_hidden_size', lower=48, upper=192, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='cartpole_hidden_layer', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='acrobot_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='leakyrelu'))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='acrobot_hidden_size', lower=48, upper=192, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='acrobot_hidden_layer', lower=1, upper=2, log=False, default_value=1))
 
         return cs
 
@@ -72,15 +72,15 @@ class ExperimentWrapper():
         config["agents"]['ddqn']['hidden_size'] = cso["ddqn_hidden_size"]
         config["agents"]['ddqn']['hidden_layer'] = cso["ddqn_hidden_layer"]
 
-        config["envs"]['CartPole-v0']['activation_fn'] = cso["cartpole_activation_fn"]
-        config["envs"]['CartPole-v0']['hidden_size'] = cso["cartpole_hidden_size"]
-        config["envs"]['CartPole-v0']['hidden_layer'] = cso["cartpole_hidden_layer"]
+        config["envs"]['Acrobot-v1']['activation_fn'] = cso["acrobot_activation_fn"]
+        config["envs"]['Acrobot-v1']['hidden_size'] = cso["acrobot_hidden_size"]
+        config["envs"]['Acrobot-v1']['hidden_layer'] = cso["acrobot_hidden_layer"]
 
         return config
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_cartpole.yaml", 'r') as stream:
+        with open("default_config_acrobot.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -124,7 +124,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_cartpole_params_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_acrobot_params_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
