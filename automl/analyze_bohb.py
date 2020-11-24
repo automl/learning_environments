@@ -393,7 +393,7 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_evaluate_cartpole_2020-11-20-15'
+    log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     analyze_bohb(log_dir)
 
 
