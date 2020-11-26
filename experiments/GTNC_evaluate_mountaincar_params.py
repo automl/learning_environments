@@ -41,6 +41,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_init', lower=0.8, upper=1, log=True, default_value=0.9))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_min', lower=0.005, upper=0.05, log=True, default_value=0.05))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_decay', lower=0.01, upper=0.2, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_same_action_num', lower=1, upper=5, log=False, default_value=3))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_size', lower=48, upper=192, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_hidden_layer', lower=1, upper=2, log=False, default_value=2))
@@ -68,6 +69,7 @@ class ExperimentWrapper():
         config["agents"]['ddqn']['eps_init'] = cso["ddqn_eps_init"]
         config["agents"]['ddqn']['eps_min'] = cso["ddqn_eps_min"]
         config["agents"]['ddqn']['eps_decay'] = 1-cso["ddqn_eps_decay"]
+        config["agents"]['ddqn']['same_action_num'] = cso["ddqn_same_action_num"]
         config["agents"]['ddqn']['activation_fn'] = cso["ddqn_activation_fn"]
         config["agents"]['ddqn']['hidden_size'] = cso["ddqn_hidden_size"]
         config["agents"]['ddqn']['hidden_layer'] = cso["ddqn_hidden_layer"]
