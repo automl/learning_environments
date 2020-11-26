@@ -29,13 +29,13 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_score_transform_type', lower=0, upper=7, log=False, default_value=7))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.5, upper=1, log=True, default_value=0.5))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.01, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.005, upper=0.05, log=True, default_value=0.01))
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_init_episodes', lower=1, upper=20, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ddqn_batch_size', lower=64, upper=256, log=False, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_gamma', lower=0.001, upper=0.01, log=True, default_value=0.005))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ddqn_eps_init', lower=0.8, upper=1, log=True, default_value=0.9))
