@@ -183,7 +183,7 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name):
     reward_list = [[] for i in range(5)]
 
     for noise_type in range(5):
-        for noise_value in np.logspace(-2, 2, num=50):
+        for noise_value in np.logspace(-2, 1.5, num=50):
             reward_sum = []
             train_length = []
             for i in range(10):
@@ -229,7 +229,7 @@ def calc_reference_deviation(virtual_env, real_env, config):
 
 
 def plot_threshold(std_dev):
-    plt.figure(dpi=600, figsize=(7.5,3))
+    plt.figure(dpi=600, figsize=(6,3))
 
     data = torch.load(reward_file_name)
     reward_list = data['reward_list']
@@ -239,22 +239,19 @@ def plot_threshold(std_dev):
         ys = [elem[1] for elem in reward_list[i]]
         plt.plot(xs, ys)
 
+    plt.legend(['cart position', 'cart velocity', 'pole angle', 'pole ang. vel.', 'reward'])
     plt.xscale('log')
+    plt.xlabel('relative noise intensity')
+    plt.ylabel('cumulative reward')
+    plt.savefig('cartpole_threshold.svg')
     plt.show()
-    print(xs)
-
-    print(reward_list)
-
-
-
-
 
 
 if __name__ == "__main__":
     #dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
     dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
     model_file_name = 'CartPole-v0_24_I8EZDI.pt'
-    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_10.pt'
+    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_3.pt'
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, model_file_name=model_file_name)
     config['device'] = 'cuda'
