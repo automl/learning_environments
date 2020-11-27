@@ -5,6 +5,8 @@ import random
 import numpy as np
 import torch.nn.functional as F
 import statistics
+import matplotlib.pyplot as plt
+from agents.DDQN import DDQN
 from agents.base_agent import BaseAgent
 from models.actor_critic import Critic_DQN
 from envs.env_factory import EnvFactory
@@ -163,8 +165,8 @@ class DDQN_noise(BaseAgent):
 
 
 
-def load_envs_and_config(dir, file_name):
-    file_path = os.path.join(dir, file_name)
+def load_envs_and_config(dir, model_file_name):
+    file_path = os.path.join(dir, model_file_name)
     save_dict = torch.load(file_path)
     config = save_dict['config']
     # config['envs']['CartPole-v0']['solved_reward'] = 195
@@ -177,14 +179,14 @@ def load_envs_and_config(dir, file_name):
     return virtual_env, real_env, config
 
 
-def calc_noisy_reward(virtual_env, real_env, config):
+def calc_noisy_reward(virtual_env, real_env, config, reward_file_name):
     reward_list = [[] for i in range(5)]
 
     for noise_type in range(5):
         for noise_value in np.logspace(-3, 2, num=50):
             reward_sum = []
             train_length = []
-            for i in range(3):
+            for i in range(10):
                 print('{} {} {}'.format(noise_type, noise_value, i))
                 agent = DDQN_noise(env=real_env, config=config)
                 print('train')
@@ -201,21 +203,71 @@ def calc_noisy_reward(virtual_env, real_env, config):
     data = {}
     data['reward_list'] = reward_list
 
-    torch.save(data, 'GTNC_visualize_cartpole_threshold_rewards.pt')
+    torch.save(data, reward_file_name)
+
+
+def calc_reference_deviation(virtual_env, real_env, config):
+
+    state_reward_concat = None
+
+    for i in range(10):
+        agent = DDQN(env=real_env, config=config)
+        _, replay_buffer_train = agent.train(env=virtual_env)
+
+        states, _, _, rewards, _ = replay_buffer_train.get_all()
+        state_reward = torch.cat((states, rewards), 1)
+
+        if state_reward_concat == None:
+            state_reward_concat = state_reward
+        else:
+            state_reward_concat = torch.cat((state_reward_concat, state_reward), 0)
+
+        print(state_reward_concat.shape)
+        print(torch.std(state_reward_concat, dim=0))
+
+    return torch.std(state_reward_concat, dim=0).item()
+
+
+def plot_threshold(std_dev):
+    plt.figure(dpi=600, figsize=(7.5,3))
+
+    data = torch.load(reward_file_name)
+    reward_list = data['reward_list']
+
+    for i in range(len(reward_list)):
+        xs = [elem[0]/std_dev[i] for elem in reward_list[0]]
+        ys = [elem[1] for elem in reward_list[i]]
+        plt.plot(xs, ys)
+
+    plt.xscale('log')
+    plt.show()
+    print(xs)
+
+    print(reward_list)
+
+
+
+
+
 
 if __name__ == "__main__":
     #dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
     dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
-    file_name = 'CartPole-v0_24_I8EZDI.pt'
+    model_file_name = 'CartPole-v0_24_I8EZDI.pt'
+    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_10.pt'
 
-    virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
+    virtual_env, real_env, config = load_envs_and_config(dir=dir, model_file_name=model_file_name)
     config['device'] = 'cuda'
     config['agents']['ddqn']['print_rate'] = 10
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
+    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
+    #plot_threshold(std_dev)
 
-    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config)
+
 
 
 
