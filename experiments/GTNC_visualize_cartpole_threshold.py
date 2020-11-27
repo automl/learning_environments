@@ -242,16 +242,16 @@ def plot_threshold(std_dev):
     plt.legend(['cart position', 'cart velocity', 'pole angle', 'pole ang. vel.', 'reward'])
     plt.xscale('log')
     plt.xlabel('relative noise intensity')
-    plt.ylabel('cumulative reward')
+    plt.ylabel('avg. cumulative reward')
     plt.savefig('cartpole_threshold.svg', bbox_inches='tight')
     plt.show()
 
 
 if __name__ == "__main__":
-    #dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
+    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
+    #dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
     model_file_name = 'CartPole-v0_24_I8EZDI.pt'
-    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_10.pt'
+    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_3.pt'
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, model_file_name=model_file_name)
     config['device'] = 'cuda'
@@ -259,10 +259,10 @@ if __name__ == "__main__":
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
-    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    #calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
     #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
-    #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
-    #plot_threshold(std_dev)
+    std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
+    plot_threshold(std_dev)
 
 
 
