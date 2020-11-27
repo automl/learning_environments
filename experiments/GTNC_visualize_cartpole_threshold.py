@@ -183,7 +183,7 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name):
     reward_list = [[] for i in range(5)]
 
     for noise_type in range(5):
-        for noise_value in np.logspace(-3, 2, num=50):
+        for noise_value in np.logspace(-2, 2, num=50):
             reward_sum = []
             train_length = []
             for i in range(10):
