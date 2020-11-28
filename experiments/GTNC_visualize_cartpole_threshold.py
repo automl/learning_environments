@@ -186,7 +186,7 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name):
         for noise_value in np.logspace(-2, 1.5, num=50):
             reward_sum = []
             train_length = []
-            for i in range(10):
+            for i in range(100):
                 print('{} {} {}'.format(noise_type, noise_value, i))
                 agent = DDQN_noise(env=real_env, config=config)
                 print('train')

@@ -4,12 +4,12 @@ import numpy as np
 import ast
 from copy import deepcopy
 
-LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-11-27-17']
+LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-11-27-17', '../results/GTNC_evaluate_acrobot_2020-11-28-11']
 MAX_VALS = 40
-STD_MULT = 0.5
+STD_MULT = 1
 SOLVED_REWARD = 195
 
-def get_data(finish_after_solved):
+def get_data():
     list_data = []
     for log_dir in LOG_DIRS:
         result = hpres.logged_results_to_HBS_result(log_dir)
@@ -21,16 +21,16 @@ def get_data(finish_after_solved):
 
         for run in all_runs:
             avg_rewards = ast.literal_eval(run['info']['score_list'])
+            print(avg_rewards)
 
             config_id = run['config_id']
-            for k in range(1, len(avg_rewards)):
-                if avg_rewards[k] < -1000:  # handle timeout cases
-                    avg_rewards[k] = avg_rewards[k - 1]
 
-            if finish_after_solved:
-                for k in range(1,len(avg_rewards)):
-                    if avg_rewards[k-1] > SOLVED_REWARD:
-                        avg_rewards[k] = avg_rewards[k-1]
+            # handle timeout cases (impute missing values)
+            if avg_rewards[0] < -1e5 and avg_rewards[1] > -1e5:
+                avg_rewards[0] = avg_rewards[1]
+            for k in range(1, len(avg_rewards)):
+                if avg_rewards[k] < -1e5 and avg_rewards[k-1] > -1e5:
+                    avg_rewards[k] = avg_rewards[k-1]
 
             data.append(avg_rewards)
         list_data.append(data)
@@ -50,35 +50,39 @@ def get_data(finish_after_solved):
 
         proc_data.append((mean,std))
 
-    return proc_data
+    return proc_data, list_data
 
 
-def plot_data(data, savefig_name):
-    fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
+def plot_data(proc_data, list_data, savefig_name):
+    fig, ax = plt.subplots(dpi=600, figsize=(7,5))
+    colors = ['#1F77B4', '#FF7F0E']
     #
     # for mean, _ in data_w:
     #     plt.plot(mean_w)
     #     colors.append(plt.gca().lines[-1].get_color())
 
-    for i, data in enumerate(data):
-        mean, std = data
-        plt.plot(mean)
-        plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.1)
+    for mean, std in proc_data:
+        plt.plot(mean, linewidth=2)
 
-    plt.legend(('cartpole'))
+    plt.plot([0, 49], [195, 195], '--', color=colors[0], linewidth=2)
+    plt.plot([0, 49], [-100, -100], '--', color=colors[1], linewidth=2)
+
+    for mean, std in proc_data:
+        plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.2)
+
+    for i, dat in enumerate(list_data):
+        for avg_rewards in dat:
+            plt.plot(avg_rewards, linewidth=0.3, color=colors[i])
+
+    plt.legend(['CartPole-v0', 'Acrobot-v1', 'CartPole-v0 solved', 'Acrobot-v1 solved'])
     plt.xlim(0,49)
-    #plt.ylim(-0.2, 1)
-    plt.xlabel('ES iteration')
-    plt.ylabel('average cumulative reward')
-    #plt.savefig(savefig_name)
+    plt.xlabel('ES outer loop')
+    plt.ylabel('cumulative reward')
+    plt.savefig(savefig_name, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":
-    data = get_data(finish_after_solved=False)
-    plot_data(data, savefig_name='cartpole_acrobot_success.png')
-
-    data = get_data(finish_after_solved=True)
-    plot_data(data, savefig_name='cartpole_acrobot_success.png')
+    proc_data, list_data = get_data()
+    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
 
 
