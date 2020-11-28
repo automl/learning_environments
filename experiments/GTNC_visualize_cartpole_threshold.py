@@ -259,10 +259,10 @@ if __name__ == "__main__":
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
-    #calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
     #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
-    std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
-    plot_threshold(std_dev)
+    #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
+    #plot_threshold(std_dev)
 
 
 
