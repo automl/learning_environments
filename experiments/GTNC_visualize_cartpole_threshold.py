@@ -248,10 +248,10 @@ def plot_threshold(std_dev):
 
 
 if __name__ == "__main__":
-    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    #dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
+    #dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
+    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
     model_file_name = 'CartPole-v0_24_I8EZDI.pt'
-    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_10.pt'
+    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100.pt'
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, model_file_name=model_file_name)
     config['device'] = 'cuda'
