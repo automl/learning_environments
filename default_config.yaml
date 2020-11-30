@@ -179,12 +179,6 @@ envs:
   Pendulum-v0:
     solved_reward: !!float -300             # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
-    dt: !!float 0.05                        # sampling rate
-    max_speed: [8, 10, 12, False]           # maximum joint speed [min, default, max, larger=more difficult]
-    max_torque: [1.5, 2, 3, False]          # maximum joint torque [min, default, max, larger=more difficult]
-    g: [5, 10, 15, True]                    # gravitational constant [min, default, max, larger=more difficult]
-    m: [0.5, 1, 1.2, True]                  # joint mass [min, default, max, larger=more difficult]
-    l: [0.5, 1, 1.2, True]                  # joint length [min, default, max, larger=more difficult]
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
@@ -192,10 +186,6 @@ envs:
   MountainCarContinuous-v0:
     solved_reward: !!float 80               # used for early out in RL agent training
     max_steps: !!int 999                    # maximum number of steps per episode REMOVE
-    max_speed: [0.05, 0.07, 0.1, False]     # maximum allowed vehicle velocity
-    power: [0.001, 0.0015, 0.002, False]    # strength of the vehicle engine
-    goal_position: [0.45, 0.45, 0.5, True]  # x-value? of goal position
-    goal_velocity: [0.0, 0.0, 0.05, True]   # minimum velocity when reaching the goal
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 96                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
@@ -203,8 +193,6 @@ envs:
   HalfCheetah-v2:
     solved_reward: !!float 3000             # used for early out in RL agent training
     max_steps: !!int 1000                   # maximum number of steps per episode
-    g: [-0.2, -9.81, -50, True]             # gravitational constant along negative z-axis [min, default, max, larger=more difficult]
-    cripple_joint: !!bool False             # randomly sample a joint to be disabled (the agent cannot apply torques to that joint)
     activation_fn: !!str relu               # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 3                   # number of hidden layers of the virtual environment

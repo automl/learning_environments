@@ -54,7 +54,6 @@ class BaseAgent(nn.Module):
 
 
     def test(self, env, time_remaining=1e9):
-        #self.plot_q_function(env)
         sd = 1 if env.has_discrete_state_space() else self.state_dim
         ad = 1 if env.has_discrete_action_space() else self.action_dim
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=int(1e6))
@@ -95,13 +94,6 @@ class BaseAgent(nn.Module):
                 # logging
                 avg_meter_reward.update(episode_reward.item(), print_rate=self.print_rate)
 
-                # if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                #     #print(path)
-                #     #self.plot_q_function(env)
-                #     break
-
             env.close()
-
-        #self.plot_q_function(env)
 
         return avg_meter_reward.get_raw_data(), replay_buffer

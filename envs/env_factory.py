@@ -33,13 +33,6 @@ class EnvFactory:
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
-    def generate_interpolated_real_env(self, interpolate, print_str=''):
-        # generate a real environment with random parameters within specified range
-        kwargs = self._get_interpolated_parameters(interpolate)
-        #print(print_str + 'Generating interpolated real environment "{}" with parameters {}'.format(self.env_name, kwargs))
-        env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
-        return EnvWrapper(env=env)
-
     def generate_virtual_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
@@ -52,18 +45,6 @@ class EnvFactory:
         for key, value in self.env_config.items():
             if isinstance(value, list):
                 kwargs[key] = np.random.uniform(low=float(value[0]), high=float(value[2]))
-            else:
-                kwargs[key] = value
-        return kwargs
-
-    def _get_interpolated_parameters(self, interpolate):
-        kwargs = {"env_name": self.env_name}
-        for key, value in self.env_config.items():
-            if isinstance(value, list):
-                if bool(value[3]):
-                    kwargs[key] = value[0] + interpolate * (value[2] - value[0])
-                else:
-                    kwargs[key] = value[2] + interpolate * (value[0] - value[2])
             else:
                 kwargs[key] = value
         return kwargs
