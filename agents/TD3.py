@@ -171,32 +171,6 @@ class TD3(BaseAgent):
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr)
 
 
-    def get_state_dict(self):
-        agent_state = {}
-        agent_state["td3_actor"] = self.actor.state_dict()
-        agent_state["td3_actor_target"] = self.actor_target.state_dict()
-        agent_state["td3_critic_1"] = self.critic_1.state_dict()
-        agent_state["td3_critic_2"] = self.critic_2.state_dict()
-        agent_state["td3_critic_target_1"] = self.critic_target_1.state_dict()
-        agent_state["td3_critic_target_2"] = self.critic_target_2.state_dict()
-        if self.actor_optimizer:
-            agent_state["td3_actor_optimizer"] = self.actor_optimizer.state_dict()
-        if self.critic_optimizer:
-            agent_state["td3_critic_optimizer"] = self.critic_optimizer.state_dict()
-        return agent_state
-
-    def set_state_dict(self, agent_state):
-        self.actor.load_state_dict(agent_state["td3_actor"])
-        self.actor_target.load_state_dict(agent_state["td3_actor_target"])
-        self.critic_1.load_state_dict(agent_state["td3_critic_1"])
-        self.critic_2.load_state_dict(agent_state["td3_critic_2"])
-        self.critic_target_1.load_state_dict(agent_state["td3_critic_target_1"])
-        self.critic_target_2.load_state_dict(agent_state["td3_critic_target_2"])
-        if "td3_actor_optimizer" in agent_state.keys():
-            self.actor_optimizer.load_state_dict(agent_state["td3_actor_optimizer"])
-        if "td3_critic_optimizer" in agent_state.keys():
-            self.critic_optimizer.load_state_dict(agent_state["td3_critic_optimizer"])
-
 
 if __name__ == "__main__":
     with open("../default_config_pendulum.yaml", "r") as stream:

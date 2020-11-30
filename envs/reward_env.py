@@ -23,6 +23,11 @@ class VirtualEnv(nn.Module):
         self.state_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
                                               output_dim=self.state_dim,
                                               nn_config=kwargs).to(self.device)
+        # self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
+        #                                        output_dim=1,
+        #                                        nn_config=kwargs,
+        #                                        rbf_net=True,
+        #                                        final_bias=-1).to(self.device)
         self.reward_net = build_nn_from_config(input_dim=self.state_dim + self.action_dim,
                                                output_dim=1,
                                                nn_config=kwargs).to(self.device)
@@ -58,3 +63,15 @@ class VirtualEnv(nn.Module):
         #self.state = from_one_hot_encoding(next_state)
 
         return next_state, reward, done
+
+    def get_state_dict(self):
+        env_state = {}
+        env_state["virtual_env_state_net"] = self.state_net.state_dict()
+        env_state["virtual_env_reward_net"] = self.reward_net.state_dict()
+        env_state["virtual_env_done_net"] = self.done_net.state_dict()
+        return env_state
+
+    def set_state_dict(self, env_state):
+        self.state_net.load_state_dict(env_state["virtual_env_state_net"])
+        self.reward_net.load_state_dict(env_state["virtual_env_reward_net"])
+        self.done_net.load_state_dict(env_state["virtual_env_done_net"])

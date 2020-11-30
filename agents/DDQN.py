@@ -155,22 +155,6 @@ class DDQN(BaseAgent):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
 
-    def get_state_dict(self):
-        agent_state = {}
-        agent_state["ddqn_model"] = self.model.state_dict()
-        agent_state["ddqn_model_target"] = self.model_target.state_dict()
-        if self.optimizer:
-            agent_state["ddqn_optimizer"] = self.optimizer.state_dict()
-
-        return agent_state
-
-    def set_state_dict(self, agent_state):
-        self.model.load_state_dict(agent_state["ddqn_model"])
-        self.model_target.load_state_dict(agent_state["ddqn_model_target"])
-        if "ddqn_optimizer" in agent_state.keys():
-            self.optimizer.load_state_dict(agent_state["ddqn_optimizer"])
-
-
 if __name__ == "__main__":
     with open("../default_config_mountaincar.yaml", "r") as stream:
         config = yaml.safe_load(stream)

@@ -136,15 +136,6 @@ class QL(BaseAgent):
             self.eps = max(self.eps, self.eps_min)
 
 
-    def get_state_dict(self):
-        agent_state = {}
-        agent_state["ql_q_table"] = self.q_table
-        return agent_state
-
-    def set_state_dict(self, agent_state):
-        self.q_table = agent_state["sarsa_q_table"]
-
-
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)

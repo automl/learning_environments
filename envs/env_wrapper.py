@@ -110,8 +110,7 @@ class EnvWrapper(nn.Module):
         elif self.env.env_name == "HalfCheetah-v2":
             return 1
         else:
-            print("Unknownn environment, performance may decrease")
-            return 0
+            raise NotImplementedError("Unknownn environment, cannot set max_action")
 
     def has_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):

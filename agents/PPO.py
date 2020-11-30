@@ -148,23 +148,6 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def get_state_dict(self):
-        agent_state = {}
-        agent_state['ppo_actor'] = self.actor.state_dict()
-        agent_state['ppo_actor_old'] = self.actor_target.state_dict()
-        agent_state['ppo_critic'] = self.critic_1.state_dict()
-        agent_state['ppo_critic_old'] = self.critic_2.state_dict()
-        agent_state['ppo_optimizer'] = self.critic_target_1.state_dict()
-        return agent_state
-
-    def set_state_dict(self, agent_state):
-        self.actor.load_state_dict(agent_state['ppo_actor'])
-        self.actor_old.load_state_dict(agent_state['ppo_actor_old'])
-        self.critic.load_state_dict(agent_state['ppo_critic'])
-        self.critic_old.load_state_dict(agent_state['ppo_critic_old'])
-        self.optimizer.load_state_dict(agent_state['ppo_optimizer'])
-
-
 if __name__ == "__main__":
     with open("../default_config.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
