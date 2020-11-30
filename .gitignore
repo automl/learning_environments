@@ -135,3 +135,6 @@ dmypy.json
 
 # pickle files
 *.pkl
+
+# log files
+*.json
