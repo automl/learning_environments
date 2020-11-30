@@ -80,7 +80,7 @@ class ExperimentWrapper():
 
         # generate environment
         env_fac = EnvFactory(config)
-        env = env_fac.generate_default_real_env()
+        env = env_fac.generate_real_env()
 
         td3 = TD3(state_dim=env.get_state_dim(),
                   action_dim=env.get_action_dim(),

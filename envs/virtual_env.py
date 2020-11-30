@@ -7,7 +7,6 @@ class VirtualEnv(nn.Module):
     def __init__(self, kwargs):
         super().__init__()
 
-        self.input_seed = None
         self.env_name = str(kwargs["env_name"])
         self.device = str(kwargs["device"])
         self.state_dim = int(kwargs["state_dim"])

@@ -235,7 +235,7 @@ class GTN_Worker(GTN_Base):
 
 
     def test_agent_on_real_env(self, agent, time_remaining):
-        env = self.env_factory.generate_default_real_env('Test: ')
+        env = self.env_factory.generate_real_env('Test: ')
         t_s = time.time()
 
         reward_list, replay_buffer = agent.test(env=env,

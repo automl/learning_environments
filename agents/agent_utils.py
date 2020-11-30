@@ -12,7 +12,7 @@ from utils import print_abs_param_sum
 
 def select_agent(config, agent_name):
     env_factory = EnvFactory(config)
-    dummy_env = env_factory.generate_default_real_env(print_str='Select Agent: ')
+    dummy_env = env_factory.generate_real_env(print_str='Select Agent: ')
 
     agent_name = agent_name.lower()
 

@@ -67,12 +67,7 @@ envs:
   Pendulum-v0:
     solved_reward: !!float -300             # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
-    dt: !!float 0.05                        # sampling rate
-    max_speed: [8, 10, 12, False]           # maximum joint speed [min, default, max, larger=more difficult]
-    max_torque: [1.5, 2, 3, False]          # maximum joint torque [min, default, max, larger=more difficult]
-    g: [5, 10, 15, True]                    # gravitational constant [min, default, max, larger=more difficult]
-    m: [0.5, 1, 1.2, True]                  # joint mass [min, default, max, larger=more difficult]
-    l: [0.5, 1, 1.2, True]                  # joint length [min, default, max, larger=more difficult]
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 4                # type of reward shaping function

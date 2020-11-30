@@ -182,6 +182,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   MountainCarContinuous-v0:
     solved_reward: !!float 80               # used for early out in RL agent training
@@ -189,6 +190,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 96                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   HalfCheetah-v2:
     solved_reward: !!float 3000             # used for early out in RL agent training
@@ -196,6 +198,7 @@ envs:
     activation_fn: !!str relu               # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 3                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   CartPole-v0:
     solved_reward: !!float 195              # used for early out in RL agent training
@@ -203,6 +206,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   LunarLander-v2:
     solved_reward: !!float 200
@@ -210,6 +214,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   FrozenLake-v0:
     solved_reward: !!float 0.9
@@ -217,6 +222,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   CliffWalking-v0:
     solved_reward: !!float -50
@@ -224,6 +230,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   Bandit:
     solved_reward: !!float 49
@@ -231,6 +238,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 4                          # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom22:
     solved_reward: !!float 0.8
@@ -238,6 +246,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom23:
     solved_reward: !!float 0.8
@@ -245,6 +254,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom33:
     solved_reward: !!float 0.8
@@ -252,4 +262,4 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-
+    reward_env_type: !!int 0                # type of reward shaping function

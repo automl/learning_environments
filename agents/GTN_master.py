@@ -50,7 +50,7 @@ class GTN_Master(GTN_Base):
 
         # for early out
         self.avg_runtime = None
-        self.real_env = self.env_factory.generate_default_real_env()
+        self.real_env = self.env_factory.generate_real_env()
 
         # to store models
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_' + self.env_name))

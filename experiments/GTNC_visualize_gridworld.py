@@ -102,7 +102,7 @@ def load_envs_and_config(dir, file_name):
     env_factory = EnvFactory(config=config)
     virtual_env = env_factory.generate_virtual_env()
     virtual_env.load_state_dict(save_dict['model'])
-    real_env = env_factory.generate_default_real_env()
+    real_env = env_factory.generate_real_env()
 
     grid_size, _, _ = file_name.split('_')
     M, N = grid_size.split('x')
