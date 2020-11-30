@@ -40,11 +40,19 @@ class GTN_Worker(GTN_Base):
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
+        self.synthetic_env_type = gtn_config["synthetic_env_type"]
 
         self.env_factory = EnvFactory(config)
-        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
-        self.virtual_env = self.env_factory.generate_virtual_env(print_str='GTN_Worker' + str(id) + ': ')
-        self.eps = self.env_factory.generate_virtual_env('GTN_Worker' + str(id) + ': ')
+        if self.synthetic_env_type == 0:
+            generate_synthetic_env_fn = self.env_factory.generate_reward_env
+        elif self.synthetic_env_type == 1:
+            generate_synthetic_env_fn = self.env_factory.generate_virtual_env
+        else:
+            raise NotImplementedError("Unknown synthetic_env_type value: " + str(self.synthetic_env_type))
+
+        self.synthetic_env_orig = generate_synthetic_env_fn(print_str='GTN_Base: ')
+        self.synthetic_env = generate_synthetic_env_fn(print_str='GTN_Worker' + str(id) + ': ')
+        self.eps = generate_synthetic_env_fn('GTN_Worker' + str(id) + ': ')
 
 
     def run(self):
@@ -61,30 +69,30 @@ class GTN_Worker(GTN_Base):
             # for evaluation purpose
             agent_orig = select_agent(config=self.config,
                                       agent_name=self.agent_name)
-            agent_orig.train(env=self.virtual_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
             score_orig = self.test_agent_on_real_env(agent=agent_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
 
             # first mirrored noise +N
-            self.add_noise_to_virtual_env()
+            self.add_noise_to_synthetic_env()
 
             score_add = []
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
                 agent_add = select_agent(config=self.config, agent_name=self.agent_name)
-                agent_add.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+                agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
                 score = self.test_agent_on_real_env(agent=agent_add, time_remaining=self.timeout-(time.time()-time_start))
                 score_add.append(score)
 
             # # second mirrored noise -N
-            self.subtract_noise_from_virtual_env()
+            self.subtract_noise_from_synthetic_env()
 
             score_sub = []
             for i in range(self.num_grad_evals):
                 #print('sub ' + str(i))
                 agent_sub = select_agent(config=self.config, agent_name=self.agent_name)
-                agent_sub.train(env=self.virtual_env, time_remaining=self.timeout-(time.time()-time_start))
+                agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
                 score = self.test_agent_on_real_env(agent=agent_sub, time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(score)
 
@@ -118,8 +126,8 @@ class GTN_Worker(GTN_Base):
 
         self.late_init(self.config)
 
-        self.virtual_env_orig.load_state_dict(data['virtual_env_orig'])
-        self.virtual_env.load_state_dict(data['virtual_env_orig'])
+        self.synthetic_env_orig.load_state_dict(data['synthetic_env_orig'])
+        self.synthetic_env.load_state_dict(data['synthetic_env_orig'])
 
         os.remove(check_file_name)
         os.remove(file_name)
@@ -135,7 +143,7 @@ class GTN_Worker(GTN_Base):
 
         data = {}
         data["eps"] = self.eps.state_dict()
-        data["virtual_env"] = self.virtual_env.state_dict() # for debugging
+        data["synthetic_env"] = self.synthetic_env.state_dict() # for debugging
         data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["score_orig"] = score_orig
@@ -145,8 +153,7 @@ class GTN_Worker(GTN_Base):
 
 
     def get_random_eps(self):
-        #print(self.virtual_env)
-        for l_virt, l_eps in zip(self.virtual_env.modules(), self.eps.modules()):
+        for l_virt, l_eps in zip(self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.weight),
                                                                std=torch.ones_like(l_virt.weight)) * self.noise_std)
@@ -154,8 +161,8 @@ class GTN_Worker(GTN_Base):
                                                              std=torch.ones_like(l_virt.bias)) * self.noise_std)
 
 
-    def add_noise_to_virtual_env(self, add=True):
-        for l_orig, l_virt, l_eps in zip(self.virtual_env_orig.modules(), self.virtual_env.modules(), self.eps.modules()):
+    def add_noise_to_synthetic_env(self, add=True):
+        for l_orig, l_virt, l_eps in zip(self.synthetic_env_orig.modules(), self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
                 if add: # add eps
                     l_virt.weight = torch.nn.Parameter(l_orig.weight + l_eps.weight)
@@ -165,8 +172,8 @@ class GTN_Worker(GTN_Base):
                     l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
 
 
-    def subtract_noise_from_virtual_env(self):
-        self.add_noise_to_virtual_env(add=False)
+    def subtract_noise_from_synthetic_env(self):
+        self.add_noise_to_synthetic_env(add=False)
 
 
     def invert_eps(self):
@@ -193,10 +200,10 @@ class GTN_Worker(GTN_Base):
                 if score_sub < score_add:
                     self.invert_eps()
                 else:
-                    self.add_noise_to_virtual_env()
+                    self.add_noise_to_synthetic_env()
             else:
                 score_best = score_add
-                self.add_noise_to_virtual_env()
+                self.add_noise_to_synthetic_env()
 
         else:
             if self.grad_eval_type == 'mean':
@@ -214,10 +221,10 @@ class GTN_Worker(GTN_Base):
                 if score_sub > score_add:
                     self.invert_eps()
                 else:
-                    self.add_noise_to_virtual_env()
+                    self.add_noise_to_synthetic_env()
             else:
                 score_best = score_add
-                self.add_noise_to_virtual_env()
+                self.add_noise_to_synthetic_env()
 
         return score_best
 
@@ -240,6 +247,8 @@ class GTN_Worker(GTN_Base):
 
         reward_list, replay_buffer = agent.test(env=env,
                                                 time_remaining=time_remaining - (time.time() - t_s))
+
+        #print(reward_list)
 
         if env.has_discrete_state_space():
             all_states = []

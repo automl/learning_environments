@@ -137,7 +137,7 @@ class QL(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config.yaml", "r") as stream:
+    with open("../default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)
@@ -145,20 +145,12 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_real_env()
-    virtual_env = env_fac.generate_virtual_env()
+    #virtual_env = env_fac.generate_virtual_env()
 
-    timing = []
     for i in range(100):
         ql = QL(env=real_env,
                 config=config)
-
-        #ddqn.train(env=virt_env, time_remaining=50)
-
-        t1 = time.time()
         ql.train(env=real_env, time_remaining=500)
-        t2 = time.time()
-        timing.append(t2-t1)
         reward_list, replay_buffer = ql.test(env=real_env, time_remaining=500)
         print(sum(reward_list)/len(reward_list))
-    print('avg. ' + str(sum(timing)/len(timing)))
 

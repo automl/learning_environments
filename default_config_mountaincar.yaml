@@ -24,6 +24,7 @@ agents:
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
+    synthetic_env_type: !!int 1             # 0: reward env / 1: virtual env
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   ddqn_vary:

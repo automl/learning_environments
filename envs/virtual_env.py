@@ -11,7 +11,7 @@ class VirtualEnv(nn.Module):
         self.device = str(kwargs["device"])
         self.state_dim = int(kwargs["state_dim"])
         self.action_dim = int(kwargs["action_dim"])
-        self.solved_reward = int(kwargs["solved_reward"])
+        self.solved_reward = float(kwargs["solved_reward"])
 
         # for gym compatibility
         self._max_episode_steps = int(kwargs["max_steps"])
@@ -40,10 +40,6 @@ class VirtualEnv(nn.Module):
         return self.state
 
     def step(self, action, state=None):
-
-        # if len(self.state) < self.state_dim:
-        #     self.state = to_one_hot_encoding(self.state, self.state_dim)
-
         if state is None:
             input = torch.cat((action.to(self.device), self.state.to(self.device)), dim=action.dim() - 1)
         else:
@@ -53,7 +49,5 @@ class VirtualEnv(nn.Module):
         reward = self.reward_net(input)
         done = self.done_net(input)
         self.state = next_state
-
-        #self.state = from_one_hot_encoding(next_state)
 
         return next_state, reward, done

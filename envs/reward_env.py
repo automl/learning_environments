@@ -11,7 +11,7 @@ class RewardEnv(nn.Module):
         self.device = str(kwargs["device"])
         self.state_dim = int(kwargs["state_dim"])
         self.action_dim = int(kwargs["action_dim"])
-        self.solved_reward = int(kwargs["solved_reward"])
+        self.solved_reward = float(kwargs["solved_reward"])
         self.reward_env_type = int(kwargs["reward_env_type"])
 
         # for gym compatibility
@@ -27,8 +27,8 @@ class RewardEnv(nn.Module):
 
     def build_reward_net(self, kwargs):
         if self.reward_env_type == 0:
-            return None
-        if self.reward_env_type == 1 or self.reward_env_type == 2:   # potential based reward function
+            input_dim = 1   # dummy dimension
+        elif self.reward_env_type == 1 or self.reward_env_type == 2:
             input_dim = 2*self.state_dim + self.action_dim
         elif self.reward_env_type == 3 or self.reward_env_type == 4:
             input_dim = self.state_dim
@@ -41,25 +41,29 @@ class RewardEnv(nn.Module):
 
     def step(self, action):
         next_state, reward, done, _ = self.real_env.step(action)
-
-        reward = self._calc_reward(state=self.state,
-                                   action=action,
-                                   next_state=next_state,
-                                   reward=reward)
+        reward_res = self._calc_reward(state=self.state,
+                                       action=action,
+                                       next_state=next_state,
+                                       reward=reward)
         self.state = next_state
 
-        return next_state, reward, done, {}
+        return next_state, reward_res, done, {}
 
     def _calc_reward(self, state, action, next_state, reward):
-        state_torch = torch.tensor(state, device=self.device, dtype=torch.float32)
         action_torch = torch.tensor(action, device=self.device, dtype=torch.float32)
-        next_state_torch = torch.tensor(next_state, device=self.device, dtype=torch.float32)
         reward_torch = torch.tensor(reward, device=self.device, dtype=torch.float32)
+
+        if isinstance(state, int) or len(state) < self.state_dim:
+            state_torch = to_one_hot_encoding(state, self.state_dim)
+            next_state_torch = to_one_hot_encoding(next_state, self.state_dim)
+        else:
+            state_torch = torch.tensor(state, device=self.device, dtype=torch.float32)
+            next_state_torch = torch.tensor(next_state, device=self.device, dtype=torch.float32)
 
         if self.reward_env_type == 0:
             reward_res = reward_torch
 
-        if self.reward_env_type == 1:
+        elif self.reward_env_type == 1:
             input = torch.cat((state_torch, action_torch, next_state_torch), dim=action_torch.dim()-1)
             reward_res = self.reward_env(input)
 

@@ -88,7 +88,7 @@ class PPO(nn.Module):
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
             if avg_reward > env.get_solved_reward():
-                print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+                #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
                 break
 
         env.close()

@@ -25,6 +25,7 @@ agents:
     minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
+    synthetic_env_type: !!int 1             # 0: reward env / 1: virtual env
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   reptile:
@@ -259,6 +260,22 @@ envs:
   EmptyRoom33:
     solved_reward: !!float 0.8
     max_steps: !!int 20
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
+
+  WallRoom:
+    solved_reward: !!float 0.8
+    max_steps: !!int 50
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    reward_env_type: !!int 0                # type of reward shaping function
+
+  HoleRoom:
+    solved_reward: !!float 0.8
+    max_steps: !!int 50
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment

@@ -32,10 +32,7 @@ class GTN_Master(GTN_Base):
         self.time_max = gtn_config["time_max"]
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
-
-        # to keep track of the reference virtual env
-        self.env_factory = EnvFactory(config)
-        self.virtual_env_orig = self.env_factory.generate_virtual_env(print_str='GTN_Base: ')
+        self.synthetic_env_type = gtn_config["synthetic_env_type"]
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -45,8 +42,19 @@ class GTN_Master(GTN_Base):
         self.score_list = [None]*self.num_workers
         self.score_orig_list = [None]*self.num_workers # for debugging
         self.score_transform_list = [None]*self.num_workers
-        self.virtual_env_list = [self.env_factory.generate_virtual_env(print_str='GTN_Master: ') for _ in range(self.num_workers)]
-        self.eps_list = [self.env_factory.generate_virtual_env(print_str='GTN_Master: ') for _ in range(self.num_workers)]
+
+        # to keep track of the reference virtual env
+        self.env_factory = EnvFactory(config)
+        if self.synthetic_env_type == 0:
+            generate_synthetic_env_fn = self.env_factory.generate_reward_env
+        elif self.synthetic_env_type == 1:
+            generate_synthetic_env_fn = self.env_factory.generate_virtual_env
+        else:
+            raise NotImplementedError("Unknown synthetic_env_type value: " + str(self.synthetic_env_type))
+
+        self.synthetic_env_orig = generate_synthetic_env_fn(print_str='GTN_Base: ')
+        self.synthetic_env_list = [generate_synthetic_env_fn(print_str='GTN_Master: ') for _ in range(self.num_workers)]
+        self.eps_list = [generate_synthetic_env_fn(print_str='GTN_Master: ') for _ in range(self.num_workers)]
 
         # for early out
         self.avg_runtime = None
@@ -120,7 +128,7 @@ class GTN_Master(GTN_Base):
             random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
             file_name = self.get_model_file_name(self.env_name + '_' + str(it) + '_' + random_string + '.pt')
             save_dict = {}
-            save_dict['model'] = self.virtual_env_orig.state_dict()
+            save_dict['model'] = self.synthetic_env_orig.state_dict()
             save_dict['config'] = self.config
             torch.save(save_dict, file_name)
 
@@ -161,7 +169,7 @@ class GTN_Master(GTN_Base):
             data['quit_flag'] = quit_flag
             data['uuid'] = self.uuid_list[id]
             data['config'] = self.config
-            data['virtual_env_orig'] = self.virtual_env_orig.state_dict()
+            data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
@@ -203,7 +211,7 @@ class GTN_Master(GTN_Base):
             self.score_list[id] = data['score']
             self.eps_list[id].load_state_dict(data['eps'])
             self.score_orig_list[id] = data['score_orig']                  # for debugging
-            self.virtual_env_list[id].load_state_dict(data['virtual_env']) # for debugging
+            self.synthetic_env_list[id].load_state_dict(data['synthetic_env']) # for debugging
 
             os.remove(check_file_name)
             os.remove(file_name)
@@ -296,26 +304,26 @@ class GTN_Master(GTN_Base):
         print('score_orig_list      ' + str(self.score_orig_list))
         print('score_list           ' + str(self.score_list))
         print('score_transform_list ' + str(self.score_transform_list))
-        print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.virtual_env_list]))
+        print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.synthetic_env_list]))
 
-        print('weights before: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
+        print('weights before: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
         # weight decay
-        for l_orig in self.virtual_env_orig.modules():
+        for l_orig in self.synthetic_env_orig.modules():
             if isinstance(l_orig, nn.Linear):
                 l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
                 l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
 
-        print('weights after weight decay: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
+        print('weights after weight decay: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
         # weight update
         for eps, score_transform in zip(self.eps_list, self.score_transform_list):
-            for l_orig, l_eps in zip(self.virtual_env_orig.modules(), eps.modules()):
+            for l_orig, l_eps in zip(self.synthetic_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
                     l_orig.bias = torch.nn.Parameter(l_orig.bias + ss * score_transform * l_eps.bias)
 
-        print('weights after update: ' + str(calc_abs_param_sum(self.virtual_env_orig).item()))
+        print('weights after update: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
 
     def print_statistics(self, it, time_elapsed):

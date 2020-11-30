@@ -79,6 +79,10 @@ class EnvFactory:
             env = TimeLimit(EmptyRoom23())
         elif env_name == "EmptyRoom33":
             env = TimeLimit(EmptyRoom33())
+        elif env_name == "WallRoom":
+            env = TimeLimit(WallRoom())
+        elif env_name == "HoleRoom":
+            env = TimeLimit(HoleRoom())
         else:
             raise NotImplementedError("Environment not supported")
 
