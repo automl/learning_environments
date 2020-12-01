@@ -30,7 +30,7 @@ class SARSA(BaseAgent):
         # if self.it % 5000 == 0:
         #     self.plot_q_function(env)
 
-        for _ in self.batch_size:
+        for _ in range(self.batch_size):
             state, action, next_state, reward, done = replay_buffer.sample(1)
             state = int(state.item())
             action = int(action.item())

@@ -343,7 +343,6 @@ class GTN_Master(GTN_Base):
         print('GTN iteration:    ' + str(it))
         print('GTN mstr t_elaps: ' + str(time_elapsed))
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
-        print('GTN best dist score:  ' + str(min(self.score_list)))
         print('GTN avg eval score:   ' + str(orig_score))
         print('--------------')
 

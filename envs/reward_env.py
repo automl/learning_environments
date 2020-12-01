@@ -37,15 +37,13 @@ class RewardEnv(nn.Module):
                                     output_dim=1,
                                     nn_config=kwargs).to(self.device)
 
+
     def step(self, action):
         next_state, reward, done, _ = self.real_env.step(action)
-        reward_res = self._calc_reward(state=self.state,
-                                       action=action,
-                                       next_state=next_state,
-                                       reward=reward)
+        reward_res = self._calc_reward(state=self.state, action=action, next_state=next_state, reward=reward)
         self.state = next_state
-
         return next_state, reward_res, done, {}
+
 
     def _calc_reward(self, state, action, next_state, reward):
         action_torch = torch.tensor(action, device=self.device, dtype=torch.float32)
@@ -61,10 +59,9 @@ class RewardEnv(nn.Module):
         if self.reward_env_type == 0:
             reward_res = reward_torch
         elif self.reward_env_type == 1:
-            reward_res = self.reward_env(next_state_torch)
+            reward_res = self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
         elif self.reward_env_type == 2:
-            reward_add = self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
-            reward_res = reward_torch + reward_add
+            reward_res = reward_torch + self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
 
         return reward_res.item()
 
@@ -72,15 +69,19 @@ class RewardEnv(nn.Module):
     def seed(self, seed):
         return self.real_env.seed(seed)
 
+
     def render(self):
         return self.real_env.render()
+
 
     def reset(self):
         self.state = self.real_env.reset()
         return self.state
 
+
     def close(self):
         return self.real_env.close()
+
 
     def set_agent_params(self, gamma):
         self.gamma = gamma

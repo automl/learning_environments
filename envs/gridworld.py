@@ -194,6 +194,8 @@ class HoleRoom(GridworldEnv):
                 [' ', ' ', 'O', ' ', ' '],
                 [' ', ' ', 'O', ' ', 'G']]
 
+        GridworldEnv.__init__(self, grid=grid)
+
 
 class HoleRoomLarge(GridworldEnv):
     def __init__(self):

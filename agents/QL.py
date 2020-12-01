@@ -30,7 +30,7 @@ class QL(BaseAgent):
         # if self.it % 5000 == 0:
         #     self.plot_q_function(env)
 
-        for _ in self.batch_size:
+        for _ in range(self.batch_size):
             state, action, next_state, reward, done = replay_buffer.sample(1)
             state = int(state.item())
             action = int(action.item())
@@ -89,10 +89,14 @@ if __name__ == "__main__":
     real_env = env_fac.generate_real_env()
     #virtual_env = env_fac.generate_virtual_env()
 
-    for i in range(100):
+    reward_list_len = []
+    for i in range(20):
+        print(i)
         ql = QL(env=real_env,
                 config=config)
-        ql.train(env=real_env, time_remaining=500)
-        reward_list, replay_buffer = ql.test(env=real_env, time_remaining=500)
-        print(sum(reward_list)/len(reward_list))
+        reward_list_train, _ = ql.train(env=real_env, time_remaining=500)
+        reward_list_test, replay_buffer = ql.test(env=real_env, time_remaining=500)
+        reward_list_len.append(len(reward_list_train))
 
+    import statistics
+    print(statistics.mean(reward_list_len))

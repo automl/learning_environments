@@ -40,6 +40,7 @@ class GTN_Worker(GTN_Base):
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
+        self.unsolved_weight = gtn_config["unsolved_weight"]
 
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
@@ -67,8 +68,9 @@ class GTN_Worker(GTN_Base):
 
             # for evaluation purpose
             agent_orig = select_agent(config=self.config, agent_name=self.agent_name)
-            reward_list_train, _ = agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
-            score_orig = self.test_agent(agent=agent_orig, synthetic_env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            reward_list, _ = agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = self.calc_score(agent=agent_orig, reward_list_train=reward_list, synthetic_env=self.synthetic_env_orig,
+                                         time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
 
@@ -79,8 +81,9 @@ class GTN_Worker(GTN_Base):
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
                 agent_add = select_agent(config=self.config, agent_name=self.agent_name)
-                reward_list_train, _ = agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent(agent=agent_add, synthetic_env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                reward_list, _ = agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.calc_score(agent=agent_add, reward_list_train=reward_list, synthetic_env=self.synthetic_env,
+                                        time_remaining=self.timeout-(time.time()-time_start))
                 score_add.append(score)
 
             # # second mirrored noise -N
@@ -90,8 +93,9 @@ class GTN_Worker(GTN_Base):
             for i in range(self.num_grad_evals):
                 #print('sub ' + str(i))
                 agent_sub = select_agent(config=self.config, agent_name=self.agent_name)
-                reward_list_train, _ = agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent(agent=agent_sub, synthetic_env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                reward_list, _ = agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.calc_score(agent=agent_sub, reward_list_train=reward_list, synthetic_env=self.synthetic_env,
+                                        time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(score)
 
             score_best = self.calc_best_score(score_add=score_add, score_sub=score_sub)
@@ -227,14 +231,17 @@ class GTN_Worker(GTN_Base):
         return score_best
 
 
-    def test_agent(self, agent, synthetic_env, time_remaining):
-        if synthetic_env.is_virtual_env():
-            real_env = self.env_factory.generate_real_env()
-            reward_list, replay_buffer = agent.test(env=real_env, time_remaining=time_remaining)
-            return sum(reward_list) / len(reward_list)
+    def calc_score(self, agent, reward_list_train, synthetic_env, time_remaining):
+        real_env = self.env_factory.generate_real_env()
+        reward_list_test, _ = agent.test(env=real_env, time_remaining=time_remaining)
+        avg_reward_test = sum(reward_list_test) / len(reward_list_test)
+
+        if synthetic_env.is_virtual_env() or real_env.get_solved_reward() > 1e8:
+            # normal case: maximize reward
+            return avg_reward_test
 
         else:
-            reward_list, replay_buffer = agent.test(env=synthetic_env, time_remaining=time_remaining)
-            return len(reward_list)
+            # maximize weighted sum of solved reward and number of training episodes
+            return -len(reward_list_train) - max(0, (real_env.get_solved_reward()-avg_reward_test)*self.unsolved_weight)
 
 
