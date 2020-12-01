@@ -67,6 +67,7 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     reward_env_type: !!int 2                # type of reward shaping function
+    info_dim: !!int 0                       # additional information dimension from step function
 
   EmptyRoom23:
     solved_reward: !!float 0.8
@@ -75,6 +76,7 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     reward_env_type: !!int 2                # type of reward shaping function
+    info_dim: !!int 0                       # additional information dimension from step function
 
   EmptyRoom33:
     solved_reward: !!float 0.8
@@ -83,6 +85,7 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     reward_env_type: !!int 2                # type of reward shaping function
+    info_dim: !!int 0                       # additional information dimension from step function
 
   WallRoom:
     solved_reward: !!float 0.8
@@ -91,6 +94,7 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     reward_env_type: !!int 2                # type of reward shaping function
+    info_dim: !!int 0                       # additional information dimension from step function
 
   HoleRoom:
     solved_reward: !!float 0.8
@@ -98,4 +102,5 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-    reward_env_type: !!int 2                # type of reward shaping function
+    info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 4                # type of reward shaping function

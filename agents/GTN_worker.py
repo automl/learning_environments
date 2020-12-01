@@ -219,7 +219,6 @@ class GTN_Worker(GTN_Base):
 
             if self.mirrored_sampling:
                 score_best = max(score_add, score_sub)
-
                 if score_sub > score_add:
                     self.invert_eps()
                 else:

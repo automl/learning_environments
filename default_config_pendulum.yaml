@@ -76,4 +76,5 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 4                # type of reward shaping function

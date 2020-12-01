@@ -11,6 +11,7 @@ class RewardEnv(nn.Module):
         self.device = str(kwargs["device"])
         self.state_dim = int(kwargs["state_dim"])
         self.action_dim = int(kwargs["action_dim"])
+        self.info_dim = int(kwargs["info_dim"])
         self.solved_reward = float(kwargs["solved_reward"])
         self.reward_env_type = int(kwargs["reward_env_type"])
 
@@ -21,15 +22,25 @@ class RewardEnv(nn.Module):
 
         # initialize two environments
         self.real_env = real_env
-        self.reward_env = self.build_reward_net(kwargs)
+        self.reward_env = self.build_reward_net(real_env, kwargs)
         self.state = self.reset()
 
 
-    def build_reward_net(self, kwargs):
+    def build_reward_net(self, real_env, kwargs):
+        # 0: original reward
+        # 1: native potential function (exclusive)
+        # 2: native potential function (additive)
+        # 3: potential function with additional info vector (exclusive)
+        # 4: potential function with additional info vector (additive)
+        # 100: weighted info vector as baseline (exclusive)
+        # 101: weighted info vector as baseline (additive)
+
         if self.reward_env_type == 0:
             input_dim = 1   # dummy dimension
         elif self.reward_env_type == 1 or self.reward_env_type == 2:
             input_dim = self.state_dim
+        elif self.reward_env_type == 3 or self.reward_env_type == 4:
+            input_dim = self.state_dim + self.info_dim
         else:
             raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
 
@@ -39,13 +50,16 @@ class RewardEnv(nn.Module):
 
 
     def step(self, action):
-        next_state, reward, done, _ = self.real_env.step(action)
-        reward_res = self._calc_reward(state=self.state, action=action, next_state=next_state, reward=reward)
+        next_state, reward, done, info = self.real_env.step(action)
+        reward_res = self._calc_reward(state=self.state, action=action, next_state=next_state, reward=reward, info=info)
         self.state = next_state
         return next_state, reward_res, done, {}
 
 
-    def _calc_reward(self, state, action, next_state, reward):
+    def _calc_reward(self, state, action, next_state, reward, info):
+        if 'TimeLimit.truncated' in info:   # remove additional information from wrapper
+            info.pop('TimeLimit.truncated')
+
         action_torch = torch.tensor(action, device=self.device, dtype=torch.float32)
         reward_torch = torch.tensor(reward, device=self.device, dtype=torch.float32)
 
@@ -62,6 +76,18 @@ class RewardEnv(nn.Module):
             reward_res = self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
         elif self.reward_env_type == 2:
             reward_res = reward_torch + self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
+        elif self.reward_env_type == 3 or self.reward_env_type == 4:
+            if info:
+                info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
+                input_state = torch.cat((state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+                input_state_next = torch.cat((next_state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+            else:
+                input_state = state_torch
+                input_state_next = next_state_torch
+            if self.reward_env_type == 3:
+                reward_res = self.gamma * self.reward_env(input_state_next) - self.reward_env(input_state)
+            elif self.reward_env_type == 4:
+                reward_res = reward_torch + self.gamma * self.reward_env(input_state_next) - self.reward_env(input_state)
 
         return reward_res.item()
 

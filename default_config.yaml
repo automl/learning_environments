@@ -149,6 +149,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   MountainCarContinuous-v0:
@@ -157,6 +158,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 96                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   HalfCheetah-v2:
@@ -165,6 +167,7 @@ envs:
     activation_fn: !!str relu               # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 3                   # number of hidden layers of the virtual environment
+    info_dim: !!int 2                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   CartPole-v0:
@@ -173,6 +176,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   LunarLander-v2:
@@ -181,6 +185,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   FrozenLake-v0:
@@ -189,6 +194,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   CliffWalking-v0:
@@ -197,6 +203,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 16                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   Bandit:
@@ -205,6 +212,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 4                          # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom22:
@@ -213,6 +221,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom23:
@@ -221,6 +230,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   EmptyRoom33:
@@ -229,6 +239,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   WallRoom:
@@ -237,6 +248,7 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
   HoleRoom:
@@ -245,4 +257,5 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
