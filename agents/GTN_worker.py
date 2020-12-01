@@ -227,18 +227,6 @@ class GTN_Worker(GTN_Base):
         return score_best
 
 
-    def calc_kl_div(self, counter, num_states):
-        kl_div = 0
-
-        csm = sum(counter.values())
-        percs = [count/csm for count in counter.values()]
-
-        for perc in percs:
-            kl_div += perc * math.log(perc*num_states) # = perc * math.log(perc / (1/num_states))
-
-        return kl_div
-
-
     def test_agent(self, agent, synthetic_env, time_remaining):
         if synthetic_env.is_virtual_env():
             real_env = self.env_factory.generate_real_env()
