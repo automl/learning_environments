@@ -42,61 +42,62 @@ class PPO(nn.Module):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def train(self, env):
-        replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=int(1e6))
-        avg_meter_reward = AverageMeter(print_str='Average reward: ')
+    # def train(self, env):
+    #     replay_buffer = ReplayBuffer(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=int(1e6))
+    #     avg_meter_reward = AverageMeter(print_str='Average reward: ')
+    #     env.set_agent_params(same_action_num=self.same_action_num, gamma=self.gamma)
+    #
+    #     time_step = 0
+    #
+    #     # training loop
+    #     for episode in range(self.max_episodes):
+    #         state = env.reset()
+    #         last_action = None
+    #         last_state = None
+    #         episode_reward = 0
+    #
+    #         for t in range(0, env.max_episode_steps(), self.same_action_num):
+    #             time_step += 1
+    #
+    #             # run old policy
+    #             action = self.actor_old(state.to(self.device)).cpu()
+    #             next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+    #
+    #             # live view
+    #             if self.render_env and episode % 100 == 0:
+    #                 env.render()
+    #
+    #             if last_state is not None and last_action is not None:
+    #                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+    #
+    #             last_state = state
+    #             state = next_state
+    #             last_action = action
+    #             episode_reward += reward
+    #
+    #             # train after certain amount of timesteps
+    #             if time_step / env.max_episode_steps() > self.update_episodes:
+    #                 self.learn(replay_buffer)
+    #                 replay_buffer.clear()
+    #                 time_step = 0
+    #             if done > 0.5:
+    #                 break
+    #
+    #         # logging
+    #         avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
+    #
+    #         # quit training if environment is solved
+    #         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
+    #         if avg_reward > env.get_solved_reward():
+    #             #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+    #             break
+    #
+    #     env.close()
+    #
+    #     return avg_meter_reward.get_raw_data()
 
-        time_step = 0
 
-        # training loop
-        for episode in range(self.max_episodes):
-            state = env.reset()
-            last_action = None
-            last_state = None
-            episode_reward = 0
-
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
-                time_step += 1
-
-                # run old policy
-                action = self.actor_old(state.to(self.device)).cpu()
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
-
-                # live view
-                if self.render_env and episode % 100 == 0:
-                    env.render()
-
-                if last_state is not None and last_action is not None:
-                    replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
-
-                last_state = state
-                state = next_state
-                last_action = action
-                episode_reward += reward
-
-                # train after certain amount of timesteps
-                if time_step / env.max_episode_steps() > self.update_episodes:
-                    self.learn(replay_buffer)
-                    replay_buffer.clear()
-                    time_step = 0
-                if done > 0.5:
-                    break
-
-            # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
-
-            # quit training if environment is solved
-            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward > env.get_solved_reward():
-                #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-                break
-
-        env.close()
-
-        return avg_meter_reward.get_raw_data()
-
-
-    def learn(self, replay_buffer):
+    def learn(self, replay_buffer, env, episode):
         # Monte Carlo estimate of rewards:
         new_rewards = []
         discounted_reward = 0
