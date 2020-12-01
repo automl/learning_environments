@@ -14,7 +14,7 @@ class DDQN_vary(DDQN):
 
         if config["agents"]["ddqn_vary"]["vary_hp"]:
             config_mod = copy.deepcopy(config)
-            config_mod = self.vary_heyperparameters(config_mod)
+            config_mod = self.vary_hyperparameters(config_mod)
         else:
             config_mod = config
 
@@ -26,7 +26,7 @@ class DDQN_vary(DDQN):
         super().__init__(env=env, config=config_mod)
 
 
-    def vary_heyperparameters(self, config_mod):
+    def vary_hyperparameters(self, config_mod):
 
         lr = config_mod['agents'][self.agent_name]['lr']
         batch_size = config_mod['agents'][self.agent_name]['batch_size']
@@ -64,15 +64,9 @@ if __name__ == "__main__":
     timing = []
     for i in range(10):
         ddqn = DDQN_vary(env=real_env, config=config)
-
         #ddqn.train(env=virt_env, time_remaining=50)
-
-        t1 = time.time()
         print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
-        t2 = time.time()
-        timing.append(t2-t1)
-        print(t2-t1)
         #print('TEST')
         #reward_list = ddqn.test(env=real_env, time_remaining=500)
     print('avg. ' + str(sum(timing)/len(timing)))

@@ -46,9 +46,9 @@ class GTN_Master(GTN_Base):
         # to keep track of the reference virtual env
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
-            generate_synthetic_env_fn = self.env_factory.generate_reward_env
-        elif self.synthetic_env_type == 1:
             generate_synthetic_env_fn = self.env_factory.generate_virtual_env
+        elif self.synthetic_env_type == 1:
+            generate_synthetic_env_fn = self.env_factory.generate_reward_env
         else:
             raise NotImplementedError("Unknown synthetic_env_type value: " + str(self.synthetic_env_type))
 
@@ -79,11 +79,13 @@ class GTN_Master(GTN_Base):
         for it in range(self.max_iterations):
             t1 = time.time()
             print('-- Master: Iteration ' + str(it) + ' ' + str(time.time()-t1))
-            #print('-- Master: start iteration ' + str(it))
             print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
             skip_flag, quit_flag = self.read_worker_results()
+
+            mean_score_orig_list.append(np.mean(self.score_orig_list))
+            model_saved, solved_flag = self.saved_and_solved(mean_score_orig_list, model_saved)
 
             if quit_flag:
                 print('QUIT FLAG')
@@ -93,15 +95,9 @@ class GTN_Master(GTN_Base):
                 print('SKIP FLAG')
                 continue
 
-            mean_score_orig_list.append(np.mean(self.score_orig_list))
-            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
-                self.save_good_model(mean_score_orig_list)
-                model_saved = True
-                print(self.score_orig_list)
-
-                if self.quit_when_solved:
-                    print('EARLY OUT')
-                    break
+            if solved_flag and self.quit_when_solved:
+                print('ENV SOLVED')
+                return
 
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
@@ -120,6 +116,20 @@ class GTN_Master(GTN_Base):
                 return 1e9, mean_score_orig_list
             else:
                 return -1e9, mean_score_orig_list
+
+    def saved_and_solved(self, mean_score_orig_list, model_saved):
+        if self.synthetic_env_type == 0:
+
+            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
+                self.save_good_model(mean_score_orig_list)
+                model_saved = True
+                print(statistics.mean(self.score_orig_list))
+
+            return model_saved, model_saved
+
+        elif self.synthetic_env_type == 1:
+            return False, False
+
 
 
     def save_good_model(self, mean_score_orig_list):
@@ -210,7 +220,7 @@ class GTN_Master(GTN_Base):
             self.time_elapsed_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
             self.eps_list[id].load_state_dict(data['eps'])
-            self.score_orig_list[id] = data['score_orig']                  # for debugging
+            self.score_orig_list[id] = data['score_orig']
             self.synthetic_env_list[id].load_state_dict(data['synthetic_env']) # for debugging
 
             os.remove(check_file_name)

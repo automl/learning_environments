@@ -188,6 +188,18 @@ class HoleRoom(GridworldEnv):
         self.step_cost = -0.01
         self.g_reward = 1
         self.o_reward = -1
+        grid = [['S', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', ' '],
+                [' ', ' ', ' ', ' ', ' '],
+                [' ', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'G']]
+
+
+class HoleRoomLarge(GridworldEnv):
+    def __init__(self):
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
         grid = [['S', ' ', 'O', ' ', 'O', ' ', ' '],
                 [' ', ' ', 'O', ' ', 'O', ' ', ' '],
                 [' ', ' ', ' ', ' ', ' ', ' ', ' '],

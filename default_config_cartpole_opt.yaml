@@ -16,7 +16,6 @@ agents:
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
     grad_eval_type: !!str mean              # mean or min
     weight_decay: !!float 0.0               # weight decay
-    exploration_gain: !!float 0             # additional gain factor to favor exploration
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 300                   # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data

@@ -36,7 +36,6 @@ class GTN_Worker(GTN_Base):
         self.num_grad_evals = gtn_config["num_grad_evals"]
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
-        self.exploration_gain = gtn_config["exploration_gain"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
         self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
@@ -44,9 +43,9 @@ class GTN_Worker(GTN_Base):
 
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
-            generate_synthetic_env_fn = self.env_factory.generate_reward_env
-        elif self.synthetic_env_type == 1:
             generate_synthetic_env_fn = self.env_factory.generate_virtual_env
+        elif self.synthetic_env_type == 1:
+            generate_synthetic_env_fn = self.env_factory.generate_reward_env
         else:
             raise NotImplementedError("Unknown synthetic_env_type value: " + str(self.synthetic_env_type))
 
@@ -67,10 +66,9 @@ class GTN_Worker(GTN_Base):
             time_start = time.time()
 
             # for evaluation purpose
-            agent_orig = select_agent(config=self.config,
-                                      agent_name=self.agent_name)
-            agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
-            score_orig = self.test_agent_on_real_env(agent=agent_orig, time_remaining=self.timeout-(time.time()-time_start))
+            agent_orig = select_agent(config=self.config, agent_name=self.agent_name)
+            reward_list_train, _ = agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = self.test_agent(agent=agent_orig, synthetic_env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_eps()
 
@@ -81,8 +79,8 @@ class GTN_Worker(GTN_Base):
             for i in range(self.num_grad_evals):
                 #print('add ' + str(i))
                 agent_add = select_agent(config=self.config, agent_name=self.agent_name)
-                agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent_on_real_env(agent=agent_add, time_remaining=self.timeout-(time.time()-time_start))
+                reward_list_train, _ = agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.test_agent(agent=agent_add, synthetic_env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
                 score_add.append(score)
 
             # # second mirrored noise -N
@@ -92,8 +90,8 @@ class GTN_Worker(GTN_Base):
             for i in range(self.num_grad_evals):
                 #print('sub ' + str(i))
                 agent_sub = select_agent(config=self.config, agent_name=self.agent_name)
-                agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.test_agent_on_real_env(agent=agent_sub, time_remaining=self.timeout-(time.time()-time_start))
+                reward_list_train, _ = agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
+                score = self.test_agent(agent=agent_sub, synthetic_env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
                 score_sub.append(score)
 
             score_best = self.calc_best_score(score_add=score_add, score_sub=score_sub)
@@ -241,27 +239,14 @@ class GTN_Worker(GTN_Base):
         return kl_div
 
 
-    def test_agent_on_real_env(self, agent, time_remaining):
-        env = self.env_factory.generate_real_env('Test: ')
-        t_s = time.time()
+    def test_agent(self, agent, synthetic_env, time_remaining):
+        if synthetic_env.is_virtual_env():
+            real_env = self.env_factory.generate_real_env()
+            reward_list, replay_buffer = agent.test(env=real_env, time_remaining=time_remaining)
+            return sum(reward_list) / len(reward_list)
 
-        reward_list, replay_buffer = agent.test(env=env,
-                                                time_remaining=time_remaining - (time.time() - t_s))
-
-        #print(reward_list)
-
-        if env.has_discrete_state_space():
-            all_states = []
-
-            states, actions, next_states, rewards, dones = replay_buffer.get_all()
-            next_states = [next_state.item() for next_state in next_states.int()]
-
-            all_states += next_states
-
-            state_counter = Counter(all_states)
-            kl_div = self.calc_kl_div(state_counter, env.get_state_dim())
-            mean_reward = sum(reward_list) / len(reward_list) - kl_div * self.exploration_gain
         else:
-            mean_reward = sum(reward_list) / len(reward_list)
+            reward_list, replay_buffer = agent.test(env=synthetic_env, time_remaining=time_remaining)
+            return len(reward_list)
 
-        return mean_reward
+

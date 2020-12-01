@@ -13,9 +13,9 @@ class QL(BaseAgent):
 
         ql_config = config["agents"][agent_name]
 
+        self.batch_size = ql_config["batch_size"]
         self.alpha = ql_config["alpha"]
         self.gamma = ql_config["gamma"]
-        self.batch_size = ql_config["batch_size"]
         self.eps_init = ql_config["eps_init"]
         self.eps_min = ql_config["eps_min"]
         self.eps_decay = ql_config["eps_decay"]
@@ -30,15 +30,16 @@ class QL(BaseAgent):
         # if self.it % 5000 == 0:
         #     self.plot_q_function(env)
 
-        state, action, next_state, reward, done = replay_buffer.sample(1)
-        state = int(state.item())
-        action = int(action.item())
-        next_state = int(next_state.item())
-        reward = reward.item()
-        done = done.item()
+        for _ in self.batch_size:
+            state, action, next_state, reward, done = replay_buffer.sample(1)
+            state = int(state.item())
+            action = int(action.item())
+            next_state = int(next_state.item())
+            reward = reward.item()
+            done = done.item()
 
-        delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
-        self.q_table[state][action] += self.alpha * delta
+            delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
+            self.q_table[state][action] += self.alpha * delta
 
 
     def plot_q_function(self, env):

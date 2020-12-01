@@ -29,8 +29,6 @@ class RewardEnv(nn.Module):
         if self.reward_env_type == 0:
             input_dim = 1   # dummy dimension
         elif self.reward_env_type == 1 or self.reward_env_type == 2:
-            input_dim = 2*self.state_dim + self.action_dim
-        elif self.reward_env_type == 3 or self.reward_env_type == 4:
             input_dim = self.state_dim
         else:
             raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
@@ -62,20 +60,10 @@ class RewardEnv(nn.Module):
 
         if self.reward_env_type == 0:
             reward_res = reward_torch
-
         elif self.reward_env_type == 1:
-            input = torch.cat((state_torch, action_torch, next_state_torch), dim=action_torch.dim()-1)
-            reward_res = self.reward_env(input)
-
+            reward_res = self.reward_env(next_state_torch)
         elif self.reward_env_type == 2:
-            input = torch.cat((state_torch, action_torch, next_state_torch), dim=action_torch.dim()-1)
-            reward_res = reward_torch + self.reward_env(input)
-
-        elif self.reward_env_type == 3:
-            reward_res = self.reward_env(state_torch)
-
-        elif self.reward_env_type == 4:
-            reward_add = self.reward_env(state_torch)
+            reward_add = self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
             reward_res = reward_torch + reward_add
 
         return reward_res.item()
@@ -93,4 +81,7 @@ class RewardEnv(nn.Module):
 
     def close(self):
         return self.real_env.close()
+
+    def set_agent_params(self, gamma):
+        self.gamma = gamma
 

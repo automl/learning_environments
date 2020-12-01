@@ -16,7 +16,6 @@ class TD3(BaseAgent):
         td3_config = config["agents"][agent_name]
 
         self.max_action = max_action
-        self.init_episodes = td3_config["init_episodes"]
         self.batch_size = td3_config["batch_size"]
         self.rb_size = td3_config["rb_size"]
         self.gamma = td3_config["gamma"]
