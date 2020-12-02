@@ -22,7 +22,7 @@ class RewardEnv(nn.Module):
 
         # initialize two environments
         self.real_env = real_env
-        self.reward_env = self.build_reward_net(real_env, kwargs)
+        self.reward_net = self.build_reward_net(real_env, kwargs)
         self.state = self.reset()
 
 
@@ -32,21 +32,27 @@ class RewardEnv(nn.Module):
         # 2: native potential function (additive)
         # 3: potential function with additional info vector (exclusive)
         # 4: potential function with additional info vector (additive)
-        # 100: weighted info vector as baseline (exclusive)
-        # 101: weighted info vector as baseline (additive)
+        # 101: weighted info vector as baseline (exclusive)
+        # 102: weighted info vector as baseline (additive)
 
-        if self.reward_env_type == 0:
-            input_dim = 1   # dummy dimension
-        elif self.reward_env_type == 1 or self.reward_env_type == 2:
-            input_dim = self.state_dim
-        elif self.reward_env_type == 3 or self.reward_env_type == 4:
-            input_dim = self.state_dim + self.info_dim
+        if self.reward_env_type < 100:
+            if self.reward_env_type == 0:
+                input_dim = 1   # dummy dimension
+            elif self.reward_env_type == 1 or self.reward_env_type == 2:
+                input_dim = self.state_dim
+            elif self.reward_env_type == 3 or self.reward_env_type == 4:
+                input_dim = self.state_dim + self.info_dim
+            else:
+                raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
+
+            return build_nn_from_config(input_dim=input_dim,
+                                        output_dim=1,
+                                        nn_config=kwargs).to(self.device)
         else:
-            raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
-
-        return build_nn_from_config(input_dim=input_dim,
-                                    output_dim=1,
-                                    nn_config=kwargs).to(self.device)
+            if self.reward_env_type == 101 or self.reward_env_type == 102:
+                return torch.nn.Parameter(torch.zeros(self.info_dim, device=self.device))
+            else:
+                raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
 
 
     def step(self, action):
@@ -73,9 +79,9 @@ class RewardEnv(nn.Module):
         if self.reward_env_type == 0:
             reward_res = reward_torch
         elif self.reward_env_type == 1:
-            reward_res = self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
+            reward_res = self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
         elif self.reward_env_type == 2:
-            reward_res = reward_torch + self.gamma*self.reward_env(next_state_torch) - self.reward_env(state_torch)
+            reward_res = reward_torch + self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
         elif self.reward_env_type == 3 or self.reward_env_type == 4:
             if info:
                 info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
@@ -85,9 +91,18 @@ class RewardEnv(nn.Module):
                 input_state = state_torch
                 input_state_next = next_state_torch
             if self.reward_env_type == 3:
-                reward_res = self.gamma * self.reward_env(input_state_next) - self.reward_env(input_state)
+                reward_res = self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
             elif self.reward_env_type == 4:
-                reward_res = reward_torch + self.gamma * self.reward_env(input_state_next) - self.reward_env(input_state)
+                reward_res = reward_torch + self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
+        elif self.reward_env_type == 101 or self.reward_env_type == 102:
+            if info:
+                info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
+            else:
+                info_torch = torch.tensor([], device=self.device, dtype=torch.float32)
+            if self.reward_env_type == 101:
+                reward_res = torch.sum(info_torch*self.reward_net)
+            elif self.reward_env_type == 102:
+                reward_res = reward_torch + torch.sum(info_torch*self.reward_net)
 
         return reward_res.item()
 

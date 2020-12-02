@@ -119,18 +119,18 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_pendulum.yaml", "r") as stream:
+    with open("../default_config_halfcheetah.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # generate environment
     env_fac = EnvFactory(config)
     #virt_env = env_fac.generate_virtual_env()
-    #real_env= env_fac.generate_default_real_env()
-    reward_env = env_fac.generate_reward_env()
-    td3 = TD3(env=reward_env,
-              max_action=reward_env.get_max_action(),
+    real_env= env_fac.generate_real_env()
+    #reward_env = env_fac.generate_reward_env()
+    td3 = TD3(env=real_env,
+              max_action=real_env.get_max_action(),
               config=config)
     t1 = time.time()
-    td3.train(env=reward_env, time_remaining=1200)
+    td3.train(env=real_env, time_remaining=1200)
     print(time.time()-t1)
     #td3.train(env=virt_env, time_remaining=5)

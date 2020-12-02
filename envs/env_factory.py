@@ -60,18 +60,7 @@ class EnvFactory:
 
     def _generate_real_env_with_kwargs(self, kwargs, env_name):
         # generate environment class
-        if (env_name == "Pendulum-v0" or
-            env_name == "MountainCarContinuous-v0" or
-            env_name == "HalfCheetah-v2" or
-            env_name == "CartPole-v0" or
-            env_name == "Acrobot-v1" or
-            env_name == "MountainCar-v0" or
-            env_name == "LunarLander-v2" or
-            env_name == "CliffWalking-v0"):
-            env = gym.make(env_name)
-        elif env_name == 'FrozenLake-v0':
-            env = gym.make(env_name, is_slippery=False)
-        elif env_name == "Bandit":
+        if env_name == "Bandit":
             env = TimeLimit(BanditFixedPermutedGaussian())
         elif env_name == "EmptyRoom22":
             env = TimeLimit(EmptyRoom22())
@@ -84,7 +73,7 @@ class EnvFactory:
         elif env_name == "HoleRoom":
             env = TimeLimit(HoleRoom())
         else:
-            raise NotImplementedError("Environment not supported")
+            env = gym.make(env_name)
 
         for key, value in kwargs.items():
             setattr(env, key, value)

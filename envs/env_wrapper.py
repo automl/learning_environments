@@ -106,12 +106,8 @@ class EnvWrapper(nn.Module):
     def get_max_action(self):
         if self.env.env_name == 'Pendulum-v0':
             return 2
-        elif self.env.env_name == 'MountainCarContinuous-v0':
-            return 1
-        elif self.env.env_name == "HalfCheetah-v2":
-            return 1
         else:
-            raise NotImplementedError("Unknownn environment, cannot set max_action")
+            return 1
 
     def has_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):

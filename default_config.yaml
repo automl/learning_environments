@@ -170,6 +170,15 @@ envs:
     info_dim: !!int 2                       # additional information dimension from step function
     reward_env_type: !!int 0                # type of reward shaping function
 
+  HalfCheetah-v3:
+    solved_reward: !!float 300              # used for early out in RL agent training
+    max_steps: !!int 1000                   # maximum number of steps per episode
+    activation_fn: !!str relu               # activation function of the virtual environment
+    hidden_size: 128                        # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 3                   # number of hidden layers of the virtual environment
+    info_dim: !!int 4                       # additional information dimension from step function
+    reward_env_type: !!int 0                # type of reward shaping function
+
   CartPole-v0:
     solved_reward: !!float 195              # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
