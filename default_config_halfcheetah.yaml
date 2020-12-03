@@ -23,7 +23,7 @@ agents:
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
-    unsolved_weight: !!float 1000           # penalty weight for all solvable environments if they haven't been solved yet
+    unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str td3                   # which RL agent to use for meta-training
 
   td3:

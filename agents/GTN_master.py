@@ -32,6 +32,7 @@ class GTN_Master(GTN_Base):
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
+        self.unsolved_weight = gtn_config["unsolved_weight"]
 
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
@@ -119,14 +120,18 @@ class GTN_Master(GTN_Base):
 
 
     def save_good_model(self, mean_score):
-        if self.real_env.can_be_solved():
+        if self.synthetic_env_orig.is_virtual_env():
             if mean_score > self.real_env.get_solved_reward():
                 self.save_model()
                 return True
         else:
-            if mean_score > self.best_score:
+            if not self.real_env.can_be_solved():
+                if mean_score > self.best_score:
+                    self.save_model()
+                    self.best_score = mean_score
+            elif mean_score > -self.unsolved_weight:
                 self.save_model()
-                self.best_score = mean_score
+                return True
 
         return False
 
