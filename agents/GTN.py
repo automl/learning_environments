@@ -57,7 +57,8 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     gtn_config = config['agents']['gtn']
-    mode = 'single'
+    config['agents']['gtn']['mode'] = 'single'
+    mode = config['agents']['gtn']['mode']
 
     torch.set_num_threads(gtn_config['num_threads_per_worker'])
 

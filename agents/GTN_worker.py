@@ -39,6 +39,10 @@ class GTN_Worker(GTN_Base):
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
         self.unsolved_weight = gtn_config["unsolved_weight"]
 
+        # make it faster on single PC
+        if gtn_config["mode"] == 'single':
+            self.time_sleep_worker /= 10
+
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
             generate_synthetic_env_fn = self.env_factory.generate_virtual_env

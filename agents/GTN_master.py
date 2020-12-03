@@ -34,6 +34,10 @@ class GTN_Master(GTN_Base):
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
         self.unsolved_weight = gtn_config["unsolved_weight"]
 
+        # make it faster on single PC
+        if gtn_config["mode"] == 'single':
+            self.time_sleep_master /= 10
+
         # id used as a handshake to check if resuls from workers correspond to sent data
         self.uuid_list = [0]*(self.num_workers)
 
@@ -129,9 +133,9 @@ class GTN_Master(GTN_Base):
                 if mean_score > self.best_score:
                     self.save_model()
                     self.best_score = mean_score
-            elif mean_score > -self.unsolved_weight:
+            elif mean_score > -self.unsolved_weight and mean_score > self.best_score:
                 self.save_model()
-                return True
+                self.best_score = mean_score
 
         return False
 
@@ -157,6 +161,7 @@ class GTN_Master(GTN_Base):
         print('timeout: ' + str(timeout))
 
         for id in range(self.num_workers):
+
             file_name = self.get_input_file_name(id=id)
             check_file_name = self.get_input_check_file_name(id=id)
 
@@ -169,6 +174,8 @@ class GTN_Master(GTN_Base):
 
             time.sleep(self.time_sleep_master)
             self.uuid_list[id] = str(uuid.uuid4())
+
+
 
             # if we are not using bohb, shut everything down after last iteration
             if self.bohb_id < 0:

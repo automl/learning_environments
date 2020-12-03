@@ -1,4 +1,4 @@
-env_name: !!str WallRoom
+env_name: !!str HoleRoom
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
@@ -30,7 +30,7 @@ agents:
     train_episodes: !!int 100               # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 5                  # number of episodes to prevent an early out
-    batch_size: !!int 5                     # batch size when running a policy update step
+    batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
     eps_init: !!float 0.5                   # initial random action percentage
@@ -46,7 +46,7 @@ agents:
     train_episodes: !!int 100               # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 5                  # number of episodes to prevent an early out
-    batch_size: !!int 5                     # batch size when running a policy update step
+    batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
     eps_init: !!float 0.5                   # initial random action percentage
@@ -93,7 +93,7 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
-    reward_env_type: !!int 1                # type of reward shaping function
+    reward_env_type: !!int 2                # type of reward shaping function
 
   HoleRoom:
     solved_reward: !!float 0.8
@@ -102,4 +102,4 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
-    reward_env_type: !!int 1                # type of reward shaping function
+    reward_env_type: !!int 0                # type of reward shaping function
