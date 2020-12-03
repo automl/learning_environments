@@ -27,6 +27,9 @@ agents:
     synthetic_env_type: !!int 0             # 0: virtual env / 1: reward env
     unsolved_weight: !!float 1000           # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str QL                    # which RL agent to use for meta-training
+    
+  ddqn_vary:
+    vary_hp: !!bool True                    # vary hyperparameters of underlying DDQN algorithm?
 
   reptile:
     max_iterations: !!int 20                # maximum number of REPTILE iteration
