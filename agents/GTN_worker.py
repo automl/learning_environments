@@ -37,7 +37,6 @@ class GTN_Worker(GTN_Base):
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
-        self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
         self.unsolved_weight = gtn_config["unsolved_weight"]
@@ -186,46 +185,24 @@ class GTN_Worker(GTN_Base):
 
 
     def calc_best_score(self, score_sub, score_add):
-        if self.minimize_score:
-            # print('worker ' + str(self.id) + ' ' + str(score_sub) + ' ' + str(score_add) + ' ' + str(weight_sub) + ' ' + str(weight_add))
-            if self.grad_eval_type == 'mean':
-                score_sub = statistics.mean(score_sub)
-                score_add = statistics.mean(score_add)
-            elif self.grad_eval_type == 'minmax':
-                score_sub = max(score_sub)
-                score_add = max(score_add)
-            else:
-                raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
-
-            if self.mirrored_sampling:
-                score_best = min(score_add, score_sub)
-                if score_sub < score_add:
-                    self.invert_eps()
-                else:
-                    self.add_noise_to_synthetic_env()
-            else:
-                score_best = score_add
-                self.add_noise_to_synthetic_env()
-
+        if self.grad_eval_type == 'mean':
+            score_sub = statistics.mean(score_sub)
+            score_add = statistics.mean(score_add)
+        elif self.grad_eval_type == 'minmax':
+            score_sub = min(score_sub)
+            score_add = min(score_add)
         else:
-            if self.grad_eval_type == 'mean':
-                score_sub = statistics.mean(score_sub)
-                score_add = statistics.mean(score_add)
-            elif self.grad_eval_type == 'minmax':
-                score_sub = min(score_sub)
-                score_add = min(score_add)
-            else:
-                raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
+            raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
 
-            if self.mirrored_sampling:
-                score_best = max(score_add, score_sub)
-                if score_sub > score_add:
-                    self.invert_eps()
-                else:
-                    self.add_noise_to_synthetic_env()
+        if self.mirrored_sampling:
+            score_best = max(score_add, score_sub)
+            if score_sub > score_add:
+                self.invert_eps()
             else:
-                score_best = score_add
                 self.add_noise_to_synthetic_env()
+        else:
+            score_best = score_add
+            self.add_noise_to_synthetic_env()
 
         return score_best
 
@@ -235,7 +212,7 @@ class GTN_Worker(GTN_Base):
         reward_list_test, _ = agent.test(env=real_env, time_remaining=time_remaining)
         avg_reward_test = sum(reward_list_test) / len(reward_list_test)
 
-        if synthetic_env.is_virtual_env() or real_env.get_solved_reward() > 1e8:
+        if synthetic_env.is_virtual_env() or real_env.can_be_solved():
             # normal case: maximize reward
             return avg_reward_test
 

@@ -21,7 +21,6 @@ class GTN_Master(GTN_Base):
 
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
-        self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.num_workers = gtn_config["num_workers"]
         self.step_size = gtn_config["step_size"]
@@ -62,6 +61,8 @@ class GTN_Master(GTN_Base):
 
         # to store models
         self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_' + self.env_name))
+        self.model_name = self.get_model_file_name(self.env_name + '_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6)) + '.pt')
+        self.best_score = -float('Inf')
 
         os.makedirs(self.model_dir, exist_ok=True)
 
@@ -74,7 +75,6 @@ class GTN_Master(GTN_Base):
 
     def run(self):
         mean_score_orig_list = []
-        model_saved = False
 
         for it in range(self.max_iterations):
             t1 = time.time()
@@ -84,12 +84,13 @@ class GTN_Master(GTN_Base):
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
             skip_flag, quit_flag = self.read_worker_results()
 
-            mean_score_orig_list.append(np.mean(self.score_orig_list))
-            model_saved, solved_flag = self.saved_and_solved(mean_score_orig_list, model_saved)
+            mean_score = np.mean(self.score_orig_list)
+            mean_score_orig_list.append(mean_score)
+            solved_flag = self.save_good_model(mean_score)
 
             if quit_flag:
                 print('QUIT FLAG')
-                return
+                break
 
             if skip_flag:
                 print('SKIP FLAG')
@@ -97,7 +98,7 @@ class GTN_Master(GTN_Base):
 
             if solved_flag and self.quit_when_solved:
                 print('ENV SOLVED')
-                return
+                break
 
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
             self.score_transform()
@@ -108,39 +109,35 @@ class GTN_Master(GTN_Base):
 
         print('Master quitting')
 
+        self.print_statistics(it=-1, time_elapsed=-1)
+
         # error handling
         if len(mean_score_orig_list) > 0:
             return np.mean(self.score_orig_list), mean_score_orig_list
         else:
-            if self.minimize_score:
-                return 1e9, mean_score_orig_list
-            else:
-                return -1e9, mean_score_orig_list
-
-    def saved_and_solved(self, mean_score_orig_list, model_saved):
-        if self.synthetic_env_type == 0:
-
-            if np.mean(self.score_orig_list) > self.real_env.get_solved_reward() and not model_saved:
-                self.save_good_model(mean_score_orig_list)
-                model_saved = True
-                print(statistics.mean(self.score_orig_list))
-
-            return model_saved, model_saved
-
-        elif self.synthetic_env_type == 1:
-            return False, False
+            return 1e9, mean_score_orig_list
 
 
+    def save_good_model(self, mean_score):
+        if self.real_env.can_be_solved():
+            if mean_score > self.real_env.get_solved_reward():
+                self.save_model()
+                return True
+        else:
+            if mean_score > self.best_score:
+                self.save_model()
+                self.best_score = mean_score
 
-    def save_good_model(self, mean_score_orig_list):
-        it = len(mean_score_orig_list)
-        if it > 0 and it < self.max_iterations-1:
-            random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
-            file_name = self.get_model_file_name(self.env_name + '_' + str(it) + '_' + random_string + '.pt')
-            save_dict = {}
-            save_dict['model'] = self.synthetic_env_orig.state_dict()
-            save_dict['config'] = self.config
-            torch.save(save_dict, file_name)
+        return False
+
+
+    def save_model(self):
+        save_dict = {}
+        save_dict['model'] = self.synthetic_env_orig.state_dict()
+        save_dict['config'] = self.config
+        save_path = os.path.join(self.model_dir, self.model_name)
+        print('save model: ' + str(save_path))
+        torch.save(save_dict, save_path)
 
 
     def calc_worker_timeout(self):
@@ -232,10 +229,6 @@ class GTN_Master(GTN_Base):
     def score_transform(self):
         scores = np.asarray(self.score_list)
         scores_orig = np.asarray(self.score_orig_list)
-
-        if self.minimize_score:
-            scores = -scores
-            scores_orig = -scores_orig
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]

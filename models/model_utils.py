@@ -1,15 +1,4 @@
-import torch
 import torch.nn as nn
-
-
-class Identity(nn.Module):
-    def __init__(self, module):
-        super(Identity, self).__init__()
-        self.net = module
-
-    def forward(self, x):
-        return self.net(x)
-
 
 def build_nn_from_config(input_dim, output_dim, nn_config):
     hidden_size = nn_config['hidden_size']

@@ -20,7 +20,6 @@ agents:
     time_max: !!float 3600                  # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
-    minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env

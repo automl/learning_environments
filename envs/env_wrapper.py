@@ -135,6 +135,12 @@ class EnvWrapper(nn.Module):
     def max_episode_steps(self):
         return self.env._max_episode_steps
 
+    def can_be_solved(self):
+        if self.env.solved_reward < 1e8:
+            return True
+        else:
+            return False
+
     def seed(self, seed):
         if not self.is_virtual_env():
             return self.env.seed(seed)
