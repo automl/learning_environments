@@ -2,6 +2,7 @@ import datetime
 import sys
 import yaml
 import random
+import time
 import numpy as np
 import torch
 import ConfigSpace as CS
@@ -16,9 +17,9 @@ class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
         params['min_budget'] = 1
-        params['max_budget'] = 8
+        params['max_budget'] = 2
         params['eta'] = 2
-        params['iterations'] = 1000
+        params['iterations'] = 10000
         params['random_fraction'] = 0.3
 
         return params
@@ -82,11 +83,10 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
-        td3 = TD3(state_dim=env.get_state_dim(),
-                  action_dim=env.get_action_dim(),
+        td3 = TD3(env=env,
                   max_action=env.get_max_action(),
                   config=config)
-        rewards = td3.train(env)
+        rewards, _ = td3.train(env)
         score = len(rewards)
 
         info['config'] = str(config)
@@ -104,15 +104,23 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'TD3_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'TD3_cartpole_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
+        random.seed(int(sys.argv[1])+int(time.time()))
+        np.random.seed(int(sys.argv[1])+int(time.time()))
+        torch.manual_seed(int(sys.argv[1])+int(time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
         res = run_bohb_parallel(id=sys.argv[1],
                                 bohb_workers=sys.argv[2],
                                 run_id=run_id,
                                 experiment_wrapper=ExperimentWrapper())
     else:
+        random.seed(int(time.time()))
+        np.random.seed(int(time.time()))
+        torch.manual_seed(int(time.time()))
+        torch.cuda.manual_seed_all(int(time.time()))
         res = run_bohb_serial(run_id=run_id,
                               experiment_wrapper=ExperimentWrapper())
