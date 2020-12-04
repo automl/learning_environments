@@ -96,10 +96,9 @@ class TD3_discrete_vary(TD3, BaseAgent):
             return action
 
     def select_test_action(self, state, env):
-
-        return (self.actor(state.to(self.device)).cpu() +
-                torch.randn(self.action_dim) * self.action_std * self.max_action
-                ).clamp(-self.max_action, self.max_action)
+        return torch.round((self.actor(state.to(self.device)).cpu() +
+                    torch.randn(self.action_dim) * self.action_std * self.max_action
+                    ).clamp(-self.max_action, self.max_action) / 2 + 0.5)
 
 
 if __name__ == "__main__":

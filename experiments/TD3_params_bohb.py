@@ -8,7 +8,7 @@ import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.TD3 import TD3
+from agents.TD3_discrete_vary import TD3_discrete_vary
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
@@ -32,14 +32,13 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=256))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=3e-4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='weight_decay', lower=1e-12, upper=1e-4, log=True, default_value=1e-10))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='tau', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=224))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='weight_norm', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
 
         return cs
@@ -52,14 +51,13 @@ class ExperimentWrapper():
         config["agents"]["td3"]["batch_size"] = cso["batch_size"]
         config["agents"]["td3"]["gamma"] = 1-cso["gamma"]
         config["agents"]["td3"]["lr"] = cso["lr"]
-        config["agents"]["td3"]["weight_decay"] = cso["weight_decay"]
         config["agents"]["td3"]["tau"] = cso["tau"]
         config["agents"]["td3"]["policy_delay"] = cso["policy_delay"]
         config["agents"]["td3"]["rb_size"] = cso["rb_size"]
         config["agents"]["td3"]["hidden_size"] = cso["hidden_size"]
         config["agents"]["td3"]["activation_fn"] = cso["activation_fn"]
-        config["agents"]["td3"]["weight_norm"] = cso["weight_norm"]
         config["agents"]["td3"]["action_std"] = cso["action_std"]
+        config["agents"]["td3"]["policy_std"] = cso["policy_std"]
         config["agents"]["td3"]["early_out_num"] = cso["early_out_num"]
 
         return config
@@ -83,7 +81,7 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
-        td3 = TD3(env=env,
+        td3 = TD3_discrete_vary(env=env,
                   max_action=env.get_max_action(),
                   config=config)
         rewards, _ = td3.train(env)
@@ -104,7 +102,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'TD3_cartpole_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'TD3_discrete_cartpole_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
