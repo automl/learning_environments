@@ -53,11 +53,12 @@ def run_gtn_on_multiple_pcs(config, id):
 
 
 if __name__ == "__main__":
-    with open("../default_config_halfcheetah.yaml", "r") as stream:
+    with open("../default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     gtn_config = config['agents']['gtn']
-    mode = 'single'
+    config['agents']['gtn']['mode'] = 'single'
+    mode = config['agents']['gtn']['mode']
 
     torch.set_num_threads(gtn_config['num_threads_per_worker'])
 

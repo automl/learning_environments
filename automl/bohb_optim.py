@@ -96,6 +96,9 @@ def get_bohb_interface():
     if 'eth0' in addrs.keys():
         print('FOUND eth0 INTERFACE')
         return 'eth0'
+    elif 'eno1' in addrs.keys():
+        print('FOUND eno1 INTERFACE')
+        return 'eno1'
     else:
         print('FOUND lo INTERFACE')
         return 'lo'

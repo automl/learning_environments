@@ -20,18 +20,17 @@ agents:
     time_max: !!float 100                   # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
-    minimize_score: !!bool False            # perform argmin or argmax
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
-    unsolved_weight: !!float 1000           # penalty weight for all solvable environments if they haven't been solved yet
+    unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   ql:
     train_episodes: !!int 100               # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 5                  # number of episodes to prevent an early out
-    batch_size: !!int 5                     # batch size when running a policy update step
+    batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
     eps_init: !!float 0.5                   # initial random action percentage
@@ -47,7 +46,7 @@ agents:
     train_episodes: !!int 100               # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 5                  # number of episodes to prevent an early out
-    batch_size: !!int 5                     # batch size when running a policy update step
+    batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 0.5                      # Q-Learning update factor
     gamma: !!float 0.9                      # discount factor
     eps_init: !!float 0.5                   # initial random action percentage
@@ -66,8 +65,8 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-    reward_env_type: !!int 2                # type of reward shaping function
     info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function
 
   EmptyRoom23:
     solved_reward: !!float 0.8
@@ -75,8 +74,8 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-    reward_env_type: !!int 2                # type of reward shaping function
     info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function
 
   EmptyRoom33:
     solved_reward: !!float 0.8
@@ -84,23 +83,23 @@ envs:
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-    reward_env_type: !!int 2                # type of reward shaping function
     info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function
 
   WallRoom:
     solved_reward: !!float 0.8
-    max_steps: !!int 50
+    max_steps: !!int 30
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
-    reward_env_type: !!int 2                # type of reward shaping function
     info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function
 
   HoleRoom:
     solved_reward: !!float 0.8
-    max_steps: !!int 50
+    max_steps: !!int 30
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
-    reward_env_type: !!int 4                # type of reward shaping function
+    reward_env_type: !!int 0                # type of reward shaping function

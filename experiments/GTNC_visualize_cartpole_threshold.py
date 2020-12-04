@@ -63,7 +63,7 @@ class DDQN_noise(BaseAgent):
             state = env.reset()
             episode_reward = 0
 
-            for t in range(0, env.max_episode_steps(), self.same_action_num):
+            for t in range(0, env.max_episode_steps()):
                 action = self.select_train_action(state=state, env=env)
 
                 # live view
@@ -71,7 +71,7 @@ class DDQN_noise(BaseAgent):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                next_state, reward, done = env.step(action=action)
                 next_state, reward = self.apply_noise(next_state=next_state, reward=reward, noise_type=noise_type, noise_value=noise_value)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state

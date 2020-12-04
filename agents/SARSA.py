@@ -43,6 +43,8 @@ class SARSA(BaseAgent):
             delta = reward + self.gamma * self.q_table[next_state][next_action] * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
+        replay_buffer.clear()
+
 
     def plot_q_function(self, env):
         # m = len(env.env.grid)

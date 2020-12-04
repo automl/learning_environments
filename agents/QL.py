@@ -41,6 +41,8 @@ class QL(BaseAgent):
             delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
+        replay_buffer.clear()
+
 
     def plot_q_function(self, env):
         # m = len(env.env.grid)

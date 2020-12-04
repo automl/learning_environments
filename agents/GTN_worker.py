@@ -2,9 +2,7 @@ import torch
 import torch.nn as nn
 import os
 import time
-import math
 import statistics
-from collections import Counter
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
@@ -14,8 +12,8 @@ class GTN_Worker(GTN_Base):
     def __init__(self, id, bohb_id=-1):
         super().__init__(bohb_id)
 
-        torch.manual_seed(id+bohb_id+int(time.time()))
-        torch.cuda.manual_seed_all(id+bohb_id+int(time.time()))
+        torch.manual_seed(id+bohb_id*id*1000+int(time.time()))
+        torch.cuda.manual_seed_all(id+bohb_id*id*1000+int(time.time()))
 
         # for identifying the different workers
         self.id = id
@@ -37,10 +35,13 @@ class GTN_Worker(GTN_Base):
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
         self.time_sleep_worker = gtn_config["time_sleep_worker"]
-        self.minimize_score = gtn_config["minimize_score"]
         self.agent_name = gtn_config["agent_name"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
         self.unsolved_weight = gtn_config["unsolved_weight"]
+
+        # make it faster on single PC
+        if gtn_config["mode"] == 'single':
+            self.time_sleep_worker /= 10
 
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
@@ -60,30 +61,19 @@ class GTN_Worker(GTN_Base):
         while not self.quit_flag:
             self.read_worker_input()
 
-            if self.quit_flag:
-                print('QUIT FLAG')
-                return
-
             time_start = time.time()
 
             # for evaluation purpose
-            agent_orig = select_agent(config=self.config, agent_name=self.agent_name)
-            reward_list, _ = agent_orig.train(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
-            score_orig = self.calc_score(agent=agent_orig, reward_list_train=reward_list, synthetic_env=self.synthetic_env_orig,
-                                         time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
 
-            self.get_random_eps()
+            self.get_random_noise()
 
             # first mirrored noise +N
             self.add_noise_to_synthetic_env()
 
             score_add = []
             for i in range(self.num_grad_evals):
-                #print('add ' + str(i))
-                agent_add = select_agent(config=self.config, agent_name=self.agent_name)
-                reward_list, _ = agent_add.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.calc_score(agent=agent_add, reward_list_train=reward_list, synthetic_env=self.synthetic_env,
-                                        time_remaining=self.timeout-(time.time()-time_start))
+                score = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
                 score_add.append(score)
 
             # # second mirrored noise -N
@@ -91,11 +81,7 @@ class GTN_Worker(GTN_Base):
 
             score_sub = []
             for i in range(self.num_grad_evals):
-                #print('sub ' + str(i))
-                agent_sub = select_agent(config=self.config, agent_name=self.agent_name)
-                reward_list, _ = agent_sub.train(env=self.synthetic_env, time_remaining=self.timeout-(time.time()-time_start))
-                score = self.calc_score(agent=agent_sub, reward_list_train=reward_list, synthetic_env=self.synthetic_env,
-                                        time_remaining=self.timeout-(time.time()-time_start))
+                score = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
                 score_sub.append(score)
 
             score_best = self.calc_best_score(score_add=score_add, score_sub=score_sub)
@@ -103,6 +89,10 @@ class GTN_Worker(GTN_Base):
             self.write_worker_result(score=score_best,
                                      score_orig=score_orig,
                                      time_elapsed = time.time()-time_start)
+
+            if self.quit_flag:
+                print('QUIT FLAG')
+                break
 
         print('Worker ' + str(self.id) + ' quitting')
 
@@ -154,7 +144,7 @@ class GTN_Worker(GTN_Base):
         torch.save({}, check_file_name)
 
 
-    def get_random_eps(self):
+    def get_random_noise(self):
         for l_virt, l_eps in zip(self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.weight),
@@ -185,62 +175,44 @@ class GTN_Worker(GTN_Base):
                 l_eps.bias = torch.nn.Parameter(-l_eps.bias)
 
 
-    def calc_best_score(self, score_sub, score_add):
-        if self.minimize_score:
-            # print('worker ' + str(self.id) + ' ' + str(score_sub) + ' ' + str(score_add) + ' ' + str(weight_sub) + ' ' + str(weight_add))
-            if self.grad_eval_type == 'mean':
-                score_sub = statistics.mean(score_sub)
-                score_add = statistics.mean(score_add)
-            elif self.grad_eval_type == 'minmax':
-                score_sub = max(score_sub)
-                score_add = max(score_add)
-            else:
-                raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
+    def calc_score(self, env, time_remaining):
+        time_start = time.time()
 
-            if self.mirrored_sampling:
-                score_best = min(score_add, score_sub)
-                if score_sub < score_add:
-                    self.invert_eps()
-                else:
-                    self.add_noise_to_synthetic_env()
-            else:
-                score_best = score_add
-                self.add_noise_to_synthetic_env()
+        agent = select_agent(config=self.config, agent_name=self.agent_name)
+        real_env = self.env_factory.generate_real_env()
 
+        reward_list_train, _ = agent.train(env=env, time_remaining=time_remaining-(time.time()-time_start))
+        reward_list_test, _ = agent.test(env=real_env, time_remaining=time_remaining-(time.time()-time_start))
+        avg_reward_test = statistics.mean(reward_list_test)
+
+        if env.is_virtual_env():
+            return avg_reward_test
         else:
-            if self.grad_eval_type == 'mean':
-                score_sub = statistics.mean(score_sub)
-                score_add = statistics.mean(score_add)
-            elif self.grad_eval_type == 'minmax':
-                score_sub = min(score_sub)
-                score_add = min(score_add)
+            if not real_env.can_be_solved():
+                return avg_reward_test
             else:
-                raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
+                return -len(reward_list_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
 
-            if self.mirrored_sampling:
-                score_best = max(score_add, score_sub)
-                if score_sub > score_add:
-                    self.invert_eps()
-                else:
-                    self.add_noise_to_synthetic_env()
+
+    def calc_best_score(self, score_sub, score_add):
+        if self.grad_eval_type == 'mean':
+            score_sub = statistics.mean(score_sub)
+            score_add = statistics.mean(score_add)
+        elif self.grad_eval_type == 'minmax':
+            score_sub = min(score_sub)
+            score_add = min(score_add)
+        else:
+            raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
+
+        if self.mirrored_sampling:
+            score_best = max(score_add, score_sub)
+            if score_sub > score_add:
+                self.invert_eps()
             else:
-                score_best = score_add
                 self.add_noise_to_synthetic_env()
+        else:
+            score_best = score_add
+            self.add_noise_to_synthetic_env()
 
         return score_best
-
-
-    def calc_score(self, agent, reward_list_train, synthetic_env, time_remaining):
-        real_env = self.env_factory.generate_real_env()
-        reward_list_test, _ = agent.test(env=real_env, time_remaining=time_remaining)
-        avg_reward_test = sum(reward_list_test) / len(reward_list_test)
-
-        if synthetic_env.is_virtual_env() or real_env.get_solved_reward() > 1e8:
-            # normal case: maximize reward
-            return avg_reward_test
-
-        else:
-            # maximize weighted sum of solved reward and number of training episodes
-            return -len(reward_list_train) - max(0, (real_env.get_solved_reward()-avg_reward_test)*self.unsolved_weight)
-
 

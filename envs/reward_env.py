@@ -78,27 +78,32 @@ class RewardEnv(nn.Module):
 
         if self.reward_env_type == 0:
             reward_res = reward_torch
+
         elif self.reward_env_type == 1:
             reward_res = self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
+
         elif self.reward_env_type == 2:
             reward_res = reward_torch + self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
+
         elif self.reward_env_type == 3 or self.reward_env_type == 4:
-            if info:
-                info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
-                input_state = torch.cat((state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
-                input_state_next = torch.cat((next_state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
-            else:
-                input_state = state_torch
-                input_state_next = next_state_torch
+            if not info:
+                raise ValueError('No info dict provided by environment')
+
+            info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
+            input_state = torch.cat((state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+            input_state_next = torch.cat((next_state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+
             if self.reward_env_type == 3:
                 reward_res = self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
             elif self.reward_env_type == 4:
                 reward_res = reward_torch + self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
+
         elif self.reward_env_type == 101 or self.reward_env_type == 102:
-            if info:
-                info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
-            else:
-                info_torch = torch.tensor([], device=self.device, dtype=torch.float32)
+            if not info:
+                raise ValueError('No info dict provided by environment')
+
+            info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
+
             if self.reward_env_type == 101:
                 reward_res = torch.sum(info_torch*self.reward_net)
             elif self.reward_env_type == 102:
