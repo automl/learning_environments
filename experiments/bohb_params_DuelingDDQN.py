@@ -38,8 +38,9 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='eps_min', lower=0.005, upper=0.05, log=True, default_value=0.05))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='eps_decay', lower=0.01, upper=0.2, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=512, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=1, upper=2, log=False, default_value=2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
 
@@ -58,6 +59,7 @@ class ExperimentWrapper():
         config["agents"]['duelingddqn']['eps_decay'] = 1 - cso["eps_decay"]
         config["agents"]["duelingddqn"]["rb_size"] = cso["rb_size"]
         config["agents"]["duelingddqn"]["hidden_size"] = cso["hidden_size"]
+        config["agents"]["duelingddqn"]["hidden_layer"] = cso["hidden_layer"]
         config["agents"]["duelingddqn"]["feature_dim"] = cso["feature_dim"]
         config["agents"]["duelingddqn"]["activation_fn"] = cso["activation_fn"]
         config["agents"]["duelingddqn"]["early_out_num"] = cso["early_out_num"]
