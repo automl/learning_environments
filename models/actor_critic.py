@@ -1,3 +1,4 @@
+import copy
 import torch
 import torch.nn as nn
 from torch.distributions.normal import Normal
@@ -81,14 +82,18 @@ class Critic_DuelingDQN(nn.Module):
                                                    nn_config=config["agents"][agent_name]
                                                    )
 
+        heads_config = copy.copy(config["agents"][agent_name])
+        heads_config["hidden_layer"] = 1
+        heads_config["hidden_size"] = config["agents"][agent_name]["feature_dim"]
+
         self.value_stream = build_nn_from_config(input_dim=config["agents"][agent_name]["feature_dim"],
                                                  output_dim=1,
-                                                 nn_config=config["agents"][agent_name]
+                                                 nn_config=heads_config
                                                  )
 
         self.advantage_stream = build_nn_from_config(input_dim=config["agents"][agent_name]["feature_dim"],
                                                      output_dim=action_dim,
-                                                     nn_config=config["agents"][agent_name]
+                                                     nn_config=heads_config
                                                      )
 
     def forward(self, state):
