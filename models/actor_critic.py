@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
-from models.model_utils import build_nn_from_config
 from torch.distributions.normal import Normal
+
+from models.model_utils import build_nn_from_config
 
 
 class Actor_TD3(nn.Module):
@@ -70,3 +71,29 @@ class Critic_DQN(nn.Module):
     def forward(self, state):
         return self.net(state)
 
+
+class Critic_DuelingDQN(nn.Module):
+    def __init__(self, state_dim, action_dim, agent_name, config):
+        super().__init__()
+
+        self.feature_stream = build_nn_from_config(input_dim=state_dim,
+                                                   output_dim=config["agents"][agent_name]["feature_dim"],
+                                                   nn_config=config["agents"][agent_name]
+                                                   )
+
+        self.value_stream = build_nn_from_config(input_dim=config["agents"][agent_name]["feature_dim"],
+                                                 output_dim=1,
+                                                 nn_config=config["agents"][agent_name]
+                                                 )
+
+        self.advantage_stream = build_nn_from_config(input_dim=config["agents"][agent_name]["feature_dim"],
+                                                     output_dim=action_dim,
+                                                     nn_config=config["agents"][agent_name]
+                                                     )
+
+    def forward(self, state):
+        features = self.feature_stream(state)
+        values = self.value_stream(features)
+        advantages = self.advantage_stream(features)
+        q_values = values + (advantages - advantages.mean())
+        return q_values

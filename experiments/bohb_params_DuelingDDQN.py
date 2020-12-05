@@ -8,7 +8,7 @@ import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.TD3_discrete_vary import TD3_discrete_vary
+from agents.DuelingDDQN import DuelingDDQN
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
@@ -35,7 +35,8 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='tau', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=224))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
@@ -47,24 +48,25 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]["td3"]["init_episodes"] = cso["init_episodes"]
-        config["agents"]["td3"]["batch_size"] = cso["batch_size"]
-        config["agents"]["td3"]["gamma"] = 1-cso["gamma"]
-        config["agents"]["td3"]["lr"] = cso["lr"]
-        config["agents"]["td3"]["tau"] = cso["tau"]
-        config["agents"]["td3"]["policy_delay"] = cso["policy_delay"]
-        config["agents"]["td3"]["rb_size"] = cso["rb_size"]
-        config["agents"]["td3"]["hidden_size"] = cso["hidden_size"]
-        config["agents"]["td3"]["activation_fn"] = cso["activation_fn"]
-        config["agents"]["td3"]["action_std"] = cso["action_std"]
-        config["agents"]["td3"]["policy_std"] = cso["policy_std"]
-        config["agents"]["td3"]["early_out_num"] = cso["early_out_num"]
+        config["agents"]["duelingddqn"]["init_episodes"] = cso["init_episodes"]
+        config["agents"]["duelingddqn"]["batch_size"] = cso["batch_size"]
+        config["agents"]["duelingddqn"]["gamma"] = 1-cso["gamma"]
+        config["agents"]["duelingddqn"]["lr"] = cso["lr"]
+        config["agents"]["duelingddqn"]["tau"] = cso["tau"]
+        config["agents"]["duelingddqn"]["policy_delay"] = cso["policy_delay"]
+        config["agents"]["duelingddqn"]["rb_size"] = cso["rb_size"]
+        config["agents"]["duelingddqn"]["hidden_size"] = cso["hidden_size"]
+        config["agents"]["duelingddqn"]["feature_dim"] = cso["feature_dim"]
+        config["agents"]["duelingddqn"]["activation_fn"] = cso["activation_fn"]
+        config["agents"]["duelingddqn"]["action_std"] = cso["action_std"]
+        config["agents"]["duelingddqn"]["policy_std"] = cso["policy_std"]
+        config["agents"]["duelingddqn"]["early_out_num"] = cso["early_out_num"]
 
         return config
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config.yaml", 'r') as stream:
+        with open("default_config_cartpole.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -81,10 +83,10 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
-        td3 = TD3_discrete_vary(env=env,
+        dueling_ddqn = DuelingDDQN(env=env,
                   max_action=env.get_max_action(),
                   config=config)
-        rewards, _ = td3.train(env)
+        rewards, _ = dueling_ddqn.train(env)
         score = len(rewards)
 
         info['config'] = str(config)
@@ -102,7 +104,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'TD3_discrete_cartpole_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_DuelingDDQN_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
