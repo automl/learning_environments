@@ -72,7 +72,7 @@ class DuelingDDQN_vary(DuelingDDQN):
         config = cs.sample_configuration()
 
         print(config_mod['agents'][self.agent_name])
-        config_mod['agents'][self.agent_name]['feature_dim'] = config['feature_dim']
+        #config_mod['agents'][self.agent_name]['feature_dim'] = config['feature_dim']
         config_mod['agents'][self.agent_name]['lr'] = config['lr']
         config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
