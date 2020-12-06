@@ -55,7 +55,7 @@ def get_all_files(with_vary_hp):
 def train_test_agents(train_env, test_env, config):
     reward_list = []
 
-    for i in range(MODEL_AGENTS):
+    for i in range(MODEL_AGENTS):  # 10
         config['agents']['duelingddqn_vary']['vary_hp'] = True
         config['agents']['duelingddqn']['print_rate'] = 10
         agent = select_agent(config=config, agent_name='DuelingDDQN_vary')
@@ -91,7 +91,7 @@ def run_vary_hp(mode, experiment_name):
         file_name = os.listdir(MODEL_DIR)[0]
         _, real_env, config = load_envs_and_config(file_name)
 
-        for i in range(MODEL_NUM):
+        for i in range(MODEL_NUM):  # 40
             print('train on {}-th environment'.format(i))
             reward_list += train_test_agents(train_env=real_env, test_env=real_env, config=config)
 

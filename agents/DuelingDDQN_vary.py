@@ -19,7 +19,7 @@ class DuelingDDQN_vary(DuelingDDQN):
         else:
             config_mod = config
 
-        print(config_mod['agents'][self.agent_name]['feature_dim'])
+        # print(config_mod['agents'][self.agent_name]['feature_dim'])
         print(config_mod['agents'][self.agent_name]['lr'])
         print(config_mod['agents'][self.agent_name]['batch_size'])
         print(config_mod['agents'][self.agent_name]['hidden_size'])
@@ -29,19 +29,19 @@ class DuelingDDQN_vary(DuelingDDQN):
 
     def vary_hyperparameters(self, config_mod):
 
-        feature_dim = config_mod['agents'][self.agent_name]['feature_dim']
+        # feature_dim = config_mod['agents'][self.agent_name]['feature_dim']
         lr = config_mod['agents'][self.agent_name]['lr']
         batch_size = config_mod['agents'][self.agent_name]['batch_size']
         hidden_size = config_mod['agents'][self.agent_name]['hidden_size']
         hidden_layer = config_mod['agents'][self.agent_name]['hidden_layer']
 
         cs = CS.ConfigurationSpace()
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim',
-                                                             lower=int(feature_dim / 3),
-                                                             upper=int(feature_dim * 3),
-                                                             log=True,
-                                                             default_value=feature_dim)
-                              )
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim',
+        #                                                      lower=int(feature_dim / 3),
+        #                                                      upper=int(feature_dim * 3),
+        #                                                      log=True,
+        #                                                      default_value=feature_dim)
+        #                       )
 
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr',
                                                              lower=lr / 3,
