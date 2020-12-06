@@ -67,15 +67,15 @@ def train_test_agents(train_env, test_env, config):
     return reward_list
 
 
-def save_reward_list(mode, config, reward_list):
-    file_name = os.path.join(MODEL_DIR, str(mode) + '.pt')
+def save_reward_list(mode, config, reward_list, experiment_name=None):
+    file_name = os.path.join(MODEL_DIR, str(mode) + '_' + experiment_name + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
     torch.save(save_dict, file_name)
 
 
-def run_vary_hp(mode):
+def run_vary_hp(mode, experiment_name):
     if mode == 0:
         train_on_venv = False
     elif mode == 1:
@@ -103,12 +103,13 @@ def run_vary_hp(mode):
             print('train agents on ' + str(file_name))
             reward_list += train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
 
-    save_reward_list(mode=mode, config=config, reward_list=reward_list)
+    save_reward_list(mode=mode, config=config, reward_list=reward_list, experiment_name=experiment_name)
 
 
 if __name__ == "__main__":
+    experiment_name = "ddqn_to_duelingddqn_vary_transfer"
     if len(sys.argv) > 1:
-        run_vary_hp(mode=int(int(sys.argv[1])))
+        run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
         for mode in range(3):
-            run_vary_hp(mode=mode)
+            run_vary_hp(mode=mode, experiment_name=experiment_name)
