@@ -5,6 +5,8 @@ from agents.TD3 import TD3
 from agents.PPO import PPO
 from agents.DDQN import DDQN
 from agents.DDQN_vary import DDQN_vary
+from agents.DuelingDDQN import DuelingDDQN
+from agents.DuelingDDQN_vary import DuelingDDQN_vary
 from agents.QL import QL
 from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
@@ -25,6 +27,10 @@ def select_agent(config, agent_name):
         return DDQN(env=dummy_env, config=config)
     elif agent_name == "ddqn_vary":
         return DDQN_vary(env=dummy_env, config=config)
+    elif agent_name == "duelingddqn":
+        return DuelingDDQN(env=dummy_env, config=config)
+    elif agent_name == "duelingddqn_vary":
+        return DuelingDDQN_vary(env=dummy_env, config=config)
     elif agent_name == "ql":
         return QL(env=dummy_env, config=config)
     elif agent_name == "sarsa":
