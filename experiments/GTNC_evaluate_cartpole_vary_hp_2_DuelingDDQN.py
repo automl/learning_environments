@@ -25,6 +25,7 @@ def load_envs_and_config(file_name):
     real_env = env_factory.generate_real_env()
 
     # load additional agent configs
+    print("added dueling ddqn agents in a hacky way - caution!")
     with open("../default_config_cartpole.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
@@ -41,7 +42,7 @@ def get_all_files(with_vary_hp):
             continue
 
         _, _, config = load_envs_and_config(file_name)
-        if config['agents']['duelingddqn_vary']['vary_hp'] == with_vary_hp:
+        if config['agents']['ddqn_vary']['vary_hp'] == with_vary_hp:
             file_list.append(file_name)
 
     # sort file list by random characters/digits -> make randomness deterministic
@@ -68,7 +69,7 @@ def train_test_agents(train_env, test_env, config):
 
 
 def save_reward_list(mode, config, reward_list, experiment_name=None):
-    file_name = os.path.join(MODEL_DIR, str(mode) + '_' + experiment_name + '.pt')
+    file_name = os.path.join(os.getcwd(), str(mode) + '_' + experiment_name + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
@@ -108,6 +109,7 @@ def run_vary_hp(mode, experiment_name):
 
 if __name__ == "__main__":
     experiment_name = "ddqn_to_duelingddqn_vary_transfer"
+    print(int(int(sys.argv[1])))
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
