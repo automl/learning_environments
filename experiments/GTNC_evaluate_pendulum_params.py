@@ -139,7 +139,7 @@ if __name__ == "__main__":
         global REWARD_ENV_TYPE
         REWARD_ENV_TYPE = int(sys.argv[3])
 
-        run_id = 'GTNC_evaluate_pendulum_params_' + REWARD_ENV_TYPE + '_' + x.strftime("%Y-%m-%d-%H")
+        run_id = 'GTNC_evaluate_pendulum_params_' + str(REWARD_ENV_TYPE) + '_' + x.strftime("%Y-%m-%d-%H")
 
         random.seed(int(sys.argv[1])+int(time.time()))
         np.random.seed(int(sys.argv[1])+int(time.time()))
