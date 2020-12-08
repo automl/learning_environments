@@ -21,7 +21,7 @@ agents:
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 7           # 0-7
-    quit_when_solved: !!bool True           # continue training once the environment has been solved?
+    quit_when_solved: !!bool False          # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
     unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str td3                   # which RL agent to use for meta-training

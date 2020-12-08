@@ -8,6 +8,7 @@ import ConfigSpace.hyperparameters as CSH
 import random
 import numpy as np
 import torch
+import statistics
 from copy import deepcopy
 from agents.GTN import GTN_Master
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
@@ -105,7 +106,7 @@ class ExperimentWrapper():
             for _ in range(3):
                 gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
                 _, score_list = gtn.run()
-                score -= max(score_list)
+                score -= statistics.mean(sorted(score_list, reverse=True)[0:3])
             error = ""
         except:
             score = float('-Inf')
