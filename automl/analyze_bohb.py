@@ -77,6 +77,7 @@ def analyze_bohb(log_dir):
 
     plot_parallel_scatter(result)
 
+    #plt.savefig("bohb_td3_discrete_cartpole.png")
     plt.show()
 
 
@@ -393,7 +394,8 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
+    #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
+    log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
     analyze_bohb(log_dir)
 
 
