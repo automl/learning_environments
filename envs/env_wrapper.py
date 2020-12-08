@@ -109,6 +109,12 @@ class EnvWrapper(nn.Module):
         else:
             return 1
 
+    def get_min_action(self):
+        if self.env.env_name == 'CartPole-v0':
+            return 0
+        else:
+            return -self.get_max_action()
+
     def has_discrete_action_space(self):
         if isinstance(self.env.action_space, Discrete):
             return True

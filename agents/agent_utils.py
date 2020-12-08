@@ -7,6 +7,7 @@ from agents.DDQN import DDQN
 from agents.DDQN_vary import DDQN_vary
 from agents.DuelingDDQN import DuelingDDQN
 from agents.DuelingDDQN_vary import DuelingDDQN_vary
+from agents.TD3_discrete_vary import TD3_discrete_vary
 from agents.QL import QL
 from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
@@ -31,6 +32,10 @@ def select_agent(config, agent_name):
         return DuelingDDQN(env=dummy_env, config=config)
     elif agent_name == "duelingddqn_vary":
         return DuelingDDQN_vary(env=dummy_env, config=config)
+    elif agent_name == "td3_discrete_vary":
+        max_action = dummy_env.get_max_action()
+        min_action = dummy_env.get_min_action()
+        return TD3_discrete_vary(env=dummy_env, config=config, min_action=min_action, max_action=max_action)
     elif agent_name == "ql":
         return QL(env=dummy_env, config=config)
     elif agent_name == "sarsa":

@@ -11,11 +11,11 @@ import yaml
 
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
-from models.actor_critic import Actor_TD3_discrete, Critic_Q
+from models.actor_critic import Actor_TD3, Critic_Q
 
 
 class TD3_discrete_vary(BaseAgent):
-    def __init__(self, env, max_action, config):
+    def __init__(self, env, min_action, max_action, config):
         self.agent_name = 'td3_discrete_vary'
 
         # todo: remove
@@ -39,6 +39,7 @@ class TD3_discrete_vary(BaseAgent):
         td3_config = config["agents"][self.agent_name]
 
         self.max_action = max_action
+        self.min_action = min_action
         self.batch_size = td3_config["batch_size"]
         self.rb_size = td3_config["rb_size"]
         self.gamma = td3_config["gamma"]
@@ -49,8 +50,8 @@ class TD3_discrete_vary(BaseAgent):
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
 
-        self.actor = Actor_TD3_discrete(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
-        self.actor_target = Actor_TD3_discrete(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
+        self.actor = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
+        self.actor_target = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.critic_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
         self.critic_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
@@ -74,7 +75,7 @@ class TD3_discrete_vary(BaseAgent):
             noise = (torch.randn_like(actions) * self.policy_std
                      ).clamp(-self.policy_std_clip, self.policy_std_clip)
             next_actions = torch.round((self.actor_target(next_states) + noise
-                                        ).clamp(0, self.max_action))
+                                        ).clamp(self.min_action, self.max_action))
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
@@ -150,13 +151,13 @@ class TD3_discrete_vary(BaseAgent):
             return env.get_random_action()
         else:
             return torch.round((self.actor(state.to(self.device)).cpu() +
-                                  (torch.randn(self.action_dim) * self.action_std).clamp(0, self.max_action))
-                               .clamp(0, self.max_action))
+                                  (torch.randn(self.action_dim) * self.action_std).clamp(self.min_action, self.max_action))
+                               .clamp(self.min_action, self.max_action))
 
     def select_test_action(self, state, env):
         return torch.round((self.actor(state.to(self.device)).cpu() +
-                            (torch.randn(self.action_dim) * self.action_std).clamp(0, self.max_action)).
-                           clamp(0, self.max_action))
+                            (torch.randn(self.action_dim) * self.action_std).clamp(self.min_action, self.max_action)).
+                           clamp(self.min_action, self.max_action))
 
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
@@ -179,7 +180,8 @@ if __name__ == "__main__":
     # virt_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_real_env()
     # reward_env = env_fac.generate_reward_env()
-    td3 = TD3_discrete_vary(env=real_env, max_action=real_env.get_max_action(), config=config)
+    print(real_env.get_min_action())
+    td3 = TD3_discrete_vary(env=real_env, min_action=real_env.get_min_action(), max_action=real_env.get_max_action(), config=config)
     t1 = time.time()
     td3.train(env=real_env)
     print(time.time() - t1)

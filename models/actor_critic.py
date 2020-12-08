@@ -11,22 +11,16 @@ class Actor_TD3(nn.Module):
     def __init__(self, state_dim, action_dim, max_action, agent_name, config):
         super().__init__()
 
-        self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
-        self.max_action = max_action
-
-    def forward(self, state):
-        return torch.tanh(self.net(state)) * self.max_action
-
-
-class Actor_TD3_discrete(nn.Module):
-    def __init__(self, state_dim, action_dim, max_action, agent_name, config):
-        super().__init__()
+        if "sigmoid_last_layer" in config["agents"][agent_name]:
+            self.activation_last = torch.sigmoid
+        else:
+            self.activation_last = torch.tanh
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
         self.max_action = max_action
 
     def forward(self, state):
-        return torch.sigmoid(self.net(state)) * self.max_action
+        return self.activation_last(self.net(state)) * self.max_action
 
 
 class Actor_PPO(nn.Module):
