@@ -22,8 +22,8 @@ agents:
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
-    synthetic_env_type: !!int 0             # 0: virtual env / 1: reward env
-    unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
+    synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
+    unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str td3                   # which RL agent to use for meta-training
 
   td3:
@@ -43,7 +43,7 @@ agents:
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1                           # update rate of avg meters
+    print_rate: 100                         # update rate of avg meters
     early_out_num: !!int 5                  # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
 
@@ -76,4 +76,4 @@ envs:
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
-    reward_env_type: !!int 4                # type of reward shaping function
+    reward_env_type: !!int 2                # type of reward shaping function

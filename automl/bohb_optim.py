@@ -123,7 +123,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
 
     os.makedirs(working_dir, exist_ok=True)
 
-    if int(id) > 0:
+    if int(id) % 1000 != 0:
         print('START NEW WORKER')
         time.sleep(10)
         w = BohbWorker(host=host,

@@ -53,7 +53,7 @@ def run_gtn_on_multiple_pcs(config, id):
 
 
 if __name__ == "__main__":
-    with open("../default_config_gridworld.yaml", "r") as stream:
+    with open("../default_config_pendulum.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     gtn_config = config['agents']['gtn']

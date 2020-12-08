@@ -13,7 +13,7 @@ from utils import calc_abs_param_sum
 
 
 class GTN_Master(GTN_Base):
-    def __init__(self, config, bohb_id=-1):
+    def __init__(self, config, bohb_id=-1, bohb_working_dir=None):
         super().__init__(bohb_id)
         self.config = config
         self.device = config["device"]
@@ -65,7 +65,10 @@ class GTN_Master(GTN_Base):
         self.real_env = self.env_factory.generate_real_env()
 
         # to store models
-        self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_' + self.env_name))
+        if bohb_working_dir:
+            self.model_dir = str(os.path.join(bohb_working_dir, 'GTN_models_' + self.env_name))
+        else:
+            self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_' + self.env_name))
         self.model_name = self.get_model_file_name(self.env_name + '_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6)) + '.pt')
         self.best_score = -float('Inf')
 
@@ -133,7 +136,7 @@ class GTN_Master(GTN_Base):
                 if mean_score > self.best_score:
                     self.save_model()
                     self.best_score = mean_score
-            elif mean_score > -self.unsolved_weight and mean_score > self.best_score:
+            elif mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
 
@@ -174,8 +177,6 @@ class GTN_Master(GTN_Base):
 
             time.sleep(self.time_sleep_master)
             self.uuid_list[id] = str(uuid.uuid4())
-
-
 
             # if we are not using bohb, shut everything down after last iteration
             if self.bohb_id < 0:

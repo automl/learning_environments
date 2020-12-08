@@ -80,8 +80,9 @@ class ExperimentWrapper():
         config["envs"]['Pendulum-v0']['hidden_size'] = cso["pendulum_hidden_size"]
         config["envs"]['Pendulum-v0']['hidden_layer'] = cso["pendulum_hidden_layer"]
 
+        global reward_env_type
         config["agents"]['gtn']['synthetic_env_type'] = 1
-        config["envs"]['Pendulum-v0']['reward_env_type'] = REWARD_ENV_TYPE
+        config["envs"]['Pendulum-v0']['reward_env_type'] = reward_env_type
 
         return config
 
@@ -102,12 +103,12 @@ class ExperimentWrapper():
         try:
             score = 0
             for _ in range(3):
-                gtn = GTN_Master(config, bohb_id=bohb_id)
+                gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
                 _, score_list = gtn.run()
-                score += len(score_list)
+                score -= max(score_list)
             error = ""
         except:
-            score = float('Inf')
+            score = float('-Inf')
             score_list = []
             error = traceback.format_exc()
             print(error)
@@ -132,20 +133,20 @@ class ExperimentWrapper():
 if __name__ == "__main__":
     x = datetime.datetime.now()
 
-    if len(sys.argv) > 1:
-        for arg in sys.argv[1:]:
-            print(arg)
+    id = int(sys.argv[1])
+    bohb_workers = int(sys.argv[2])
 
-        global REWARD_ENV_TYPE
-        REWARD_ENV_TYPE = int(sys.argv[3])
+    global reward_env_type
+    reward_env_type = int(sys.argv[3])
+    run_id = 'GTNC_evaluate_pendulum_params_' + str(reward_env_type) + '_' + x.strftime("%Y-%m-%d-%H")
 
-        run_id = 'GTNC_evaluate_pendulum_params_' + str(REWARD_ENV_TYPE) + '_' + x.strftime("%Y-%m-%d-%H")
+    seed = id+int(time.time())
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
-        random.seed(int(sys.argv[1])+int(time.time()))
-        np.random.seed(int(sys.argv[1])+int(time.time()))
-        torch.manual_seed(int(sys.argv[1])+int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
-        res = run_bohb_parallel(id=int(sys.argv[1]),
-                                bohb_workers=int(sys.argv[2]),
-                                run_id=run_id,
-                                experiment_wrapper=ExperimentWrapper())
+    res = run_bohb_parallel(id=id,
+                            bohb_workers=bohb_workers,
+                            run_id=run_id,
+                            experiment_wrapper=ExperimentWrapper())

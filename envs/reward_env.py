@@ -22,11 +22,11 @@ class RewardEnv(nn.Module):
 
         # initialize two environments
         self.real_env = real_env
-        self.reward_net = self.build_reward_net(real_env, kwargs)
+        self.reward_net = self.build_reward_net(kwargs)
         self.state = self.reset()
 
 
-    def build_reward_net(self, real_env, kwargs):
+    def build_reward_net(self, kwargs):
         # 0: original reward
         # 1: native potential function (exclusive)
         # 2: native potential function (additive)
