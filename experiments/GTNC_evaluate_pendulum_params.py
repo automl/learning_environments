@@ -102,11 +102,9 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
-            score = 0
-            for _ in range(3):
-                gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
-                _, score_list = gtn.run()
-                score -= statistics.mean(sorted(score_list, reverse=True)[0:3])
+            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
+            _, score_list = gtn.run()
+            score = statistics.mean(sorted(score_list, reverse=True)[0:3])
             error = ""
         except:
             score = float('-Inf')
