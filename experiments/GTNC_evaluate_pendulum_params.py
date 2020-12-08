@@ -34,7 +34,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.001, upper=1, log=True, default_value=0.01))
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
+        #cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
@@ -63,7 +63,7 @@ class ExperimentWrapper():
         config["agents"]['gtn']['mirrored_sampling'] = cso["gtn_mirrored_sampling"]
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
 
-        config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
+        #config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
         config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
