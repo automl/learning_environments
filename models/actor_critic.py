@@ -1,4 +1,5 @@
 import copy
+
 import torch
 import torch.nn as nn
 from torch.distributions.normal import Normal
@@ -15,6 +16,17 @@ class Actor_TD3(nn.Module):
 
     def forward(self, state):
         return torch.tanh(self.net(state)) * self.max_action
+
+
+class Actor_TD3_discrete(nn.Module):
+    def __init__(self, state_dim, action_dim, max_action, agent_name, config):
+        super().__init__()
+
+        self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
+        self.max_action = max_action
+
+    def forward(self, state):
+        return torch.sigmoid(self.net(state)) * self.max_action
 
 
 class Actor_PPO(nn.Module):
