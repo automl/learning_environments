@@ -6,7 +6,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-FILE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
+#FILE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
+FILE_DIR = '/home/ferreira/Projects/learning_environments/results/DDQN_to_DuelingDDQN_CartPole_transfer'
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 
 
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     for x,y,mean in zip([0,1,2], [220,220,220], mean_list):
         plt.text(x,y,mean, ha='center', va='center')
 
-    plt.savefig('cartpole_vary_hp.svg', bbox_inches='tight')
+    plt.savefig('ddqn_to_dueling_ddqn_cartpole_vary_hp_transfer.svg', bbox_inches='tight')
     plt.show()
 
 

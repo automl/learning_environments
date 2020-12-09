@@ -67,7 +67,6 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['duelingddqn']['init_episodes'] = 10
     config['agents']['duelingddqn']['test_episodes'] = 10
     config['agents']['duelingddqn']['early_out_virtual_diff'] = 0.01
-    config['agents']['duelingddqn']['batch_size'] = 128
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='DuelingDDQN_vary')

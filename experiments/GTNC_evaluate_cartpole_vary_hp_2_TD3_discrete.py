@@ -60,10 +60,11 @@ def train_test_agents(train_env, test_env, config):
     # settings for comparability
     config['agents']['td3_discrete_vary']['vary_hp'] = True
     config['agents']['td3_discrete_vary']['print_rate'] = 10
-    config['agents']['td3_discrete_vary']['early_out_num'] = 5
-    config['agents']['td3_discrete_vary']['train_episodes'] = 500
-    config['agents']['td3_discrete_vary']['init_episodes'] = 20
+    config['agents']['td3_discrete_vary']['early_out_num'] = 10
+    config['agents']['td3_discrete_vary']['train_episodes'] = 1000
+    config['agents']['td3_discrete_vary']['init_episodes'] = 10
     config['agents']['td3_discrete_vary']['test_episodes'] = 10
+    config['agents']['td3_discrete_vary']['early_out_virtual_diff'] = 0.01
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='TD3_discrete_vary')
