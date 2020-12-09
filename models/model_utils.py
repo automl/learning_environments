@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 def build_nn_from_config(input_dim, output_dim, nn_config):
     hidden_size = nn_config['hidden_size']
     hidden_layer = nn_config['hidden_layer']
@@ -16,15 +17,19 @@ def build_nn_from_config(input_dim, output_dim, nn_config):
     else:
         print('Unknown activation function')
 
-    if "use_layer_norm" in nn_config:
-        norm = nn.LayerNorm(hidden_size)
-    else:
-        norm = nn.Identity()
+    norm = nn.Identity()
+
+    try:
+        use_layer_norm = nn_config["use_layer_norm"]
+        if use_layer_norm:
+            norm = nn.LayerNorm(hidden_size)
+    except KeyError:
+        pass
 
     modules = []
     modules.append(nn.Linear(input_dim, hidden_size))
     modules.append(act_fn)
-    for i in range(hidden_layer-1):
+    for i in range(hidden_layer - 1):
         modules.append(nn.Linear(hidden_size, hidden_size))
         modules.append(norm)
         modules.append(act_fn)

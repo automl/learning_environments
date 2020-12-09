@@ -11,10 +11,14 @@ class Actor_TD3(nn.Module):
     def __init__(self, state_dim, action_dim, max_action, agent_name, config):
         super().__init__()
 
-        if "sigmoid_last_layer" in config["agents"][agent_name]:
-            self.activation_last = torch.sigmoid
-        else:
-            self.activation_last = torch.tanh
+        self.activation_last = torch.tanh
+
+        try:
+            use_sigmoid_layer = config["agents"][agent_name]["sigmoid_last_layer"]
+            if use_sigmoid_layer:
+                self.activation_last = torch.sigmoid
+        except KeyError:
+            pass
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
         self.max_action = max_action

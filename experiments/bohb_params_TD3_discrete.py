@@ -42,24 +42,26 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='use_layer_norm', choices=[True, False], default_value=True))
 
         return cs
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]["td3"]["init_episodes"] = cso["init_episodes"]
-        config["agents"]["td3"]["batch_size"] = cso["batch_size"]
-        config["agents"]["td3"]["gamma"] = 1 - cso["gamma"]
-        config["agents"]["td3"]["lr"] = cso["lr"]
-        config["agents"]["td3"]["tau"] = cso["tau"]
-        config["agents"]["td3"]["policy_delay"] = cso["policy_delay"]
-        config["agents"]["td3"]["rb_size"] = cso["rb_size"]
-        config["agents"]["td3"]["hidden_size"] = cso["hidden_size"]
-        config["agents"]["td3"]["activation_fn"] = cso["activation_fn"]
-        config["agents"]["td3"]["action_std"] = cso["action_std"]
-        config["agents"]["td3"]["policy_std"] = cso["policy_std"]
-        config["agents"]["td3"]["early_out_num"] = cso["early_out_num"]
+        config["agents"]["td3_discrete_vary"]["init_episodes"] = cso["init_episodes"]
+        config["agents"]["td3_discrete_vary"]["batch_size"] = cso["batch_size"]
+        config["agents"]["td3_discrete_vary"]["gamma"] = 1 - cso["gamma"]
+        config["agents"]["td3_discrete_vary"]["lr"] = cso["lr"]
+        config["agents"]["td3_discrete_vary"]["tau"] = cso["tau"]
+        config["agents"]["td3_discrete_vary"]["policy_delay"] = cso["policy_delay"]
+        config["agents"]["td3_discrete_vary"]["rb_size"] = cso["rb_size"]
+        config["agents"]["td3_discrete_vary"]["hidden_size"] = cso["hidden_size"]
+        config["agents"]["td3_discrete_vary"]["activation_fn"] = cso["activation_fn"]
+        config["agents"]["td3_discrete_vary"]["action_std"] = cso["action_std"]
+        config["agents"]["td3_discrete_vary"]["policy_std"] = cso["policy_std"]
+        config["agents"]["td3_discrete_vary"]["early_out_num"] = cso["early_out_num"]
+        config["agents"]["td3_discrete_vary"]["use_layer_norm"] = cso["use_layer_norm"]
 
         return config
 
@@ -81,7 +83,7 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
-        # with BOHB, we want to specify the variation of HPs outside
+        # with BOHB, we want it to specify the variation of HPs
         config["agents"]["td3_discrete_vary"]["vary_hp"] = False
 
         td3 = TD3_discrete_vary(env=env,
