@@ -22,12 +22,8 @@ class TD3_discrete_vary(BaseAgent):
             config_mod = copy.deepcopy(config)
             config_mod = self.vary_hyperparameters(config_mod)
         else:
+            print("--- configs not varied ---")
             config_mod = config
-
-        print(config_mod['agents'][self.agent_name]['lr'])
-        print(config_mod['agents'][self.agent_name]['batch_size'])
-        print(config_mod['agents'][self.agent_name]['hidden_size'])
-        print(config_mod['agents'][self.agent_name]['hidden_layer'])
 
         super().__init__(agent_name=self.agent_name, env=env, config=config_mod)
 
@@ -135,7 +131,13 @@ class TD3_discrete_vary(BaseAgent):
 
         config = cs.sample_configuration()
 
-        print(config_mod['agents'][self.agent_name])
+        print(f"sampled config: "
+              f"lr: {config['lr']}, "
+              f"batch_size: {config['batch_size']}, "
+              f"hidden_size: {config['hidden_size']}, "
+              f"hidden_layer: {config['hidden_layer']}"
+              )
+
         config_mod['agents'][self.agent_name]['lr'] = config['lr']
         config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
@@ -167,6 +169,9 @@ if __name__ == "__main__":
     with open("../default_config_cartpole.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
+    # print("turning off config sampling")
+    #config['agents']['td3_discrete_vary']['vary_hp'] = False
+
     random.seed(int(time.time()))
     np.random.seed(int(time.time()))
     torch.manual_seed(int(time.time()))
@@ -177,7 +182,6 @@ if __name__ == "__main__":
     # virt_env = env_fac.generate_virtual_env()
     real_env = env_fac.generate_real_env()
     # reward_env = env_fac.generate_reward_env()
-    print(real_env.get_min_action())
     td3 = TD3_discrete_vary(env=real_env, min_action=real_env.get_min_action(), max_action=real_env.get_max_action(), config=config)
     t1 = time.time()
     td3.train(env=real_env)

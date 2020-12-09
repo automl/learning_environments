@@ -1,16 +1,18 @@
 import datetime
-import sys
-import yaml
 import random
+import sys
 import time
-import numpy as np
-import torch
+from copy import deepcopy
+
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-from copy import deepcopy
+import numpy as np
+import torch
+import yaml
+
 from agents.TD3_discrete_vary import TD3_discrete_vary
-from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
+from envs.env_factory import EnvFactory
 
 
 class ExperimentWrapper():
@@ -24,7 +26,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -36,20 +37,20 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=224))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+        cs.add_hyperparameter(
+            CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         config["agents"]["td3"]["init_episodes"] = cso["init_episodes"]
         config["agents"]["td3"]["batch_size"] = cso["batch_size"]
-        config["agents"]["td3"]["gamma"] = 1-cso["gamma"]
+        config["agents"]["td3"]["gamma"] = 1 - cso["gamma"]
         config["agents"]["td3"]["lr"] = cso["lr"]
         config["agents"]["td3"]["tau"] = cso["tau"]
         config["agents"]["td3"]["policy_delay"] = cso["policy_delay"]
@@ -61,7 +62,6 @@ class ExperimentWrapper():
         config["agents"]["td3"]["early_out_num"] = cso["early_out_num"]
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_cartpole.yaml", 'r') as stream:
@@ -81,9 +81,13 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
+        # with BOHB, we want to specify the variation of HPs outside
+        config["agents"]["td3_discrete_vary"]["vary_hp"] = False
+
         td3 = TD3_discrete_vary(env=env,
-                  max_action=env.get_max_action(),
-                  config=config)
+                                min_action=env.get_min_action(),
+                                max_action=env.get_max_action(),
+                                config=config)
         rewards, _ = td3.train(env)
         score = len(rewards)
 
@@ -95,22 +99,22 @@ class ExperimentWrapper():
         print('----------------------------')
 
         return {
-            "loss": score,
-            "info": info
-        }
+                "loss": score,
+                "info": info
+                }
 
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_TD3_discrete_cartpole' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_TD3_discrete_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1])+int(time.time()))
-        np.random.seed(int(sys.argv[1])+int(time.time()))
-        torch.manual_seed(int(sys.argv[1])+int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
+        random.seed(int(sys.argv[1]) + int(time.time()))
+        np.random.seed(int(sys.argv[1]) + int(time.time()))
+        torch.manual_seed(int(sys.argv[1]) + int(time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1]) + int(time.time()))
         res = run_bohb_parallel(id=sys.argv[1],
                                 bohb_workers=sys.argv[2],
                                 run_id=run_id,
