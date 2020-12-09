@@ -47,13 +47,13 @@ class TD3_discrete_vary(BaseAgent):
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
 
-        self.actor = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
-        self.actor_target = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config).to(self.device)
+        self.actor = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
+        self.actor_target = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.critic_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
-        self.critic_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
-        self.critic_target_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
-        self.critic_target_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
+        self.critic_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
+        self.critic_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
+        self.critic_target_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
+        self.critic_target_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
         self.critic_target_1.load_state_dict(self.critic_1.state_dict())
         self.critic_target_2.load_state_dict(self.critic_2.state_dict())
 
