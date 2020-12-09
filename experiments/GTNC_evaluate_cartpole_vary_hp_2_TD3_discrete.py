@@ -55,24 +55,33 @@ def get_all_files(with_vary_hp):
 
 def train_test_agents(train_env, test_env, config):
     reward_list = []
+    train_steps_needed = []
 
-    for i in range(MODEL_AGENTS):  # 10
-        config['agents']['td3_discrete_vary']['vary_hp'] = True
-        config['agents']['td3_discrete_vary']['print_rate'] = 10
+    # settings for comparability
+    config['agents']['td3_discrete_vary']['vary_hp'] = True
+    config['agents']['td3_discrete_vary']['print_rate'] = 10
+    config['agents']['td3_discrete_vary']['early_out_num'] = 5
+    config['agents']['td3_discrete_vary']['train_episodes'] = 500
+    config['agents']['td3_discrete_vary']['init_episodes'] = 20
+    config['agents']['td3_discrete_vary']['test_episodes'] = 10
+
+    for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='TD3_discrete_vary')
-        agent.train(env=train_env)
+        reward_train, _ = agent.train(env=train_env)
         reward, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
+        train_steps_needed.append([(len(reward_train))])
 
-    return reward_list
+    return reward_list, train_steps_needed
 
 
-def save_reward_list(mode, config, reward_list, experiment_name=None):
+def save_lists(mode, config, reward_list, train_steps_needed, experiment_name=None):
     file_name = os.path.join(os.getcwd(), str(mode) + '_' + experiment_name + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
+    save_dict['train_steps_needed'] = train_steps_needed
     torch.save(save_dict, file_name)
 
 
@@ -87,6 +96,7 @@ def run_vary_hp(mode, experiment_name):
         with_vary_hp = True
 
     reward_list = []
+    train_steps_needed = []
 
     if not train_on_venv:
         file_name = os.listdir(MODEL_DIR)[0]
@@ -94,7 +104,9 @@ def run_vary_hp(mode, experiment_name):
 
         for i in range(MODEL_NUM):  # 40
             print('train on {}-th environment'.format(i))
-            reward_list += train_test_agents(train_env=real_env, test_env=real_env, config=config)
+            reward_list_i, train_steps_needed_i = train_test_agents(train_env=real_env, test_env=real_env, config=config)
+            reward_list += reward_list_i
+            train_steps_needed += train_steps_needed_i
 
     else:
         file_list = get_all_files(with_vary_hp=with_vary_hp)
@@ -102,9 +114,11 @@ def run_vary_hp(mode, experiment_name):
         for file_name in file_list:
             virtual_env, real_env, config = load_envs_and_config(file_name)
             print('train agents on ' + str(file_name))
-            reward_list += train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
+            reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
+            reward_list += reward_list_i
+            train_steps_needed += train_steps_needed_i
 
-    save_reward_list(mode=mode, config=config, reward_list=reward_list, experiment_name=experiment_name)
+    save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
 
 
 if __name__ == "__main__":

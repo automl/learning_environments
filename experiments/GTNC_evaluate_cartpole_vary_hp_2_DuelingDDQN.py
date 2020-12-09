@@ -59,17 +59,17 @@ def train_test_agents(train_env, test_env, config):
     reward_list = []
     train_steps_needed = []
 
-    for i in range(MODEL_AGENTS):
-        # settings for comparability
-        config['agents']['duelingddqn_vary']['vary_hp'] = True
-        config['agents']['duelingddqn']['print_rate'] = 10
-        config['agents']['duelingddqn']['early_out_num'] = 10
-        config['agents']['duelingddqn']['train_episodes'] = 1000
-        config['agents']['duelingddqn']['init_episodes'] = 10
-        config['agents']['duelingddqn']['test_episodes'] = 10
-        config['agents']['duelingddqn']['early_out_virtual_diff'] = 0.01
-        config['agents']['duelingddqn']['batch_size'] = 128
+    # settings for comparability
+    config['agents']['duelingddqn_vary']['vary_hp'] = True
+    config['agents']['duelingddqn']['print_rate'] = 10
+    config['agents']['duelingddqn']['early_out_num'] = 10
+    config['agents']['duelingddqn']['train_episodes'] = 1000
+    config['agents']['duelingddqn']['init_episodes'] = 10
+    config['agents']['duelingddqn']['test_episodes'] = 10
+    config['agents']['duelingddqn']['early_out_virtual_diff'] = 0.01
+    config['agents']['duelingddqn']['batch_size'] = 128
 
+    for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='DuelingDDQN_vary')
         reward_train, _ = agent.train(env=train_env)
         reward, _ = agent.test(env=test_env)
