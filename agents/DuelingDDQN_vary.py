@@ -51,8 +51,8 @@ class DuelingDDQN_vary(DuelingDDQN):
                               )
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size',
-                                                               lower=int(hidden_size / 3),
-                                                               upper=int(hidden_size * 3),
+                                                               lower=int(batch_size / 3),
+                                                               upper=int(batch_size * 3),
                                                                log=True,
                                                                default_value=batch_size)
                               )
