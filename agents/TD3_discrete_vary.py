@@ -18,9 +18,6 @@ class TD3_discrete_vary(BaseAgent):
     def __init__(self, env, min_action, max_action, config):
         self.agent_name = 'td3_discrete_vary'
 
-        # todo: remove
-        config['agents']['td3_discrete_vary']['vary_hp'] = False
-
         if config["agents"]["td3_discrete_vary"]["vary_hp"]:
             config_mod = copy.deepcopy(config)
             config_mod = self.vary_hyperparameters(config_mod)

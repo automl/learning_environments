@@ -95,6 +95,7 @@ agents:
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
     use_layer_norm: !!bool True             # whether all NNs should use a layer norm layer after each linear layer
     sigmoid_last_layer: !!bool False      # whether a sigmoid or tanh layer should be used in the actor and target net
+    vary_hp: !!bool True                    # vary hyperparameters of underlying TD3 algorithm?
 
 envs:
   Acrobot-v1:
