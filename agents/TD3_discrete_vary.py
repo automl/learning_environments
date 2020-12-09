@@ -33,7 +33,7 @@ class TD3_discrete_vary(BaseAgent):
 
         self.action_dim = 1  # due to API
 
-        td3_config = config["agents"][self.agent_name]
+        td3_config = config_mod["agents"][self.agent_name]
 
         self.max_action = max_action
         self.min_action = min_action
