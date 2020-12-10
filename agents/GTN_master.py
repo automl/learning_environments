@@ -121,9 +121,9 @@ class GTN_Master(GTN_Base):
 
         # error handling
         if len(mean_score_orig_list) > 0:
-            return np.mean(self.score_orig_list), mean_score_orig_list
+            return np.mean(self.score_orig_list), mean_score_orig_list, self.model_name
         else:
-            return 1e9, mean_score_orig_list
+            return 1e9, mean_score_orig_list, self.model_name
 
 
     def save_good_model(self, mean_score):

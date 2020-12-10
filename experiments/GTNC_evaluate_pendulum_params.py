@@ -103,12 +103,13 @@ class ExperimentWrapper():
 
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
-            _, score_list = gtn.run()
-            score = statistics.mean(sorted(score_list, reverse=True)[0:3])
+            _, score_list, model_name = gtn.run()
+            score = -sorted(score_list)[-1]
             error = ""
         except:
             score = float('-Inf')
             score_list = []
+            model_name = None
             error = traceback.format_exc()
             print(error)
 
@@ -116,6 +117,8 @@ class ExperimentWrapper():
         info['error'] = str(error)
         info['config'] = str(config)
         info['score_list'] = str(score_list)
+        info['model_name'] = str(model_name)
+
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))

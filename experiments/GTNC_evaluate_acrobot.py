@@ -27,7 +27,6 @@ class ExperimentWrapper():
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
-
         return cs
 
 
@@ -51,18 +50,20 @@ class ExperimentWrapper():
 
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id)
-            _, score_list = gtn.run()
+            _, score_list, model_name = gtn.run()
             score = len(score_list)
             error = ""
         except:
             score = float('Inf')
             score_list = []
+            model_name = None
             error = traceback.format_exc()
             print(error)
 
         info = {}
         info['error'] = str(error)
         info['score_list'] = str(score_list)
+        info['model_name'] = str(model_name)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
