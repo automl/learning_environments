@@ -88,7 +88,7 @@ class BaseAgent(nn.Module):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action)
+                next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward

@@ -13,9 +13,7 @@ class EnvWrapper(nn.Module):
         self.env = env
         self.same_action_num = None
 
-    def step(self, action, state=None):
-        same_action_num = 1
-
+    def step(self, action, state=None, same_action_num=1):
         if self.is_virtual_env():
             reward_sum = None
 
