@@ -97,7 +97,7 @@ class ExperimentWrapper():
         try:
             score = 0
             for _ in range(3):
-                gtn = GTN_Master(config, bohb_id=bohb_id)
+                gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
                 _, score_list = gtn.run()
                 score += len(score_list)
             error = ""
