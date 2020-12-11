@@ -128,15 +128,12 @@ class GTN_Master(GTN_Base):
 
     def save_good_model(self, mean_score):
         if self.synthetic_env_orig.is_virtual_env():
-            if mean_score > self.real_env.get_solved_reward():
+            if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
                 self.save_model()
+                self.best_score = mean_score
                 return True
         else:
-            if not self.real_env.can_be_solved():
-                if mean_score > self.best_score:
-                    self.save_model()
-                    self.best_score = mean_score
-            elif mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
+            if mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
 
