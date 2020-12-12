@@ -11,12 +11,17 @@ import torch
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on'
 # plot_name = 'cartpole_ddqn_vary_hp.svg'
+# title = "Trained synth. env. with DDQN"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary'
 # plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp.svg'
+# title = "Train & evaluate Dueling DDQN on DDQN-trained synth. env."
+# title = "Transfer DDQN -> Dueling DDQN"
 
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
 plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp.svg'
+title = "Train & evaluate TD3 on DDQN-trained synth. env."
+
 
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 #FILE_LIST = ['0.pt', '1.pt']
@@ -47,15 +52,11 @@ if __name__ == "__main__":
     data_dict = {
             'train: real  / HP: vary\n(mean train steps: {:.2f}$\pm${:.2f})'.format(train_steps_needed_means[0], train_steps_needed_stds[0]):
                 data_list[0],
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})'.format(train_steps_needed_means[1], train_steps_needed_stds[1]): data_list[1],
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(train_steps_needed_means[2], train_steps_needed_stds[2]): data_list[2]
+            #'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})'.format(train_steps_needed_means[1], train_steps_needed_stds[1]): data_list[1],
+            #'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(train_steps_needed_means[2], train_steps_needed_stds[2]):
+            # data_list[2]
             }
 
-    # data_dict = {
-    #         'train: real  / HP: vary\n(mean train steps: {:.2f}$\pm${:.2f})'.format(train_steps_needed_means[0], train_steps_needed_stds[0]):
-    #             data_list[0],
-    #         'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(train_steps_needed_means[1], train_steps_needed_stds[1]): data_list[1]
-    #         }
 
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
@@ -65,10 +66,11 @@ if __name__ == "__main__":
             "axes.labelsize": 8
             })
     ax = sns.violinplot(data=df, cut=0, inner=None)
-    plt.ylabel('cumulative reward')
+    #ax = sns.violinplot(data=df, cut=0, inner=None).set_title(title, y=1.05)
+    plt.ylabel(title + '\ncumulative reward')
 
     for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
         plt.text(x, y, mean, ha='center', va='center')
 
-    plt.savefig(plot_name, bbox_inches='tight')
+    plt.savefig(os.path.join(FILE_DIR, plot_name), bbox_inches='tight')
     plt.show()

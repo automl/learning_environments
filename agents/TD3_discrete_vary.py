@@ -11,7 +11,7 @@ import yaml
 
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
-from models.actor_critic import Actor_TD3, Critic_Q
+from models.actor_critic import Actor_TD3_discrete, Critic_Q
 
 
 class TD3_discrete_vary(BaseAgent):
@@ -27,7 +27,8 @@ class TD3_discrete_vary(BaseAgent):
 
         super().__init__(agent_name=self.agent_name, env=env, config=config_mod)
 
-        self.action_dim = 1  # due to API
+        # todo: change
+        self.action_dim = 2  # due to API
 
         td3_config = config_mod["agents"][self.agent_name]
 
@@ -43,8 +44,8 @@ class TD3_discrete_vary(BaseAgent):
         self.policy_std = td3_config["policy_std"]
         self.policy_std_clip = td3_config["policy_std_clip"]
 
-        self.actor = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
-        self.actor_target = Actor_TD3(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
+        self.actor = Actor_TD3_discrete(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
+        self.actor_target = Actor_TD3_discrete(self.state_dim, self.action_dim, max_action, self.agent_name, config_mod).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.critic_1 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
         self.critic_2 = Critic_Q(self.state_dim, self.action_dim, self.agent_name, config_mod).to(self.device)
@@ -66,9 +67,8 @@ class TD3_discrete_vary(BaseAgent):
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
             noise = (torch.randn_like(actions) * self.policy_std
-                     ).clamp(-self.policy_std_clip, self.policy_std_clip)
-            next_actions = torch.round((self.actor_target(next_states) + noise
-                                        ).clamp(self.min_action, self.max_action))
+                    ).clamp(-self.policy_std_clip, self.policy_std_clip)
+            next_actions = self.actor_target(next_states) + noise
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
@@ -143,20 +143,21 @@ class TD3_discrete_vary(BaseAgent):
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 
+        print(config_mod['agents'][self.agent_name])
         return config_mod
 
     def select_train_action(self, state, env, episode):
         if episode < self.init_episodes:
-            return env.get_random_action()
+            action = env.get_random_action()
+            diag = torch.eye(self.action_dim)
+            return diag[action.long()]  # for CartPole: 0 -> [1,0], 1 -> [0,1]
         else:
-            return torch.round((self.actor(state.to(self.device)).cpu() +
-                                  (torch.randn(self.action_dim) * self.action_std).clamp(self.min_action, self.max_action))
-                               .clamp(self.min_action, self.max_action))
+            action = self.actor(state).to(self.device).cpu()
+            return action + (torch.randn(self.action_dim) * self.action_std)
 
     def select_test_action(self, state, env):
-        return torch.round((self.actor(state.to(self.device)).cpu() +
-                            (torch.randn(self.action_dim) * self.action_std).clamp(self.min_action, self.max_action)).
-                           clamp(self.min_action, self.max_action))
+        action = self.actor(state).to(self.device).cpu()
+        return action + (torch.randn(self.action_dim) * self.action_std)
 
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
@@ -166,11 +167,11 @@ class TD3_discrete_vary(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_acrobot.yaml", "r") as stream:
+    with open("../default_config_cartpole.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # print("turning off config sampling")
-    #config['agents']['td3_discrete_vary']['vary_hp'] = False
+    # config['agents']['td3_discrete_vary']['vary_hp'] = False
 
     random.seed(int(time.time()))
     np.random.seed(int(time.time()))

@@ -57,8 +57,19 @@ class BaseAgent(nn.Module):
     def train(self, env, time_remaining=1e9):
         time_start = time.time()
 
+        discretize_action = False
+
         sd = 1 if env.has_discrete_state_space() else self.state_dim
-        ad = 1 if env.has_discrete_action_space() else self.action_dim
+
+        if env.has_discrete_action_space():
+            ad = 1
+            # action_dim of the env does not always reflect the action_dim the agent is operating over (e.g. CartPole)
+            if self.agent_name == "td3_discrete_vary":
+                ad += 1
+                discretize_action = True
+        else:
+            ad = self.action_dim
+
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
@@ -88,7 +99,11 @@ class BaseAgent(nn.Module):
                     env.render()
 
                 # state-action transition
-                next_state, reward, done = env.step(action=action)
+                # required due to gumble softmax in td3 discrete
+                if discretize_action:
+                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
+                else:
+                    next_state, reward, done = env.step(action=action)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
@@ -115,8 +130,19 @@ class BaseAgent(nn.Module):
 
 
     def test(self, env, time_remaining=1e9):
+        discretize_action = False
+
         sd = 1 if env.has_discrete_state_space() else self.state_dim
-        ad = 1 if env.has_discrete_action_space() else self.action_dim
+
+        if env.has_discrete_action_space():
+            ad = 1
+            # action_dim of the env does not always reflect the action_dim the agent is operating over (e.g. CartPole)
+            if self.agent_name == "td3_discrete_vary":
+                ad += 1
+                discretize_action = True
+        else:
+            ad = self.action_dim
+
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=int(1e6))
 
         env.set_agent_params(same_action_num=self.same_action_num, gamma=self.gamma)
@@ -146,7 +172,11 @@ class BaseAgent(nn.Module):
                         env.render()
 
                     # state-action transition
-                    next_state, reward, done = env.step(action=action)
+                    # required due to gumble softmax in td3 discrete
+                    if discretize_action:
+                        next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
+                    else:
+                        next_state, reward, done = env.step(action=action)
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                     state = next_state
                     episode_reward += reward

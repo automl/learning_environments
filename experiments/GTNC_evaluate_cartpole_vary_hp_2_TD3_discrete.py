@@ -59,7 +59,7 @@ def train_test_agents(train_env, test_env, config):
 
     # settings for comparability
     config['agents']['td3_discrete_vary']['vary_hp'] = True
-    config['agents']['td3_discrete_vary']['print_rate'] = 10
+    config['agents']['td3_discrete_vary']['print_rate'] = 1
     config['agents']['td3_discrete_vary']['early_out_num'] = 10
     config['agents']['td3_discrete_vary']['train_episodes'] = 1000
     config['agents']['td3_discrete_vary']['init_episodes'] = 10
@@ -113,6 +113,7 @@ def run_vary_hp(mode, experiment_name):
         file_list = get_all_files(with_vary_hp=with_vary_hp)
 
         for file_name in file_list:
+            # if "CartPole-v0_21_10LTTY.pt" in file_name:
             virtual_env, real_env, config = load_envs_and_config(file_name)
             print('train agents on ' + str(file_name))
             reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
@@ -123,7 +124,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_vary_transfer"
+    experiment_name = "ddqn_to_td3_discrete_vary_transfer_no_layer_norm"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

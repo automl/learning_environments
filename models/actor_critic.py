@@ -2,6 +2,7 @@ import copy
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.distributions.normal import Normal
 
 from models.model_utils import build_nn_from_config
@@ -11,20 +12,25 @@ class Actor_TD3(nn.Module):
     def __init__(self, state_dim, action_dim, max_action, agent_name, config):
         super().__init__()
 
-        self.activation_last = torch.tanh
-
-        try:
-            use_sigmoid_layer = config["agents"][agent_name]["sigmoid_last_layer"]
-            if use_sigmoid_layer:
-                self.activation_last = torch.sigmoid
-        except KeyError:
-            pass
-
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
         self.max_action = max_action
 
     def forward(self, state):
-        return self.activation_last(self.net(state)) * self.max_action
+        return torch.tanh(self.net(state)) * self.max_action
+
+
+class Actor_TD3_discrete(nn.Module):
+    def __init__(self, state_dim, action_dim, max_action, agent_name, config):
+        super().__init__()
+
+        self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
+        self.max_action = max_action
+        self.gumbel_softmax_temp = config["agents"][agent_name]["gumbel_softmax_temp"]
+        self.gumbel_softmax_hard = config["agents"][agent_name]["gumbel_softmax_hard"]
+
+    def forward(self, state):
+        action = self.net(state) * self.max_action
+        return F.gumbel_softmax(action, tau=self.gumbel_softmax_temp, hard=self.gumbel_softmax_hard)
 
 
 class Actor_PPO(nn.Module):

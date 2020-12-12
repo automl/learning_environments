@@ -69,8 +69,8 @@ agents:
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
     feature_dim: !!int 128                  # n. of dimensions of the latent feature vector for value & adv. stream
-    print_rate: 1                           # update rate of avg meters
-    early_out_num: 10                        # based on how many training steps shall an early out happen
+    print_rate: !!int 1                     # update rate of avg meters
+    early_out_num: !!int 10                 # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
   td3_discrete_vary:
@@ -90,12 +90,12 @@ agents:
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1                           # update rate of avg meters
-    early_out_num: !!int 10                  # based on how many training steps shall an early out happen
+    print_rate: !!int 10                    # update rate of avg meters
+    early_out_num: !!int 10                 # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
-    use_layer_norm: !!bool True             # whether all NNs should use a layer norm layer after each linear layer
-    sigmoid_last_layer: !!bool True         # whether a sigmoid or tanh layer should be used in the actor and target net
-    vary_hp: !!bool True                    # vary hyperparameters of underlying TD3 algorithm?
+    gumbel_softmax_temp: !!float 0.8        # controls the level of soft-discretization of cont. distribution
+    gumbel_softmax_hard: !!bool False       # whether the returned samples should be discretized as one-hot vectors
+    vary_hp: !!bool False                   # vary hyperparameters of underlying TD3 algorithm?
 
 envs:
   CartPole-v0:

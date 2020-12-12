@@ -42,7 +42,9 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='use_layer_norm', choices=[True, False], default_value=True))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gumbel_softmax_hard', choices=[True, False], default_value=False))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gumbel_softmax_temp', lower=0.001, upper=10, log=True,
+                                                             default_value=0.5))
 
         return cs
 
@@ -61,7 +63,8 @@ class ExperimentWrapper():
         config["agents"]["td3_discrete_vary"]["action_std"] = cso["action_std"]
         config["agents"]["td3_discrete_vary"]["policy_std"] = cso["policy_std"]
         config["agents"]["td3_discrete_vary"]["early_out_num"] = cso["early_out_num"]
-        config["agents"]["td3_discrete_vary"]["use_layer_norm"] = cso["use_layer_norm"]
+        config["agents"]["td3_discrete_vary"]["gumbel_softmax_temp"] = cso["gumbel_softmax_temp"]
+        config["agents"]["td3_discrete_vary"]["gumbel_softmax_hard"] = cso["gumbel_softmax_hard"]
 
         return config
 
@@ -108,7 +111,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_TD3_discrete_cartpole_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_TD3_discrete_gumbel_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
