@@ -15,6 +15,7 @@ from models.actor_critic import Actor_TD3_discrete, Critic_Q
 
 
 class TD3_discrete_vary(BaseAgent):
+    # todo: check when getting to Acrobot if min_action is still required with gumbel
     def __init__(self, env, min_action, max_action, config):
         self.agent_name = 'td3_discrete_vary'
 
@@ -27,8 +28,8 @@ class TD3_discrete_vary(BaseAgent):
 
         super().__init__(agent_name=self.agent_name, env=env, config=config_mod)
 
-        # todo: change
-        self.action_dim = 2  # due to API
+        # hacky but due to API
+        self.action_dim = 2
 
         td3_config = config_mod["agents"][self.agent_name]
 
@@ -131,7 +132,7 @@ class TD3_discrete_vary(BaseAgent):
 
         config = cs.sample_configuration()
 
-        print(f"sampled config: "
+        print(f"sampled part of config: "
               f"lr: {config['lr']}, "
               f"batch_size: {config['batch_size']}, "
               f"hidden_size: {config['hidden_size']}, "
@@ -143,7 +144,8 @@ class TD3_discrete_vary(BaseAgent):
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 
-        print(config_mod['agents'][self.agent_name])
+        print("full config: ", config_mod['agents'][self.agent_name])
+
         return config_mod
 
     def select_train_action(self, state, env, episode):
@@ -152,11 +154,11 @@ class TD3_discrete_vary(BaseAgent):
             diag = torch.eye(self.action_dim)
             return diag[action.long()]  # for CartPole: 0 -> [1,0], 1 -> [0,1]
         else:
-            action = self.actor(state).to(self.device).cpu()
+            action = self.actor(state.to(self.device)).cpu()
             return action + (torch.randn(self.action_dim) * self.action_std)
 
     def select_test_action(self, state, env):
-        action = self.actor(state).to(self.device).cpu()
+        action = self.actor(state.to(self.device)).cpu()
         return action + (torch.randn(self.action_dim) * self.action_std)
 
     def reset_optimizer(self):
@@ -186,5 +188,6 @@ if __name__ == "__main__":
     td3 = TD3_discrete_vary(env=real_env, min_action=real_env.get_min_action(), max_action=real_env.get_max_action(), config=config)
     t1 = time.time()
     td3.train(env=real_env)
-    print(time.time() - t1)
+    td3.test(env=real_env)
+    print("time in s: ", time.time() - t1)
     # td3.train(env=virt_env, time_remaining=5)

@@ -1,6 +1,8 @@
 import time
+
 import torch
 import torch.nn as nn
+
 from utils import AverageMeter, ReplayBuffer
 
 
@@ -24,7 +26,6 @@ class BaseAgent(nn.Module):
         self.render_env = config["render_env"]
         self.device = config["device"]
 
-
     def time_is_up(self, avg_meter_reward, max_episodes, time_elapsed, time_remaining):
         if time_elapsed > time_remaining:
             print("timeout")
@@ -37,22 +38,20 @@ class BaseAgent(nn.Module):
         else:
             return False
 
-
     def env_solved(self, env, avg_meter_reward, episode):
         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
         avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
         if env.is_virtual_env():
             if abs(avg_reward - avg_reward_last) / abs(avg_reward_last + 1e-9) < self.early_out_virtual_diff and \
                     episode > self.init_episodes + self.early_out_num:
-                #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                # print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
         else:
             if avg_reward >= env.get_solved_reward() and episode > self.init_episodes:
-                #print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                # print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 
         return False
-
 
     def train(self, env, time_remaining=1e9):
         time_start = time.time()
@@ -125,9 +124,6 @@ class BaseAgent(nn.Module):
         env.close()
 
         return avg_meter_reward.get_raw_data(), replay_buffer
-
-
-
 
     def test(self, env, time_remaining=1e9):
         discretize_action = False

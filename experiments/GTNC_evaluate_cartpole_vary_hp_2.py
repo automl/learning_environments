@@ -1,16 +1,18 @@
 import os
 import sys
+
 import torch
-from envs.env_factory import EnvFactory
+
 from agents.agent_utils import select_agent
+from envs.env_factory import EnvFactory
 
 MODEL_NUM = 40
 MODEL_AGENTS = 10
 # local machine
-#MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
+# MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole
+# -v0'
 # cluster
 MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-
 
 
 def load_envs_and_config(file_name):
@@ -24,7 +26,6 @@ def load_envs_and_config(file_name):
     real_env = env_factory.generate_real_env()
 
     return virtual_env, real_env, config
-
 
 
 def get_all_files(with_vary_hp):
@@ -112,7 +113,6 @@ def run_vary_hp(mode, experiment_name):
             train_steps_needed += train_steps_needed_i
 
     save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
-
 
 
 if __name__ == "__main__":

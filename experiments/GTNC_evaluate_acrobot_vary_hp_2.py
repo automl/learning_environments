@@ -1,6 +1,6 @@
 import os
 import sys
-import yaml
+
 import torch
 
 from agents.agent_utils import select_agent
@@ -9,28 +9,21 @@ from envs.env_factory import EnvFactory
 MODEL_NUM = 40
 MODEL_AGENTS = 10
 # local machine
-# MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
+# MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole
+# -v0'
 # cluster
-MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
+MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_2020-12-10-12/GTN_models_Acrobot-v1'
 
 
 def load_envs_and_config(file_name):
     file_path = os.path.join(MODEL_DIR, file_name)
     save_dict = torch.load(file_path)
     config = save_dict['config']
-    config['device'] = 'cpu'
+    config['device'] = 'cuda'
     env_factory = EnvFactory(config=config)
     virtual_env = env_factory.generate_virtual_env()
     virtual_env.load_state_dict(save_dict['model'])
     real_env = env_factory.generate_real_env()
-
-    # load additional agent configs
-    print("added td3 agent in a hacky way - caution!")
-    with open("../default_config_cartpole.yaml", "r") as stream:
-        config_new = yaml.safe_load(stream)["agents"]
-
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
-    #config["agents"]["duelingddqn_vary"] = config_new["duelingddqn_vary"]
 
     return virtual_env, real_env, config
 
@@ -38,7 +31,7 @@ def load_envs_and_config(file_name):
 def get_all_files(with_vary_hp):
     file_list = []
     for file_name in os.listdir(MODEL_DIR):
-        if 'CartPole' not in file_name:
+        if 'Acrobot' not in file_name:
             continue
 
         _, _, config = load_envs_and_config(file_name)
@@ -58,16 +51,16 @@ def train_test_agents(train_env, test_env, config):
     train_steps_needed = []
 
     # settings for comparability
-    config['agents']['td3_discrete_vary']['vary_hp'] = True
-    config['agents']['td3_discrete_vary']['print_rate'] = 1
-    config['agents']['td3_discrete_vary']['early_out_num'] = 10
-    config['agents']['td3_discrete_vary']['train_episodes'] = 1000
-    config['agents']['td3_discrete_vary']['init_episodes'] = 10
-    config['agents']['td3_discrete_vary']['test_episodes'] = 10
-    config['agents']['td3_discrete_vary']['early_out_virtual_diff'] = 0.01
+    config['agents']['ddqn_vary']['vary_hp'] = True
+    config['agents']['ddqn']['print_rate'] = 10
+    config['agents']['ddqn']['early_out_num'] = 10
+    config['agents']['ddqn']['train_episodes'] = 1000
+    config['agents']['ddqn']['init_episodes'] = 10
+    config['agents']['ddqn']['test_episodes'] = 10
+    config['agents']['ddqn']['early_out_virtual_diff'] = 0.01
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='TD3_discrete_vary')
+        agent = select_agent(config=config, agent_name='DDQN_vary')
         reward_train, _ = agent.train(env=train_env)
         reward, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
@@ -103,7 +96,7 @@ def run_vary_hp(mode, experiment_name):
         file_name = os.listdir(MODEL_DIR)[0]
         _, real_env, config = load_envs_and_config(file_name)
 
-        for i in range(MODEL_NUM):  # 40
+        for i in range(MODEL_NUM):
             print('train on {}-th environment'.format(i))
             reward_list_i, train_steps_needed_i = train_test_agents(train_env=real_env, test_env=real_env, config=config)
             reward_list += reward_list_i
@@ -113,7 +106,6 @@ def run_vary_hp(mode, experiment_name):
         file_list = get_all_files(with_vary_hp=with_vary_hp)
 
         for file_name in file_list:
-            # if "CartPole-v0_21_10LTTY.pt" in file_name:
             virtual_env, real_env, config = load_envs_and_config(file_name)
             print('train agents on ' + str(file_name))
             reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
@@ -124,7 +116,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer"
+    experiment_name = "ddqn_vary_acrobot"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

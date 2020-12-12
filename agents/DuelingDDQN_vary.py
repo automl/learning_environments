@@ -58,7 +58,7 @@ class DuelingDDQN_vary(DuelingDDQN):
 
         config = cs.sample_configuration()
 
-        print(f"sampled config: "
+        print(f"sampled part of config: "
               f"lr: {config['lr']}, "
               f"batch_size: {config['batch_size']}, "
               f"hidden_size: {config['hidden_size']}, "
@@ -69,6 +69,8 @@ class DuelingDDQN_vary(DuelingDDQN):
         config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
+
+        print("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 

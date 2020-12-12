@@ -1,9 +1,10 @@
-import yaml
-import torch
-import time
 import copy
+
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
+import torch
+import yaml
+
 from agents.DDQN import DDQN
 from envs.env_factory import EnvFactory
 
@@ -18,13 +19,7 @@ class DDQN_vary(DDQN):
         else:
             config_mod = config
 
-        print(config_mod['agents'][self.agent_name]['lr'])
-        print(config_mod['agents'][self.agent_name]['batch_size'])
-        print(config_mod['agents'][self.agent_name]['hidden_size'])
-        print(config_mod['agents'][self.agent_name]['hidden_layer'])
-
         super().__init__(env=env, config=config_mod)
-
 
     def vary_hyperparameters(self, config_mod):
 
@@ -34,18 +29,32 @@ class DDQN_vary(DDQN):
         hidden_layer = config_mod['agents'][self.agent_name]['hidden_layer']
 
         cs = CS.ConfigurationSpace()
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=lr/3, upper=lr*3, log=True, default_value=lr))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(hidden_size/3), upper=int(hidden_size*3), log=True, default_value=batch_size))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size/3), upper=int(hidden_size*3), log=True, default_value=hidden_size))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=hidden_layer-1, upper=hidden_layer+1, log=False, default_value=hidden_layer))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=lr / 3, upper=lr * 3, log=True, default_value=lr))
+        cs.add_hyperparameter(
+            CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,
+                                             default_value=batch_size))
+        cs.add_hyperparameter(
+            CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,
+                                             default_value=hidden_size))
+        cs.add_hyperparameter(
+            CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=hidden_layer - 1, upper=hidden_layer + 1, log=False,
+                                             default_value=hidden_layer))
 
         config = cs.sample_configuration()
 
-        print(config_mod['agents'][self.agent_name])
+        print(f"sampled part of config: "
+              f"lr: {config['lr']}, "
+              f"batch_size: {config['batch_size']}, "
+              f"hidden_size: {config['hidden_size']}, "
+              f"hidden_layer: {config['hidden_layer']}"
+              )
+
         config_mod['agents'][self.agent_name]['lr'] = config['lr']
         config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
+
+        print("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 
@@ -64,10 +73,9 @@ if __name__ == "__main__":
     timing = []
     for i in range(10):
         ddqn = DDQN_vary(env=real_env, config=config)
-        #ddqn.train(env=virt_env, time_remaining=50)
+        # ddqn.train(env=virt_env, time_remaining=50)
         print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
-        #print('TEST')
-        #reward_list = ddqn.test(env=real_env, time_remaining=500)
-    print('avg. ' + str(sum(timing)/len(timing)))
-
+        # print('TEST')
+        # reward_list = ddqn.test(env=real_env, time_remaining=500)
+    print('avg. ' + str(sum(timing) / len(timing)))
