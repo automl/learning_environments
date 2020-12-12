@@ -12,7 +12,7 @@ MODEL_AGENTS = 10
 # MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole
 # -v0'
 # cluster
-MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_2020-12-10-12/GTN_models_Acrobot-v1'
+MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13/GTN_models_Acrobot-v1'
 
 
 def load_envs_and_config(file_name):
