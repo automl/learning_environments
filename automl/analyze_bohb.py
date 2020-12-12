@@ -77,7 +77,7 @@ def analyze_bohb(log_dir):
 
     plot_parallel_scatter(result)
 
-    #plt.savefig("bohb_td3_discrete_cartpole.png")
+    plt.savefig("bohb_td3_discrete_cartpole_gumbel_softmax.png")
     plt.show()
 
 
@@ -160,7 +160,11 @@ def remove_outliers(result):
         if not math.isfinite(lut[i][0]) or lut[i][0] == 0:
             lut[i][0] = worst_loss
             for key in result.data[lut[i][1]].results.keys():
-                result.data[lut[i][1]].results[key]['loss'] = worst_loss
+                # hacky but sometimes some budgets are missing (presumably when terminating ongoing runs)
+                if result.data[lut[i][1]].results[key] is None:
+                    continue
+                else:
+                    result.data[lut[i][1]].results[key]['loss'] = worst_loss
             #result.data.pop(elem[1], None)
 
     lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
@@ -395,7 +399,9 @@ if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
-    log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
+    # log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
+    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"
+    # log_dir = "../results/bohb_params_DuelingDDQN_cartpole_2020-12-05-15"
     analyze_bohb(log_dir)
 
 
