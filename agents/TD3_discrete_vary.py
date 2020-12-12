@@ -29,7 +29,7 @@ class TD3_discrete_vary(BaseAgent):
         super().__init__(agent_name=self.agent_name, env=env, config=config_mod)
 
         # hacky but due to API
-        self.action_dim = 2
+        #self.action_dim = env.get_action_dim()
 
         td3_config = config_mod["agents"][self.agent_name]
 

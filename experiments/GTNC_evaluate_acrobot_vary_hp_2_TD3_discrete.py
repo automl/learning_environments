@@ -113,7 +113,6 @@ def run_vary_hp(mode, experiment_name):
         file_list = get_all_files(with_vary_hp=with_vary_hp)
 
         for file_name in file_list:
-            # if "CartPole-v0_21_10LTTY.pt" in file_name:
             virtual_env, real_env, config = load_envs_and_config(file_name)
             print('train agents on ' + str(file_name))
             reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)

@@ -12,11 +12,11 @@ from utils import to_one_hot_encoding
 
 class DuelingDDQN(BaseAgent):
     def __init__(self, env, config):
-        agent_name = "duelingddqn"
+        self.agent_name = "duelingddqn"
 
-        super().__init__(agent_name=agent_name, env=env, config=config)
+        super().__init__(agent_name=self.agent_name, env=env, config=config)
 
-        ddqn_config = config["agents"][agent_name]
+        ddqn_config = config["agents"][self.agent_name]
 
         self.batch_size = ddqn_config["batch_size"]
         self.rb_size = ddqn_config["rb_size"]
@@ -28,8 +28,8 @@ class DuelingDDQN(BaseAgent):
         self.eps_min = ddqn_config["eps_min"]
         self.eps_decay = ddqn_config["eps_decay"]
 
-        self.model = Critic_DuelingDQN(self.state_dim, self.action_dim, agent_name, config).to(self.device)
-        self.model_target = Critic_DuelingDQN(self.state_dim, self.action_dim, agent_name, config).to(self.device)
+        self.model = Critic_DuelingDQN(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
+        self.model_target = Critic_DuelingDQN(self.state_dim, self.action_dim, self.agent_name, config).to(self.device)
         self.model_target.load_state_dict(self.model.state_dict())
 
         self.reset_optimizer()

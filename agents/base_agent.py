@@ -62,9 +62,9 @@ class BaseAgent(nn.Module):
 
         if env.has_discrete_action_space():
             ad = 1
-            # action_dim of the env does not always reflect the action_dim the agent is operating over (e.g. CartPole)
+            # in case of td3_discrete, action_dim=1 does not reflect the required action_dim for the gumbel softmax distribution
             if self.agent_name == "td3_discrete_vary":
-                ad += 1
+                ad = env.get_action_dim()
                 discretize_action = True
         else:
             ad = self.action_dim
@@ -134,7 +134,7 @@ class BaseAgent(nn.Module):
             ad = 1
             # action_dim of the env does not always reflect the action_dim the agent is operating over (e.g. CartPole)
             if self.agent_name == "td3_discrete_vary":
-                ad += 1
+                ad = env.env.action_space.n
                 discretize_action = True
         else:
             ad = self.action_dim

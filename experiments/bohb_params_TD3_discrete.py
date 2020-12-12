@@ -37,8 +37,10 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=224))
+        # cs.add_hyperparameter(
+        #     CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(
-            CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+            CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
@@ -111,7 +113,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_TD3_discrete_gumbel_cartpole_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
