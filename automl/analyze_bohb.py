@@ -77,7 +77,7 @@ def analyze_bohb(log_dir):
 
     plot_parallel_scatter(result)
 
-    plt.savefig("bohb_td3_discrete_cartpole_gumbel_softmax_no_tanh.png")
+    plt.savefig("../experiments/automl/bohb_td3_discrete_cartpole_gumbel_softmax_learned_temp.png")
     plt.show()
 
 
@@ -401,9 +401,15 @@ if __name__ == '__main__':
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     # log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
     # log_dir = "../results/bohb_params_DuelingDDQN_cartpole_2020-12-05-15"
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"
-    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_2020-12-12-21"
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"             # temp not learned, with tanh
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_2020-12-12-21"     # temp not learned, no tanh
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_2020-12-13-02"  # temp learned, with tanh
+
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_with_tanh2020-12-13-12"  # early out=10, temp learned, with tanh
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_no_tanh2020-12-13-13"  # early out=10, temp_learned, no tanh
+    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_early_out_10_no_tanh2020-12-13-13"  # early out = 10, temp not learned, no tanh
     analyze_bohb(log_dir)
+
 
 
 
