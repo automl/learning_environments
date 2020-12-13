@@ -121,6 +121,9 @@ class BaseAgent(nn.Module):
             if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
                 break
 
+            # if episode % self.print_rate == 0:
+            #     print(self.actor.gumbel_softmax_temp.item())
+
         env.close()
 
         return avg_meter_reward.get_raw_data(), replay_buffer

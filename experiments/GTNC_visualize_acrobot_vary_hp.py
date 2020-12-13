@@ -69,7 +69,7 @@ if __name__ == "__main__":
     #ax = sns.violinplot(data=df, cut=0, inner=None).set_title(title, y=1.05)
     plt.ylabel(title + '\ncumulative reward')
 
-    for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
+    for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list): # change to [-80, -80, -80] ?
         plt.text(x, y, mean, ha='center', va='center')
 
     plt.savefig(os.path.join(FILE_DIR, plot_name), bbox_inches='tight')

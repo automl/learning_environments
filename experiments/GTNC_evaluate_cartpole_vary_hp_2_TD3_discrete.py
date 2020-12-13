@@ -123,7 +123,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer"
+    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_temp_learned_tanh"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
