@@ -79,12 +79,12 @@ agents:
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 1e-3                        # learning rate
+    lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    activation_fn: !!str tanh               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
     action_std: !!float 0.1                 # action noise standard deviation
@@ -94,7 +94,7 @@ agents:
     early_out_num: !!int 10                 # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
     gumbel_softmax_temp: !!float 1          # controls the level of soft-discretization of cont. distribution
-    gumbel_softmax_hard: !!bool True        # whether the returned samples should be discretized as one-hot vectors
+    gumbel_softmax_hard: !!bool False       # whether the returned samples should be discretized as one-hot vectors
     vary_hp: !!bool False                   # vary hyperparameters of underlying TD3 algorithm?
 
 envs:

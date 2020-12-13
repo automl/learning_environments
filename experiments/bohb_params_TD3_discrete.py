@@ -30,23 +30,23 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='init_episodes', lower=1, upper=20, log=True, default_value=10))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=256))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=3e-4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=5e-4))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='tau', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='policy_delay', lower=1, upper=5, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=224))
-        # cs.add_hyperparameter(
-        #     CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='rb_size', lower=1000, upper=1000000, log=True, default_value=100000))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=64, upper=512, log=True, default_value=128))
         cs.add_hyperparameter(
-            CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'leakyrelu', 'prelu'], default_value='relu'))
+            CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'tanh', 'leakyrelu', 'prelu'], default_value='relu'))
+        # cs.add_hyperparameter(
+        #     CSH.CategoricalHyperparameter(name='activation_fn', choices=['relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='action_std', lower=0.01, upper=10, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='policy_std', lower=0.01, upper=10, log=True, default_value=0.2))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='early_out_num', lower=1, upper=5, log=True, default_value=3))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gumbel_softmax_hard', choices=[True, False], default_value=False))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gumbel_softmax_temp', lower=0.001, upper=10, log=True,
-                                                             default_value=0.5))
+                                                             default_value=1.0))
 
         return cs
 
@@ -59,12 +59,12 @@ class ExperimentWrapper():
         config["agents"]["td3_discrete_vary"]["lr"] = cso["lr"]
         config["agents"]["td3_discrete_vary"]["tau"] = cso["tau"]
         config["agents"]["td3_discrete_vary"]["policy_delay"] = cso["policy_delay"]
-        config["agents"]["td3_discrete_vary"]["rb_size"] = cso["rb_size"]
+        # config["agents"]["td3_discrete_vary"]["rb_size"] = cso["rb_size"]
         config["agents"]["td3_discrete_vary"]["hidden_size"] = cso["hidden_size"]
         config["agents"]["td3_discrete_vary"]["activation_fn"] = cso["activation_fn"]
         config["agents"]["td3_discrete_vary"]["action_std"] = cso["action_std"]
         config["agents"]["td3_discrete_vary"]["policy_std"] = cso["policy_std"]
-        config["agents"]["td3_discrete_vary"]["early_out_num"] = cso["early_out_num"]
+        # config["agents"]["td3_discrete_vary"]["early_out_num"] = cso["early_out_num"]
         config["agents"]["td3_discrete_vary"]["gumbel_softmax_temp"] = cso["gumbel_softmax_temp"]
         config["agents"]["td3_discrete_vary"]["gumbel_softmax_hard"] = cso["gumbel_softmax_hard"]
 
@@ -113,7 +113,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

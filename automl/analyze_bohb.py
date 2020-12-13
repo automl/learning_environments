@@ -77,7 +77,7 @@ def analyze_bohb(log_dir):
 
     plot_parallel_scatter(result)
 
-    plt.savefig("bohb_td3_discrete_cartpole_gumbel_softmax.png")
+    plt.savefig("bohb_td3_discrete_cartpole_gumbel_softmax_no_tanh.png")
     plt.show()
 
 
@@ -400,8 +400,9 @@ if __name__ == '__main__':
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     # log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
-    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"
     # log_dir = "../results/bohb_params_DuelingDDQN_cartpole_2020-12-05-15"
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"
+    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_2020-12-12-21"
     analyze_bohb(log_dir)
 
 
