@@ -29,7 +29,10 @@ def load_envs_and_config(file_name):
     with open("../default_config_cartpole.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
+    print("using ---td3 discrete vary default --- config")
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
+    print("using ---td3 discrete vary better--- config")
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_better"]
     #config["agents"]["duelingddqn_vary"] = config_new["duelingddqn_vary"]
 
     return virtual_env, real_env, config
@@ -123,7 +126,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_temp_learned_tanh"
+    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_better_config"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

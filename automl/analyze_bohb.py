@@ -1,6 +1,7 @@
 import random
 import colorsys
 import math
+import os
 
 import numpy as np
 import hpbandster.core.result as hpres
@@ -20,7 +21,7 @@ OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 
 
-def analyze_bohb(log_dir):
+def analyze_bohb(log_dir, file_name):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
@@ -77,7 +78,7 @@ def analyze_bohb(log_dir):
 
     plot_parallel_scatter(result)
 
-    plt.savefig("../experiments/automl/bohb_td3_discrete_cartpole_gumbel_softmax_learned_temp.png")
+    plt.savefig(os.path.join("../experiments/automl", file_name))
     plt.show()
 
 
@@ -406,9 +407,15 @@ if __name__ == '__main__':
     # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_2020-12-13-02"  # temp learned, with tanh
 
     # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_with_tanh2020-12-13-12"  # early out=10, temp learned, with tanh
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_no_tanh2020-12-13-13"  # early out=10, temp_learned, no tanh
-    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_early_out_10_no_tanh2020-12-13-13"  # early out = 10, temp not learned, no tanh
-    analyze_bohb(log_dir)
+    # file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_learned_temp_with_tanh_early_out_10.png"
+
+    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_no_tanh2020-12-13-13"  # early out=10, temp_learned, no tanh
+    file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_learned_temp_no_tanh_early_out_10.png"
+
+    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_early_out_10_no_tanh2020-12-13-13"  # early out = 10, temp not learned, no tanh
+    # file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_not_learned_temp_no_tanh_early_out_10.png"
+
+    analyze_bohb(log_dir, file_name)
 
 
 
