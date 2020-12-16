@@ -64,7 +64,7 @@ agents:
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
     action_std: !!float 0.5                 # action noise standard deviation
-    print_rate: 10                          # update rate of avg meters
+    print_rate: 100                         # update rate of avg meters
     early_out_num: !!int 50                 # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
 

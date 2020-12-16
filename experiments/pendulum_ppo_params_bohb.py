@@ -1,13 +1,10 @@
 import datetime
 import sys
 import yaml
-import random
-import numpy as np
-import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from copy import deepcopy
-from agents.TD3 import TD3
+from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
@@ -81,10 +78,9 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        td3 = TD3(env=real_env,
-                  max_action=real_env.get_max_action(),
+        ppo = PPO(env=real_env,
                   config=config)
-        rewards, _ = td3.train(real_env)
+        rewards, _ = ppo.train(real_env)
         score = len(rewards)
 
         info['config'] = str(config)

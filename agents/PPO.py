@@ -92,7 +92,7 @@ class PPO(BaseAgent):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data(), {}
 
 
     def learn(self, replay_buffer):
