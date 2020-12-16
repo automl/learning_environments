@@ -195,10 +195,8 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_typ
             reward_test, _ = agent.test(env=real_env)
             reward_sum += reward_test
             train_length.append(len(reward_train))
-        reward_avg = statistics.mean(reward_sum)
-        train_length_avg = statistics.mean(train_length)
 
-        reward_list[noise_type].append((noise_value, reward_avg, train_length_avg))
+        reward_list[noise_type].append((noise_value, reward_sum, train_length))
 
     data = {}
     data['reward_list'] = reward_list
