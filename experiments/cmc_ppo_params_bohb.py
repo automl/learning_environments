@@ -12,8 +12,8 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
-        params['min_budget'] = 1
-        params['max_budget'] = 8
+        params['min_budget'] = 1000
+        params['max_budget'] = 8000
         params['eta'] = 2
         params['iterations'] = 1000
         params['random_fraction'] = 0.3
@@ -73,6 +73,8 @@ class ExperimentWrapper():
         print('CSO:    ' + str(cso))
         print('BUDGET: ' + str(budget))
         print('----------------------------')
+
+        config["agents"]["ppo"]["train_episodes"] = int(budget)
 
         info = {}
 
