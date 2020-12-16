@@ -81,7 +81,6 @@ class ExperimentWrapper():
         real_env = env_fac.generate_real_env()
 
         ppo = PPO(env=real_env,
-                  max_action=real_env.get_max_action(),
                   config=config)
         rewards, _ = ppo.train(real_env)
         score = len(rewards)
