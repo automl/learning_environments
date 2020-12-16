@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
-EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.0
-OUTLIER_PERC_BEST = 0.0
+EXP_LOSS = 5
+OUTLIER_PERC_WORST = 0.1
+OUTLIER_PERC_BEST = 0.1
 
 
 def analyze_bohb(log_dir):
@@ -226,7 +226,7 @@ def plot_accuracy_over_budget(result):
 
 
 def plot_parallel_scatter(result):
-    plt.subplots(dpi=300, figsize=(8, 4))
+    plt.figure(dpi=300, figsize=(8, 4))
 
     ep_m = 1e9
     ep_M = -1e9
@@ -353,6 +353,7 @@ def plot_parallel_scatter(result):
 
     plt.yticks([], [])
     plt.xticks(np.arange(index), (tuple(sorted(config_params.keys()))), rotation=90, fontsize=size_text)
+    plt.subplots_adjust(bottom=0.25)
 
 
 def linear_interpolation(x, x0, x1, y0, y1):
@@ -393,7 +394,9 @@ def get_bright_random_color():
 if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
+    #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
+    #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
+    log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
     analyze_bohb(log_dir)
 
 

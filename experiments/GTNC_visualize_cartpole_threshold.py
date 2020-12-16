@@ -261,6 +261,8 @@ if __name__ == "__main__":
 
     noise_type = int(sys.argv[1])
     reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
+    print(noise_type)
+    print(reward_file_name)
     calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
     #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
     #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
