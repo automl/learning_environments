@@ -23,7 +23,7 @@ agents:
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
-    unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
+    unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str td3                   # which RL agent to use for meta-training
 
   td3:
@@ -49,8 +49,8 @@ agents:
 
 envs:
   HalfCheetah-v2:
-    solved_reward: !!float 1500             # used for early out in RL agent training
-    max_steps: !!int 500                    # maximum number of steps per episode
+    solved_reward: !!float 1000             # used for early out in RL agent training
+    max_steps: !!int 300                    # maximum number of steps per episode
     activation_fn: !!str relu               # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 3                   # number of hidden layers of the virtual environment

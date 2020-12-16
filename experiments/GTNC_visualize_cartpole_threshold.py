@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import time
 import random
@@ -179,26 +180,25 @@ def load_envs_and_config(dir, model_file_name):
     return virtual_env, real_env, config
 
 
-def calc_noisy_reward(virtual_env, real_env, config, reward_file_name):
+def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_type):
     reward_list = [[] for i in range(5)]
 
-    for noise_type in range(5):
-        for noise_value in np.logspace(-2, 1.5, num=50):
-            reward_sum = []
-            train_length = []
-            for i in range(100):
-                print('{} {} {}'.format(noise_type, noise_value, i))
-                agent = DDQN_noise(env=real_env, config=config)
-                print('train')
-                reward_train, _ = agent.train(env=virtual_env, noise_type=noise_type, noise_value=noise_value)
-                print('test')
-                reward_test, _ = agent.test(env=real_env)
-                reward_sum += reward_test
-                train_length.append(len(reward_train))
-            reward_avg = statistics.mean(reward_sum)
-            train_length_avg = statistics.mean(train_length)
+    for noise_value in np.logspace(-2, 1.5, num=50):
+        reward_sum = []
+        train_length = []
+        for i in range(100):
+            print('{} {} {}'.format(noise_type, noise_value, i))
+            agent = DDQN_noise(env=real_env, config=config)
+            print('train')
+            reward_train, _ = agent.train(env=virtual_env, noise_type=noise_type, noise_value=noise_value)
+            print('test')
+            reward_test, _ = agent.test(env=real_env)
+            reward_sum += reward_test
+            train_length.append(len(reward_train))
+        reward_avg = statistics.mean(reward_sum)
+        train_length_avg = statistics.mean(train_length)
 
-            reward_list[noise_type].append((noise_value, reward_avg, train_length_avg))
+        reward_list[noise_type].append((noise_value, reward_avg, train_length_avg))
 
     data = {}
     data['reward_list'] = reward_list
@@ -259,7 +259,9 @@ if __name__ == "__main__":
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
-    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    noise_type = int(sys.argv[1])
+    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
+    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
     #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
     #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
     #plot_threshold(std_dev)
