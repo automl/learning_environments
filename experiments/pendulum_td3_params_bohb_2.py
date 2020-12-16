@@ -67,7 +67,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_pendulum_opt_2.yaml", 'r') as stream:
+        with open("default_config_pendulum_td3_opt_2.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -117,7 +117,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'pendulum_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2'
+    run_id = 'pendulum_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2'
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

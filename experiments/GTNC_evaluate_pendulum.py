@@ -38,7 +38,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_pendulum_opt_2.yaml", 'r') as stream:
+        with open("default_config_pendulum_td3_opt_2.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)

@@ -3,7 +3,6 @@ import sys
 import yaml
 import random
 import numpy as np
-import statistics
 import torch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -67,7 +66,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_cmc_opt_2.yaml", 'r') as stream:
+        with open("default_config_cmc.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -82,23 +81,13 @@ class ExperimentWrapper():
 
         # generate environment
         env_fac = EnvFactory(config)
-
         real_env = env_fac.generate_real_env()
-        reward_env = env_fac.generate_reward_env()
-        save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
-        #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
-        config = save_dict['config']
-        reward_env.load_state_dict(save_dict['model'])
 
-        td3 = TD3(env=reward_env,
-                  max_action=reward_env.get_max_action(),
+        td3 = TD3(env=real_env,
+                  max_action=real_env.get_max_action(),
                   config=config)
-        reward_list_train, _ = td3.train(reward_env)
-        reward_list_test, _ = td3.test(real_env)
-        avg_reward_test = statistics.mean(reward_list_test)
-
-        unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
-        score = len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+        rewards, _ = td3.train(real_env)
+        score = len(rewards)
 
         info['config'] = str(config)
 
@@ -115,7 +104,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'cmc_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2'
+    run_id = 'cmc_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
