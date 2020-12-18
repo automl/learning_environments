@@ -55,7 +55,7 @@ class ExperimentWrapper():
         config["agents"]["ppo"]["hidden_layer"] = cso["ppo_hidden_layer"]
         config["agents"]["ppo"]["action_std"] = cso["ppo_action_std"]
         config["agents"]["ppo"]["early_out_virtual_diff"] = cso["ppo_early_out_virtual_diff"]
-        config["device"] = 'cuda'
+        #config["device"] = 'cuda'
 
         return config
 

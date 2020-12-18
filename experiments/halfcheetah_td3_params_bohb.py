@@ -58,7 +58,7 @@ class ExperimentWrapper():
         config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
         config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
-        config["device"] = 'cuda'
+        #config["device"] = 'cuda'
 
         return config
 
