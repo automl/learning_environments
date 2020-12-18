@@ -82,7 +82,7 @@ class PPO(BaseAgent):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
+            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
             avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
