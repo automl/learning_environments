@@ -14,6 +14,9 @@ from envs.env_factory import EnvFactory
 from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
 
 
+STD_MULT = 0.2
+
+
 class DDQN_noise(BaseAgent):
     def __init__(self, env, config):
         agent_name = "ddqn"
@@ -181,7 +184,7 @@ def load_envs_and_config(dir, model_file_name):
 
 
 def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_type):
-    reward_list = [[] for i in range(5)]
+    reward_list = [[] for i in range(5)]    # stupid....
 
     for noise_value in np.logspace(-2, 1.5, num=50):
         reward_sum = []
@@ -226,16 +229,29 @@ def calc_reference_deviation(virtual_env, real_env, config):
     return torch.std(state_reward_concat, dim=0).item()
 
 
-def plot_threshold(std_dev):
+def plot_threshold(std_dev, reward_file_names):
     plt.figure(dpi=600, figsize=(6,3))
 
-    data = torch.load(reward_file_name)
-    reward_list = data['reward_list']
+    for i, reward_file_name in enumerate(reward_file_names):
 
-    for i in range(len(reward_list)):
-        xs = [elem[0]/std_dev[i] for elem in reward_list[0]]
-        ys = [elem[1] for elem in reward_list[i]]
-        plt.plot(xs, ys)
+
+        data = torch.load(reward_file_name)
+        reward_list = data['reward_list']
+        for k in range(len(reward_list)):
+            if len(reward_list[k]) > 0:
+                reward_list = reward_list[k]
+                break
+
+        x = [elem[0]/std_dev[i] for elem in reward_list]
+        mean = [statistics.mean(elem[1]) for elem in reward_list]
+        std = [statistics.stdev(elem[1]) for elem in reward_list]
+        mean = np.array(mean)
+        std = np.array(std)
+
+        plt.subplots_adjust(bottom=0.15)
+        plt.plot(x, mean)
+        plt.fill_between(x=x, y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
+
 
     plt.legend(['cart position', 'cart velocity', 'pole angle', 'pole ang. vel.', 'reward'])
     plt.xscale('log')
@@ -246,10 +262,13 @@ def plot_threshold(std_dev):
 
 
 if __name__ == "__main__":
-    #dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
+    dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
+    #dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
     model_file_name = 'CartPole-v0_24_I8EZDI.pt'
-    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100.pt'
+
+    reward_file_names = []
+    for i in range(5):
+        reward_file_names.append('/home/dingsda/master_thesis/learning_environments/results/GTNC_visualize_cartpole_threshold_rewards_100_' + str(i) + '.pt')
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, model_file_name=model_file_name)
     config['device'] = 'cuda'
@@ -257,14 +276,12 @@ if __name__ == "__main__":
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
-    noise_type = int(sys.argv[1])
-    reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
-    print(noise_type)
-    print(reward_file_name)
-    calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
+    #noise_type = int(sys.argv[1])
+    #reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
+    #calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
     #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
-    #std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
-    #plot_threshold(std_dev)
+    std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
+    plot_threshold(std_dev, reward_file_names)
 
 
 

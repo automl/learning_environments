@@ -2,6 +2,7 @@ import hpbandster.core.result as hpres
 import matplotlib.pyplot as plt
 import numpy as np
 import ast
+import statistics
 from copy import deepcopy
 
 LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-12-04-12', '../results/GTNC_evaluate_acrobot_2020-11-28-16']
@@ -16,12 +17,26 @@ def get_data():
         all_runs = result.get_all_runs()
         id2conf = result.get_id2config_mapping()
 
+        # calculate avg. runtime
+        ts = []
+        for i, run in enumerate(all_runs):
+            t_s = run['time_stamps']['started']
+            t_f = run['time_stamps']['finished']
+            ts.append(t_f - t_s)
+
+            if i >= MAX_VALS:
+                break
+
+        print(log_dir)
+        print('mean [s]: ' + str(statistics.mean(ts)))
+        print('std [s]: ' + str(statistics.stdev(ts)))
+
         # copy data to list
         data = []
 
         for run in all_runs:
             avg_rewards = ast.literal_eval(run['info']['score_list'])
-            print(avg_rewards)
+            #print(avg_rewards)
 
             config_id = run['config_id']
 
@@ -86,6 +101,6 @@ def plot_data(proc_data, list_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data, list_data = get_data()
-    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
+    #plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
 
 
