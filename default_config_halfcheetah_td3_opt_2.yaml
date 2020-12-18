@@ -43,7 +43,7 @@ agents:
     action_std: !!float 0.0934              # action noise standard deviation
     policy_std: !!float 0.209               # policy noise standard deviation
     policy_std_clip: !!float 0.559          # policy noise standard deviation
-    print_rate: 1                           # update rate of avg meters
+    print_rate: 5                           # update rate of avg meters
     early_out_num: !!int 5                  # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 0.0126  # performance difference for an early out for virtual envs
 
