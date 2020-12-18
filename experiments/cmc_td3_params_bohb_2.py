@@ -87,7 +87,7 @@ class ExperimentWrapper():
         reward_env = env_fac.generate_reward_env()
         save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
         #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
-        config = save_dict['config']
+        #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
         td3 = TD3(env=reward_env,
