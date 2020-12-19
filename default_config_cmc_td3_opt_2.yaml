@@ -1,5 +1,5 @@
 env_name: !!str MountainCarContinuous-v0
-device: !!str cuda                           # torch device (cuda:0 or cpu)
+device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:

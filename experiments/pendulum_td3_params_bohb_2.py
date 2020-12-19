@@ -61,7 +61,7 @@ class ExperimentWrapper():
         config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
         config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
-        config["device"] = 'cuda'
+        #config["device"] = 'cuda'
 
         return config
 
@@ -87,7 +87,7 @@ class ExperimentWrapper():
         reward_env = env_fac.generate_reward_env()
         save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-10-14_2/GTN_models_Pendulum-v0/Pendulum-v0_ZA1XA2.pt')
         #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-10-14_2/GTN_models_Pendulum-v0/Pendulum-v0_ZA1XA2.pt')
-        config = save_dict['config']
+        #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
         print('got here')
