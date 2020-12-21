@@ -33,7 +33,7 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
         global reward_env_type
-        config["envs"]['Pendulum-v0']['reward_env_type'] = reward_env_type
+        config["envs"]['MountainCarContinuous-v0']['reward_env_type'] = reward_env_type
         return config
 
 
