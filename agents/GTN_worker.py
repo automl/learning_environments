@@ -181,7 +181,7 @@ class GTN_Worker(GTN_Base):
         agent = select_agent(config=self.config, agent_name=self.agent_name)
         real_env = self.env_factory.generate_real_env()
 
-        reward_list_train, _ = agent.train(env=env, time_remaining=time_remaining-(time.time()-time_start))
+        reward_list_train, _ = agent.train(env=env, real_env=real_env, time_remaining=time_remaining-(time.time()-time_start))
         reward_list_test, _ = agent.test(env=real_env, time_remaining=time_remaining-(time.time()-time_start))
         avg_reward_test = statistics.mean(reward_list_test)
 

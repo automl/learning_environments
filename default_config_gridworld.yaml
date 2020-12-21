@@ -39,6 +39,7 @@ agents:
     rb_size: !!int 100000                   # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     print_rate: 1000                        # update rate of avg meters
+    early_out_episode: 1                    # check every i-th episode if an early out should happen
     early_out_num: 10                       # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
@@ -55,6 +56,7 @@ agents:
     rb_size: !!int 100000                   # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     print_rate: 1000                        # update rate of avg meters
+    early_out_episode: 1                    # check every i-th episode if an early out should happen
     early_out_num: 10                       # based on how many training steps shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 

@@ -396,7 +396,7 @@ if __name__ == '__main__':
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
-    log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
+    log_dir = '../results/cmc_td3_params_bohb_2020-12-19-19_2'
     analyze_bohb(log_dir)
 
 

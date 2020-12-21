@@ -1,6 +1,7 @@
 import time
 import torch
 import torch.nn as nn
+import statistics
 from utils import AverageMeter, ReplayBuffer
 
 
@@ -19,6 +20,7 @@ class BaseAgent(nn.Module):
         self.same_action_num = agent_config["same_action_num"]
         self.print_rate = agent_config["print_rate"]
         self.early_out_num = agent_config["early_out_num"]
+        self.early_out_episode = agent_config["early_out_episode"]
         self.early_out_virtual_diff = agent_config["early_out_virtual_diff"]
 
         self.render_env = config["render_env"]
@@ -38,7 +40,7 @@ class BaseAgent(nn.Module):
             return False
 
 
-    def env_solved(self, env, avg_meter_reward, episode):
+    def env_solved(self, env, avg_meter_reward, episode, real_env=None):
         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
         avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
         if env.is_virtual_env():
@@ -46,15 +48,20 @@ class BaseAgent(nn.Module):
                     episode > self.init_episodes + self.early_out_num:
                 #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
+        elif real_env is not None:
+            avg_reward_test, _ = self.test(real_env)
+            avg_reward = statistics.mean(avg_reward_test)
+            if avg_reward >= env.get_solved_reward():
+                return True
         else:
-            if avg_reward >= env.get_solved_reward() and episode > self.init_episodes:
+            if avg_reward >= env.get_solved_reward():
                 #print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 
         return False
 
 
-    def train(self, env, time_remaining=1e9):
+    def train(self, env, time_remaining=1e9, real_env=None):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -104,14 +111,12 @@ class BaseAgent(nn.Module):
             avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
-            if self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
+            if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
                 break
 
         env.close()
 
         return avg_meter_reward.get_raw_data(), replay_buffer
-
-
 
 
     def test(self, env, time_remaining=1e9):
