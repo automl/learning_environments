@@ -15,7 +15,6 @@ from models.actor_critic import Actor_TD3_discrete, Critic_Q
 
 
 class TD3_discrete_vary(BaseAgent):
-    # todo: check when getting to Acrobot if min_action is still required with gumbel
     def __init__(self, env, min_action, max_action, config):
         self.agent_name = 'td3_discrete_vary'
 
