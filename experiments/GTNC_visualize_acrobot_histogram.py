@@ -43,7 +43,8 @@ def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None):
         plt.legend((h1l, h2l, h3l), loc='upper left')
     else:
         plt.legend((h1l, h2l), loc='upper left')
-    # plt.show()
+
+    plt.show()
 
 
 def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all, path):
@@ -76,7 +77,6 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
         # The state consists of the sin() and cos() of the two rotational joint
         # angles and the joint angular velocities :
         # [cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2].
-        # [cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2].
         if i == 0:
             plot_name = 'joint 1 [cos]'
         elif i == 1:
@@ -97,6 +97,7 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
                   h2l='real env. (test)',
                   h3l='synth. env. on real. env data',
                   xlabel=plot_name)
+
         file_path = os.path.join(path, f"acrobot_hist_{i}.png")
         plt.savefig(file_path, bbox_inches='tight', transparent=True)
         plt.show()
@@ -108,11 +109,10 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
               h2l='real env. (test)',
               h3l='synth. env. on real. env data',
               xlabel='reward')
-    # plt.show()
+
     file_path = os.path.join(path, f"acrobot_hist_{i+1}.png")
     plt.savefig(file_path, bbox_inches='tight', transparent=True)
-
-    #plt.show()
+    plt.show()
     #plot_diff(reals=dones.squeeze().detach().numpy(), virts=virt_dones.squeeze().detach().numpy(), diffs=diff_dones, plot_name='done')
     #plot_diff(reals=dones.squeeze().detach().numpy(), virts = virt_dones.squeeze().detach().numpy(), plot_name = 'done')
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
     print(config)
-    config['device'] = 'cpu'
+
     config['agents']['ddqn']['print_rate'] = 1
     config['agents']['ddqn']['test_episodes'] = 10
 
