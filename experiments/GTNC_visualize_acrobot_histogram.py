@@ -43,10 +43,10 @@ def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None):
         plt.legend((h1l, h2l, h3l), loc='upper left')
     else:
         plt.legend((h1l, h2l), loc='upper left')
-    plt.show()
+    # plt.show()
 
 
-def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all):
+def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all, path):
     states_train, actions_train, next_states_train, rewards_train, dones_train = replay_buffer_train_all.get_all()
     states_test, actions_test, next_states_test, rewards_test, dones_test = replay_buffer_test_all.get_all()
 
@@ -73,14 +73,22 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
         virts = virt_next_states[:, i].squeeze().detach().numpy()
         #diffs = diff_next_states[:,i].squeeze().detach().numpy()
 
+        # The state consists of the sin() and cos() of the two rotational joint
+        # angles and the joint angular velocities :
+        # [cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2].
+        # [cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2].
         if i == 0:
-            plot_name = 'cart position (next state) [m]'
+            plot_name = 'joint 1 [cos]'
         elif i == 1:
-            plot_name = 'cart velocity (next state) [m/s]'
+            plot_name = 'joint 1 [sin]'
         elif i == 2:
-            plot_name = 'pole angle (next state) [rad]'
+            plot_name = 'joint 2 [cos]'
         elif i == 3:
-            plot_name = 'pole angular vel. (next state) [rad/s]'
+            plot_name = 'joint 2 [sin]'
+        elif i == 4:
+            plot_name = 'joint 1 [1/s]'
+        elif i == 5:
+            plot_name = 'joint 2 [1/s]'
 
         plot_hist(h1=trains,
                   h2=tests,
@@ -89,6 +97,9 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
                   h2l='real env. (test)',
                   h3l='synth. env. on real. env data',
                   xlabel=plot_name)
+        file_path = os.path.join(path, f"acrobot_hist_{i}.png")
+        plt.savefig(file_path, bbox_inches='tight', transparent=True)
+        plt.show()
 
     plot_hist(h1=rewards_train.squeeze().detach().numpy(),
               h2=rewards_test.squeeze().detach().numpy(),
@@ -97,6 +108,11 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
               h2l='real env. (test)',
               h3l='synth. env. on real. env data',
               xlabel='reward')
+    # plt.show()
+    file_path = os.path.join(path, f"acrobot_hist_{i+1}.png")
+    plt.savefig(file_path, bbox_inches='tight', transparent=True)
+
+    #plt.show()
     #plot_diff(reals=dones.squeeze().detach().numpy(), virts=virt_dones.squeeze().detach().numpy(), diffs=diff_dones, plot_name='done')
     #plot_diff(reals=dones.squeeze().detach().numpy(), virts = virt_dones.squeeze().detach().numpy(), plot_name = 'done')
 
@@ -107,20 +123,18 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
 
 
 if __name__ == "__main__":
-    # dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    # file_name = 'CartPole-v0_24_I8EZDI.pt'
-
-    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-    file_name = 'CartPole-v0_31_VXBIVI.pt'
+    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13/GTN_models_Acrobot-v1'
+    #file_name = 'Acrobot-v1_5JQ694.pt'
+    file_name = 'Acrobot-v1_MD1EG9.pt'
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
     print(config)
-    config['device'] = 'cuda'
+    config['device'] = 'cpu'
     config['agents']['ddqn']['print_rate'] = 1
     config['agents']['ddqn']['test_episodes'] = 10
 
-    replay_buffer_train_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
-    replay_buffer_test_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
+    replay_buffer_train_all = ReplayBuffer(state_dim=6, action_dim=1, device='cpu')
+    replay_buffer_test_all = ReplayBuffer(state_dim=6, action_dim=1, device='cpu')
 
     agent = select_agent(config=config, agent_name='DDQN')
     _, replay_buffer_train = agent.train(env=virtual_env)
@@ -128,4 +142,4 @@ if __name__ == "__main__":
     replay_buffer_train_all.merge_buffer(replay_buffer_train)
     replay_buffer_test_all.merge_buffer(replay_buffer_test)
 
-    compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all)
+    compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all, os.getcwd())

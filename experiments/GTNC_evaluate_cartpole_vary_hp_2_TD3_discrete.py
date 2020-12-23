@@ -29,10 +29,16 @@ def load_envs_and_config(file_name):
     with open("../default_config_cartpole.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
-    print("using ---td3 discrete vary default --- config")
+    # print("using ---td3 discrete vary default --- config")
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
-    print("using ---td3 discrete vary better--- config")
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_better"]
+    # print("using ---td3 discrete vary better--- config")
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_better"]
+    # print("using --- td3 discrete vary tanh --- config")
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh"]
+
+    print("using --- td3 discrete vary tanh less hpo --- config")
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm"]
+
     #config["agents"]["duelingddqn_vary"] = config_new["duelingddqn_vary"]
 
     return virtual_env, real_env, config
@@ -124,9 +130,8 @@ def run_vary_hp(mode, experiment_name):
 
     save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
 
-
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_better_config"
+    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_relu_layer_norm_config"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
