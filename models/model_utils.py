@@ -14,8 +14,10 @@ def build_nn_from_config(input_dim, output_dim, nn_config):
         act_fn = nn.LeakyReLU()
     elif activation_fn == 'tanh':
         act_fn = nn.Tanh()
+    elif activation_fn == 'identity':
+        act_fn = nn.Identity()
     else:
-        print('Unknown activation function')
+        print('Unknown activation function.')
 
     norm = nn.Identity()
 

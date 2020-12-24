@@ -16,11 +16,10 @@ class ICMModel(nn.Module):
         self.action_dim = action_dim
         self.feature_dim = feature_dim
 
-        nn_features_config = {'hidden_size': 128, 'hidden_layer': 2, 'activation_fn': 'relu'}
-        nn_inverse_config = {'hidden_size': 128, 'hidden_layer': 2, 'activation_fn': 'relu'}
-        nn_forward_pre_config = {'hidden_size': 128, 'hidden_layer': 1, 'activation_fn': 'relu'}
-        nn_forward_post_config = {'hidden_size': 128, 'hidden_layer': 1, 'activation_fn': 'relu'}
-        nn_residual_config = {'hidden_size': 128, 'hidden_layer': 2, 'activation_fn': 'relu'}
+        nn_features_config = {'hidden_size': 128, 'hidden_layer': 2, 'activation_fn': 'leakyrelu'}
+        nn_inverse_config = {'hidden_size': 128, 'hidden_layer': 1, 'activation_fn': 'relu'}
+        nn_forward_pre_config = {'hidden_size': 128, 'hidden_layer': 1, 'activation_fn': 'leakyrelu'}
+        nn_forward_post_config = {'hidden_size': 128, 'hidden_layer': 1, 'activation_fn': 'identity'}
 
         self.features_model = build_nn_from_config(input_dim=state_dim, output_dim=feature_dim, nn_config=nn_features_config)
         self.inverse_model = build_nn_from_config(input_dim=feature_dim*2, output_dim=action_dim, nn_config=nn_inverse_config)
@@ -29,15 +28,32 @@ class ICMModel(nn.Module):
                                                       output_dim=feature_dim,
                                                       nn_config=nn_forward_pre_config
                                                       )
-        self.residual_model1 = build_nn_from_config(input_dim=action_dim + feature_dim, output_dim=feature_dim, nn_config=nn_residual_config)
-        self.residual_model2 = build_nn_from_config(input_dim=action_dim + feature_dim, output_dim=feature_dim, nn_config=nn_residual_config)
-        self.residual_model3 = build_nn_from_config(input_dim=action_dim + feature_dim, output_dim=feature_dim, nn_config=nn_residual_config)
-        self.residual_model4 = build_nn_from_config(input_dim=action_dim + feature_dim, output_dim=feature_dim, nn_config=nn_residual_config)
 
-        self.forward_post_model = build_nn_from_config(input_dim=feature_dim,
-                                                      output_dim=feature_dim,
-                                                      nn_config=nn_forward_post_config
-                                                      )
+        class ResidualBlock(nn.Module):
+            def __init__(self, input_dim, output_dim):
+                super().__init__()
+                self.fc1 = nn.Sequential(
+                                nn.Linear(input_dim, output_dim),
+                                nn.LeakyReLU(inplace=True),
+                           )
+                self.fc2 = nn.Sequential(
+                                nn.Linear(input_dim, output_dim)
+                           )
+
+            def forward(self, feature, action):
+                x = feature
+                x = self.fc1(torch.cat([x, action], dim=1))
+                x = self.fc2(torch.cat([x, action], dim=1))
+                return feature + x
+
+        # original implementation uses residual blocks:
+        # https://github.com/openai/large-scale-curiosity/blob/master/dynamics.py#L55-L61
+        self.residual_block1 = ResidualBlock(input_dim=action_dim + feature_dim, output_dim=feature_dim)
+        self.residual_block2 = ResidualBlock(input_dim=action_dim + feature_dim, output_dim=feature_dim)
+        self.residual_block3 = ResidualBlock(input_dim=action_dim + feature_dim, output_dim=feature_dim)
+        self.residual_block4 = ResidualBlock(input_dim=action_dim + feature_dim, output_dim=feature_dim)
+
+        self.forward_post_model = build_nn_from_config(input_dim=feature_dim, output_dim=feature_dim, nn_config=nn_forward_post_config)
 
     def forward(self, input):
         state, next_state, action = input
@@ -53,12 +69,10 @@ class ICMModel(nn.Module):
         forward_model_input = torch.cat([state_encoded, action], 1)
         x = self.forward_pre_model(forward_model_input)
 
-        # residual connections not in the original paper but in every online implementation, e.g.
-        # https://github.com/jcwleo/curiosity-driven-exploration-pytorch/blob/master/model.py
-        x = self.residual_model1(torch.cat([x, action], 1))
-        x = self.residual_model2(torch.cat([x, action], 1))
-        x = self.residual_model3(torch.cat([x, action], 1))
-        x = self.residual_model4(torch.cat([x, action], 1))
+        x = self.residual_block1(feature=x, action=action)
+        x = self.residual_block2(feature=x, action=action)
+        x = self.residual_block3(feature=x, action=action)
+        x = self.residual_block4(feature=x, action=action)
 
         next_state_pred_encoded = self.forward_post_model(x)
 
