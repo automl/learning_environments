@@ -60,7 +60,7 @@ class BaseAgent(nn.Module):
 
         return False
 
-    def train(self, env, time_remaining=1e9):
+    def train(self, env, real_env=None, time_remaining=1e9):
         time_start = time.time()
 
         discretize_action = False
@@ -135,6 +135,16 @@ class BaseAgent(nn.Module):
     def test(self, env, time_remaining=1e9):
         discretize_action = False
 
+        sd = 1 if env.has_discrete_state_space() else self.state_dim
+
+        if env.has_discrete_action_space():
+            ad = 1
+            # in case of td3_discrete, action_dim=1 does not reflect the required action_dim for the gumbel softmax distribution
+            if self.agent_name == "td3_discrete_vary":
+                ad = env.get_action_dim()
+                discretize_action = True
+        else:
+            ad = self.action_dim
 
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=int(1e6))
 
