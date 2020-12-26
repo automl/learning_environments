@@ -25,8 +25,8 @@ def load_envs_and_config(dir, file_name):
     return virtual_env, real_env, config
 
 
-def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None):
-    fig, ax = plt.subplots(dpi=600, figsize=(3.5,3))
+def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None):
+    plt.figure(dpi=600, figsize=(3.5, 3))
     plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
 
     if max(h2) == min(h2):  # if we had only a single bin
@@ -43,6 +43,8 @@ def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None):
         plt.legend((h1l, h2l, h3l), loc='upper left')
     else:
         plt.legend((h1l, h2l), loc='upper left')
+    plt.subplots_adjust(bottom=0.15, left=0.15)
+    plt.savefig('cartpole_histogram' + str(save_idx) + '.png', bbox_inches='tight')
     plt.show()
 
 
@@ -87,23 +89,18 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
                   h3=virts,
                   h1l='synth. env. (train)',
                   h2l='real env. (test)',
-                  h3l='synth. env. on real. env data',
-                  xlabel=plot_name)
+                  h3l='synth. env. on real env. data',
+                  xlabel=plot_name,
+                  save_idx=i+1)
 
     plot_hist(h1=rewards_train.squeeze().detach().numpy(),
               h2=rewards_test.squeeze().detach().numpy(),
               h3=virt_rewards.squeeze().detach().numpy(),
               h1l='synth. env. (train)',
               h2l='real env. (test)',
-              h3l='synth. env. on real. env data',
-              xlabel='reward')
-    #plot_diff(reals=dones.squeeze().detach().numpy(), virts=virt_dones.squeeze().detach().numpy(), diffs=diff_dones, plot_name='done')
-    #plot_diff(reals=dones.squeeze().detach().numpy(), virts = virt_dones.squeeze().detach().numpy(), plot_name = 'done')
-
-
-#def barplot_variation:
-#    fill_rb_with_first_five_states_only = [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 138.0, 142.0, 119.0, 196.0, 165.0, 150.0, 131.0, 137.0, 144.0, 123.0, 142.0, 138.0, 170.0, 163.0, 145.0, 200.0, 135.0, 200.0, 123.0, 156.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 185.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
-
+              h3l='synth. env. on real env. data',
+              xlabel='reward',
+              save_idx=len(next_states_test[0])+1)
 
 
 if __name__ == "__main__":
@@ -122,10 +119,11 @@ if __name__ == "__main__":
     replay_buffer_train_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
     replay_buffer_test_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
 
-    agent = select_agent(config=config, agent_name='DDQN')
-    _, replay_buffer_train = agent.train(env=virtual_env)
-    reward, replay_buffer_test = agent.test(env=real_env)
-    replay_buffer_train_all.merge_buffer(replay_buffer_train)
-    replay_buffer_test_all.merge_buffer(replay_buffer_test)
+    for i in range(10):
+        agent = select_agent(config=config, agent_name='DDQN')
+        _, replay_buffer_train = agent.train(env=virtual_env)
+        reward, replay_buffer_test = agent.test(env=real_env)
+        replay_buffer_train_all.merge_buffer(replay_buffer_train)
+        replay_buffer_test_all.merge_buffer(replay_buffer_test)
 
     compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all)

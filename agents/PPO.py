@@ -40,7 +40,7 @@ class PPO(BaseAgent):
         self.critic_old.load_state_dict(self.critic.state_dict())
 
 
-    def train(self, env, time_remaining=1e9):
+    def train(self, env, time_remaining=1e9, real_env=None):
         time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -82,17 +82,27 @@ class PPO(BaseAgent):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.early_out_num)
+            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
-            avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
-            if avg_reward > env.get_solved_reward():
-                #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+            if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
                 break
+
+            # if avg_reward > env.get_solved_reward():
+            #     #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
+            #     break
 
         env.close()
 
-        return avg_meter_reward.get_raw_data()
+        return avg_meter_reward.get_raw_data(), {}
+
+
+    def select_train_action(self, state, env):
+        return self.actor_old(state.to(self.device)).cpu()
+
+
+    def select_test_action(self, state, env):
+        return self.actor_old(state.to(self.device)).cpu()
 
 
     def learn(self, replay_buffer):
@@ -148,14 +158,14 @@ class PPO(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_pendulum.yaml", 'r') as stream:
+    with open("../default_config_pendulum_ppo_opt.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
     # generate environment
     env_fac = EnvFactory(config)
-    env = env_fac.generate_real_env()
+    real_env = env_fac.generate_real_env()
 
-    ppo = PPO(env=env,
+    ppo = PPO(env=real_env,
               config=config)
-    ppo.train(env)
+    ppo.train(env=real_env)
 

@@ -27,7 +27,6 @@ class ExperimentWrapper():
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
-
         return cs
 
 
@@ -37,7 +36,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_acrobot_opt.yaml", 'r') as stream:
+        with open("default_config_acrobot.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -50,19 +49,21 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
-            gtn = GTN_Master(config, bohb_id=bohb_id)
-            _, score_list = gtn.run()
+            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
+            _, score_list, model_name = gtn.run()
             score = len(score_list)
             error = ""
         except:
             score = float('Inf')
             score_list = []
+            model_name = None
             error = traceback.format_exc()
             print(error)
 
         info = {}
         info['error'] = str(error)
         info['score_list'] = str(score_list)
+        info['model_name'] = str(model_name)
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))

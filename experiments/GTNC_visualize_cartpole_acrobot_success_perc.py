@@ -2,9 +2,10 @@ import hpbandster.core.result as hpres
 import matplotlib.pyplot as plt
 import numpy as np
 import ast
+import statistics
 from copy import deepcopy
 
-LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-11-27-17', '../results/GTNC_evaluate_acrobot_2020-11-28-11']
+LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-12-04-12', '../results/GTNC_evaluate_acrobot_2020-11-28-16']
 MAX_VALS = 40
 STD_MULT = 1
 SOLVED_REWARD = 195
@@ -16,12 +17,26 @@ def get_data():
         all_runs = result.get_all_runs()
         id2conf = result.get_id2config_mapping()
 
+        # calculate avg. runtime
+        ts = []
+        for i, run in enumerate(all_runs):
+            t_s = run['time_stamps']['started']
+            t_f = run['time_stamps']['finished']
+            ts.append(t_f - t_s)
+
+            if i >= MAX_VALS:
+                break
+
+        print(log_dir)
+        print('mean [s]: ' + str(statistics.mean(ts)))
+        print('std [s]: ' + str(statistics.stdev(ts)))
+
         # copy data to list
         data = []
 
         for run in all_runs:
             avg_rewards = ast.literal_eval(run['info']['score_list'])
-            print(avg_rewards)
+            #print(avg_rewards)
 
             config_id = run['config_id']
 
@@ -71,11 +86,14 @@ def plot_data(proc_data, list_data, savefig_name):
         plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.2)
 
     for i, dat in enumerate(list_data):
-        for avg_rewards in dat:
+        print(len(dat))
+        for k, avg_rewards in enumerate(dat):
+            if k >= 20:
+                continue
             plt.plot(avg_rewards, linewidth=0.3, color=colors[i])
 
-    plt.legend(['CartPole-v0', 'Acrobot-v1', 'CartPole-v0 solved', 'Acrobot-v1 solved'])
-    plt.xlim(0,49)
+    plt.legend(['CartPole-v0', 'Acrobot-v1', 'CartPole-v0 solved', 'Acrobot-v1 solved'], loc='lower right')
+    plt.xlim(0,199)
     plt.xlabel('ES outer loop')
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name, bbox_inches='tight')
@@ -83,6 +101,6 @@ def plot_data(proc_data, list_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data, list_data = get_data()
-    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
+    #plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
 
 

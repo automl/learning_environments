@@ -73,9 +73,7 @@ class AverageMeter:
     def update(self, val, print_rate=10):
         # formatting from torch/numpy to float
         if torch.is_tensor(val):
-            val = val.cpu().data.numpy()
-            if not np.ndim(val) == 0:
-                val = val[0]
+            val = val.item()
 
         self.vals.append(val)
         self.it += 1

@@ -1,0 +1,36 @@
+env_name: !!str HalfCheetah-v3
+device: !!str cpu                           # torch device (cuda:0 or cpu)
+render_env: !!bool False                    # render environment
+
+agents:
+  ppo:
+    train_episodes: !!int 10000             # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    init_episodes: !!int 0                  # number of episodes to fill the replay buffer
+    update_episodes: !!float 3              # update policy every x episodes (can be float)
+    ppo_epochs: !!int 87                    # update policy for x epochs
+    gamma: !!float 0.965                    # discount factor
+    lr: !!float 0.000252                    # learning rate
+    vf_coef: !!float 1.51                   # value function coefficient (see PPO paper)
+    ent_coef: !!float 0.00280               # entropy coefficient (see PPO paper)
+    eps_clip: !!float 0.268                 # trust region size (see PPO paper)
+    rb_size: !!int 1000000                  # size of the replay buffer
+    same_action_num: !!int 1                # how often to perform the same action subsequently
+    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    hidden_size: !!int 72                   # size of the actor/critic hidden layer
+    hidden_layer: !!int 1                   # number of hidden layers
+    action_std: !!float 0.223               # action noise standard deviation
+    print_rate: 100                         # update rate of avg meters
+    early_out_episode: 20                   # check every i-th episode if an early out should happen
+    early_out_num: !!int 50                 # based on how many training steps shall an early out happen
+    early_out_virtual_diff: !!float 0.0628  # performance difference for an early out for virtual envs
+
+envs:
+  HalfCheetah-v3:
+    solved_reward: !!float 3000             # used for early out in RL agent training
+    max_steps: !!int 1000                   # maximum number of steps per episode
+    activation_fn: !!str relu               # activation function of the virtual environment
+    hidden_size: 171                        # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 4                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function

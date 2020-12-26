@@ -1,7 +1,6 @@
 import random
 import colorsys
 import math
-import os
 
 import numpy as np
 import hpbandster.core.result as hpres
@@ -21,7 +20,7 @@ OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 
 
-def analyze_bohb(log_dir, file_name):
+def analyze_bohb(log_dir):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
@@ -78,7 +77,6 @@ def analyze_bohb(log_dir, file_name):
 
     plot_parallel_scatter(result)
 
-    plt.savefig(os.path.join("../experiments/automl", file_name))
     plt.show()
 
 
@@ -359,6 +357,7 @@ def plot_parallel_scatter(result):
 
     plt.yticks([], [])
     plt.xticks(np.arange(index), (tuple(sorted(config_params.keys()))), rotation=90, fontsize=size_text)
+    plt.subplots_adjust(bottom=0.25)
 
 
 def linear_interpolation(x, x0, x1, y0, y1):
@@ -400,23 +399,9 @@ if __name__ == '__main__':
     #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
-    # log_dir = '../results/TD3_discrete_cartpole_params_bohb_2020-12-04-13/'
-    # log_dir = "../results/bohb_params_DuelingDDQN_cartpole_2020-12-05-15"
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_2020-12-12-01"             # temp not learned, with tanh
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_no_tanh_2020-12-12-21"     # temp not learned, no tanh
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_2020-12-13-02"  # temp learned, with tanh
-
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_with_tanh2020-12-13-12"  # early out=10, temp learned, with tanh
-    # file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_learned_temp_with_tanh_early_out_10.png"
-
-    log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_learned_temp_early_out_10_no_tanh2020-12-13-13"  # early out=10, temp_learned, no tanh
-    file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_learned_temp_no_tanh_early_out_10.png"
-
-    # log_dir = "../results/bohb_params_TD3_discrete_gumbel_cartpole_early_out_10_no_tanh2020-12-13-13"  # early out = 10, temp not learned, no tanh
-    # file_name = "bohb_td3_discrete_cartpole_gumbmel_softmax_not_learned_temp_no_tanh_early_out_10.png"
-
-    analyze_bohb(log_dir, file_name)
-
+    #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
+    log_dir = '../results/cmc_td3_params_bohb_2020-12-19-19_2'
+    analyze_bohb(log_dir)
 
 
 
