@@ -119,3 +119,49 @@ class Critic_DuelingDQN(nn.Module):
         advantages = self.advantage_stream(features)
         q_values = values + (advantages - advantages.mean())
         return q_values
+
+
+class Actor_SAC(nn.Module):
+    def __init__(self, state_dim, action_dim, max_action, agent_name, config):
+        super().__init__()
+
+        self.net = build_nn_from_config(input_dim=state_dim, output_dim=1, nn_config=config["agents"][agent_name])
+        self.output_limit = max_action
+        self.log_std_min = config["agents"][agent_name]['log_std_min']
+        self.log_std_max = config["agents"][agent_name]['log_std_max']
+
+        # Set output layers
+        self.mu_layer = nn.Linear(action_dim, action_dim)
+        self.log_std_layer = nn.Linear(action_dim, action_dim)
+
+    def clip_but_pass_gradient(self, x, l=-1., u=1.):
+        clip_up = (x > u).float()
+        clip_low = (x < l).float()
+        clip_value = (u - x) * clip_up + (l - x) * clip_low
+        return x + clip_value.detach()
+
+    def apply_squashing_func(self, mu, pi, log_pi):
+        mu = torch.tanh(mu)
+        pi = torch.tanh(pi)
+        # To avoid evil machine precision error, strictly clip 1-pi**2 to [0,1] range.
+        log_pi -= torch.sum(torch.log(self.clip_but_pass_gradient(1 - pi.pow(2), l=0., u=1.) + 1e-6), dim=-1)
+        return mu, pi, log_pi
+
+    def forward(self, state):
+        x = self.net(state)
+
+        mu = self.mu_layer(x)
+        log_std = torch.tanh(self.log_std_layer(x))
+        log_std = self.log_std_min + 0.5 * (self.log_std_max - self.log_std_min) * (log_std + 1)
+        std = torch.exp(log_std)
+
+        # https://pytorch.org/docs/stable/distributions.html#normal
+        dist = Normal(mu, std)
+        pi = dist.rsample()  # Reparameterization trick (mean + std * N(0,1))
+        log_pi = dist.log_prob(pi).sum(dim=-1)
+        mu, pi, log_pi = self.apply_squashing_func(mu, pi, log_pi)
+
+        # Make sure outputs are in correct range
+        mu = mu * self.output_limit
+        pi = pi * self.output_limit
+        return mu, pi, log_pi

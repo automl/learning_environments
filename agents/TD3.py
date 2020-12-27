@@ -9,9 +9,8 @@ from utils import ReplayBuffer, AverageMeter
 
 
 class TD3(BaseAgent):
-    def __init__(self, env, max_action, config, agent_name=None):
-        if agent_name is None:
-            agent_name = "td3"
+    def __init__(self, env, max_action, config):
+        agent_name = "td3"
         super().__init__(agent_name=agent_name, env=env, config=config)
 
         td3_config = config["agents"][agent_name]
