@@ -85,8 +85,8 @@ class ExperimentWrapper():
 
         real_env = env_fac.generate_real_env()
         reward_env = env_fac.generate_reward_env()
-        save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
-        #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-11-11_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_3W05XA.pt')
+        save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-25-12_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_QVN6V9.pt')
+        #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-25-12_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_QVN6V9.pt')
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
