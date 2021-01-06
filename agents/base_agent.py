@@ -62,9 +62,6 @@ class BaseAgent(nn.Module):
 
 
     def train(self, env, real_env=None, time_remaining=1e9):
-        print('base_agent: train start')
-
-
         time_start = time.time()
 
         discretize_action = False
@@ -88,8 +85,6 @@ class BaseAgent(nn.Module):
 
         # training loop
         for episode in range(self.train_episodes):
-            print('base_agent: episode start')
-
             # early out if timeout
             if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                max_episodes=self.train_episodes,
@@ -104,15 +99,11 @@ class BaseAgent(nn.Module):
             episode_reward = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                print('base_agent: select action')
-
                 action = self.select_train_action(state=state, env=env, episode=episode)
 
                 # live view
                 if self.render_env and episode % 10 == 0:
                     env.render()
-
-                print('base_agent: step')
 
                 # state-action transition
                 # required due to gumble softmax in td3 discrete
@@ -120,13 +111,10 @@ class BaseAgent(nn.Module):
                     next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
                 else:
                     next_state, reward, done = env.step(action=action)
-                print('base_agent: add replay buffer')
-
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
 
-                print('base_agent: learn')
                 # train
                 if episode > self.init_episodes:
                     self.learn(replay_buffer=replay_buffer, env=env, episode=episode)
@@ -137,14 +125,11 @@ class BaseAgent(nn.Module):
             # logging
             avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
-            print('base_agent: check early out')
             # quit training if environment is solved
             if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
                 break
 
         env.close()
-
-        print('base_agent: train end')
 
         return avg_meter_reward.get_raw_data(), replay_buffer
 

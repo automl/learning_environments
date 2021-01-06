@@ -92,31 +92,18 @@ class ExperimentWrapper():
 
         info = {}
 
-        print('bohb: 1')
-
         # generate environment
         env_fac = EnvFactory(config)
 
         real_env = env_fac.generate_real_env()
         reward_env = env_fac.generate_reward_env()
-
-        print(SAVE_FILE)
-        print('bohb: 11')
-
         save_dict = torch.load(SAVE_FILE)
-        print('bohb: 12')
-
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
-
-        print('bohb: 2')
 
         td3 = TD3(env=reward_env,
                   max_action=reward_env.get_max_action(),
                   config=config)
-
-        print('bohb: 3')
-
         reward_list_train, _ = td3.train(reward_env, real_env=real_env)
         reward_list_test, _ = td3.test(real_env)
         avg_reward_test = statistics.mean(reward_list_test)

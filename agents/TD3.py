@@ -10,8 +10,6 @@ from utils import ReplayBuffer, AverageMeter
 
 class TD3(BaseAgent):
     def __init__(self, env, max_action, config):
-        print('TD3: init start')
-
         agent_name = "td3"
         super().__init__(agent_name=agent_name, env=env, config=config)
 
@@ -42,13 +40,8 @@ class TD3(BaseAgent):
 
         self.total_it = 0
 
-        print('TD3: init end')
-
-
 
     def learn(self, replay_buffer, env, episode):
-        print('TD3: learn start')
-
         self.total_it += 1
 
         # Sample replay buffer
@@ -100,8 +93,6 @@ class TD3(BaseAgent):
 
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
-
-        print('TD3: learn end')
 
 
     def select_train_action(self, state, env, episode):
