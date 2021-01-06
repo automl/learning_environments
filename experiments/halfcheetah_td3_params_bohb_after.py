@@ -15,11 +15,14 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 MODE = int(sys.argv[3])
 if MODE == 2:
-    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
+    SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
+    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
 elif MODE == 4:
-    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
+    SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
+    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
 elif MODE == 102:
-    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
+    SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
+    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
 
 
 class ExperimentWrapper():
