@@ -13,6 +13,15 @@ from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 
+MODE = int(sys.argv[3])
+if MODE == 2:
+    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
+elif MODE == 4:
+    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
+elif MODE == 102:
+    SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
+
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -85,8 +94,7 @@ class ExperimentWrapper():
 
         real_env = env_fac.generate_real_env()
         reward_env = env_fac.generate_reward_env()
-        save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-16-15_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_0SY4VE.pt')
-        #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-16-15_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_0SY4VE.pt')
+        save_dict = torch.load(SAVE_FILE)
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
@@ -115,7 +123,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'halfcheetah_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2'
+    run_id = 'halfcheetah_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_' + str(MODE)
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

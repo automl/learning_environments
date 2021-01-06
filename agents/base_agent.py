@@ -60,6 +60,7 @@ class BaseAgent(nn.Module):
 
         return False
 
+
     def train(self, env, real_env=None, time_remaining=1e9):
         time_start = time.time()
 
@@ -131,6 +132,7 @@ class BaseAgent(nn.Module):
         env.close()
 
         return avg_meter_reward.get_raw_data(), replay_buffer
+
 
     def test(self, env, time_remaining=1e9):
         discretize_action = False
