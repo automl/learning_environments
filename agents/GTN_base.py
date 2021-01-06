@@ -11,7 +11,12 @@ class GTN_Base(nn.Module):
 
         self.bohb_id = bohb_id
 
-        self.sync_dir = str(os.path.join(os.getcwd(), 'results/GTN_sync2'))
+        if 'TMPDIR' in os.environ:   # for NEMO
+            sync_dir_base = os.environ['TMPDIR']
+        else:
+            sync_dir_base = os.getcwd()
+        self.sync_dir = str(os.path.join(sync_dir_base, 'results/GTN_sync2'))
+        print('SYNC DIR: ' + str(self.sync_dir))
 
         os.makedirs(self.sync_dir, exist_ok=True)
 
