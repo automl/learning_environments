@@ -56,5 +56,5 @@ envs:
     hidden_size: 142                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
     info_dim: !!int 4                       # additional information dimension from step function
-    reward_env_type: !!int 2                # type of reward shaping function
+    reward_env_type: !!int 102              # type of reward shaping function
 
