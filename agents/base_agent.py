@@ -127,6 +127,7 @@ class BaseAgent(nn.Module):
 
             # quit training if environment is solved
             if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
+                print('early out after ' + str(episode) + ' episodes')
                 break
 
         env.close()

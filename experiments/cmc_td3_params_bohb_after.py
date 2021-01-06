@@ -91,7 +91,6 @@ class ExperimentWrapper():
         reward_env.load_state_dict(save_dict['model'])
 
         td3 = TD3(env=reward_env,
-                  real_env=real_env,
                   max_action=reward_env.get_max_action(),
                   config=config)
         reward_list_train, _ = td3.train(reward_env, real_env=real_env)
