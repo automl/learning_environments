@@ -12,6 +12,7 @@ from agents.TD3 import TD3
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
+NUM_EVALS = 3
 
 class ExperimentWrapper():
     def get_bohb_parameters(self):
@@ -90,15 +91,19 @@ class ExperimentWrapper():
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
-        td3 = TD3(env=reward_env,
-                  max_action=reward_env.get_max_action(),
-                  config=config)
-        reward_list_train, _ = td3.train(reward_env, real_env=real_env)
-        reward_list_test, _ = td3.test(real_env)
-        avg_reward_test = statistics.mean(reward_list_test)
+        score = 0
+        for i in range(NUM_EVALS):
+            td3 = TD3(env=reward_env,
+                      max_action=reward_env.get_max_action(),
+                      config=config)
+            reward_list_train, _ = td3.train(reward_env, real_env=real_env)
+            reward_list_test, _ = td3.test(real_env)
+            avg_reward_test = statistics.mean(reward_list_test)
 
-        unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
-        score = len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+            unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
+            score += len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+
+        score = score/NUM_EVALS
 
         info['config'] = str(config)
 

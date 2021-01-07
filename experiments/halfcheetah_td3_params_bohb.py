@@ -11,6 +11,7 @@ from agents.TD3 import TD3
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
+NUM_EVALS = 3
 
 class ExperimentWrapper():
     def get_bohb_parameters(self):
@@ -81,11 +82,15 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        td3 = TD3(env=real_env,
-                  max_action=real_env.get_max_action(),
-                  config=config)
-        rewards, _ = td3.train(real_env)
-        score = len(rewards)
+        score = 0
+        for i in range(NUM_EVALS):
+            td3 = TD3(env=real_env,
+                      max_action=real_env.get_max_action(),
+                      config=config)
+            rewards, _ = td3.train(real_env)
+            score += len(rewards)
+
+        score = score/NUM_EVALS
 
         info['config'] = str(config)
 

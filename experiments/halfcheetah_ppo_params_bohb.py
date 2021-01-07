@@ -8,6 +8,7 @@ from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
+NUM_EVALS = 3
 
 class ExperimentWrapper():
     def get_bohb_parameters(self):
@@ -80,10 +81,14 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        ppo = PPO(env=real_env,
-                  config=config)
-        rewards, _ = ppo.train(real_env)
-        score = len(rewards)
+        score = 0
+        for i in range(NUM_EVALS):
+            ppo = PPO(env=real_env,
+                      config=config)
+            rewards, _ = ppo.train(real_env)
+            score += len(rewards)
+
+        score = score / NUM_EVALS
 
         info['config'] = str(config)
 

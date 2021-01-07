@@ -12,8 +12,9 @@ from agents.TD3 import TD3
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
-
+NUM_EVALS = 3
 MODE = int(sys.argv[3])
+
 if MODE == 2:
     SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
     CONFIG_FILE = 'default_config_halfcheetah_td3_opt_2.yaml'
@@ -104,15 +105,19 @@ class ExperimentWrapper():
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
-        td3 = TD3(env=reward_env,
-                  max_action=reward_env.get_max_action(),
-                  config=config)
-        reward_list_train, _ = td3.train(reward_env, real_env=real_env)
-        reward_list_test, _ = td3.test(real_env)
-        avg_reward_test = statistics.mean(reward_list_test)
+        score = 0
+        for i in range(NUM_EVALS):
+            td3 = TD3(env=reward_env,
+                      max_action=reward_env.get_max_action(),
+                      config=config)
+            reward_list_train, _ = td3.train(reward_env, real_env=real_env)
+            reward_list_test, _ = td3.test(real_env)
+            avg_reward_test = statistics.mean(reward_list_test)
 
-        unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
-        score = len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+            unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
+            score += len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+
+        score = score/NUM_EVALS
 
         info['config'] = str(config)
 
@@ -129,7 +134,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'halfcheetah_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_' + str(MODE)
+    run_id = 'halfcheetah_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_' + str(MODE) + '_after'
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
