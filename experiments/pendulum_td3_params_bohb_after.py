@@ -120,7 +120,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'pendulum_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2'
+    run_id = 'pendulum_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H") + '_2_after'
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
