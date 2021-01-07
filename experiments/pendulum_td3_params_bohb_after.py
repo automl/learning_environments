@@ -86,7 +86,8 @@ class ExperimentWrapper():
 
         real_env = env_fac.generate_real_env()
         reward_env = env_fac.generate_reward_env()
-        save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
+        save_dict = torch.load('/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
+        #save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
         #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
         #config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
