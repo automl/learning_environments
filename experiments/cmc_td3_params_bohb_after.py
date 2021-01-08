@@ -90,6 +90,11 @@ class ExperimentWrapper():
         #save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-25-12_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_QVN6V9.pt')
         #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cmc_params_2020-12-25-12_2/GTN_models_MountainCarContinuous-v0/MountainCarContinuous-v0_QVN6V9.pt')
         #config = save_dict['config']
+        # TODO: dirty hack for compatibility
+        save_dict['model']['env.reward_net.5.weight'] = save_dict['model']['env.reward_net.4.weight']
+        save_dict['model']['env.reward_net.5.bias'] = save_dict['model']['env.reward_net.4.bias']
+        del save_dict['model']['env.reward_net.4.weight']
+        del save_dict['model']['env.reward_net.4.bias']
         reward_env.load_state_dict(save_dict['model'])
 
         score = 0

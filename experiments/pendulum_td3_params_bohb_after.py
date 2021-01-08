@@ -90,6 +90,11 @@ class ExperimentWrapper():
         #save_dict = torch.load('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
         #save_dict = torch.load('/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_params_2020-12-24-13_2/GTN_models_Pendulum-v0/Pendulum-v0_IAMD5O.pt')
         #config = save_dict['config']
+        # TODO: dirty hack for compatibility
+        save_dict['model']['env.reward_net.5.weight'] = save_dict['model']['env.reward_net.4.weight']
+        save_dict['model']['env.reward_net.5.bias'] = save_dict['model']['env.reward_net.4.bias']
+        del save_dict['model']['env.reward_net.4.weight']
+        del save_dict['model']['env.reward_net.4.bias']
         reward_env.load_state_dict(save_dict['model'])
 
         score = 0
