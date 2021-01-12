@@ -119,7 +119,7 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cmc_td3_opt.yaml", "r") as stream:
+    with open("../default_config_halfcheetah.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # generate environment

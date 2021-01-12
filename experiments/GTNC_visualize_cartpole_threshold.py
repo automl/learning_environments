@@ -82,7 +82,7 @@ class DDQN_noise(BaseAgent):
                 episode_reward += reward
 
                 # train
-                if episode > self.init_episodes:
+                if episode >= self.init_episodes:
                     self.learn(replay_buffer=replay_buffer, env=env)
 
                 if done > 0.5:

@@ -45,7 +45,7 @@ class BaseAgent(nn.Module):
         avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
         if env.is_virtual_env():
             if abs(avg_reward - avg_reward_last) / abs(avg_reward_last + 1e-9) < self.early_out_virtual_diff and \
-                    episode > self.init_episodes + self.early_out_num:
+                    episode >= self.init_episodes + self.early_out_num:
                 #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
         elif real_env is not None:
@@ -61,7 +61,7 @@ class BaseAgent(nn.Module):
         return False
 
 
-    def train(self, env, real_env=None, time_remaining=1e9):
+    def train(self, env, real_env=None, test_env=None, time_remaining=1e9):
         time_start = time.time()
 
         discretize_action = False
@@ -116,17 +116,21 @@ class BaseAgent(nn.Module):
                 episode_reward += reward
 
                 # train
-                if episode > self.init_episodes:
+                if episode >= self.init_episodes:
                     self.learn(replay_buffer=replay_buffer, env=env, episode=episode)
 
                 if done > 0.5:
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+            if test_env is not None:
+                avg_reward_test, _ = self.test(real_env)
+                avg_meter_reward.update(statistics.mean(avg_reward_test), print_rate=self.print_rate)
+            else:
+                avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
-            if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
+            if episode >= self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
                 print('early out after ' + str(episode) + ' episodes')
                 break
 

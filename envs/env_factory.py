@@ -37,7 +37,7 @@ class EnvFactory:
     def generate_reward_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        #print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        #print(print_str + 'Generating reward environment "{}" with parameters {}'.format(self.env_name, kwargs))
         real_env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         reward_env = RewardEnv(real_env=real_env, kwargs=kwargs)
         return EnvWrapper(env=reward_env).to(self.device)
