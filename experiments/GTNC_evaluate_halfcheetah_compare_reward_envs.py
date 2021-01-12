@@ -8,14 +8,14 @@ import hpbandster.visualization as hpvis
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
-SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_2'
-LOG_DICT['4'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_4'
-LOG_DICT['102']= '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_2'
+LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_4'
+LOG_DICT['102']= '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
 
-MODEL_NUM = 20
+MODEL_NUM = 10
 MODEL_AGENTS = 10
 
 def get_best_models_from_log(log_dir):
