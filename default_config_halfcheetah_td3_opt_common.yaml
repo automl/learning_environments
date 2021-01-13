@@ -30,7 +30,7 @@ agents:
     vary_hp: !!bool True                    # vary hyperparameters of underlying TD3 algorithm?
 
   td3:
-    train_episodes: !!int 80                # maximum number of episodes to optimize
+    train_episodes: !!int 50                # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 20                 # number of episodes to fill the replay buffer
     batch_size: !!int  192                  # batch size when running a policy update step
