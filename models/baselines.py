@@ -83,8 +83,8 @@ class ICMTD3(TD3):
     """
     TD3 with an Intrinsic Curiosity Module ("Curiosity-driven Exploration by Self-supervised Prediction", Pathak et al.)
     """
-    def __init__(self, env, max_action, config, agent_name=None):
-        super(ICMTD3, self).__init__(env=env, max_action=max_action, config=config, agent_name=agent_name)
+    def __init__(self, env, max_action, config):
+        super(ICMTD3, self).__init__(env=env, max_action=max_action, config=config)
 
         # from the paper:
         self.beta = .2
