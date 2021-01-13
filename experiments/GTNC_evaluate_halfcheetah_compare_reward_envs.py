@@ -37,7 +37,7 @@ def get_best_models_from_log(log_dir):
         except:
             continue
 
-    best_models.sort(key=lambda x: x[0])
+    best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -82,7 +82,7 @@ def train_test_agents(mode, env, real_env, config):
 def save_list(mode, config, reward_list):
 
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'worst' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
