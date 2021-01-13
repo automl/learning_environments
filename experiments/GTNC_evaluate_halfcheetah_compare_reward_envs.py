@@ -96,7 +96,7 @@ def eval_models(mode, log_dir):
     reward_list = []
     for _, model_file in best_models:
         reward_env, real_env, config = load_envs_and_config(model_file)
-        rewards = train_test_agents(env=reward_env, real_env=real_env, config=config)
+        rewards = train_test_agents(mode=mode, env=reward_env, real_env=real_env, config=config)
         reward_list += rewards
     save_list(mode, config, reward_list)
 
