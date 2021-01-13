@@ -17,7 +17,7 @@ LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 LOG_DICT['102']= '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
 
 MODEL_NUM = 5
-MODEL_AGENTS = 5
+MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
     result = hpres.logged_results_to_HBS_result(log_dir)
