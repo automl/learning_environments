@@ -15,7 +15,7 @@ LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_4'
 LOG_DICT['102']= '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
 
-MODEL_NUM = 10
+MODEL_NUM = 20
 MODEL_AGENTS = 10
 
 def get_best_models_from_log(log_dir):
