@@ -90,15 +90,11 @@ class GTN_Master(GTN_Base):
             print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
-            skip_flag, quit_flag = self.read_worker_results()
+            skip_flag = self.read_worker_results()
 
             mean_score = np.mean(self.score_orig_list)
             mean_score_orig_list.append(mean_score)
             solved_flag = self.save_good_model(mean_score)
-
-            if quit_flag:
-                print('QUIT FLAG')
-                break
 
             if skip_flag:
                 print('SKIP FLAG')
@@ -167,9 +163,6 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has deleted the file (i.e. acknowledged the previous input)
             while os.path.isfile(file_name):
-                if os.path.isfile(self.get_quit_file_name()):
-                    print('Master {}: Emergency quit'.format(self.bohb_id))
-                    return
                 time.sleep(self.time_sleep_master)
 
             time.sleep(self.time_sleep_master)
@@ -194,7 +187,6 @@ class GTN_Master(GTN_Base):
 
     def read_worker_results(self):
         skip_flag = False
-        quit_flag = False
 
         for id in range(self.num_workers):
             file_name = self.get_result_file_name(id)
@@ -202,10 +194,6 @@ class GTN_Master(GTN_Base):
 
             # wait until worker has finished calculations
             while not os.path.isfile(check_file_name):
-                if os.path.isfile(self.get_quit_file_name()):
-                    print('Master {}: Emergency quit'.format(self.bohb_id))
-                    quit_flag = True
-                    return skip_flag, quit_flag
                 time.sleep(self.time_sleep_master)
 
             data = torch.load(file_name)
@@ -233,7 +221,7 @@ class GTN_Master(GTN_Base):
             os.remove(check_file_name)
             os.remove(file_name)
 
-        return skip_flag, quit_flag
+        return skip_flag
 
 
     def score_transform(self):

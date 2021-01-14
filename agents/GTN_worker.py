@@ -102,10 +102,6 @@ class GTN_Worker(GTN_Base):
         check_file_name = self.get_input_check_file_name(id=self.id)
 
         while not os.path.isfile(check_file_name):
-            if os.path.isfile(self.get_quit_file_name()):
-                print('Worker {} {}: Emergency quit'.format(self.bohb_id, self.id))
-                self.quit_flag = True
-                return
             time.sleep(self.time_sleep_worker)
         time.sleep(self.time_sleep_worker)
 
