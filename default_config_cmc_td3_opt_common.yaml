@@ -9,7 +9,7 @@ agents:
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
     num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
-    noise_std: !!float 0.01                 # standard deviation of the noise vector
+    noise_std: !!float 0.1                  # standard deviation of the noise vector
     step_size: !!float 0.5                  # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     mirrored_sampling: !!bool True          # use normal or mirrored sampling
@@ -20,7 +20,7 @@ agents:
     time_max: !!float 600                   # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
-    score_transform_type: !!int 3           # 0-7
+    score_transform_type: !!int 4           # 0-7
     quit_when_solved: !!bool False          # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
     unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
@@ -32,11 +32,11 @@ agents:
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  192                  # batch size when running a policy update step
     gamma: !!float 0.995                    # discount factor
-    lr: !!float 0.003                       # learning rate
+    lr: !!float 0.001                       # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 1                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
-    same_action_num: !!int 1                # how often to perform the same action subsequently
+    same_action_num: !!int 2                # how often to perform the same action subsequently
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
@@ -52,7 +52,7 @@ envs:
   MountainCarContinuous-v0:
     solved_reward: !!float 90               # used for early out in RL agent training
     max_steps: !!int 999                    # maximum number of steps per episode REMOVE
-    activation_fn: !!str prelu              # activation function of the virtual environment
+    activation_fn: !!str tanh               # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
