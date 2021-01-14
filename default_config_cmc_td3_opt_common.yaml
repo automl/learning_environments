@@ -31,8 +31,8 @@ agents:
     test_episodes: !!int 10                 # maximum number of episodes to optimize
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  192                  # batch size when running a policy update step
-    gamma: !!float 0.995                    # discount factor
-    lr: !!float 0.001                       # learning rate
+    gamma: !!float 0.99                     # discount factor
+    lr: !!float 0.003                       # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 1                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer
