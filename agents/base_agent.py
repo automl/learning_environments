@@ -108,9 +108,9 @@ class BaseAgent(nn.Module):
                 # state-action transition
                 # required due to gumble softmax in td3 discrete
                 if discretize_action:
-                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
+                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0), same_action_num=self.same_action_num)
                 else:
-                    next_state, reward, done = env.step(action=action)
+                    next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
