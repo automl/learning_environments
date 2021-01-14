@@ -62,7 +62,7 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['td3']['test_episodes'] = 1
-    config['agents']['td3']['train_episodes'] = 100
+    config['agents']['td3']['train_episodes'] = 50
     config['agents']['td3']['print_rate'] = 1
 
     for i in range(MODEL_AGENTS):
