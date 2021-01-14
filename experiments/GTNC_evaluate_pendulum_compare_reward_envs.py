@@ -9,12 +9,10 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/pendulum_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_2'
-LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_4'
-LOG_DICT['102']= '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_2021-01-13-20_2'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 3
@@ -37,7 +35,8 @@ def get_best_models_from_log(log_dir):
         except:
             continue
 
-    best_models.sort(key=lambda x: x[0], reverse=True)
+    best_models.sort(key=lambda x: x[0])
+    #best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -48,7 +47,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    config['envs']['HalfCheetah-v3']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['Pendulum-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
@@ -81,7 +80,7 @@ def train_test_agents(mode, env, real_env, config):
 def save_list(mode, config, reward_list):
 
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'worst' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
