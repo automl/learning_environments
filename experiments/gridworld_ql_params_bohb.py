@@ -42,6 +42,10 @@ class ExperimentWrapper():
         config["agents"]['ql']['eps_init'] = cso["ql_eps_init"]
         config["agents"]['ql']['eps_min'] = cso["ql_eps_min"]
         config["agents"]['ql']['eps_decay'] = 1-cso["ql_eps_decay"]
+
+        config["agents"]['ql']['test_episodes'] = 1
+
+
         config["device"] = 'cuda'
 
         return config
@@ -68,7 +72,7 @@ class ExperimentWrapper():
         score = 0
         for i in range(NUM_EVALS):
             ql = QL(env=real_env, config=config)
-            rewards, _ = ql.train(real_env)
+            rewards, _ = ql.train(env=real_env, test_env=real_env)
             score += len(rewards)
 
         score = score/NUM_EVALS

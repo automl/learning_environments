@@ -140,7 +140,7 @@ class EnvWrapper(nn.Module):
         return self.env._max_episode_steps
 
     def can_be_solved(self):
-        if self.env.solved_reward < 1e6:
+        if self.env.solved_reward < 1e9:
             return True
         else:
             return False

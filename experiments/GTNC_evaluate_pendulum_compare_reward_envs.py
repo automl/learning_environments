@@ -71,7 +71,7 @@ def train_test_agents(mode, env, real_env, config):
             agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
         else:
             agent = select_agent(config=config, agent_name='td3')
-        reward, _ = agent.train(env=env, real_env=real_env, test_env=real_env)
+        reward, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
 

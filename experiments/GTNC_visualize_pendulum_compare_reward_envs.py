@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/halfcheetah_compare_reward_envs/worst5_-1.pt',
-             '../results/halfcheetah_compare_reward_envs/worst5_0.pt',
-             '../results/halfcheetah_compare_reward_envs/worst5_2.pt',
-             '../results/halfcheetah_compare_reward_envs/worst5_4.pt',
-             '../results/halfcheetah_compare_reward_envs/worst5_102.pt']
+LOG_FILES = ['../results/pendulum_compare_reward_envs/best5_-1.pt',
+             '../results/pendulum_compare_reward_envs/best5_0.pt',
+             '../results/pendulum_compare_reward_envs/best5_2.pt']
 
 STD_MULT = 0.5
 MAX_VALS = 15
@@ -49,9 +47,9 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline ICM', 'baseline naive','worst NN w/o info vector','worst NN w/ info vector','baseline Faust'))
-    plt.xlim(0,99)
-    plt.title('HalfCheetah-v3')
+    plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
+    plt.xlim(0,49)
+    plt.title('Pendulum-v0')
     plt.xlabel('episode')
     plt.ylabel('average reward')
     plt.savefig(savefig_name)
