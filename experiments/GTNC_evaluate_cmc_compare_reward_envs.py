@@ -9,10 +9,10 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/pendulum_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_pendulum_2021-01-13-20_2'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_2021-01-15-00_2'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 3
@@ -20,7 +20,7 @@ MODEL_AGENTS = 3
 def get_best_models_from_log(log_dir):
     if not os.path.isfile(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
-
+        
     result = hpres.logged_results_to_HBS_result(log_dir)
 
     best_models = []
@@ -48,7 +48,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    config['envs']['Pendulum-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['MountainCarContinuous-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()

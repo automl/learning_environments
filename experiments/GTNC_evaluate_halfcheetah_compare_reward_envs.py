@@ -14,15 +14,16 @@ SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheet
 LOG_DICT = {}
 LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_2'
 LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-11-19_4'
-LOG_DICT['102']= '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
+LOG_DICT['102'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-12-11_102'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
+    if not os.path.isfile(log_dir):
+        log_dir = log_dir.replace('nierhoff', 'dingsda')
+
     result = hpres.logged_results_to_HBS_result(log_dir)
-    all_runs = result.get_all_runs()
-    id2conf = result.get_id2config_mapping()
 
     best_models = []
 
