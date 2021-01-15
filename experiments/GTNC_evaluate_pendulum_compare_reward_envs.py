@@ -18,7 +18,7 @@ MODEL_NUM = 5
 MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
-    if not os.path.isfile(log_dir):
+    if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
 
     result = hpres.logged_results_to_HBS_result(log_dir)
