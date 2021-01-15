@@ -8,10 +8,10 @@ from utils import ReplayBuffer, AverageMeter
 
 class QL(BaseAgent):
     def __init__(self, env, config):
-        agent_name = "ql"
-        super().__init__(agent_name=agent_name, env=env, config=config)
+        self.agent_name = "ql"
+        super().__init__(agent_name=self.agent_name, env=env, config=config)
 
-        ql_config = config["agents"][agent_name]
+        ql_config = config["agents"][self.agent_name]
 
         self.batch_size = ql_config["batch_size"]
         self.alpha = ql_config["alpha"]
@@ -83,22 +83,23 @@ class QL(BaseAgent):
 if __name__ == "__main__":
     with open("../default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
-
+    print(config)
     torch.set_num_threads(1)
 
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_real_env()
     #virtual_env = env_fac.generate_virtual_env()
+    reward_env = env_fac.generate_reward_env()
 
     reward_list_len = []
     for i in range(20):
-        print(i)
         ql = QL(env=real_env,
                 config=config)
-        reward_list_train, _ = ql.train(env=real_env, time_remaining=500)
+        reward_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
         reward_list_test, replay_buffer = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
+        print(len(reward_list_train))
 
     import statistics
     print(statistics.mean(reward_list_len))

@@ -8,10 +8,10 @@ from utils import ReplayBuffer, AverageMeter
 
 class SARSA(BaseAgent):
     def __init__(self, env, config):
-        agent_name = "sarsa"
-        super().__init__(agent_name=agent_name, env=env, config=config)
+        self.agent_name = "sarsa"
+        super().__init__(agent_name=self.agent_name, env=env, config=config)
 
-        ql_config = config["agents"][agent_name]
+        ql_config = config["agents"][self.agent_name]
 
         self.batch_size = ql_config["batch_size"]
         self.alpha = ql_config["alpha"]
