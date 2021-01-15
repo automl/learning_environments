@@ -57,7 +57,7 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='halfcheetah_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='pendulum_compare_reward_env.png')
 
 
 

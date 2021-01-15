@@ -49,7 +49,7 @@ def plot_data(proc_data, savefig_name):
 
     plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
     plt.xlim(0,99)
-    plt.title('Pendulum-v0')
+    plt.title('MountainCarContinuous-v0')
     plt.xlabel('episode')
     plt.ylabel('average reward')
     plt.savefig(savefig_name)
@@ -57,7 +57,7 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='halfcheetah_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='cmc_compare_reward_env.png')
 
 
 

@@ -34,6 +34,8 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
+        config['agents']['gtn']['mode'] = 'single'
+
         return config
 
 
@@ -51,19 +53,24 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
-            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
-            _, score_list = gtn.run()
-            score = len(score_list)
+            gtn = GTN_Master(config, bohb_id=0, bohb_working_dir=working_dir)
+            gtn.clean_working_dir()
+            _, score_list, model_name = gtn.run()
+            score = -sorted(score_list)[-1]
             error = ""
         except:
             score = float('Inf')
             score_list = []
+            model_name = None
             error = traceback.format_exc()
             print(error)
 
         info = {}
         info['error'] = str(error)
+        info['config'] = str(config)
         info['score_list'] = str(score_list)
+        info['model_name'] = str(model_name)
+
 
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
@@ -81,21 +88,12 @@ if __name__ == "__main__":
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_holeroomlarge_' + x.strftime("%Y-%m-%d-%H")
 
-    if len(sys.argv) > 1:
-        for arg in sys.argv[1:]:
-            print(arg)
-        random.seed(int(sys.argv[1])+int(time.time()))
-        np.random.seed(int(sys.argv[1])+int(time.time()))
-        torch.manual_seed(int(sys.argv[1])+int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
-        res = run_bohb_parallel(id=int(sys.argv[1]),
-                                bohb_workers=int(sys.argv[2]),
-                                run_id=run_id,
-                                experiment_wrapper=ExperimentWrapper())
-    else:
-        random.seed(int(time.time()))
-        np.random.seed(int(time.time()))
-        torch.manual_seed(int(time.time()))
-        torch.cuda.manual_seed_all(int(time.time()))
-        res = run_bohb_serial(run_id=run_id,
-                              experiment_wrapper=ExperimentWrapper())
+    random.seed(int(time.time()))
+    np.random.seed(int(time.time()))
+    torch.manual_seed(int(time.time()))
+    torch.cuda.manual_seed_all(int(time.time()))
+
+    torch.set_num_threads(1)
+
+    res = run_bohb_serial(run_id=run_id,
+                          experiment_wrapper=ExperimentWrapper())
