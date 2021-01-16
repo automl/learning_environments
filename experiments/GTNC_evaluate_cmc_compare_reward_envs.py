@@ -12,7 +12,7 @@ from models.baselines import ICMTD3
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_2021-01-15-00_2'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-16-00_2'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 3
