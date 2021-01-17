@@ -46,11 +46,11 @@ class BaseAgent(nn.Module):
         if env.is_virtual_env():
             if abs(avg_reward - avg_reward_last) / abs(avg_reward_last + 1e-9) < self.early_out_virtual_diff and \
                     episode >= self.init_episodes + self.early_out_num:
-                #print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
         else:
             if avg_reward >= env.get_solved_reward():
-                #print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 
         return False
@@ -126,10 +126,14 @@ class BaseAgent(nn.Module):
 
             # quit training if environment is solved
             if episode >= self.init_episodes and \
-               episode % self.early_out_episode == 0 and \
-               self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode):
-                #print('early out after ' + str(episode) + ' episodes')
-                break
+               episode % self.early_out_episode == 0:
+                if test_env is not None:
+                    break_env = test_env
+                else:
+                    break_env = env
+                if self.env_solved(env=break_env, avg_meter_reward=avg_meter_reward, episode=episode):
+                    print('early out after ' + str(episode) + ' episodes')
+                    break
 
         env.close()
 

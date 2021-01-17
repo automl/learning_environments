@@ -119,9 +119,9 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cmc_td3_opt_common.yaml", "r") as stream:
+    with open("../default_config_halfcheetah_td3_subopt_common.yaml", "r") as stream:
         config = yaml.safe_load(stream)
-
+    print(config)
     # generate environment
     env_fac = EnvFactory(config)
     #virt_env = env_fac.generate_virtual_env()
@@ -131,7 +131,7 @@ if __name__ == "__main__":
               max_action=real_env.get_max_action(),
               config=config)
     t1 = time.time()
-    td3.train(env=real_env, time_remaining=1200)
+    td3.train(env=real_env, test_env=real_env, time_remaining=3600)
     print(time.time()-t1)
     td3.test(env=real_env, time_remaining=1200)
     print(time.time()-t1)
