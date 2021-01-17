@@ -14,8 +14,8 @@ SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compa
 LOG_DICT = {}
 LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-16-00_2'
 
-MODEL_NUM = 5
-MODEL_AGENTS = 3
+MODEL_NUM = 20
+MODEL_AGENTS = 5
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
