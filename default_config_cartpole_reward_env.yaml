@@ -17,12 +17,12 @@ agents:
     grad_eval_type: !!str mean              # mean or min
     weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
-    time_max: !!float 600                  # maximum allocated time for first iteration
+    time_max: !!float 600                   # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 3           # 0-7
     quit_when_solved: !!bool False          # continue training once the environment has been solved?
-    synthetic_env_type: !!int 0             # 0: virtual env / 1: reward env
+    synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
     unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
@@ -124,4 +124,4 @@ envs:
     hidden_size: 83                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
-    reward_env_type: !!int 0                # type of reward shaping function
+    reward_env_type: !!int 2                # type of reward shaping function
