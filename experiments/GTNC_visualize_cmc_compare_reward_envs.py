@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best5_-1.pt',
-             '../results/cmc_compare_reward_envs/best5_0.pt',
-             '../results/cmc_compare_reward_envs/best5_2.pt']
+LOG_FILES = ['../results/cmc_compare_reward_envs/best20_-1.pt',
+             '../results/cmc_compare_reward_envs/best20_0.pt',
+             '../results/cmc_compare_reward_envs/best20_2.pt']
 
 STD_MULT = 0.5
-MAX_VALS = 15
+MAX_VALS = 100
 
 def get_data():
     list_data = []
