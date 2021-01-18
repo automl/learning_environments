@@ -7,7 +7,7 @@ import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMTD3
+from models.baselines import ICMDDQN
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
@@ -68,7 +68,7 @@ def train_test_agents(mode, env, real_env, config):
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
-            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
+            agent = ICMDDQN(env=real_env, config=config)
         else:
             agent = select_agent(config=config, agent_name='td3')
         reward, _ = agent.train(env=env, test_env=real_env)
