@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     global reward_env_type
     reward_env_type = int(sys.argv[3])
-    run_id = 'GTNC_evaluate_cartpole' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
+    run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
     seed = id+int(time.time())
     random.seed(seed)
