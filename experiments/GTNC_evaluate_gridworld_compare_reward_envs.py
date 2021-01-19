@@ -9,11 +9,11 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_2'
-LOG_DICT['5'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
 
 MODEL_NUM = 20
 MODEL_AGENTS = 3
