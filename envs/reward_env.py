@@ -98,6 +98,9 @@ class RewardEnv(nn.Module):
             elif self.reward_env_type == 4:
                 reward_res = reward_torch + self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
 
+        elif self.reward_env_type == 5:
+            reward_res = reward_torch + self.reward_net(next_state_torch)
+
         elif self.reward_env_type == 101 or self.reward_env_type == 102:
             if not info:
                 raise ValueError('No info dict provided by environment')
