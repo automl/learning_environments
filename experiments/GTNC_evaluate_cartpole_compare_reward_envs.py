@@ -12,10 +12,10 @@ from models.baselines import ICMDDQN
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole2021-01-18-12_2'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-00_2'
 
-MODEL_NUM = 10
-MODEL_AGENTS = 5
+MODEL_NUM = 20
+MODEL_AGENTS = 10
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -62,15 +62,15 @@ def train_test_agents(mode, env, real_env, config):
     rewards = []
 
     # settings for comparability
-    config['agents']['td3']['test_episodes'] = 1
-    config['agents']['td3']['train_episodes'] = 500
-    config['agents']['td3']['print_rate'] = 1
+    config['agents']['ddqn']['test_episodes'] = 1
+    config['agents']['ddqn']['train_episodes'] = 500
+    config['agents']['ddqn']['print_rate'] = 10
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
             agent = ICMDDQN(env=real_env, config=config)
         else:
-            agent = select_agent(config=config, agent_name='td3')
+            agent = select_agent(config=config, agent_name='ddqn')
         reward, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
