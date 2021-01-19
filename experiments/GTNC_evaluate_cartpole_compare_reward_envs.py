@@ -13,6 +13,7 @@ SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_
 
 LOG_DICT = {}
 LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-00_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-15_5'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 3
