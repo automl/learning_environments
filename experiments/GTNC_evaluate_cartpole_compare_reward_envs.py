@@ -132,9 +132,9 @@ if __name__ == "__main__":
     mode = str(sys.argv[1])
 
     if mode == '-1':
-        eval_icm(mode=mode, log_dir=LOG_DICT['2'])
+        eval_icm(mode=mode, log_dir=LOG_DICT['5'])
     elif mode == '0':
-        eval_base(mode=mode, log_dir=LOG_DICT['2'])
+        eval_base(mode=mode, log_dir=LOG_DICT['5'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
 
