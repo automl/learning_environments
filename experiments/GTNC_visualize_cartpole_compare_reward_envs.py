@@ -2,12 +2,11 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best20_-1.pt',
-             '../results/cmc_compare_reward_envs/best20_0.pt',
-             '../results/cmc_compare_reward_envs/best20_2.pt']
+LOG_FILES = ['../results/cartpole_compare_reward_envs/best10_0.pt',
+             '../results/cartpole_compare_reward_envs/best10_2.pt']
 
 STD_MULT = 0.5
-MAX_VALS = 100
+MAX_VALS = 30
 
 def get_data():
     list_data = []
@@ -24,6 +23,8 @@ def get_data():
 
         for i in range(len(np_data)):
             np_data[i] = np.array(data[i])
+
+        print(np_data)
 
         mean = np.mean(np_data,axis=0)
         std = np.std(np_data,axis=0)
@@ -47,8 +48,9 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
-    plt.xlim(0,99)
+    #plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
+    plt.legend(('baseline naive', 'best NN w/o info vector'))
+    plt.xlim(0,499)
     plt.title('MountainCarContinuous-v0')
     plt.xlabel('episode')
     plt.ylabel('average reward')
