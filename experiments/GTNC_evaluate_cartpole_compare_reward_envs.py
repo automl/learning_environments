@@ -14,8 +14,8 @@ SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_
 LOG_DICT = {}
 LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-00_2'
 
-MODEL_NUM = 20
-MODEL_AGENTS = 10
+MODEL_NUM = 10
+MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
