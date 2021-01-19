@@ -12,9 +12,10 @@ from models.baselines import ICMTD3
 SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-15-17'
+LOG_DICT['2'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_2'
+LOG_DICT['5'] = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
 
-MODEL_NUM = 5
+MODEL_NUM = 20
 MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
