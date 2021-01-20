@@ -81,7 +81,7 @@ class QL(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_gridworld.yaml", "r") as stream:
+    with open("../default_config_gridworld_reward_env.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     print(config)
     torch.set_num_threads(1)
@@ -96,10 +96,11 @@ if __name__ == "__main__":
     for i in range(20):
         ql = QL(env=real_env,
                 config=config)
-        reward_list_train, _, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
-        reward_list_test, _, _ = ql.test(env=real_env, time_remaining=500)
+        reward_list_train, episode_length_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
+        reward_list_test, episode_length_list_test, _ = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
         print(len(reward_list_train))
+        print(sum(episode_length_list_train))
 
     import statistics
     print(statistics.mean(reward_list_len))
