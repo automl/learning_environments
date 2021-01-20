@@ -8,7 +8,7 @@ agents:
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
-    noise_std: !!float 0.01                 # standard deviation of the noise vector
+    noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 0.5                  # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     mirrored_sampling: !!bool True          # use normal or mirrored sampling
@@ -26,7 +26,7 @@ agents:
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   ddqn:
-    train_episodes: !!int 400               # maximum number of episodes to train
+    train_episodes: !!int 500               # maximum number of episodes to train
     test_episodes: !!int 1                  # maximum number of episodes to test
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int 192                   # batch size when running a policy update step
