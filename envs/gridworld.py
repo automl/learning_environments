@@ -210,6 +210,19 @@ class HoleRoomLarge(GridworldEnv):
 
         GridworldEnv.__init__(self, grid=grid)
 
+class HoleRoomLargeShifted(GridworldEnv):
+    def __init__(self):
+        self.step_cost = -0.01
+        self.g_reward = 1
+        self.o_reward = -1
+        grid = [['S', ' ', 'O', ' ', ' ', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', 'O', ' ', 'O', ' ', ' '],
+                [' ', ' ', ' ', ' ', 'O', ' ', 'G']]
+
+        GridworldEnv.__init__(self, grid=grid)
+
 class Cliff(GridworldEnv):
     def __init__(self):
         self.step_cost = -0.01

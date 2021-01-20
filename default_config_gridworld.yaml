@@ -1,4 +1,4 @@
-env_name: !!str HoleRoomLarge
+env_name: !!str HoleRoomLargeShifted
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
@@ -107,6 +107,15 @@ envs:
     reward_env_type: !!int 2                # type of reward shaping function
 
   HoleRoomLarge:
+    solved_reward: !!float 0.8
+    max_steps: !!int 30
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 32                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 2                # type of reward shaping function
+
+  HoleRoomLargeShifted:
     solved_reward: !!float 0.8
     max_steps: !!int 30
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
