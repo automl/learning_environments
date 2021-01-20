@@ -8,7 +8,7 @@ from agents.QL import QL
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
-NUM_EVALS = 3
+NUM_EVALS = 1
 
 class ExperimentWrapper():
     def get_bohb_parameters(self):
@@ -25,11 +25,11 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_alpha', lower=0.01, upper=1, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_gamma', lower=0.005, upper=0.5, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_init', lower=0.01, upper=1, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_min', lower=0.005, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_decay', lower=0.005, upper=0.5, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_alpha', lower=0.001, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_gamma', lower=0.001, upper=1, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_init', lower=0.01, upper=1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_min', lower=0.01, upper=1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='ql_eps_decay', lower=0.001, upper=1, log=True, default_value=0.01))
 
         return cs
 
@@ -37,14 +37,13 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]['ql']['alpha'] = cso["ql_alpha"]
+        config["agents"]['ql']['alpha'] = 1-cso["ql_alpha"]
         config["agents"]['ql']['gamma'] = 1-cso["ql_gamma"]
         config["agents"]['ql']['eps_init'] = cso["ql_eps_init"]
         config["agents"]['ql']['eps_min'] = cso["ql_eps_min"]
         config["agents"]['ql']['eps_decay'] = 1-cso["ql_eps_decay"]
 
         config["agents"]['ql']['test_episodes'] = 1
-
 
         config["device"] = 'cuda'
 
@@ -92,7 +91,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'holeroomlarge_ql_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'cliff_ql_params_bohb_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

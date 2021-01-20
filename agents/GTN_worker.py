@@ -35,7 +35,6 @@ class GTN_Worker(GTN_Base):
     def late_init(self, config):
         gtn_config = config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]
-        self.num_test_envs = gtn_config["num_test_envs"]
         self.num_grad_evals = gtn_config["num_grad_evals"]
         self.grad_eval_type = gtn_config["grad_eval_type"]
         self.mirrored_sampling = gtn_config["mirrored_sampling"]
