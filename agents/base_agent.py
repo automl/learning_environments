@@ -121,7 +121,7 @@ class BaseAgent(nn.Module):
                     break
 
             # logging
-            avg_meter_episode_length.update(episode_length)
+            avg_meter_episode_length.update(episode_length, print_rate=self.print_rate)
 
             if test_env is not None:
                 avg_reward_test_raw, _ = self.test(test_env)
