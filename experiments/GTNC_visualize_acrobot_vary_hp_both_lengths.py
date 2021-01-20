@@ -8,7 +8,7 @@ import seaborn as sns
 import torch
 
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_to_duelingddqn_vary'
-plot_name = 'acrobot_ddqn_to_duelingddqn_vary_hp_new.eps'
+plot_name = 'acrobot_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
 title = "Transfer DDQN -> Dueling DDQN"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_vary_trained_on'
@@ -23,18 +23,30 @@ title = "Transfer DDQN -> Dueling DDQN"
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
+ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+dueling_ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+dueling_ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+td3_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+td3_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+mean_train_steps = dueling_ddqn_mean_train_steps
+std_train_steps = dueling_ddqn_std_train_steps
+
 if __name__ == "__main__":
     data_list = []
     mean_list = []
-    episode_num_needed_means = []
-    episode_num_needed_stds = []
+    episode_length_needed_means = []
+    episode_length_needed_stds = []
     for file in FILE_LIST:
         file_path = os.path.join(FILE_DIR, file)
         save_dict = torch.load(file_path)
         reward_list = save_dict['reward_list']
 
-        mean_episode_num = np.mean(save_dict["train_steps_needed"])
-        std_episode_num = np.std(save_dict["train_steps_needed"])
+        mean_episode_lengths = np.mean(save_dict["train_steps_needed"])
+        std_episode_lengths = np.std(save_dict["train_steps_needed"])
 
         reward_list_single = []
         for r_list in reward_list:
@@ -43,16 +55,21 @@ if __name__ == "__main__":
         data_list.append(reward_list_single)
         mean_list.append('mean: {:.2f}'.format((statistics.mean(reward_list_single))))
 
-        episode_num_needed_means.append(mean_episode_num)
-        episode_num_needed_stds.append(std_episode_num)
+        episode_length_needed_means.append(mean_episode_lengths)
+        episode_length_needed_stds.append(std_episode_lengths)
 
     data_dict = {
-            'train: real  / HP: vary\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[0], episode_num_needed_stds[0]): data_list[0],
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[1], episode_num_needed_stds[1]): data_list[1],
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
+            'train: real  / HP: vary\n(mean episode length: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
+                    episode_length_needed_means[0], episode_length_needed_stds[0],
+                    mean_train_steps[0], std_train_steps[0]): data_list[0],
+
+            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+                    episode_length_needed_means[1], episode_length_needed_stds[1],
+                    mean_train_steps[1], std_train_steps[1]): data_list[1],
+
+            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+                    episode_length_needed_means[2], episode_length_needed_stds[2],
+                    mean_train_steps[2], std_train_steps[2]): data_list[2]
             }
 
     df = pd.DataFrame(data=data_dict)

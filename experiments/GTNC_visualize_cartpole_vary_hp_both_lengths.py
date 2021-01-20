@@ -10,15 +10,15 @@ import torch
 # FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
 
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on'
-plot_name = 'cartpole_ddqn_vary_hp_new.svg'
+plot_name = 'cartpole_ddqn_vary_hp_both_lengths.eps'
 title = "Trained synth. env. with DDQN"
 
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary'
-plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_new.eps'
+plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
 title = "Transfer DDQN -> Dueling DDQN"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
-# plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp.eps'
+# plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp_both_lengths.eps'
 # title = "Transfer DDQN -> TD3"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
@@ -33,14 +33,13 @@ title = "Transfer DDQN -> Dueling DDQN"
 
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4'
-plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_new.eps'
+plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_both_lengths.eps'
 title = "Transfer DDQN -> TD3"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
 # /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
 # plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_config.eps'
 # title = "Transfer DDQN -> TD3"
-
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
 # /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_relu_layer_norm'
@@ -70,6 +69,19 @@ title = "Transfer DDQN -> TD3"
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
+
+ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+dueling_ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+dueling_ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+td3_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
+td3_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+
+mean_train_steps = ddqn_mean_train_steps
+std_train_steps = ddqn_std_train_steps
+
 if __name__ == "__main__":
     data_list = []
     mean_list = []
@@ -94,12 +106,17 @@ if __name__ == "__main__":
         episode_num_needed_stds.append(std_episode_num)
 
     data_dict = {
-            'train: real  / HP: vary\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[0], episode_num_needed_stds[0]): data_list[0],
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[1], episode_num_needed_stds[1]): data_list[1],
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
+            'train: real  / HP: vary\n(mean num episodes: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
+                    episode_num_needed_means[0], episode_num_needed_stds[0],
+                    mean_train_steps[0], std_train_steps[0]): data_list[0],
+
+            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+                    episode_num_needed_means[1], episode_num_needed_stds[1],
+                    mean_train_steps[1], std_train_steps[1]): data_list[1],
+
+            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+                    episode_num_needed_means[2], episode_num_needed_stds[2],
+                    mean_train_steps[2], std_train_steps[2]): data_list[2]
             }
 
     df = pd.DataFrame(data=data_dict)

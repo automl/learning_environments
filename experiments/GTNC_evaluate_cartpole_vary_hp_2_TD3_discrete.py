@@ -33,8 +33,12 @@ def load_envs_and_config(file_name):
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
     # print("using ---td3 discrete vary better--- config")
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_better"]
-    print("using --- td3 discrete vary tanh --- config")
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh"]
+    # print("using --- td3 discrete vary tanh --- config")
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh"]
+
+    print("using --- td3 discrete vary tanh 2 --- config")
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh_2"]
+
 
     # print("using --- td3 discrete vary tanh less hpo --- config")
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm"]
@@ -133,7 +137,7 @@ def run_vary_hp(mode, experiment_name):
     save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_relu_layer_norm_config_episode_steps"
+    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_relu_layer_norm_config_episode_steps_tanh2"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
