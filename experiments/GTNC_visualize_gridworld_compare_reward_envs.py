@@ -36,7 +36,7 @@ def get_data():
             rewards, episode_lengths = data
 
             concat_list = []
-            rewards = [0] + rewards
+            rewards = rewards
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]]*episode_lengths[i]
