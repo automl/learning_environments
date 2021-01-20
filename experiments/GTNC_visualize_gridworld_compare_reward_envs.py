@@ -2,8 +2,11 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/gridworld_compare_reward_envs/best0.pt',
-             '../results/gridworld_compare_reward_envs/best2.pt']
+LOG_FILES = ['../results/cliff_compare_reward_envs/best0.pt',
+             '../results/cliff_compare_reward_envs/best1.pt',
+             '../results/cliff_compare_reward_envs/best2.pt',
+             '../results/cliff_compare_reward_envs/best5.pt',
+             '../results/cliff_compare_reward_envs/best6.pt']
 
 STD_MULT = 0.5
 BINS = 100
@@ -64,7 +67,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline naive','mode 2'))
+    plt.legend(('baseline naive', 'mode 1', 'mode 2', 'mode 5', 'mode 6'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HoleRoomLarge')
