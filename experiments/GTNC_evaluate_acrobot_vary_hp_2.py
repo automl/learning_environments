@@ -67,7 +67,7 @@ def train_test_agents(train_env, test_env, config):
         reward, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
-        train_steps_needed.append([episode_length])
+        train_steps_needed.append([sum(episode_length)])
 
     return reward_list, train_steps_needed
 

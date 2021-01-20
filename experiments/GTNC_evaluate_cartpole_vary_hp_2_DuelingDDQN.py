@@ -72,11 +72,11 @@ def train_test_agents(train_env, test_env, config):
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='DuelingDDQN_vary')
-        reward_train, episode_steps, _ = agent.train(env=train_env)
+        reward_train, episode_length, _ = agent.train(env=train_env)
         reward, _, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
-        train_steps_needed.append([(len(episode_steps))])
+        train_steps_needed.append([sum(episode_length)])
 
     return reward_list, train_steps_needed
 
