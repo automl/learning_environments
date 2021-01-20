@@ -20,9 +20,14 @@ class GTN_Worker(GTN_Base):
 
         # flag to stop worker
         self.quit_flag = False
-        self.time_sleep_worker = 2
+        self.time_sleep_worker = 3
         self.timeout = None
-        self.uuid = None
+
+        # delete corresponding sync files if existant
+        for file in [self.get_input_file_name(self.id), self.get_input_check_file_name(self.id),
+                     self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
+            if os.path.isfile(file):
+                os.remove(file)
 
         print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
@@ -107,7 +112,6 @@ class GTN_Worker(GTN_Base):
 
         data = torch.load(file_name)
 
-        self.uuid = data['uuid']
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
         self.config = data['config']
@@ -135,7 +139,6 @@ class GTN_Worker(GTN_Base):
         data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["score_orig"] = score_orig
-        data["uuid"] = self.uuid
         torch.save(data, file_name)
         torch.save({}, check_file_name)
 
@@ -187,7 +190,7 @@ class GTN_Worker(GTN_Base):
             if not real_env.can_be_solved():
                 return avg_reward_test
             else:
-                return -len(reward_list_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
+                return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
 
 
     def calc_best_score(self, score_sub, score_add):

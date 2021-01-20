@@ -38,9 +38,6 @@ class GTN_Master(GTN_Base):
         if gtn_config["mode"] == 'single':
             self.time_sleep_master /= 10
 
-        # id used as a handshake to check if resuls from workers correspond to sent data
-        self.uuid_list = [0]*(self.num_workers)
-
         # to store results from workers
         self.time_elapsed_list = [None] * self.num_workers # for debugging
         self.score_list = [None]*self.num_workers
@@ -90,15 +87,11 @@ class GTN_Master(GTN_Base):
             print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
             self.write_worker_inputs(it)
             print('-- Master: read worker results' + ' ' + str(time.time()-t1))
-            skip_flag = self.read_worker_results()
+            self.read_worker_results()
 
             mean_score = np.mean(self.score_orig_list)
             mean_score_orig_list.append(mean_score)
             solved_flag = self.save_good_model(mean_score)
-
-            if skip_flag:
-                print('SKIP FLAG')
-                continue
 
             if solved_flag and self.quit_when_solved:
                 print('ENV SOLVED')
@@ -166,7 +159,6 @@ class GTN_Master(GTN_Base):
                 time.sleep(self.time_sleep_master)
 
             time.sleep(self.time_sleep_master)
-            self.uuid_list[id] = str(uuid.uuid4())
 
             # if we are not using bohb, shut everything down after last iteration
             if self.bohb_id < 0:
@@ -177,7 +169,6 @@ class GTN_Master(GTN_Base):
             data = {}
             data['timeout'] = timeout
             data['quit_flag'] = quit_flag
-            data['uuid'] = self.uuid_list[id]
             data['config'] = self.config
             data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
 
@@ -186,8 +177,6 @@ class GTN_Master(GTN_Base):
 
 
     def read_worker_results(self):
-        skip_flag = False
-
         for id in range(self.num_workers):
             file_name = self.get_result_file_name(id)
             check_file_name = self.get_result_check_file_name(id)
@@ -197,21 +186,6 @@ class GTN_Master(GTN_Base):
                 time.sleep(self.time_sleep_master)
 
             data = torch.load(file_name)
-            uuid = data['uuid']
-
-            if uuid != self.uuid_list[id]:
-                skip_flag = True
-                print("UUIDs do not match")
-
-                input_file_name = self.get_input_file_name(id=id)
-                input_check_file_name = self.get_input_check_file_name(id=id)
-
-                if os.path.isfile(input_file_name):
-                    os.remove(input_file_name)
-
-                if os.path.isfile(input_file_name):
-                    os.remove(input_check_file_name)
-
             self.time_elapsed_list[id] = data['time_elapsed']
             self.score_list[id] = data['score']
             self.eps_list[id].load_state_dict(data['eps'])
@@ -220,8 +194,6 @@ class GTN_Master(GTN_Base):
 
             os.remove(check_file_name)
             os.remove(file_name)
-
-        return skip_flag
 
 
     def score_transform(self):
