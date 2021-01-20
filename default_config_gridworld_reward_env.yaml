@@ -44,15 +44,15 @@ agents:
 
   sarsa:
     train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
-    init_episodes: !!int 5                  # number of episodes to prevent an early out
+    test_episodes: !!int 1                  # maximum number of episodes to optimize
+    init_episodes: !!int 0                  # number of episodes to prevent an early out
     batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
-    alpha: !!float 0.5                      # Q-Learning update factor
-    gamma: !!float 0.9                      # discount factor
-    eps_init: !!float 0.5                   # initial random action percentage
+    alpha: !!float 0.99                     # Q-Learning update factor
+    gamma: !!float 0.8                      # discount factor
+    eps_init: !!float 0.01                  # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
-    eps_decay: !!float 0.95                 # random action decay factor
-    rb_size: !!int 100000                   # size of the replay buffer
+    eps_decay: !!float 0.0                  # random action decay factor
+    rb_size: !!int 1                        # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     print_rate: 1000                        # update rate of avg meters
     early_out_episode: 1                    # check every i-th episode if an early out should happen
