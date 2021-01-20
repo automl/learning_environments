@@ -9,14 +9,16 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-20-16'
-#LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
 
-MODEL_NUM = 5
-MODEL_AGENTS = 3
+MODEL_NUM = 20
+MODEL_AGENTS = 10
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -49,7 +51,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     #config['device'] = 'cuda'
-    config['envs']['HoleRoomLarge']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
