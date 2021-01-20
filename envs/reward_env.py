@@ -38,7 +38,7 @@ class RewardEnv(nn.Module):
         if self.reward_env_type < 100:
             if self.reward_env_type == 0:
                 input_dim = 1   # dummy dimension
-            elif self.reward_env_type == 1 or self.reward_env_type == 2 or self.reward_env_type == 5:
+            elif self.reward_env_type == 1 or self.reward_env_type == 2 or self.reward_env_type == 5 or self.reward_env_type == 6:
                 input_dim = self.state_dim
             elif self.reward_env_type == 3 or self.reward_env_type == 4:
                 input_dim = self.state_dim + self.info_dim
@@ -99,6 +99,9 @@ class RewardEnv(nn.Module):
                 reward_res = reward_torch + self.gamma * self.reward_net(input_state_next) - self.reward_net(input_state)
 
         elif self.reward_env_type == 5:
+            reward_res = self.reward_net(next_state_torch)
+
+        elif self.reward_env_type == 6:
             reward_res = reward_torch + self.reward_net(next_state_torch)
 
         elif self.reward_env_type == 101 or self.reward_env_type == 102:
