@@ -85,7 +85,7 @@ class ExperimentWrapper():
         for i in range(NUM_EVALS):
             ppo = PPO(env=real_env,
                       config=config)
-            rewards, _ = ppo.train(real_env)
+            rewards, _, _ = ppo.train(real_env)
             score += len(rewards)
 
         score = score / NUM_EVALS

@@ -167,6 +167,7 @@ class BaseAgent(nn.Module):
             time_start = time.time()
 
             avg_meter_reward = AverageMeter(print_str="Average reward: ")
+            avg_meter_episode_length = AverageMeter(print_str="Average episode length: ")
 
             # training loop
             for episode in range(self.test_episodes):
@@ -179,8 +180,10 @@ class BaseAgent(nn.Module):
 
                 state = env.reset()
                 episode_reward = 0
+                episode_length = 0
 
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
+                    episode_length += 1
                     action = self.select_test_action(state, env)
 
                     # live view
@@ -201,8 +204,9 @@ class BaseAgent(nn.Module):
                         break
 
                 # logging
+                avg_meter_episode_length.update(episode_length, print_rate=self.print_rate)
                 avg_meter_reward.update(episode_reward.item(), print_rate=self.print_rate)
 
             env.close()
 
-        return avg_meter_reward.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer

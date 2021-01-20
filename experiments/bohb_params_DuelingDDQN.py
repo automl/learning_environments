@@ -86,7 +86,7 @@ class ExperimentWrapper():
 
         dueling_ddqn = DuelingDDQN(env=env,
                                    config=config)
-        rewards, _ = dueling_ddqn.train(env)
+        rewards, _, _ = dueling_ddqn.train(env)
         score = len(rewards)
 
         info['config'] = str(config)

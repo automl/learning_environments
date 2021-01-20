@@ -96,8 +96,8 @@ if __name__ == "__main__":
     for i in range(20):
         ql = QL(env=real_env,
                 config=config)
-        reward_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
-        reward_list_test, replay_buffer = ql.test(env=real_env, time_remaining=500)
+        reward_list_train, _, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
+        reward_list_test, _, _ = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
         print(len(reward_list_train))
 

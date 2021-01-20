@@ -110,8 +110,8 @@ class ExperimentWrapper():
             td3 = TD3(env=reward_env,
                       max_action=reward_env.get_max_action(),
                       config=config)
-            reward_list_train, _ = td3.train(reward_env, test_env=real_env)
-            reward_list_test, _ = td3.test(real_env)
+            reward_list_train, _, _ = td3.train(reward_env, test_env=real_env)
+            reward_list_test, _, _ = td3.test(real_env)
             avg_reward_test = statistics.mean(reward_list_test)
 
             unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]

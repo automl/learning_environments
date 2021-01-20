@@ -72,7 +72,7 @@ def train_test_agents(mode, env, real_env, config):
             agent = ICMDDQN(env=real_env, config=config)
         else:
             agent = select_agent(config=config, agent_name='ddqn')
-        reward, _ = agent.train(env=env, test_env=real_env)
+        reward, _, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
 
