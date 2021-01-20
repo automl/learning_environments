@@ -100,7 +100,7 @@ class DDQN(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_acrobot.yaml", "r") as stream:
+    with open("../default_config_cartpole_opt.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)
@@ -121,5 +121,4 @@ if __name__ == "__main__":
         ddqn.train(env=real_env, time_remaining=500)
         print('TEST')
         reward_list = ddqn.test(env=real_env, time_remaining=500)
-        print(sum(reward_list) / len(reward_list))
 

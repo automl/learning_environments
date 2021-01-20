@@ -259,8 +259,8 @@ if __name__ == "__main__":
     for i in range(10):
         print(i)
         agent = select_agent(config=config, agent_name='QL')
-        _, replay_buffer_train = agent.train(env=virtual_env)
-        reward, replay_buffer_test = agent.test(env=real_env)
+        _, _, replay_buffer_train = agent.train(env=virtual_env)
+        reward, _, replay_buffer_test = agent.test(env=real_env)
         replay_buffer_train_all.merge_buffer(replay_buffer_train)
         replay_buffer_test_all.merge_buffer(replay_buffer_test)
         q_tables.append(agent.q_table)

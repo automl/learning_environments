@@ -3,7 +3,8 @@ import torch
 import numpy as np
 
 LOG_FILES = ['../results/cartpole_compare_reward_envs/best10_0.pt',
-             '../results/cartpole_compare_reward_envs/best10_2.pt']
+             '../results/cartpole_compare_reward_envs/best10_2.pt',
+             '../results/cartpole_compare_reward_envs/best10_5.pt']
 
 STD_MULT = 0.5
 MAX_VALS = 30
@@ -49,7 +50,7 @@ def plot_data(proc_data, savefig_name):
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
     #plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
-    plt.legend(('baseline naive', 'best NN w/o info vector'))
+    plt.legend(('baseline naive', 'type 2', 'type 5'))
     plt.xlim(0,499)
     plt.title('MountainCarContinuous-v0')
     plt.xlabel('episode')

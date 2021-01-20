@@ -137,8 +137,8 @@ if __name__ == "__main__":
     replay_buffer_test_all = ReplayBuffer(state_dim=6, action_dim=1, device='cpu')
 
     agent = select_agent(config=config, agent_name='DDQN')
-    _, replay_buffer_train = agent.train(env=virtual_env)
-    reward, replay_buffer_test = agent.test(env=real_env)
+    _, _, replay_buffer_train = agent.train(env=virtual_env)
+    reward, _, replay_buffer_test = agent.test(env=real_env)
     replay_buffer_train_all.merge_buffer(replay_buffer_train)
     replay_buffer_test_all.merge_buffer(replay_buffer_test)
 

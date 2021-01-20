@@ -213,7 +213,7 @@ def calc_reference_deviation(virtual_env, real_env, config):
 
     for i in range(10):
         agent = DDQN(env=real_env, config=config)
-        _, replay_buffer_train = agent.train(env=virtual_env)
+        _, _, replay_buffer_train = agent.train(env=virtual_env)
 
         states, _, _, rewards, _ = replay_buffer_train.get_all()
         state_reward = torch.cat((states, rewards), 1)

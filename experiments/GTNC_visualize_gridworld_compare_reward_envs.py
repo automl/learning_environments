@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/gridworld_compare_reward_envs/best5_0.pt',
-             '../results/gridworld_compare_reward_envs/best5_2.pt']
+LOG_FILES = ['../results/gridworld_compare_reward_envs/best20_0.pt',
+             '../results/gridworld_compare_reward_envs/best20_2.pt',
+             '../results/gridworld_compare_reward_envs/best20_5.pt']
 
 STD_MULT = 0.5
-MAX_VALS = 15
+MAX_VALS = 60
 
 def get_data():
     list_data = []
@@ -46,7 +47,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline naive','best NN w/o info vector'))
+    plt.legend(('baseline naive','mode 2', 'mode 5'))
     plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HoleRoomLarge')

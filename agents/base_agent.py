@@ -75,6 +75,7 @@ class BaseAgent(nn.Module):
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
+        avg_meter_episode_length = AverageMeter(print_str="Average reward: ")
 
         env.set_agent_params(same_action_num=self.same_action_num, gamma=self.gamma)
 
@@ -92,8 +93,10 @@ class BaseAgent(nn.Module):
 
             state = env.reset()
             episode_reward = 0
+            episode_length = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
+                episode_length += 1
                 action = self.select_train_action(state=state, env=env, episode=episode)
 
                 # live view
@@ -118,6 +121,8 @@ class BaseAgent(nn.Module):
                     break
 
             # logging
+            avg_meter_episode_length.update(episode_length)
+
             if test_env is not None:
                 avg_reward_test_raw, _ = self.test(test_env)
                 avg_meter_reward.update(sum(avg_reward_test_raw), print_rate=self.print_rate)
@@ -137,7 +142,7 @@ class BaseAgent(nn.Module):
 
         env.close()
 
-        return avg_meter_reward.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer
 
 
     def test(self, env, time_remaining=1e9):
