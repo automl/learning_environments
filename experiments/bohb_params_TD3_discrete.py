@@ -91,7 +91,7 @@ class ExperimentWrapper():
                                 min_action=env.get_min_action(),
                                 max_action=env.get_max_action(),
                                 config=config)
-        rewards, _ = td3.train(env)
+        rewards, _, _ = td3.train(env)
         score = len(rewards)
 
         info['config'] = str(config)

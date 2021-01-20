@@ -72,7 +72,7 @@ class ExperimentWrapper():
         score = 0
         for i in range(NUM_EVALS):
             ql = QL(env=real_env, config=config)
-            rewards, _ = ql.train(env=real_env, test_env=real_env)
+            rewards, _, _ = ql.train(env=real_env, test_env=real_env)
             score += len(rewards)
 
         score = score/NUM_EVALS

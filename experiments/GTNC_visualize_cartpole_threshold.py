@@ -193,9 +193,9 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_typ
             print('{} {} {}'.format(noise_type, noise_value, i))
             agent = DDQN_noise(env=real_env, config=config)
             print('train')
-            reward_train, _ = agent.train(env=virtual_env, noise_type=noise_type, noise_value=noise_value)
+            reward_train, _, _ = agent.train(env=virtual_env, noise_type=noise_type, noise_value=noise_value)
             print('test')
-            reward_test, _ = agent.test(env=real_env)
+            reward_test, _, _ = agent.test(env=real_env)
             reward_sum += reward_test
             train_length.append(len(reward_train))
 

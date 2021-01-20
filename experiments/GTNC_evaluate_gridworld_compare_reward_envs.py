@@ -69,7 +69,7 @@ def train_test_agents(mode, env, real_env, config):
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='ql')
-        reward, _ = agent.train(env=env, test_env=real_env)
+        reward, _, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
 

@@ -77,5 +77,5 @@ if __name__ == "__main__":
         print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
         # print('TEST')
-        # reward_list = ddqn.test(env=real_env, time_remaining=500)
+        # ddqn.test(env=real_env, time_remaining=500)
     print('avg. ' + str(sum(timing) / len(timing)))

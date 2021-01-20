@@ -89,7 +89,7 @@ class ExperimentWrapper():
             td3 = TD3(env=real_env,
                       max_action=real_env.get_max_action(),
                       config=config)
-            rewards, _ = td3.train(real_env)
+            rewards, _, _ = td3.train(real_env)
             score += len(rewards)
 
         score = score/NUM_EVALS

@@ -70,8 +70,8 @@ def train_test_agents(train_env, test_env, config):
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='TD3_discrete_vary')
-        reward_train, _ = agent.train(env=train_env)
-        reward, _ = agent.test(env=test_env)
+        reward_train, _, _ = agent.train(env=train_env)
+        reward, _, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
         train_steps_needed.append([(len(reward_train))])
