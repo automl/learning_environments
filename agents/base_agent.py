@@ -75,7 +75,7 @@ class BaseAgent(nn.Module):
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
-        avg_meter_episode_length = AverageMeter(print_str="Average reward: ")
+        avg_meter_episode_length = AverageMeter(print_str="Average episode length: ")
 
         env.set_agent_params(same_action_num=self.same_action_num, gamma=self.gamma)
 
