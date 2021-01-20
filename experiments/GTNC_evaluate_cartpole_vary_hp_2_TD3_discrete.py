@@ -33,11 +33,11 @@ def load_envs_and_config(file_name):
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary"]
     # print("using ---td3 discrete vary better--- config")
     # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_better"]
-    # print("using --- td3 discrete vary tanh --- config")
-    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh"]
+    print("using --- td3 discrete vary tanh --- config")
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_tanh"]
 
-    print("using --- td3 discrete vary tanh less hpo --- config")
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm"]
+    # print("using --- td3 discrete vary tanh less hpo --- config")
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm"]
 
     #config["agents"]["duelingddqn_vary"] = config_new["duelingddqn_vary"]
 
