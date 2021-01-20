@@ -9,13 +9,13 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
+SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/gridworld_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-20-16'
+#LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_holeroomlarge_2021-01-19-22_5'
 
-MODEL_NUM = 20
+MODEL_NUM = 5
 MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
@@ -61,29 +61,35 @@ def load_envs_and_config(model_file):
 
 def train_test_agents(mode, env, real_env, config):
     rewards = []
+    episode_lengths = []
 
     # settings for comparability
     config['agents']['ql']['test_episodes'] = 1
     config['agents']['ql']['train_episodes'] = 100
-    config['agents']['ql']['print_rate'] = 10
+    config['agents']['ql']['print_rate'] = 100
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='ql')
-        reward, _, _ = agent.train(env=env, test_env=real_env)
-        print('reward: ' + str(reward))
+        reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
+        episode_lengths.append(episode_length)
+    return rewards, episode_lengths
 
-    return rewards
 
+def save_list(mode, config, reward_list, episode_length_list):
+    if not os.path.isdir(SAVE_DIR):
+        save_dir = SAVE_DIR.replace('nierhoff', 'dingsda')
+    else:
+        save_dir = SAVE_DIR
 
-def save_list(mode, config, reward_list):
-
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
+    os.makedirs(save_dir, exist_ok=True)
+    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
+    save_dict['model_num'] = MODEL_NUM
+    save_dict['model_agents'] = MODEL_AGENTS
     save_dict['reward_list'] = reward_list
-    print(reward_list)
+    save_dict['episode_length_list'] = episode_length_list
     torch.save(save_dict, file_name)
 
 
@@ -91,35 +97,47 @@ def eval_models(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for best_reward, model_file in best_models:
         print('best reward: ' + str(best_reward))
         print('model file: ' + str(model_file))
         reward_env, real_env, config = load_envs_and_config(model_file)
-        rewards = train_test_agents(mode=mode, env=reward_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=reward_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 def eval_base(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for i in range(MODEL_NUM):
         reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 def eval_icm(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for i in range(MODEL_NUM):
         reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 if __name__ == "__main__":
