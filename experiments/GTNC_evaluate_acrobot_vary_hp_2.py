@@ -59,13 +59,15 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['early_out_virtual_diff'] = 0.01
 
+    config["agents"]["ddqn"]["early_out_episode"] = 1
+
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='DDQN_vary')
-        reward_train, _ = agent.train(env=train_env)
+        reward_train, episode_length, _ = agent.train(env=train_env)
         reward, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
-        train_steps_needed.append([(len(reward_train))])
+        train_steps_needed.append([episode_length])
 
     return reward_list, train_steps_needed
 
@@ -96,6 +98,7 @@ def run_vary_hp(mode, experiment_name):
         file_name = os.listdir(MODEL_DIR)[0]
         _, real_env, config = load_envs_and_config(file_name)
 
+
         for i in range(MODEL_NUM):
             print('train on {}-th environment'.format(i))
             reward_list_i, train_steps_needed_i = train_test_agents(train_env=real_env, test_env=real_env, config=config)
@@ -116,7 +119,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_vary_acrobot"
+    experiment_name = "ddqn_vary_acrobot_episode_length"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

@@ -75,6 +75,8 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['td3_discrete_vary']['test_episodes'] = 10
     config['agents']['td3_discrete_vary']['early_out_virtual_diff'] = 0.01
 
+    config["agents"]["ddqn"]["early_out_episode"] = 1
+
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='TD3_discrete_vary')
         reward_train, _ = agent.train(env=train_env)
@@ -131,7 +133,7 @@ def run_vary_hp(mode, experiment_name):
     save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_relu_layer_norm_config"
+    experiment_name = "ddqn_to_td3_discrete_gumbel_vary_transfer_relu_layer_norm_config_episode_steps"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

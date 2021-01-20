@@ -68,6 +68,8 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['duelingddqn']['test_episodes'] = 10
     config['agents']['duelingddqn']['early_out_virtual_diff'] = 0.01
 
+    config["agents"]["ddqn"]["early_out_episode"] = 1
+
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='DuelingDDQN_vary')
         reward_train, episode_steps, _ = agent.train(env=train_env)
@@ -125,7 +127,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_duelingddqn_vary_transfer"
+    experiment_name = "ddqn_to_duelingddqn_vary_transfer_episode_steps"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:
