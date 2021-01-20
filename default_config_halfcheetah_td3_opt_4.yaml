@@ -8,7 +8,6 @@ agents:
     max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
     num_workers: !!int 16                   # size of the population
-    num_test_envs: !!int -1                 # number of different test environments (-1: genereate default test env)
     noise_std: !!float 0.0103               # standard deviation of the noise vector
     step_size: !!float 0.540                # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers

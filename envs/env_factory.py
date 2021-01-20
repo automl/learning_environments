@@ -76,6 +76,8 @@ class EnvFactory:
             env = TimeLimit(HoleRoomLarge())
         elif env_name == "HoleRoomLargeShifted":
             env = TimeLimit(HoleRoomLargeShifted())
+        elif env_name == "Cliff":
+            env = TimeLimit(Cliff())
         else:
             env = gym.make(env_name)
 

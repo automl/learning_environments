@@ -100,5 +100,4 @@ if __name__ == "__main__":
                       config=config)
         sarsa.train(env=real_env, time_remaining=500)
         reward_list, _, replay_buffer = sarsa.test(env=real_env, time_remaining=500)
-        print(sum(reward_list)/len(reward_list))
 
