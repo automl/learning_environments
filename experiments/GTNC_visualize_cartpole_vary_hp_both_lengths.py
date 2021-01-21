@@ -70,8 +70,8 @@ FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
 
-ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
+ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706]
 
 dueling_ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
 dueling_ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data

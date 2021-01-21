@@ -10,6 +10,11 @@ from agents.agent_utils import select_agent
 
 class GTN_Worker(GTN_Base):
     def __init__(self, id, bohb_id=-1):
+        """
+        params:
+          id: identifies the different workers
+          bohb_id: identifies the different BOHB runs
+        """
         super().__init__(bohb_id)
 
         torch.manual_seed(id+bohb_id*id*1000+int(time.time()))
@@ -23,7 +28,7 @@ class GTN_Worker(GTN_Base):
         self.time_sleep_worker = 3
         self.timeout = None
 
-        # delete corresponding sync files if existant
+        # delete corresponding sync files if existent
         for file in [self.get_input_file_name(self.id), self.get_input_check_file_name(self.id),
                      self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
             if os.path.isfile(file):
@@ -67,7 +72,7 @@ class GTN_Worker(GTN_Base):
 
             time_start = time.time()
 
-            # for evaluation purpose
+            # get score for network of the last outer loop iteration
             score_orig = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
 
             self.get_random_noise()
@@ -134,7 +139,7 @@ class GTN_Worker(GTN_Base):
 
         data = {}
         data["eps"] = self.eps.state_dict()
-        data["synthetic_env"] = self.synthetic_env.state_dict() # for debugging
+        data["synthetic_env"] = self.synthetic_env.state_dict()  # for debugging
         data["time_elapsed"] = time_elapsed
         data["score"] = score
         data["score_orig"] = score_orig
@@ -190,6 +195,7 @@ class GTN_Worker(GTN_Base):
                 return avg_reward_test
             else:
                 print(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
+                # we maximize the objective
                 return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
 
 

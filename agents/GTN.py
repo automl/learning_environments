@@ -6,6 +6,9 @@ import time
 from agents.GTN_master import GTN_Master
 from agents.GTN_worker import GTN_Worker
 
+"""
+script to run GTN master & slave locally
+"""
 
 def run_gtn_on_single_pc(config):
     def run_gtn_worker(id):

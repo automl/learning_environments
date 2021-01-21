@@ -85,7 +85,7 @@ class PPO(BaseAgent):
             avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
-            if episode > self.init_episodes and episode % self.early_out_episode == 0 and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
+            if episode > self.init_episodes and self.env_solved(env=env, avg_meter_reward=avg_meter_reward, episode=episode, real_env=real_env):
                 break
 
             # if avg_reward > env.get_solved_reward():

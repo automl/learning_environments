@@ -13,7 +13,7 @@ agents:
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     mirrored_sampling: !!bool True          # use normal or mirrored sampling
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
-    grad_eval_type: !!str mean              # mean or min
+    grad_eval_type: !!str mean              # mean or minmax
     weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
     time_max: !!float 3600                  # maximum allocated time for first iteration
@@ -43,8 +43,7 @@ agents:
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
     print_rate: 10                          # update rate of avg meters
-    early_out_episode: 1                    # check every i-th episode if an early out should happen
-    early_out_num: !!int 5                  # based on how many training steps shall an early out happen
+    early_out_num: !!int 5                  # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
 
   ppo:
@@ -65,8 +64,7 @@ agents:
     hidden_layer: !!int 1                   # number of hidden layers
     action_std: !!float 0.5                 # action noise standard deviation
     print_rate: 100                         # update rate of avg meters
-    early_out_episode: 20                   # check every i-th episode if an early out should happen
-    early_out_num: !!int 50                 # based on how many training steps shall an early out happen
+    early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
 
 envs:

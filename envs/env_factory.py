@@ -60,6 +60,7 @@ class EnvFactory:
 
     def _generate_real_env_with_kwargs(self, kwargs, env_name):
         # generate environment class
+        # todo: make generic (e.g. check if class is existent in bandit.py or gridworld.py)
         if env_name == "Bandit":
             env = TimeLimit(BanditFixedPermutedGaussian())
         elif env_name == "EmptyRoom22":

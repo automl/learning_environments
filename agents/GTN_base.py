@@ -1,8 +1,7 @@
-import torch.nn as nn
-import os
 import glob
-from envs.env_factory import EnvFactory
+import os
 
+import torch.nn as nn
 
 
 class GTN_Base(nn.Module):
@@ -11,9 +10,6 @@ class GTN_Base(nn.Module):
 
         self.bohb_id = bohb_id
 
-        # if 'TMPDIR' in os.environ:   # for NEMO
-        #     sync_dir_base = os.environ['TMPDIR']
-        # else:
         sync_dir_base = os.getcwd()
         self.sync_dir = str(os.path.join(sync_dir_base, 'results/GTN_sync2'))
         print('SYNC DIR: ' + str(self.sync_dir))
@@ -39,4 +35,3 @@ class GTN_Base(nn.Module):
         files = glob.glob(os.path.join(self.sync_dir, '*'))
         for file in files:
             os.remove(file)
-

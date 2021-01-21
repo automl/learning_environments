@@ -32,6 +32,8 @@ class RewardEnv(nn.Module):
         # 2: native potential function (additive)
         # 3: potential function with additional info vector (exclusive)
         # 4: potential function with additional info vector (additive)
+        # 5: non-potential function (exclusive)
+        # 6: non-potential function (additive)
         # 101: weighted info vector as baseline (exclusive)
         # 102: weighted info vector as baseline (additive)
 
@@ -57,16 +59,15 @@ class RewardEnv(nn.Module):
 
     def step(self, action):
         next_state, reward, done, info = self.real_env.step(action)
-        reward_res = self._calc_reward(state=self.state, action=action, next_state=next_state, reward=reward, info=info)
+        reward_res = self._calc_reward(state=self.state, next_state=next_state, reward=reward, info=info)
         self.state = next_state
         return next_state, reward_res, done, {}
 
 
-    def _calc_reward(self, state, action, next_state, reward, info):
+    def _calc_reward(self, state, next_state, reward, info):
         if 'TimeLimit.truncated' in info:   # remove additional information from wrapper
             info.pop('TimeLimit.truncated')
 
-        action_torch = torch.tensor(action, device=self.device, dtype=torch.float32)
         reward_torch = torch.tensor(reward, device=self.device, dtype=torch.float32)
 
         if isinstance(state, int) or len(state) < self.state_dim:

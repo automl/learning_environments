@@ -122,6 +122,8 @@ class GTN_Master(GTN_Base):
                 self.best_score = mean_score
                 return True
         else:
+            # we save all models and select the best from the log
+            # whether we can solve an environment is irrelevant for reward_env since we optimize for speed here
             if mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score

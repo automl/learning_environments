@@ -79,8 +79,6 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['td3_discrete_vary']['test_episodes'] = 10
     config['agents']['td3_discrete_vary']['early_out_virtual_diff'] = 0.01
 
-    config["agents"]["ddqn"]["early_out_episode"] = 1
-
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='TD3_discrete_vary')
         reward_train, episode_length, _ = agent.train(env=train_env)

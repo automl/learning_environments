@@ -1,7 +1,7 @@
+import statistics
 import time
 import torch
 import torch.nn as nn
-import statistics
 from utils import AverageMeter, ReplayBuffer
 
 
@@ -20,7 +20,6 @@ class BaseAgent(nn.Module):
         self.same_action_num = agent_config["same_action_num"]
         self.print_rate = agent_config["print_rate"]
         self.early_out_num = agent_config["early_out_num"]
-        self.early_out_episode = agent_config["early_out_episode"]
         self.early_out_virtual_diff = agent_config["early_out_virtual_diff"]
 
         self.render_env = config["render_env"]
@@ -44,7 +43,7 @@ class BaseAgent(nn.Module):
         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
         avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
         if env.is_virtual_env():
-            if abs(avg_reward - avg_reward_last) / abs(avg_reward_last + 1e-9) < self.early_out_virtual_diff and \
+            if abs(avg_reward - avg_reward_last) / (abs(avg_reward_last) + 1e-9) < self.early_out_virtual_diff and \
                     episode >= self.init_episodes + self.early_out_num:
                 print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
@@ -63,6 +62,7 @@ class BaseAgent(nn.Module):
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
 
+        # todo: @fabio use "hasattr" and custom function in derived class (see below)
         if env.has_discrete_action_space():
             ad = 1
             # in case of td3_discrete, action_dim=1 does not reflect the required action_dim for the gumbel softmax distribution
@@ -96,7 +96,6 @@ class BaseAgent(nn.Module):
             episode_length = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                episode_length += 1
                 action = self.select_train_action(state=state, env=env, episode=episode)
 
                 # live view
@@ -105,13 +104,16 @@ class BaseAgent(nn.Module):
 
                 # state-action transition
                 # required due to gumble softmax in td3 discrete
+                # todo @fabio: move into agent-specific select_train_action, do the same for test
                 if discretize_action:
                     next_state, reward, done = env.step(action=action.argmax().unsqueeze(0), same_action_num=self.same_action_num)
                 else:
                     next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+
                 state = next_state
                 episode_reward += reward
+                episode_length += 1
 
                 # train
                 if episode >= self.init_episodes:
@@ -125,13 +127,12 @@ class BaseAgent(nn.Module):
 
             if test_env is not None:
                 avg_reward_test_raw, _, _ = self.test(test_env)
-                avg_meter_reward.update(sum(avg_reward_test_raw), print_rate=self.print_rate)
+                avg_meter_reward.update(statistics.mean(avg_reward_test_raw), print_rate=self.print_rate)
             else:
                 avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
 
             # quit training if environment is solved
-            if episode >= self.init_episodes and \
-               episode % self.early_out_episode == 0:
+            if episode >= self.init_episodes:
                 if test_env is not None:
                     break_env = test_env
                 else:
@@ -142,6 +143,7 @@ class BaseAgent(nn.Module):
 
         env.close()
 
+        # todo: use dict to reduce confusions and bugs
         return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer
 
 
@@ -183,7 +185,6 @@ class BaseAgent(nn.Module):
                 episode_length = 0
 
                 for t in range(0, env.max_episode_steps(), self.same_action_num):
-                    episode_length += 1
                     action = self.select_test_action(state, env)
 
                     # live view
@@ -197,8 +198,10 @@ class BaseAgent(nn.Module):
                     else:
                         next_state, reward, done = env.step(action=action)
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
+
                     state = next_state
                     episode_reward += reward
+                    episode_length += 1
 
                     if done > 0.5:
                         break
@@ -209,4 +212,5 @@ class BaseAgent(nn.Module):
 
             env.close()
 
+        # todo: use dict to reduce confusions and bugs
         return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer

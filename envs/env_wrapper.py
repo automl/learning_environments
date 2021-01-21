@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -7,7 +6,7 @@ from gym.spaces import Discrete
 from utils import to_one_hot_encoding, from_one_hot_encoding
 
 class EnvWrapper(nn.Module):
-    # wraps a gym/virtual environment for easier handling
+    # wraps a gym/virtual/reward environment for easier handling
     def __init__(self, env):
         super().__init__()
         self.env = env
@@ -28,6 +27,7 @@ class EnvWrapper(nn.Module):
                     else:
                         reward_sum += reward
                     # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
+            # required for the histogram experiment
             else:
                 for i in range(same_action_num):
                     state, reward, done = self.env.step(action=action.to(self.env.device), state=state.to(self.env.device))
@@ -37,6 +37,7 @@ class EnvWrapper(nn.Module):
                         reward_sum += reward
                     # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
 
+            # todo: to device?
             reward = reward_sum.to("cpu")
             next_state = state.to("cpu")
             done = done.to("cpu")
