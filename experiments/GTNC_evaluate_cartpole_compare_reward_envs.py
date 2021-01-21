@@ -12,11 +12,13 @@ from models.baselines import ICMDDQN
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-00_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-19-15_5'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_6'
 
 MODEL_NUM = 10
-MODEL_AGENTS = 3
+MODEL_AGENTS = 10
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -48,7 +50,7 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    config['device'] = 'cuda'
+    #config['device'] = 'cuda'
     config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
@@ -61,32 +63,30 @@ def load_envs_and_config(model_file):
 
 def train_test_agents(mode, env, real_env, config):
     rewards = []
+    episode_lengths = []
 
     # settings for comparability
     config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
-    config['agents']['ddqn']['print_rate'] = 10
+    config['agents']['ddqn']['train_episodes'] = 300
+    config['agents']['ddqn']['print_rate'] = 100
 
     for i in range(MODEL_AGENTS):
-        if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
-        else:
-            agent = select_agent(config=config, agent_name='ddqn')
-        reward, _, _ = agent.train(env=env, test_env=real_env)
-        print('reward: ' + str(reward))
+        agent = select_agent(config=config, agent_name='ddqn')
+        reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
+        episode_lengths.append(episode_length)
+    return rewards, episode_lengths
 
-    return rewards
 
-
-def save_list(mode, config, reward_list):
-
+def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
+    save_dict['model_num'] = MODEL_NUM
+    save_dict['model_agents'] = MODEL_AGENTS
     save_dict['reward_list'] = reward_list
-    print(reward_list)
+    save_dict['episode_length_list'] = episode_length_list
     torch.save(save_dict, file_name)
 
 
@@ -94,35 +94,47 @@ def eval_models(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for best_reward, model_file in best_models:
         print('best reward: ' + str(best_reward))
         print('model file: ' + str(model_file))
         reward_env, real_env, config = load_envs_and_config(model_file)
-        rewards = train_test_agents(mode=mode, env=reward_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=reward_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 def eval_base(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for i in range(MODEL_NUM):
         reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 def eval_icm(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
+    episode_length_list = []
+
     for i in range(MODEL_NUM):
         reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
+        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
         reward_list += rewards
-    save_list(mode, config, reward_list)
+        episode_length_list += episode_lengths
+
+    save_list(mode, config, reward_list, episode_length_list)
 
 
 if __name__ == "__main__":
@@ -132,9 +144,9 @@ if __name__ == "__main__":
     mode = str(sys.argv[1])
 
     if mode == '-1':
-        eval_icm(mode=mode, log_dir=LOG_DICT['5'])
+        eval_icm(mode=mode, log_dir=LOG_DICT['2'])
     elif mode == '0':
-        eval_base(mode=mode, log_dir=LOG_DICT['5'])
+        eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
 
