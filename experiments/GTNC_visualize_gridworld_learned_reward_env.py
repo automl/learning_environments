@@ -1,84 +1,188 @@
-import matplotlib.pyplot as plt
 import torch
+import os
+import statistics
 import numpy as np
-
-LOG_FILES = ['../results/cliff_compare_reward_envs/best0.pt',
-             '../results/cliff_compare_reward_envs/best1.pt',
-             '../results/cliff_compare_reward_envs/best2.pt',
-             '../results/cliff_compare_reward_envs/best5.pt',
-             '../results/cliff_compare_reward_envs/best6.pt']
-
-STD_MULT = 0.5
-BINS = 200
-
-def get_data():
-    list_data = []
-    for log_file in LOG_FILES:
-        data = torch.load(log_file)
-        list_data.append((data['reward_list'], data['episode_length_list']))
-        model_num = data['model_num']
-        model_agents = data['model_agents']
-
-    min_steps = float('Inf')
-    # get minimum number of evaluations
-    for reward_list, episode_length_list in list_data:
-        for episode_lengths in episode_length_list:
-            min_steps = min(min_steps, sum(episode_lengths))
+import hpbandster.core.result as hpres
+from envs.env_factory import EnvFactory
+import matplotlib.pyplot as plt
 
 
-    # convert data from episodes to steps
-    proc_data = []
+# LOG_DICT = {}
+# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
+# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
+# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
+# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
 
-    for reward_list, episode_length_list in list_data:
-        np_data = np.zeros([model_num*model_agents,min_steps])
+# from gridworld.py
+G_RIGHT = 0
+G_LEFT = 1
+G_DOWN = 2
+G_UP = 3
 
-        for it, data in enumerate(zip(reward_list, episode_length_list)):
-            rewards, episode_lengths = data
+COLOR_R = '1f'
+COLOR_G = '77'
+COLOR_B = 'b4'
+COLOR = '#' + COLOR_R + COLOR_G + COLOR_B
 
-            concat_list = []
-            rewards = rewards
+LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
+MODEL_NUM = 50
 
-            for i in range(len(episode_lengths)):
-                concat_list += [rewards[i]]*episode_lengths[i]
-
-            np_data[it] = np.array(concat_list[:min_steps])
-
-        print(np_data)
-
-        mean = np.mean(np_data,axis=0)
-        std = np.std(np_data,axis=0)
-
-        proc_data.append((mean,std))
-
-    return proc_data
+def idx_to_xy(idx, n):
+    x = idx // n
+    y = idx % n
+    return y, -x
 
 
-def plot_data(proc_data, savefig_name):
-    fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
-    #
-    # for mean, _ in data_w:
-    #     plt.plot(mean_w)
-    #     colors.append(plt.gca().lines[-1].get_color())
+def xy_to_idx(xy, n):
+    y, x = xy
+    obs = -x * n + y
+    return obs
 
-    for mean, std in proc_data:
-        plt.plot(mean)
 
-    for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+def get_best_models_from_log(log_dir):
+    if not os.path.isdir(log_dir):
+        log_dir = log_dir.replace('nierhoff', 'dingsda')
 
-    plt.legend(('baseline naive', 'mode 1', 'mode 2', 'mode 5', 'mode 6'))
-    #plt.xlim(0,99)
-    plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff')
-    plt.xlabel('steps')
-    plt.ylabel('average reward')
-    plt.savefig(savefig_name)
+    result = hpres.logged_results_to_HBS_result(log_dir)
+
+    best_models = []
+
+    for value in result.data.values():
+        try:
+            model_name = value.results[1.0]['info']['model_name']
+
+            if not os.path.isfile(model_name):
+                model_name = model_name.replace('nierhoff', 'dingsda')
+            best_models.append(model_name)
+        except:
+            continue
+
+    best_models.sort(key=lambda x: x[0])
+    best_models = best_models[:MODEL_NUM]
+
+    return best_models
+
+
+def eval_models(log_dir):
+    best_models = get_best_models_from_log(log_dir)
+
+    info_dict = {}
+    reward_dict = {}
+
+    info_dict['mode'] = log_dir[-1]
+
+    for model_file in best_models:
+        reward_env, real_env, config = load_envs_and_config(model_file)
+        info_dict['m'] = len(real_env.env.grid)
+        info_dict['n'] = len(real_env.env.grid[0])
+
+        for state in range(reward_env.get_state_dim()):
+            for action in range(reward_env.get_action_dim()):
+                reward_env.set_agent_params(same_action_num=1, gamma=config['agents']['ql']['gamma'])
+                reward_env.env.real_env.env.state = reward_env.env.real_env.env._obs_to_state(state)
+                reward_env.env.state = state
+                next_state, reward, _ = reward_env.step(action=torch.tensor([action]))
+
+                if (state, action) not in reward_dict:
+                    reward_dict[(state, action)] = [reward.item()]
+                else:
+                    reward_dict[(state, action)].append(reward.item())
+
+
+    return reward_dict, info_dict
+
+
+def map_intensity_to_color(intensity):
+    if intensity <= 0:
+        return np.array([1, 0, 0])
+    elif intensity <= 0.5:
+        return np.array([1, 0, 0]) + 2 * intensity * np.array([0, 1, 0])
+    elif intensity <= 1:
+        return np.array([1, 1, 0]) + 2 * (intensity - 0.5) * np.array([-1, 0, 0])
+    else:
+        return np.array([0, 1, 0])
+
+
+def draw_filled_polygon(state, action, n, intensity):
+    x,y = idx_to_xy(state, n)
+
+    if action == G_RIGHT:
+        xs = [x+0.5, x+0.5, x]
+        ys = [y-0.5, y+0.5, y]
+    elif action == G_LEFT:
+        xs = [x-0.5, x-0.5, x]
+        ys = [y-0.5, y+0.5, y]
+    elif action == G_DOWN:
+        xs = [x-0.5, x+0.5, x]
+        ys = [y-0.5, y-0.5, y]
+    elif action == G_UP:
+        xs = [x-0.5, x+0.5, x]
+        ys = [y+0.5, y+0.5, y]
+
+    plt.fill(xs, ys, facecolor=map_intensity_to_color(intensity))
+
+
+def plot_models(reward_dict, info_dict):
+    # create average reward_dict
+
+    print(reward_dict[(47,0)])
+    print(reward_dict[(47,1)])
+    print(reward_dict[(47,2)])
+    print(reward_dict[(47,3)])
+
+
+    min_val = float('Inf')
+    max_val = float('-Inf')
+    reward_avg_dict = {}
+    for key, value in reward_dict.items():
+        reward_avg_dict[key] = statistics.mean(value)
+        min_val = min(min_val, reward_avg_dict[key])
+        max_val = max(max_val, reward_avg_dict[key])
+
+    m = info_dict['n']
+    n = info_dict['n']
+    mode = info_dict['mode']
+
+    # plot individual rewards
+    fig, ax = plt.subplots(dpi=600)
+
+    for key, value in reward_avg_dict.items():
+        intensity = (value-min_val) / (max_val-min_val)
+        state = key[0]
+        action = key[1]
+        draw_filled_polygon(state, action, n, intensity)
+
+    # plot additional information
+    x_water = [0.5, 10.5, 10.5, 0.5, 0.5]
+    y_water = [-2.5, -2.5, -3.5, -3.5, -2.5]
+    plt.plot(x_water, y_water, color='#1f77b4')
+    plt.text(5.5, -3, 'water', color='#1f77b4', fontsize=10, ha='center', va='center')
+    plt.text(0, -3, '(S)', fontsize=10, ha='center', va='center')
+    plt.text(11, -3, '(G)', fontsize=10, ha='center', va='center')
+
+    ax.axis('equal')
+    ax.axis('off')
+    plt.savefig('cliff_learned_rewards_' + str(mode) + '.svg', bbox_inches='tight')
     plt.show()
 
+def load_envs_and_config(model_file):
+    save_dict = torch.load(model_file)
+
+    config = save_dict['config']
+    #config['device'] = 'cuda'
+    config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+
+    env_factory = EnvFactory(config=config)
+    reward_env = env_factory.generate_reward_env()
+    reward_env.load_state_dict(save_dict['model'])
+    real_env = env_factory.generate_real_env()
+
+    return reward_env, real_env, config
+
+
 if __name__ == "__main__":
-    proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='gridworld_compare_reward_env.png')
+    reward_dict, info_dict = eval_models(log_dir=LOG_DIR)
+    plot_models(reward_dict=reward_dict, info_dict=info_dict)
 
 
 

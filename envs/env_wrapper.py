@@ -10,9 +10,9 @@ class EnvWrapper(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.env = env
-        self.same_action_num = None
+        self.same_action_num = 1
 
-    def step(self, action, state=None, same_action_num=1):
+    def step(self, action, state=None):
         if self.is_virtual_env():
             reward_sum = None
 
@@ -20,7 +20,7 @@ class EnvWrapper(nn.Module):
                 action = to_one_hot_encoding(action, self.get_action_dim())
 
             if state is None:
-                for i in range(same_action_num):
+                for i in range(self.same_action_num):
                     state, reward, done = self.env.step(action=action.to(self.env.device))
                     if reward_sum is None:
                         reward_sum = reward
@@ -29,7 +29,7 @@ class EnvWrapper(nn.Module):
                     # TODO: proper handling of the done flag for a batch of states/actions if same_action_num > 1
             # required for the histogram experiment
             else:
-                for i in range(same_action_num):
+                for i in range(self.same_action_num):
                     state, reward, done = self.env.step(action=action.to(self.env.device), state=state.to(self.env.device))
                     if reward_sum is None:
                         reward_sum = reward
@@ -53,7 +53,7 @@ class EnvWrapper(nn.Module):
                 action = action.astype(int)[0]
 
             reward_sum = 0
-            for i in range(same_action_num):
+            for i in range(self.same_action_num):
                 state, reward, done, _ = self.env.step(action)
                 reward_sum += reward
                 if done:

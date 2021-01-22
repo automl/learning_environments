@@ -106,9 +106,9 @@ class BaseAgent(nn.Module):
                 # required due to gumble softmax in td3 discrete
                 # todo @fabio: move into agent-specific select_train_action, do the same for test
                 if discretize_action:
-                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0), same_action_num=self.same_action_num)
+                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
                 else:
-                    next_state, reward, done = env.step(action=action, same_action_num=self.same_action_num)
+                    next_state, reward, done = env.step(action=action)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
                 state = next_state

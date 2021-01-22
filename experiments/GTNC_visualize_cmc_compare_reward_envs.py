@@ -2,28 +2,50 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best20_-1.pt',
-             '../results/cmc_compare_reward_envs/best20_0.pt',
-             '../results/cmc_compare_reward_envs/best20_2.pt']
+LOG_FILES = ['../results/cmc_compare_reward_envs/best-1.pt',
+             '../results/cmc_compare_reward_envs/best0.pt',
+             '../results/cmc_compare_reward_envs/best1.pt',
+             '../results/cmc_compare_reward_envs/best2.pt',
+             '../results/cmc_compare_reward_envs/best5.pt',
+             '../results/cmc_compare_reward_envs/best6.pt']
 
 STD_MULT = 0.5
-MAX_VALS = 100
+BINS = 200
 
 def get_data():
     list_data = []
     for log_file in LOG_FILES:
         data = torch.load(log_file)
-        list_data.append(data['reward_list'])
+        print(data['episode_length_list'])
+        list_data.append((data['reward_list'], data['episode_length_list']))
+        model_num = data['model_num']
+        model_agents = data['model_agents']
 
-    # copy from list to numpy array
+    min_steps = float('Inf')
+    # get minimum number of evaluations
+    for reward_list, episode_length_list in list_data:
+        for episode_lengths in episode_length_list:
+            min_steps = min(min_steps, sum(episode_lengths))
+
+    print(min_steps)
+    # convert data from episodes to steps
     proc_data = []
 
-    n = len(list_data[0][0])
-    for data in list_data:
-        np_data = np.zeros([MAX_VALS,n])
+    for reward_list, episode_length_list in list_data:
+        np_data = np.zeros([model_num*model_agents,min_steps])
 
-        for i in range(len(np_data)):
-            np_data[i] = np.array(data[i])
+        for it, data in enumerate(zip(reward_list, episode_length_list)):
+            rewards, episode_lengths = data
+
+            concat_list = []
+            rewards = rewards
+
+            for i in range(len(episode_lengths)):
+                concat_list += [rewards[i]]*episode_lengths[i]
+
+            np_data[it] = np.array(concat_list[:min_steps])
+
+        print(np_data)
 
         mean = np.mean(np_data,axis=0)
         std = np.std(np_data,axis=0)
@@ -47,10 +69,12 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline ICM', 'baseline naive','best NN w/o info vector'))
-    plt.xlim(0,99)
+    plt.legend(('baseline ICM', 'baseline naive', 'mode 1', 'mode 2', 'mode 5', 'mode 6'))
+    #plt.xlim(0,99)
+    plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0')
-    plt.xlabel('episode')
+    plt.xlabel('steps')
+    #plt.xlim(0,20000)
     plt.ylabel('average reward')
     plt.savefig(savefig_name)
     plt.show()

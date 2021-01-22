@@ -74,9 +74,10 @@ def train_test_agents(mode, env, real_env, config):
             agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
         else:
             agent = select_agent(config=config, agent_name='td3')
-        reward, _, _ = agent.train(env=env, test_env=real_env)
+        reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
+        episode_lengths.append(episode_length)
     return rewards, episode_lengths
 
 
