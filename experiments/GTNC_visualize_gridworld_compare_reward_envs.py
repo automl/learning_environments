@@ -9,7 +9,7 @@ LOG_FILES = ['../results/cliff_compare_reward_envs/best0.pt',
              '../results/cliff_compare_reward_envs/best6.pt']
 
 STD_MULT = 0.5
-BINS = 100
+BINS = 200
 
 def get_data():
     list_data = []
@@ -70,7 +70,7 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('baseline naive', 'mode 1', 'mode 2', 'mode 5', 'mode 6'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('HoleRoomLarge')
+    plt.title('Cliff')
     plt.xlabel('steps')
     plt.ylabel('average reward')
     plt.savefig(savefig_name)
