@@ -113,7 +113,7 @@ class BaseAgent(nn.Module):
 
                 state = next_state
                 episode_reward += reward
-                episode_length += 1
+                episode_length += self.same_action_num
 
                 # train
                 if episode >= self.init_episodes:
