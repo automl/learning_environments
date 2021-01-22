@@ -71,7 +71,10 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['print_rate'] = 100
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ddqn')
+        if mode == '-1':
+            agent = ICMDDQN(env=real_env, config=config)
+        else:
+            agent = select_agent(config=config, agent_name='ddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
