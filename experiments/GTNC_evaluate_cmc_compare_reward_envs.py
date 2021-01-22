@@ -77,6 +77,7 @@ def train_test_agents(mode, env, real_env, config):
         reward, _, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
+    return rewards, episode_lengths
 
 
 def save_list(mode, config, reward_list, episode_length_list):
