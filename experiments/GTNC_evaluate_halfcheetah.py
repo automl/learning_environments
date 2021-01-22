@@ -38,7 +38,7 @@ class ExperimentWrapper():
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_halfcheetah_td3_subopt_common.yaml", 'r') as stream:
+        with open("default_config_halfcheetah_td3_opt_common.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     global reward_env_type
     reward_env_type = int(sys.argv[3])
-    run_id = 'GTNC_evaluate_halfcheetah_subopt' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
+    run_id = 'GTNC_evaluate_halfcheetah_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
     seed = id+int(time.time())
     random.seed(seed)
