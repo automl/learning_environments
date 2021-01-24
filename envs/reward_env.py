@@ -115,9 +115,9 @@ class RewardEnv(nn.Module):
             input_state = torch.cat((state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
             input_state_next = torch.cat((next_state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
 
-            if self.reward_env_type == 3:
+            if self.reward_env_type == 7:
                 reward_res = self.reward_net(input_state_next)
-            elif self.reward_env_type == 4:
+            elif self.reward_env_type == 8:
                 reward_res = reward_torch + self.reward_net(input_state_next)
 
         elif self.reward_env_type == 101 or self.reward_env_type == 102:
