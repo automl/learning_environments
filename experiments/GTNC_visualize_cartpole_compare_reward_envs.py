@@ -44,8 +44,6 @@ def get_data():
 
             np_data[it] = np.array(concat_list[:min_steps])
 
-        print(np_data)
-
         mean = np.mean(np_data,axis=0)
         std = np.std(np_data,axis=0)
 

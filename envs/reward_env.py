@@ -28,12 +28,14 @@ class RewardEnv(nn.Module):
 
     def build_reward_net(self, kwargs):
         # 0: original reward
-        # 1: native potential function (exclusive)
-        # 2: native potential function (additive)
+        # 1: potential function (exclusive)
+        # 2: potential function (additive)
         # 3: potential function with additional info vector (exclusive)
         # 4: potential function with additional info vector (additive)
         # 5: non-potential function (exclusive)
         # 6: non-potential function (additive)
+        # 7: non-potential function with additional info vector (exclusive)
+        # 8: non-potential function with additional info vector (additive)
         # 101: weighted info vector as baseline (exclusive)
         # 102: weighted info vector as baseline (additive)
 
@@ -42,7 +44,7 @@ class RewardEnv(nn.Module):
                 input_dim = 1   # dummy dimension
             elif self.reward_env_type == 1 or self.reward_env_type == 2 or self.reward_env_type == 5 or self.reward_env_type == 6:
                 input_dim = self.state_dim
-            elif self.reward_env_type == 3 or self.reward_env_type == 4:
+            elif self.reward_env_type == 3 or self.reward_env_type == 4 or self.reward_env_type == 7 or self.reward_env_type == 8:
                 input_dim = self.state_dim + self.info_dim
             else:
                 raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
@@ -104,6 +106,19 @@ class RewardEnv(nn.Module):
 
         elif self.reward_env_type == 6:
             reward_res = reward_torch + self.reward_net(next_state_torch)
+
+        elif self.reward_env_type == 7 or self.reward_env_type == 8:
+            if not info:
+                raise ValueError('No info dict provided by environment')
+
+            info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
+            input_state = torch.cat((state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+            input_state_next = torch.cat((next_state_torch.to(self.device), info_torch.to(self.device)), dim=state_torch.dim() - 1)
+
+            if self.reward_env_type == 3:
+                reward_res = self.reward_net(input_state_next)
+            elif self.reward_env_type == 4:
+                reward_res = reward_torch + self.reward_net(input_state_next)
 
         elif self.reward_env_type == 101 or self.reward_env_type == 102:
             if not info:
