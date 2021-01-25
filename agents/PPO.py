@@ -49,6 +49,7 @@ class PPO(BaseAgent):
         replay_buffer = ReplayBuffer(state_dim=sd, action_dim=ad, device=self.device, max_size=self.rb_size)
 
         avg_meter_reward = AverageMeter(print_str="Average reward: ")
+        avg_meter_episode_length = AverageMeter(print_str="Average episode length: ")
 
         env.set_agent_params(same_action_num=self.same_action_num, gamma=self.gamma)
 
@@ -58,6 +59,7 @@ class PPO(BaseAgent):
         for episode in range(self.train_episodes):
             state = env.reset()
             episode_reward = 0
+            episode_length = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += 1
@@ -73,6 +75,7 @@ class PPO(BaseAgent):
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
                 state = next_state
                 episode_reward += reward
+                episode_length += self.same_action_num
 
                 # train after certain amount of timesteps
                 if time_step / env.max_episode_steps() > self.update_episodes:
@@ -83,7 +86,7 @@ class PPO(BaseAgent):
                     break
 
             # logging
-            avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
+            avg_meter_episode_length.update(episode_length, print_rate=1e9)
 
             if test_env is not None:
                 avg_reward_test_raw, _, _ = self.test(test_env)
@@ -101,13 +104,9 @@ class PPO(BaseAgent):
                     print('early out after ' + str(episode) + ' episodes')
                     break
 
-            # if avg_reward > env.get_solved_reward():
-            #     #print("early out after {} episodes with an average reward of {}".format(episode+1, avg_reward))
-            #     break
-
         env.close()
 
-        return avg_meter_reward.get_raw_data(), {}
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), {}
 
 
     def select_train_action(self, state, env):
@@ -171,7 +170,7 @@ class PPO(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_halfcheetah_ppo_opt.yaml", 'r') as stream:
+    with open("../default_config_cmc_ppo.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
     # generate environment
