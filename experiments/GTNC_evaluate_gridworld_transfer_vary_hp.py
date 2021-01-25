@@ -3,19 +3,19 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMDDQN
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -51,7 +51,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
@@ -61,20 +61,52 @@ def load_envs_and_config(model_file):
     return reward_env, real_env, config
 
 
+def vary_hp(config):
+    alpha = 1-config['agents']['ql']['alpha']
+    gamma = 1-config['agents']['ql']['gamma']
+
+    cs = CS.ConfigurationSpace()
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='alpha',
+                                                         lower=alpha / 10,
+                                                         upper=alpha * 10,
+                                                         log=True,
+                                                         default_value=alpha)
+                          )
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma',
+                                                         lower=gamma / 3,
+                                                         upper=gamma * 3,
+                                                         log=True,
+                                                         default_value=gamma)
+                          )
+
+    sample = cs.sample_configuration()
+
+    print(f"sampled part of config: "
+          f"alpha: {1-sample['alpha']}, "
+          f"gamma: {1-sample['gamma']}, "
+          )
+
+    config['agents']['ql']['alpha'] = 1-sample['alpha']
+    config['agents']['ql']['gamma'] = 1-sample['gamma']
+
+    return config
+
+
 def train_test_agents(mode, env, real_env, config):
     rewards = []
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
-    config['agents']['ddqn']['print_rate'] = 100
+    config['agents']['ql']['test_episodes'] = 1
+    config['agents']['ql']['train_episodes'] = 200
+    config['agents']['ql']['print_rate'] = 100
+
+    config = vary_hp(config)
 
     for i in range(MODEL_AGENTS):
-        if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
-        else:
-            agent = select_agent(config=config, agent_name='ddqn')
+        agent = select_agent(config=config, agent_name='ql')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -83,7 +115,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -146,9 +178,7 @@ if __name__ == "__main__":
         print(arg)
     mode = str(sys.argv[1])
 
-    if mode == '-1':
-        eval_icm(mode=mode, log_dir=LOG_DICT['2'])
-    elif mode == '0':
+    if mode == '0':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])

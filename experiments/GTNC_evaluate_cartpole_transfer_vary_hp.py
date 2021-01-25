@@ -3,7 +3,8 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -61,6 +62,57 @@ def load_envs_and_config(model_file):
     return reward_env, real_env, config
 
 
+def vary_hp(config):
+    lr = config['agents']['ddqn']['lr']
+    batch_size = config['agents']['ddqn']['batch_size']
+    hidden_size = config['agents']['ddqn']['hidden_size']
+    hidden_layer = config['agents']['ddqn']['hidden_layer']
+
+    cs = CS.ConfigurationSpace()
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr',
+                                                         lower=lr / 3,
+                                                         upper=lr * 3,
+                                                         log=True,
+                                                         default_value=lr)
+                          )
+
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size',
+                                                           lower=int(batch_size / 3),
+                                                           upper=int(batch_size * 3),
+                                                           log=True,
+                                                           default_value=batch_size)
+                          )
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size',
+                                                           lower=int(hidden_size / 3),
+                                                           upper=int(hidden_size * 3),
+                                                           log=True,
+                                                           default_value=hidden_size)
+                          )
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer',
+                                                           lower=hidden_layer - 1,
+                                                           upper=hidden_layer + 1,
+                                                           log=False,
+                                                           default_value=hidden_layer)
+                          )
+
+    sample = cs.sample_configuration()
+
+    print(f"sampled part of config: "
+          f"lr: {sample['lr']}, "
+          f"batch_size: {sample['batch_size']}, "
+          f"hidden_size: {sample['hidden_size']}, "
+          f"hidden_layer: {sample['hidden_layer']}"
+          )
+
+    config['agents']['ddqn']['lr'] = sample['lr']
+    config['agents']['ddqn']['batch_size'] = sample['batch_size']
+    config['agents']['ddqn']['hidden_size'] = sample['hidden_size']
+    config['agents']['ddqn']['hidden_layer'] = sample['hidden_layer']
+
+    return config
+
+
 def train_test_agents(mode, env, real_env, config):
     rewards = []
     episode_lengths = []
@@ -69,6 +121,8 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['test_episodes'] = 1
     config['agents']['ddqn']['train_episodes'] = 500
     config['agents']['ddqn']['print_rate'] = 100
+
+    config = vary_hp(config)
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
@@ -83,7 +137,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

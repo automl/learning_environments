@@ -3,19 +3,18 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMDDQN
+from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -51,7 +50,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['MountainCarContinuous-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
@@ -66,16 +65,34 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
-    config['agents']['ddqn']['print_rate'] = 100
+    config['agents']['ppo'] = {}
+    config['agents']['ppo']['test_episodes'] = 1
+    config['agents']['ppo']['train_episodes'] = 500
+    config['agents']['ppo']['print_rate'] = 100
+    config['agents']['ppo']['init_episodes'] = 0
+    config['agents']['ppo']['update_episodes'] = 10
+    config['agents']['ppo']['ppo_epochs'] = 100
+    config['agents']['ppo']['gamma'] = 0.99
+    config['agents']['ppo']['lr'] = 0.0005
+    config['agents']['ppo']['vf_coef'] = 1
+    config['agents']['ppo']['ent_coef'] = 0.01
+    config['agents']['ppo']['eps_clip'] = 0.2
+    config['agents']['ppo']['rb_size'] = 1000000
+    config['agents']['ppo']['same_action_num'] = 5
+    config['agents']['ppo']['activation_fn'] = 'relu'
+    config['agents']['ppo']['hidden_size'] = 64
+    config['agents']['ppo']['hidden_layer'] = 2
+    config['agents']['ppo']['action_std'] = 0.5
+    config['agents']['ppo']['early_out_num'] = 50
+    config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
+            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
         else:
-            agent = select_agent(config=config, agent_name='ddqn')
+            agent = select_agent(config=config, agent_name='ppo')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
+        print('reward: ' + str(reward))
         rewards.append(reward)
         episode_lengths.append(episode_length)
     return rewards, episode_lengths
@@ -83,7 +100,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

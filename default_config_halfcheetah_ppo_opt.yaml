@@ -1,11 +1,11 @@
 env_name: !!str HalfCheetah-v3
-device: !!str cpu                           # torch device (cuda:0 or cpu)
+device: !!str cuda                          # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
   ppo:
     train_episodes: !!int 10000             # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to optimize
     init_episodes: !!int 0                  # number of episodes to fill the replay buffer
     update_episodes: !!float 3              # update policy every x episodes (can be float)
     ppo_epochs: !!int 87                    # update policy for x epochs

@@ -24,7 +24,7 @@ COLOR_G = '77'
 COLOR_B = 'b4'
 COLOR = '#' + COLOR_R + COLOR_G + COLOR_B
 
-LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
+LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
 MODEL_NUM = 50
 
 def idx_to_xy(idx, n):
@@ -124,13 +124,6 @@ def draw_filled_polygon(state, action, n, intensity):
 
 def plot_models(reward_dict, info_dict):
     # create average reward_dict
-
-    print(reward_dict[(47,0)])
-    print(reward_dict[(47,1)])
-    print(reward_dict[(47,2)])
-    print(reward_dict[(47,3)])
-
-
     min_val = float('Inf')
     max_val = float('-Inf')
     reward_avg_dict = {}
@@ -144,7 +137,7 @@ def plot_models(reward_dict, info_dict):
     mode = info_dict['mode']
 
     # plot individual rewards
-    fig, ax = plt.subplots(dpi=600)
+    fig, ax = plt.subplots(dpi=600, figsize=(7, 2.5))
 
     for key, value in reward_avg_dict.items():
         intensity = (value-min_val) / (max_val-min_val)
@@ -152,16 +145,33 @@ def plot_models(reward_dict, info_dict):
         action = key[1]
         draw_filled_polygon(state, action, n, intensity)
 
+
+    for i in range(5):
+        plt.plot([-0.5, 11.5], [-i+0.5, -i+0.5], linewidth=0.5, color='black')
+    for i in range(13):
+        plt.plot([i-0.5, i-0.5], [0.5, -3.5], linewidth=0.5, color='black')
+
     # plot additional information
     x_water = [0.5, 10.5, 10.5, 0.5, 0.5]
     y_water = [-2.5, -2.5, -3.5, -3.5, -2.5]
-    plt.plot(x_water, y_water, color='#1f77b4')
-    plt.text(5.5, -3, 'water', color='#1f77b4', fontsize=10, ha='center', va='center')
-    plt.text(0, -3, '(S)', fontsize=10, ha='center', va='center')
-    plt.text(11, -3, '(G)', fontsize=10, ha='center', va='center')
+    plt.plot(x_water, y_water, linewidth=2, color='black')
+    plt.text(5.5, -3, 'cliff', size=12, color='black', ha='center', va='center')
+    plt.text(0, -3, '(S)', size=12, ha='center', va='center')
+    plt.text(11, -3, '(G)', size=12, ha='center', va='center')
+
+
+    if mode == '1':
+        plt.title('exclusive potential reward network')
+    elif mode =='2':
+        plt.title('additive potential reward network')
+    elif mode =='5':
+        plt.title('exclusive non-potential reward network')
+    elif mode =='6':
+        plt.title('additive non-potential reward network')
 
     ax.axis('equal')
     ax.axis('off')
+
     plt.savefig('cliff_learned_rewards_' + str(mode) + '.svg', bbox_inches='tight')
     plt.show()
 

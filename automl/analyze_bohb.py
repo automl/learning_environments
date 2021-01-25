@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
 EXP_LOSS = 1
-OUTLIER_PERC_WORST = 0.0
+OUTLIER_PERC_WORST = 0.5
 OUTLIER_PERC_BEST = 0.0
 
 
@@ -400,7 +400,7 @@ if __name__ == '__main__':
     #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
-    log_dir = '../results/cliff_ql_params_bohb_2021-01-20-19'
+    log_dir = '../results/cmc_ppo_params_bohb_2020-12-16-17'
     analyze_bohb(log_dir)
 
 

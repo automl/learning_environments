@@ -7,15 +7,15 @@ import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMDDQN
+from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -51,7 +51,7 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
@@ -66,15 +66,24 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
-    config['agents']['ddqn']['print_rate'] = 100
+    config['agents']['sarsa'] = {}
+    config['agents']['sarsa']['test_episodes'] = 1
+    config['agents']['sarsa']['train_episodes'] = 500
+    config['agents']['sarsa']['print_rate'] = 100
+    config['agents']['sarsa']['init_episodes'] = config['agents']['ql']['init_episodes']
+    config['agents']['sarsa']['batch_size'] = config['agents']['ql']['batch_size']
+    config['agents']['sarsa']['alpha'] = config['agents']['ql']['alpha']
+    config['agents']['sarsa']['gamma'] = config['agents']['ql']['gamma']
+    config['agents']['sarsa']['eps_init'] = config['agents']['ql']['eps_init']
+    config['agents']['sarsa']['eps_min'] = config['agents']['ql']['eps_min']
+    config['agents']['sarsa']['eps_decay'] = config['agents']['ql']['eps_decay']
+    config['agents']['sarsa']['rb_size'] = config['agents']['ql']['rb_size']
+    config['agents']['sarsa']['same_action_num'] = config['agents']['ql']['same_action_num']
+    config['agents']['sarsa']['early_out_num'] = config['agents']['ql']['early_out_num']
+    config['agents']['sarsa']['early_out_virtual_diff'] = config['agents']['ql']['early_out_virtual_diff']
 
     for i in range(MODEL_AGENTS):
-        if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
-        else:
-            agent = select_agent(config=config, agent_name='ddqn')
+        agent = select_agent(config=config, agent_name='sarsa')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -83,7 +92,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -146,9 +155,7 @@ if __name__ == "__main__":
         print(arg)
     mode = str(sys.argv[1])
 
-    if mode == '-1':
-        eval_icm(mode=mode, log_dir=LOG_DICT['2'])
-    elif mode == '0':
+    if mode == '0':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])

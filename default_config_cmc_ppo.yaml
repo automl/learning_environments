@@ -1,0 +1,35 @@
+env_name: !!str MountainCarContinuous-v0
+device: !!str cuda                          # torch device (cuda:0 or cpu)
+render_env: !!bool False                    # render environment
+
+agents:
+  ppo:
+    train_episodes: !!int 10000             # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to optimize
+    init_episodes: !!int 0                  # number of episodes to fill the replay buffer
+    update_episodes: !!float 10             # update policy every x episodes (can be float)
+    ppo_epochs: !!int 100                   # update policy for x epochs
+    gamma: !!float 0.99                     # discount factor
+    lr: !!float 0.0005                      # learning rate
+    vf_coef: !!float 1                      # value function coefficient (see PPO paper)
+    ent_coef: !!float 0.01                  # entropy coefficient (see PPO paper)
+    eps_clip: !!float 0.2                   # trust region size (see PPO paper)
+    rb_size: !!int 1000000                  # size of the replay buffer
+    same_action_num: !!int 3                # how often to perform the same action subsequently
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    hidden_size: !!int 64                   # size of the actor/critic hidden layer
+    hidden_layer: !!int 2                   # number of hidden layers
+    action_std: !!float 0.5                 # action noise standard deviation
+    print_rate: 10                          # update rate of avg meters
+    early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
+    early_out_virtual_diff: !!float 0.02    # performance difference for an early out for virtual envs
+
+envs:
+  MountainCarContinuous-v0:
+    solved_reward: !!float 90               # used for early out in RL agent training
+    max_steps: !!int 999                    # maximum number of steps per episode REMOVE
+    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    hidden_size: 96                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 0                # type of reward shaping function

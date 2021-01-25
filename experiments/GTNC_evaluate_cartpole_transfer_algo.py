@@ -66,15 +66,32 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
-    config['agents']['ddqn']['print_rate'] = 100
+    config['agents']['duelingddqn'] = {}
+    config['agents']['duelingddqn']['test_episodes'] = 1
+    config['agents']['duelingddqn']['train_episodes'] = 500
+    config['agents']['duelingddqn']['print_rate'] = 10
+    config['agents']['duelingddqn']['init_episodes'] = config['agents']['ddqn']['init_episodes']
+    config['agents']['duelingddqn']['batch_size'] = config['agents']['ddqn']['batch_size']
+    config['agents']['duelingddqn']['gamma'] = config['agents']['ddqn']['gamma']
+    config['agents']['duelingddqn']['lr'] = config['agents']['ddqn']['lr']
+    config['agents']['duelingddqn']['tau'] = config['agents']['ddqn']['tau']
+    config['agents']['duelingddqn']['eps_init'] = config['agents']['ddqn']['eps_init']
+    config['agents']['duelingddqn']['eps_min'] = config['agents']['ddqn']['eps_min']
+    config['agents']['duelingddqn']['eps_decay'] = config['agents']['ddqn']['eps_decay']
+    config['agents']['duelingddqn']['rb_size'] = config['agents']['ddqn']['rb_size']
+    config['agents']['duelingddqn']['same_action_num'] = config['agents']['ddqn']['same_action_num']
+    config['agents']['duelingddqn']['activation_fn'] = config['agents']['ddqn']['activation_fn']
+    config['agents']['duelingddqn']['hidden_size'] = config['agents']['ddqn']['hidden_size']
+    config['agents']['duelingddqn']['hidden_layer'] = config['agents']['ddqn']['hidden_layer']
+    config['agents']['duelingddqn']['feature_dim'] = 128
+    config['agents']['duelingddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
+    config['agents']['duelingddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
             agent = ICMDDQN(env=real_env, config=config)
         else:
-            agent = select_agent(config=config, agent_name='ddqn')
+            agent = select_agent(config=config, agent_name='duelingddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -83,7 +100,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
