@@ -125,7 +125,7 @@ def run_vary_hp(mode, experiment_name):
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_to_duelingddqn_vary_transfer_acrobot_episode_length"
+    experiment_name = "ddqn_to_duelingddqn_vary_transfer_acrobot_episode_length_new"
     if len(sys.argv) > 1:
         run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
     else:

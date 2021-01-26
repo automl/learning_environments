@@ -21,16 +21,12 @@ title = "Transfer DDQN -> Dueling DDQN"
 # title = "Transfer DDQN -> TD3"
 
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
-# FILE_LIST = ['0.pt', '1.pt']
 
-ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+ddqn_mean_train_steps = [15388.76, 18240.325, 18177.8325]
+ddqn_std_train_steps = [12820.303525556637, 6738.70980896, 8802.080576457]
 
-dueling_ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-dueling_ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
-
-td3_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-td3_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+dueling_ddqn_mean_train_steps = [29531.1275, 18376.2125, 18540.66]
+dueling_ddqn_std_train_steps = [79218.56009538576, 6401.7216619706105, 8945.47788686552]
 
 mean_train_steps = dueling_ddqn_mean_train_steps
 std_train_steps = dueling_ddqn_std_train_steps
@@ -59,15 +55,15 @@ if __name__ == "__main__":
         episode_length_needed_stds.append(std_episode_lengths)
 
     data_dict = {
-            'train: real  / HP: vary\n(mean episode length: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
+            'train: real  / HP: varying\n(mean episode length: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
                     episode_length_needed_means[0], episode_length_needed_stds[0],
                     mean_train_steps[0], std_train_steps[0]): data_list[0],
 
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
                     episode_length_needed_means[1], episode_length_needed_stds[1],
                     mean_train_steps[1], std_train_steps[1]): data_list[1],
 
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
                     episode_length_needed_means[2], episode_length_needed_stds[2],
                     mean_train_steps[2], std_train_steps[2]): data_list[2]
             }
@@ -75,7 +71,7 @@ if __name__ == "__main__":
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
-            "font.size": 8,
+            "font.size": 8.5,
             "axes.titlesize": 8,
             "axes.labelsize": 8
             })

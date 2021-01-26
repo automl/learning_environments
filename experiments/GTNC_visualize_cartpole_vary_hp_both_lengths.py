@@ -13,9 +13,9 @@ FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_e
 plot_name = 'cartpole_ddqn_vary_hp_both_lengths.eps'
 title = "Trained synth. env. with DDQN"
 
-FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary'
-plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
-title = "Transfer DDQN -> Dueling DDQN"
+# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary'
+# plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
+# title = "Transfer DDQN -> Dueling DDQN"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
 # plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp_both_lengths.eps'
@@ -73,14 +73,16 @@ FILE_LIST = ['0.pt', '2.pt', '1.pt']
 ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
 ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706]
 
-dueling_ddqn_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-dueling_ddqn_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+dueling_ddqn_mean_train_steps = [12745.27, 6781.045, 6502.5125]
+dueling_ddqn_std_train_steps = [14972.211664, 2198.149523570906, 3209.8083018]
 
-td3_mean_train_steps = [1234.56, 1234.56, 1234.56]  # artificial data
-td3_std_train_steps = [123.45, 123.45, 123.45]  # artificial data
+#  ddqn_to_td3_discrete_vary_layer_norm_2_learned_temp
+td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
+td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
-mean_train_steps = ddqn_mean_train_steps
-std_train_steps = ddqn_std_train_steps
+
+mean_train_steps = td3_mean_train_steps
+std_train_steps = td3_std_train_steps
 
 if __name__ == "__main__":
     data_list = []
@@ -106,15 +108,15 @@ if __name__ == "__main__":
         episode_num_needed_stds.append(std_episode_num)
 
     data_dict = {
-            'train: real  / HP: vary\n(mean num episodes: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
+            'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[0], episode_num_needed_stds[0],
                     mean_train_steps[0], std_train_steps[0]): data_list[0],
 
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[1], episode_num_needed_stds[1],
                     mean_train_steps[1], std_train_steps[1]): data_list[1],
 
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[2], episode_num_needed_stds[2],
                     mean_train_steps[2], std_train_steps[2]): data_list[2]
             }
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
-            "font.size": 8,
+            "font.size": 8.5,
             "axes.titlesize": 8,
             "axes.labelsize": 8
             })

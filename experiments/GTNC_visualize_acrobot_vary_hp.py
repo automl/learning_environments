@@ -20,6 +20,10 @@ title = "Transfer DDQN -> Dueling DDQN"
 # plot_name = 'acrobot_ddqn_to_td3_vary_hp_learned_temp_relu_hard_false.eps'
 # title = "Transfer DDQN -> TD3"
 
+# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/correct_episode_length/ddqn_vary_trained_on'
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/correct_episode_length/ddqn_to_duelingddqn_vary'
+# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/correct_episode_length/ddqn_to_duelingddqn_vary/new'
+
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
@@ -47,18 +51,18 @@ if __name__ == "__main__":
         episode_num_needed_stds.append(std_episode_num)
 
     data_dict = {
-            'train: real  / HP: vary\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
+            'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[0], episode_num_needed_stds[0]): data_list[0],
-            'train: synth. / HP: vary\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[1], episode_num_needed_stds[1]): data_list[1],
-            'train: synth. / HP: no vary\n({:.2f}$\pm${:.2f})'.format(
+            'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
             }
 
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
-            "font.size": 8,
+            "font.size": 8.5,
             "axes.titlesize": 8,
             "axes.labelsize": 8
             })
