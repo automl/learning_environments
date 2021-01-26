@@ -50,7 +50,7 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    #config['device'] = 'cuda'
+    config['device'] = 'cuda'
     config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
@@ -71,7 +71,10 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['print_rate'] = 100
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ddqn')
+        if mode == '-1':
+            agent = ICMDDQN(env=real_env, config=config)
+        else:
+            agent = select_agent(config=config, agent_name='ddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)

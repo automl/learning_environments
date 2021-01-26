@@ -282,12 +282,14 @@ if __name__ == "__main__":
     ddqn = DDQN(env=real_env,
               config=config)
 
-    print("training ICM DDQN")
-    t1 = time.time()
-    icqmddqn.train(env=real_env, time_remaining=500)
-    print(time.time() - t1)
+    # print("training ICM DDQN")
+    # t1 = time.time()
+    # _, episodes, _ = icqmddqn.train(env=real_env, time_remaining=500)
+    # print(sum(episodes))
+    # print(time.time() - t1)
 
     print("training DDQN")
     t1 = time.time()
-    ddqn.train(env=real_env, time_remaining=500)
+    _, episodes, _ = ddqn.train(env=real_env, time_remaining=500)
+    print(sum(episodes))
     print(time.time() - t1)

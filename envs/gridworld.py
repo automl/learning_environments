@@ -41,7 +41,6 @@ class GridworldEnv(gym.Env):
         self.state = self._calc_next_state(action)
         reward = self._calc_reward()
         done = self._calc_done()
-
         obs = self._state_to_obs(self.state)
         return obs, reward, done, {}
 

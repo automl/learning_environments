@@ -94,13 +94,13 @@ def plot_data(proc_data, list_data, savefig_name):
 
     plt.legend(['CartPole-v0', 'Acrobot-v1', 'CartPole-v0 solved', 'Acrobot-v1 solved'], loc='lower right')
     plt.xlim(0,199)
-    plt.xlabel('ES outer loop')
+    plt.xlabel('GTN-RL outer loop iteration')
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":
     proc_data, list_data = get_data()
-    #plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
+    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
 
 

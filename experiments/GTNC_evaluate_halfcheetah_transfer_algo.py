@@ -3,22 +3,25 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
+SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_2'
+LOG_DICT['3'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-11_3'
+LOG_DICT['4'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-11_4'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_6'
+LOG_DICT['7'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_7'
+LOG_DICT['8'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_8'
 
-MODEL_NUM = 10
-MODEL_AGENTS = 10
+MODEL_NUM = 5
+MODEL_AGENTS = 5
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -50,8 +53,8 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    #config['device'] = 'cuda'
-    config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
+    config['device'] = 'cuda'
+    config['envs']['HalfCheetah-v3']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
@@ -66,13 +69,34 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ql']['test_episodes'] = 1
-    config['agents']['ql']['train_episodes'] = 200
-    config['agents']['ql']['print_rate'] = 100
+    config['agents']['ppo'] = {}
+    config['agents']['ppo']['test_episodes'] = 1
+    config['agents']['ppo']['train_episodes'] = 1000
+    config['agents']['ppo']['print_rate'] = 100
+    config['agents']['ppo']['init_episodes'] = 0
+    config['agents']['ppo']['update_episodes'] = 10
+    config['agents']['ppo']['ppo_epochs'] = 100
+    config['agents']['ppo']['gamma'] = 0.95
+    config['agents']['ppo']['lr'] = 0.003
+    config['agents']['ppo']['vf_coef'] = 1
+    config['agents']['ppo']['ent_coef'] = 0.001
+    config['agents']['ppo']['eps_clip'] = 0.2
+    config['agents']['ppo']['rb_size'] = 1000000
+    config['agents']['ppo']['same_action_num'] = 1
+    config['agents']['ppo']['activation_fn'] = 'relu'
+    config['agents']['ppo']['hidden_size'] = 64
+    config['agents']['ppo']['hidden_layer'] = 2
+    config['agents']['ppo']['action_std'] = 0.2
+    config['agents']['ppo']['early_out_num'] = 50
+    config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ql')
+        if mode == '-1':
+            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
+        else:
+            agent = select_agent(config=config, agent_name='ppo')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
+        print('reward: ' + str(reward))
         rewards.append(reward)
         episode_lengths.append(episode_length)
     return rewards, episode_lengths
@@ -80,7 +104,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -143,7 +167,9 @@ if __name__ == "__main__":
         print(arg)
     mode = str(sys.argv[1])
 
-    if mode == '0':
+    if mode == '-1':
+        eval_icm(mode=mode, log_dir=LOG_DICT['2'])
+    elif mode == '0':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])

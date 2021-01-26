@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cliff_compare_reward_envs/best0.pt',
-             '../results/cliff_compare_reward_envs/best1.pt',
+LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
              '../results/cliff_compare_reward_envs/best2.pt',
              '../results/cliff_compare_reward_envs/best5.pt',
-             '../results/cliff_compare_reward_envs/best6.pt']
+             '../results/cliff_compare_reward_envs/best6.pt',
+             '../results/cliff_compare_reward_envs/best0.pt']
 
-STD_MULT = 0.5
-BINS = 100
+STD_MULT = 1
+BINS = 200
 
 def get_data():
     list_data = []
@@ -43,8 +43,6 @@ def get_data():
 
             np_data[it] = np.array(concat_list[:min_steps])
 
-        print(np_data)
-
         mean = np.mean(np_data,axis=0)
         std = np.std(np_data,axis=0)
 
@@ -55,11 +53,6 @@ def get_data():
 
 def plot_data(proc_data, savefig_name):
     fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
-    #
-    # for mean, _ in data_w:
-    #     plt.plot(mean_w)
-    #     colors.append(plt.gca().lines[-1].get_color())
 
     for mean, std in proc_data:
         plt.plot(mean)
@@ -67,12 +60,12 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('baseline naive', 'mode 1', 'mode 2', 'mode 5', 'mode 6'))
+    plt.legend(('exc. pot. reward netw.', 'add. pot. reward netw.', 'exc. non-pot. reward netw.', 'add. non-pot. reward netw.', 'no reward netw.'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('HoleRoomLarge')
+    plt.title('Cliff Walking')
     plt.xlabel('steps')
-    plt.ylabel('average reward')
+    plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
 

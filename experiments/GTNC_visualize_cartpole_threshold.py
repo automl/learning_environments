@@ -256,7 +256,7 @@ def plot_threshold(std_dev, reward_file_names):
     plt.legend(['cart position', 'cart velocity', 'pole angle', 'pole ang. vel.', 'reward'])
     plt.xscale('log')
     plt.xlabel('relative noise intensity')
-    plt.ylabel('avg. cumulative reward')
+    plt.ylabel('cumulative reward')
     plt.savefig('cartpole_threshold.svg', bbox_inches='tight')
     plt.show()
 

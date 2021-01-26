@@ -66,12 +66,24 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['ql']['test_episodes'] = 1
-    config['agents']['ql']['train_episodes'] = 200
-    config['agents']['ql']['print_rate'] = 100
+    config['agents']['sarsa'] = {}
+    config['agents']['sarsa']['test_episodes'] = 1
+    config['agents']['sarsa']['train_episodes'] = 500
+    config['agents']['sarsa']['print_rate'] = 100
+    config['agents']['sarsa']['init_episodes'] = config['agents']['ql']['init_episodes']
+    config['agents']['sarsa']['batch_size'] = config['agents']['ql']['batch_size']
+    config['agents']['sarsa']['alpha'] = config['agents']['ql']['alpha']
+    config['agents']['sarsa']['gamma'] = config['agents']['ql']['gamma']
+    config['agents']['sarsa']['eps_init'] = config['agents']['ql']['eps_init']
+    config['agents']['sarsa']['eps_min'] = config['agents']['ql']['eps_min']
+    config['agents']['sarsa']['eps_decay'] = config['agents']['ql']['eps_decay']
+    config['agents']['sarsa']['rb_size'] = config['agents']['ql']['rb_size']
+    config['agents']['sarsa']['same_action_num'] = config['agents']['ql']['same_action_num']
+    config['agents']['sarsa']['early_out_num'] = config['agents']['ql']['early_out_num']
+    config['agents']['sarsa']['early_out_virtual_diff'] = config['agents']['ql']['early_out_virtual_diff']
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ql')
+        agent = select_agent(config=config, agent_name='sarsa')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -80,7 +92,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

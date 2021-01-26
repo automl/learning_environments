@@ -3,11 +3,11 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMTD3
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
@@ -61,6 +61,39 @@ def load_envs_and_config(model_file):
     return reward_env, real_env, config
 
 
+def vary_hp(config):
+    alpha = 1-config['agents']['ql']['alpha']
+    gamma = 1-config['agents']['ql']['gamma']
+
+    cs = CS.ConfigurationSpace()
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='alpha',
+                                                         lower=alpha / 10,
+                                                         upper=alpha * 10,
+                                                         log=True,
+                                                         default_value=alpha)
+                          )
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma',
+                                                         lower=gamma / 3,
+                                                         upper=gamma * 3,
+                                                         log=True,
+                                                         default_value=gamma)
+                          )
+
+    sample = cs.sample_configuration()
+
+    print(f"sampled part of config: "
+          f"alpha: {1-sample['alpha']}, "
+          f"gamma: {1-sample['gamma']}, "
+          )
+
+    config['agents']['ql']['alpha'] = 1-sample['alpha']
+    config['agents']['ql']['gamma'] = 1-sample['gamma']
+
+    return config
+
+
 def train_test_agents(mode, env, real_env, config):
     rewards = []
     episode_lengths = []
@@ -69,6 +102,8 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ql']['test_episodes'] = 1
     config['agents']['ql']['train_episodes'] = 200
     config['agents']['ql']['print_rate'] = 100
+
+    config = vary_hp(config)
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='ql')
@@ -80,7 +115,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

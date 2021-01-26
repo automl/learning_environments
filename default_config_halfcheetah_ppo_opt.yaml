@@ -1,16 +1,16 @@
 env_name: !!str HalfCheetah-v3
-device: !!str cpu                           # torch device (cuda:0 or cpu)
+device: !!str cuda                          # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
   ppo:
-    train_episodes: !!int 10000             # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    train_episodes: !!int 5000              # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to optimize
     init_episodes: !!int 0                  # number of episodes to fill the replay buffer
-    update_episodes: !!float 3              # update policy every x episodes (can be float)
-    ppo_epochs: !!int 87                    # update policy for x epochs
+    update_episodes: !!float 10             # update policy every x episodes (can be float)
+    ppo_epochs: !!int 100                    # update policy for x epochs
     gamma: !!float 0.965                    # discount factor
-    lr: !!float 0.000252                    # learning rate
+    lr: !!float 0.00252                    # learning rate
     vf_coef: !!float 1.51                   # value function coefficient (see PPO paper)
     ent_coef: !!float 0.00280               # entropy coefficient (see PPO paper)
     eps_clip: !!float 0.268                 # trust region size (see PPO paper)
@@ -18,9 +18,9 @@ agents:
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 72                   # size of the actor/critic hidden layer
-    hidden_layer: !!int 1                   # number of hidden layers
+    hidden_layer: !!int 2                   # number of hidden layers
     action_std: !!float 0.223               # action noise standard deviation
-    print_rate: 100                         # update rate of avg meters
+    print_rate: 10                         # update rate of avg meters
     early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 0.0628  # performance difference for an early out for virtual envs
 
