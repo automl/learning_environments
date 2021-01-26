@@ -170,7 +170,7 @@ class PPO(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cmc_ppo.yaml", 'r') as stream:
+    with open("../default_config_halfcheetah.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
     # generate environment

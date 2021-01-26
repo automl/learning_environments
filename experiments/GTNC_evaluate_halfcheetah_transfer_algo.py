@@ -3,7 +3,6 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -20,8 +19,6 @@ LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_6'
 LOG_DICT['7'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_7'
 LOG_DICT['8'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_8'
-LOG_DICT['101'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-26-01_101'
-LOG_DICT['102'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-26-01_102'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 5
@@ -72,15 +69,32 @@ def train_test_agents(mode, env, real_env, config):
     episode_lengths = []
 
     # settings for comparability
-    config['agents']['td3']['test_episodes'] = 1
-    config['agents']['td3']['train_episodes'] = 100
-    config['agents']['td3']['print_rate'] = 100
+    config['agents']['ppo'] = {}
+    config['agents']['ppo']['test_episodes'] = 1
+    config['agents']['ppo']['train_episodes'] = 1000
+    config['agents']['ppo']['print_rate'] = 100
+    config['agents']['ppo']['init_episodes'] = 0
+    config['agents']['ppo']['update_episodes'] = 10
+    config['agents']['ppo']['ppo_epochs'] = 100
+    config['agents']['ppo']['gamma'] = 0.95
+    config['agents']['ppo']['lr'] = 0.003
+    config['agents']['ppo']['vf_coef'] = 1
+    config['agents']['ppo']['ent_coef'] = 0.001
+    config['agents']['ppo']['eps_clip'] = 0.2
+    config['agents']['ppo']['rb_size'] = 1000000
+    config['agents']['ppo']['same_action_num'] = 1
+    config['agents']['ppo']['activation_fn'] = 'relu'
+    config['agents']['ppo']['hidden_size'] = 64
+    config['agents']['ppo']['hidden_layer'] = 2
+    config['agents']['ppo']['action_std'] = 0.2
+    config['agents']['ppo']['early_out_num'] = 50
+    config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
             agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
         else:
-            agent = select_agent(config=config, agent_name='td3')
+            agent = select_agent(config=config, agent_name='ppo')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)
@@ -90,7 +104,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -159,3 +173,4 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
+

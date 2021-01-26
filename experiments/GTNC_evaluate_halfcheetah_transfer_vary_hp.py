@@ -3,7 +3,8 @@ import sys
 
 import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -20,8 +21,6 @@ LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_6'
 LOG_DICT['7'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_7'
 LOG_DICT['8'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_8'
-LOG_DICT['101'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-26-01_101'
-LOG_DICT['102'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-26-01_102'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 5
@@ -67,6 +66,57 @@ def load_envs_and_config(model_file):
     return reward_env, real_env, config
 
 
+def vary_hp(config):
+    lr = config['agents']['td3']['lr']
+    batch_size = config['agents']['td3']['batch_size']
+    hidden_size = config['agents']['td3']['hidden_size']
+    hidden_layer = config['agents']['td3']['hidden_layer']
+
+    cs = CS.ConfigurationSpace()
+
+    cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr',
+                                                         lower=lr / 3,
+                                                         upper=lr * 3,
+                                                         log=True,
+                                                         default_value=lr)
+                          )
+
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='batch_size',
+                                                           lower=int(batch_size / 3),
+                                                           upper=int(batch_size * 3),
+                                                           log=True,
+                                                           default_value=batch_size)
+                          )
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size',
+                                                           lower=int(hidden_size / 3),
+                                                           upper=int(hidden_size * 3),
+                                                           log=True,
+                                                           default_value=hidden_size)
+                          )
+    cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_layer',
+                                                           lower=hidden_layer - 1,
+                                                           upper=hidden_layer + 1,
+                                                           log=False,
+                                                           default_value=hidden_layer)
+                          )
+
+    sample = cs.sample_configuration()
+
+    print(f"sampled part of config: "
+          f"lr: {sample['lr']}, "
+          f"batch_size: {sample['batch_size']}, "
+          f"hidden_size: {sample['hidden_size']}, "
+          f"hidden_layer: {sample['hidden_layer']}"
+          )
+
+    config['agents']['td3']['lr'] = sample['lr']
+    config['agents']['td3']['batch_size'] = sample['batch_size']
+    config['agents']['td3']['hidden_size'] = sample['hidden_size']
+    config['agents']['td3']['hidden_layer'] = sample['hidden_layer']
+
+    return config
+
+
 def train_test_agents(mode, env, real_env, config):
     rewards = []
     episode_lengths = []
@@ -75,6 +125,8 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['test_episodes'] = 1
     config['agents']['td3']['train_episodes'] = 100
     config['agents']['td3']['print_rate'] = 100
+
+    config = vary_hp(config)
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
@@ -90,7 +142,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -159,3 +211,4 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
+
