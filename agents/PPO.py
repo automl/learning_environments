@@ -62,7 +62,7 @@ class PPO(BaseAgent):
             episode_length = 0
 
             for t in range(0, env.max_episode_steps(), self.same_action_num):
-                time_step += 1
+                time_step += self.same_action_num
 
                 # run old policy
                 action = self.actor_old(state.to(self.device)).cpu()
