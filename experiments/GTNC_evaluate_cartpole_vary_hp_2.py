@@ -1,13 +1,19 @@
+import argparse
+import multiprocessing as mp
 import os
-import sys
 
+import numpy as np
+import pandas as pd
 import torch
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
-MODEL_NUM = 40
-MODEL_AGENTS = 10
+# MODEL_NUM = 40
+# MODEL_AGENTS = 10
+MODEL_NUM = 5
+MODEL_AGENTS = 3
+
 # local machine
 # MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole
 # -v0'
@@ -49,6 +55,7 @@ def get_all_files(with_vary_hp):
 def train_test_agents(train_env, test_env, config):
     reward_list = []
     train_steps_needed = []
+    episodes_needed = []
 
     # settings for comparability
     config['agents']['ddqn_vary']['vary_hp'] = True
@@ -66,20 +73,24 @@ def train_test_agents(train_env, test_env, config):
         print('reward: ' + str(reward))
         reward_list.append(reward)
         train_steps_needed.append([sum(episode_length)])
+        episodes_needed.append([(len(reward_train))])
 
-    return reward_list, train_steps_needed
+    return reward_list, train_steps_needed, episodes_needed
 
 
-def save_lists(mode, config, reward_list, train_steps_needed, experiment_name=None):
+def save_lists(mode, config, reward_list, train_steps_needed, episode_length_needed, env_reward_overview, experiment_name=None):
     file_name = os.path.join(os.getcwd(), str(mode) + '_' + experiment_name + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['reward_list'] = reward_list
     save_dict['train_steps_needed'] = train_steps_needed
+    save_dict['episode_length_needed'] = episode_length_needed
+    save_dict['env_reward_overview'] = pd.DataFrame.from_dict(env_reward_overview, orient="index")
+
     torch.save(save_dict, file_name)
 
 
-def run_vary_hp(mode, experiment_name):
+def run_vary_hp(mode, experiment_name, pool=None):
     if mode == 0:
         train_on_venv = False
     elif mode == 1:
@@ -89,36 +100,90 @@ def run_vary_hp(mode, experiment_name):
         train_on_venv = True
         with_vary_hp = True
 
+    env_reward_overview = {}
     reward_list = []
     train_steps_needed = []
+    episode_length_needed = []
 
     if not train_on_venv:
         file_name = os.listdir(MODEL_DIR)[0]
         _, real_env, config = load_envs_and_config(file_name)
 
-        for i in range(MODEL_NUM):
-            print('train on {}-th environment'.format(i))
-            reward_list_i, train_steps_needed_i = train_test_agents(train_env=real_env, test_env=real_env, config=config)
-            reward_list += reward_list_i
-            train_steps_needed += train_steps_needed_i
-
+        if pool is None:
+            for i in range(MODEL_NUM):
+                print('train on {}-th environment'.format(i))
+                reward_list_i, train_steps_needed_i, episode_length_needed_i = train_test_agents(train_env=real_env, test_env=real_env,
+                                                                                                 config=config)
+                reward_list += reward_list_i
+                train_steps_needed += train_steps_needed_i
+                episode_length_needed += episode_length_needed_i
+                env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_i)
+        else:
+            reward_list_tpl, train_steps_needed_tpl, episode_length_needed_tpl = zip(*pool.starmap(train_test_agents,
+                                                                                                   [(real_env, real_env, config)
+                                                                                                    for _ in range(MODEL_NUM)])
+                                                                                     )
+            # starmap/map preservers order of calling
+            for i in range(MODEL_NUM):
+                reward_list += reward_list_tpl[i]
+                train_steps_needed += train_steps_needed_tpl[i]
+                episode_length_needed += episode_length_needed_tpl[i]
+                env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_tpl[i])
     else:
         file_list = get_all_files(with_vary_hp=with_vary_hp)
 
-        for file_name in file_list:
-            virtual_env, real_env, config = load_envs_and_config(file_name)
-            print('train agents on ' + str(file_name))
-            reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
-            reward_list += reward_list_i
-            train_steps_needed += train_steps_needed_i
+        if pool is None:
+            for file_name in file_list:
+                virtual_env, real_env, config = load_envs_and_config(file_name)
+                print('train agents on ' + str(file_name))
 
-    save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
+                reward_list_i, train_steps_needed_i, episode_length_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env,
+                                                                                                 config=config)
+                reward_list += reward_list_i
+                train_steps_needed += train_steps_needed_i
+                episode_length_needed += episode_length_needed_i
+                env_reward_overview[file_name] = np.hstack(reward_list_i)
+        else:
+            _, _, config = load_envs_and_config(file_list[0])
+
+            reward_list_tpl, train_steps_needed_tpl, episode_length_needed_tpl = zip(*pool.starmap(train_test_agents,
+                                                                                                   [load_envs_and_config(file_name)
+                                                                                                    for file_name in file_list]
+                                                                                                   )
+                                                                                     )
+            # starmap/map preservers order of calling
+            for i, file_name in enumerate(file_list):
+                reward_list += reward_list_tpl[i]
+                train_steps_needed += train_steps_needed_tpl[i]
+                episode_length_needed += episode_length_needed_tpl[i]
+                env_reward_overview[file_name] = np.hstack(reward_list_tpl[i])
+
+    save_lists(mode=mode,
+               config=config,
+               reward_list=reward_list,
+               train_steps_needed=train_steps_needed,
+               episode_length_needed=episode_length_needed,
+               env_reward_overview=env_reward_overview,
+               experiment_name=experiment_name
+               )
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_vary_episode_steps"
-    if len(sys.argv) > 1:
-        run_vary_hp(mode=int(int(sys.argv[1])), experiment_name=experiment_name)
+    experiment_name = "cartpole_ddqn_vary_env_reward_overview"
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', type=int, help='the path to list')
+    parser.add_argument('--pool', type=int, help='the path to list')
+    args = parser.parse_args()
+
+    if args.pool is not None:
+        mp.set_start_method('spawn')  # due to cuda
+        pool = mp.Pool(args.pool)
+    else:
+        pool = None
+
+    if args.mode is not None:
+        run_vary_hp(mode=args.mode, experiment_name=experiment_name, pool=pool)
     else:
         for mode in range(3):
-            run_vary_hp(mode=mode, experiment_name=experiment_name)
+            run_vary_hp(mode=mode, experiment_name=experiment_name, pool=pool)
