@@ -69,10 +69,11 @@ title = "Transfer DDQN -> TD3"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_vary_trained_on'
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_to_duelingddqn_vary'
-FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_to_td3_discrete_vary_layer_norm_2_learned_temp'
+# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_to_td3_discrete_vary_layer_norm_2_learned_temp'
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments'
 
-# FILE_LIST = ['2.pt', '1.pt']
-FILE_LIST = ['0.pt', '2.pt', '1.pt']
+FILE_LIST = ['2.pt', '1.pt']
+# FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
 if __name__ == "__main__":
