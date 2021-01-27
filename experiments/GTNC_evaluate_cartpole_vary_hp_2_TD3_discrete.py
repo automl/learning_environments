@@ -8,6 +8,7 @@ from envs.env_factory import EnvFactory
 
 MODEL_NUM = 40
 MODEL_AGENTS = 10
+# MODEL_AGENTS = 1000
 # local machine
 # MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
 # cluster
