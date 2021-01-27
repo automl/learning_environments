@@ -54,7 +54,7 @@ class RewardEnv(nn.Module):
                                         nn_config=kwargs).to(self.device)
         else:
             if self.reward_env_type == 101 or self.reward_env_type == 102:
-                return nn.Linear(self.info_dim, 1, device=self.device)
+                return nn.Linear(self.info_dim, 1).to(self.device)
             else:
                 raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
 
