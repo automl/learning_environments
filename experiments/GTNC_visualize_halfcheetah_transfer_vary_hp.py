@@ -77,7 +77,7 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='cmc_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='cmc_transfer_vary_hp.png')
 
 
 

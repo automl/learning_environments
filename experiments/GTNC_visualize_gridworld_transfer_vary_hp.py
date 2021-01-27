@@ -2,12 +2,11 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best1.pt',
-             '../results/cmc_compare_reward_envs/best2.pt',
-             '../results/cmc_compare_reward_envs/best5.pt',
-             '../results/cmc_compare_reward_envs/best6.pt',
-             '../results/cmc_compare_reward_envs/best0.pt',
-             '../results/cmc_compare_reward_envs/best-1.pt']
+LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
+             '../results/cliff_compare_reward_envs/best2.pt',
+             '../results/cliff_compare_reward_envs/best5.pt',
+             '../results/cliff_compare_reward_envs/best6.pt',
+             '../results/cliff_compare_reward_envs/best0.pt']
 
 STD_MULT = 1
 BINS = 200
@@ -25,6 +24,7 @@ def get_data():
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
             min_steps = min(min_steps, sum(episode_lengths))
+
 
     # convert data from episodes to steps
     proc_data = []
@@ -53,11 +53,6 @@ def get_data():
 
 def plot_data(proc_data, savefig_name):
     fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
-    #
-    # for mean, _ in data_w:
-    #     plt.plot(mean_w)
-    #     colors.append(plt.gca().lines[-1].get_color())
 
     for mean, std in proc_data:
         plt.plot(mean)
@@ -65,19 +60,19 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN', 'TD3', 'TD3 + ICM'))
+    plt.legend(('QL + exc. pot. RN', 'QL + add. pot. RN', 'QL + exc. non-pot. RN', 'QL + add. non-pot. RN', 'QL'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('MountainCarContinuous-v0')
+    plt.title('Cliff Walking')
     plt.xlabel('steps')
-    plt.xlim(0,80000)
+    plt.xlim(0,2500)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='cmc_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='gridworld_compare_reward_env.png')
 
 
 

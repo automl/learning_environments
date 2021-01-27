@@ -54,7 +54,7 @@ class RewardEnv(nn.Module):
                                         nn_config=kwargs).to(self.device)
         else:
             if self.reward_env_type == 101 or self.reward_env_type == 102:
-                return torch.nn.Parameter(torch.zeros(self.info_dim, device=self.device))
+                return nn.Linear(self.info_dim, 1, device=self.device)
             else:
                 raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
 
@@ -127,9 +127,9 @@ class RewardEnv(nn.Module):
             info_torch = torch.tensor(list(info.values()), device=self.device, dtype=torch.float32)
 
             if self.reward_env_type == 101:
-                reward_res = torch.sum(info_torch*self.reward_net)
+                reward_res = self.reward_net(info_torch)
             elif self.reward_env_type == 102:
-                reward_res = reward_torch + torch.sum(info_torch*self.reward_net)
+                reward_res = reward_torch + self.reward_net(info_torch)
 
         return reward_res.item()
 
