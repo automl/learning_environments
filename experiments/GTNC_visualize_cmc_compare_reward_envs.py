@@ -9,8 +9,7 @@ LOG_FILES = ['../results/cmc_compare_reward_envs/best1.pt',
              '../results/cmc_compare_reward_envs/best0.pt',
              '../results/cmc_compare_reward_envs/best-1.pt']
 
-STD_MULT = 1
-BINS = 200
+STD_MULT = 0.2
 
 def get_data():
     list_data = []
@@ -65,12 +64,12 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('exc. pot. reward netw.', 'add. pot. reward netw.', 'exc. non-pot. reward netw.', 'add. non-pot. reward netw.', 'no reward netw.', 'ICM'))
+    plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN', 'TD3', 'TD3 + ICM'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0')
     plt.xlabel('steps')
-    #plt.xlim(0,20000)
+    plt.xlim(0,80000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

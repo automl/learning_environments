@@ -61,6 +61,7 @@ def load_envs_and_config(model_file):
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
+    print(save_dict['model'])
     reward_env.load_state_dict(save_dict['model'])
     real_env = env_factory.generate_real_env()
 

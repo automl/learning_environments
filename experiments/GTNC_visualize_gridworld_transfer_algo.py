@@ -2,14 +2,13 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
-             '../results/cliff_compare_reward_envs/best2.pt',
-             '../results/cliff_compare_reward_envs/best5.pt',
-             '../results/cliff_compare_reward_envs/best6.pt',
-             '../results/cliff_compare_reward_envs/best0.pt']
+LOG_FILES = ['../results/cliff_compare_reward_envs/best_transfer_algo1.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_algo2.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_algo5.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_algo6.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_algo0.pt']
 
-STD_MULT = 1
-BINS = 200
+STD_MULT = 0.2
 
 def get_data():
     list_data = []
@@ -60,19 +59,19 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('QL + exc. pot. RN', 'QL + add. pot. RN', 'QL + exc. non-pot. RN', 'QL + add. non-pot. RN', 'QL'))
+    plt.legend(('SARSA + exc. pot. RN', 'SARSA + add. pot. RN', 'SARSA + exc. non-pot. RN', 'SARSA + add. non-pot. RN', 'SARSA'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff Walking')
+    plt.title('Cliff Walking transfer algorithm')
     plt.xlabel('steps')
-    plt.xlim(0,2500)
+    plt.xlim(0,2000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='gridworld_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='gridworld_transfer_algo.png')
 
 
 

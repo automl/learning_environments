@@ -9,8 +9,7 @@ LOG_FILES = ['../results/cartpole_compare_reward_envs/best1.pt',
              '../results/cartpole_compare_reward_envs/best0.pt',
              '../results/cartpole_compare_reward_envs/best-1.pt']
 
-STD_MULT = 1
-BINS = 200
+STD_MULT = 0.2
 
 def get_data():
     list_data = []
@@ -61,12 +60,11 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('exc. pot. reward netw.', 'add. pot. reward netw.', 'exc. non-pot. reward netw.', 'add. non-pot. reward netw.', 'no reward netw.', 'ICM'))
-    #plt.xlim(0,99)
+    plt.legend(('DDQN + exc. pot. RN', 'DDQN + add. pot. RN', 'DDQN + exc. non-pot. RN', 'DDQN + add. non-pot. RN', 'DDQN', 'DDQN + ICM'))
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('CartPole-v0')
     plt.xlabel('steps')
-    plt.xlim(0,20000)
+    plt.xlim(0,9000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

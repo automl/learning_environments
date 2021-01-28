@@ -287,7 +287,8 @@ class GTN_Master(GTN_Base):
         for l_orig in self.synthetic_env_orig.modules():
             if isinstance(l_orig, nn.Linear):
                 l_orig.weight = torch.nn.Parameter(l_orig.weight * (1 - self.weight_decay))
-                l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
+                if l_orig.bias:
+                    l_orig.bias = torch.nn.Parameter(l_orig.bias * (1 - self.weight_decay))
 
         print('weights after weight decay: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
@@ -296,7 +297,8 @@ class GTN_Master(GTN_Base):
             for l_orig, l_eps in zip(self.synthetic_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
-                    l_orig.bias = torch.nn.Parameter(l_orig.bias + ss * score_transform * l_eps.bias)
+                    if l_orig.bias:
+                        l_orig.bias = torch.nn.Parameter(l_orig.bias + ss * score_transform * l_eps.bias)
 
         print('weights after update: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
