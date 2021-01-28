@@ -9,6 +9,7 @@ LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
              '../results/cliff_compare_reward_envs/best0.pt']
 
 STD_MULT = 0.2
+MIN_STEPS = 3000
 
 def get_data():
     list_data = []
@@ -22,9 +23,10 @@ def get_data():
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
+            print(sum(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
 
-
+    min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
@@ -39,6 +41,9 @@ def get_data():
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]]*episode_lengths[i]
+
+            while len(concat_list) < min_steps:
+                concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
@@ -64,7 +69,7 @@ def plot_data(proc_data, savefig_name):
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('Cliff Walking')
     plt.xlabel('steps')
-    plt.xlim(0,2000)
+    plt.xlim(0,3000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

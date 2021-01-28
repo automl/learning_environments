@@ -26,6 +26,7 @@ def get_data():
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
+            print(len(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
 
     # convert data from episodes to steps

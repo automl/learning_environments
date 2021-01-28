@@ -9,6 +9,7 @@ LOG_FILES = ['../results/cmc_compare_reward_envs/best_transfer_algo1.pt',
              '../results/cmc_compare_reward_envs/best_transfer_algo0.pt']
 
 STD_MULT = 0.2
+MIN_STEPS = 100000
 
 def get_data():
     list_data = []
@@ -22,8 +23,10 @@ def get_data():
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
+            print(len(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
 
+    min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
@@ -38,6 +41,9 @@ def get_data():
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]]*episode_lengths[i]
+
+            while len(concat_list) < min_steps:
+                concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
@@ -63,12 +69,12 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN', 'PPO'))
+    plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN', 'PPO'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0 transfer algorithm')
     plt.xlabel('steps')
-    #plt.xlim(0,80000)
+    plt.xlim(0,100000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
