@@ -1,25 +1,19 @@
+import argparse
+import multiprocessing as mp
 import os
-import sys
 
 import torch
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-
-MODEL_NUM = 40
-MODEL_AGENTS = 10
-# local machine
-# MODEL_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole
-# -v0'
-# cluster
-MODEL_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13/GTN_models_Acrobot-v1'
+from experiments.syn_env_run_vary_hp import run_vary_hp
 
 
-def load_envs_and_config(file_name):
-    file_path = os.path.join(MODEL_DIR, file_name)
+def load_envs_and_config(file_name, model_dir, device):
+    file_path = os.path.join(model_dir, file_name)
     save_dict = torch.load(file_path)
     config = save_dict['config']
-    config['device'] = 'cuda'
+    config['device'] = device
     env_factory = EnvFactory(config=config)
     virtual_env = env_factory.generate_virtual_env()
     virtual_env.load_state_dict(save_dict['model'])
@@ -28,27 +22,10 @@ def load_envs_and_config(file_name):
     return virtual_env, real_env, config
 
 
-def get_all_files(with_vary_hp):
-    file_list = []
-    for file_name in os.listdir(MODEL_DIR):
-        if 'Acrobot' not in file_name:
-            continue
-
-        _, _, config = load_envs_and_config(file_name)
-        if config['agents']['ddqn_vary']['vary_hp'] == with_vary_hp:
-            file_list.append(file_name)
-
-    # sort file list by random characters/digits -> make randomness deterministic
-    file_list = sorted(file_list, key=lambda elem: elem[-9:])
-    if len(file_list) < MODEL_NUM:
-        raise ValueError("Not enough saved models")
-
-    return file_list[:MODEL_NUM]
-
-
-def train_test_agents(train_env, test_env, config):
+def train_test_agents(train_env, test_env, config, agents_num):
     reward_list = []
     train_steps_needed = []
+    episodes_needed = []
 
     # settings for comparability
     config['agents']['ddqn_vary']['vary_hp'] = True
@@ -59,65 +36,21 @@ def train_test_agents(train_env, test_env, config):
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['early_out_virtual_diff'] = 0.01
 
-    for i in range(MODEL_AGENTS):
+    for i in range(agents_num):
         agent = select_agent(config=config, agent_name='DDQN_vary')
         reward_train, episode_length, _ = agent.train(env=train_env)
         reward, _, _ = agent.test(env=test_env)
         print('reward: ' + str(reward))
         reward_list.append(reward)
         train_steps_needed.append([sum(episode_length)])
+        episodes_needed.append([(len(reward_train))])
 
-    return reward_list, train_steps_needed
-
-
-def save_lists(mode, config, reward_list, train_steps_needed, experiment_name=None):
-    file_name = os.path.join(os.getcwd(), str(mode) + '_' + experiment_name + '.pt')
-    save_dict = {}
-    save_dict['config'] = config
-    save_dict['reward_list'] = reward_list
-    save_dict['train_steps_needed'] = train_steps_needed
-    torch.save(save_dict, file_name)
-
-
-def run_vary_hp(mode, experiment_name):
-    if mode == 0:
-        train_on_venv = False
-    elif mode == 1:
-        train_on_venv = True
-        with_vary_hp = False
-    elif mode == 2:
-        train_on_venv = True
-        with_vary_hp = True
-
-    reward_list = []
-    train_steps_needed = []
-
-    if not train_on_venv:
-        file_name = os.listdir(MODEL_DIR)[0]
-        _, real_env, config = load_envs_and_config(file_name)
-
-
-        for i in range(MODEL_NUM):
-            print('train on {}-th environment'.format(i))
-            reward_list_i, train_steps_needed_i = train_test_agents(train_env=real_env, test_env=real_env, config=config)
-            reward_list += reward_list_i
-            train_steps_needed += train_steps_needed_i
-
-    else:
-        file_list = get_all_files(with_vary_hp=with_vary_hp)
-
-        for file_name in file_list:
-            virtual_env, real_env, config = load_envs_and_config(file_name)
-            print('train agents on ' + str(file_name))
-            reward_list_i, train_steps_needed_i = train_test_agents(train_env=virtual_env, test_env=real_env, config=config)
-            reward_list += reward_list_i
-            train_steps_needed += train_steps_needed_i
-
-    save_lists(mode=mode, config=config, reward_list=reward_list, train_steps_needed=train_steps_needed, experiment_name=experiment_name)
+    return reward_list, train_steps_needed, episodes_needed
 
 
 if __name__ == "__main__":
-    experiment_name = "ddqn_vary_acrobot_episode_length"
+    model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13' \
+                '/GTN_models_Acrobot-v1'
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=int, help='mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)')
@@ -133,11 +66,9 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_duelingddqn_vary_transfer_reward_overview_" + \
-                      str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
+    experiment_name = "ddqn_vary_acrobot_reward_overview_" + str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
-    env_name = "CartPole"
-
+    env_name = "Acrobot"
 
     if args.pool is not None:
         mp.set_start_method('spawn')  # due to cuda
