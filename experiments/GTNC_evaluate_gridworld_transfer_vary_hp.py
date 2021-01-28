@@ -62,8 +62,8 @@ def load_envs_and_config(model_file):
 
 
 def vary_hp(config):
-    alpha = 1-config['agents']['ql']['alpha']
-    gamma = 1-config['agents']['ql']['gamma']
+    alpha = config['agents']['ql']['alpha']
+    gamma = config['agents']['ql']['gamma']
 
     cs = CS.ConfigurationSpace()
 
