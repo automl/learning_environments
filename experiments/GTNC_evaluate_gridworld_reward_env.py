@@ -33,7 +33,7 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
         global reward_env_type
-        config["envs"]['HoleRoomLarge']['reward_env_type'] = reward_env_type
+        config["envs"]['Cliff']['reward_env_type'] = reward_env_type
         return config
 
 
