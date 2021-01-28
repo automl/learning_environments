@@ -68,8 +68,8 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['duelingddqn'] = {}
     config['agents']['duelingddqn']['test_episodes'] = 1
-    config['agents']['duelingddqn']['train_episodes'] = 500
-    config['agents']['duelingddqn']['print_rate'] = 10
+    config['agents']['duelingddqn']['train_episodes'] = 1000
+    config['agents']['duelingddqn']['print_rate'] = 100
     config['agents']['duelingddqn']['init_episodes'] = config['agents']['ddqn']['init_episodes']
     config['agents']['duelingddqn']['batch_size'] = config['agents']['ddqn']['batch_size']
     config['agents']['duelingddqn']['gamma'] = config['agents']['ddqn']['gamma']
