@@ -1,5 +1,9 @@
+import os
+
 import numpy as np
+import pandas as pd
 import torch
+
 
 class ReplayBuffer:
     def __init__(self, state_dim, action_dim, device, max_size=int(1e6)):
@@ -32,21 +36,21 @@ class ReplayBuffer:
 
     def _sample_idx(self, idx):
         return (
-            self.state[idx].to(self.device).detach(),
-            self.action[idx].to(self.device).detach(),
-            self.next_state[idx].to(self.device).detach(),
-            self.reward[idx].to(self.device).detach(),
-            self.done[idx].to(self.device).detach(),
-        )
+                self.state[idx].to(self.device).detach(),
+                self.action[idx].to(self.device).detach(),
+                self.next_state[idx].to(self.device).detach(),
+                self.reward[idx].to(self.device).detach(),
+                self.done[idx].to(self.device).detach(),
+                )
 
     def get_all(self):
         return (
-            self.state[:self.size].to(self.device).detach(),
-            self.action[:self.size].to(self.device).detach(),
-            self.next_state[:self.size].to(self.device).detach(),
-            self.reward[:self.size].to(self.device).detach(),
-            self.done[:self.size].to(self.device).detach(),
-        )
+                self.state[:self.size].to(self.device).detach(),
+                self.action[:self.size].to(self.device).detach(),
+                self.next_state[:self.size].to(self.device).detach(),
+                self.reward[:self.size].to(self.device).detach(),
+                self.done[:self.size].to(self.device).detach(),
+                )
 
     def merge_buffer(self, other_replay_buffer):
         states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
@@ -93,7 +97,7 @@ class AverageMeter:
         return self.vals
 
     def _mean(self, num, ignore_last):
-        vals = self.vals[max(len(self.vals) - num - ignore_last, 0) : max(len(self.vals) - ignore_last, 0)]
+        vals = self.vals[max(len(self.vals) - num - ignore_last, 0): max(len(self.vals) - ignore_last, 0)]
         return sum(vals) / (len(vals) + 1e-9)
 
 
@@ -104,10 +108,10 @@ def to_one_hot_encoding(normal, one_hot_dim):
     if not torch.is_tensor(normal):
         one_hot = torch.zeros(one_hot_dim)
         one_hot[int(normal)] = 1
-    elif normal.dim() == 0 or (normal.dim() == 1 and len(normal) == 1):     # single torch value
+    elif normal.dim() == 0 or (normal.dim() == 1 and len(normal) == 1):  # single torch value
         one_hot = torch.zeros(one_hot_dim)
         one_hot[int(normal.item())] = 1
-    elif normal.dim() == 1:     # vector of values
+    elif normal.dim() == 1:  # vector of values
         n = len(normal)
         one_hot = torch.zeros(n, one_hot_dim)
         for i in range(n):
@@ -133,4 +137,20 @@ def print_abs_param_sum(model, name=""):
     print(name + " " + str(calc_abs_param_sum(model)))
 
 
+def save_lists(mode, config, reward_list, train_steps_needed, episode_length_needed, env_reward_overview, experiment_name=None,
+               out_dir=None):
+    if experiment_name is None:
+        experiment_name = "_experiment_"
 
+    if out_dir is None:
+        out_dir = os.getcwd()
+
+    file_name = os.path.join(out_dir, str(mode) + '_' + experiment_name + '.pt')
+    save_dict = {}
+    save_dict['config'] = config
+    save_dict['reward_list'] = reward_list
+    save_dict['train_steps_needed'] = train_steps_needed
+    save_dict['episode_length_needed'] = episode_length_needed
+    save_dict['env_reward_overview'] = pd.DataFrame.from_dict(env_reward_overview, orient="index")
+
+    torch.save(save_dict, file_name)
