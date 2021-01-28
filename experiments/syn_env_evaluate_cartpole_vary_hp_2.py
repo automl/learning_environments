@@ -51,7 +51,6 @@ def train_test_agents(train_env, test_env, config, agents_num):
 if __name__ == "__main__":
     model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10' \
                 '/GTN_models_CartPole-v0'
-    agent_name = "ddqn"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=int, help='mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)')
@@ -67,7 +66,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_duelingddqn_vary_transfer_reward_overview_" + \
+    experiment_name = "ddqn_vary_transfer_reward_overview_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "CartPole"
