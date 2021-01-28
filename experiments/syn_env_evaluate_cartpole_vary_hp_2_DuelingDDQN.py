@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_duelingddqn_vary_transfer_episode_steps_" + \
+    experiment_name = "ddqn_to_duelingddqn_vary_transfer_reward_overview_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "CartPole"
