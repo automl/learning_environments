@@ -26,7 +26,7 @@ agents:
     agent_name: !!str DDQN                  # which RL agent to use for meta-training
 
   ddqn:
-    train_episodes: !!int 500               # maximum number of episodes to train
+    train_episodes: !!int 100               # maximum number of episodes to train
     test_episodes: !!int 1                  # maximum number of episodes to test
     init_episodes: !!int 1                  # number of episodes to fill the replay buffer
     batch_size: !!int 192                   # batch size when running a policy update step
