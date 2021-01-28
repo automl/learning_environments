@@ -152,8 +152,9 @@ class GTN_Worker(GTN_Base):
             if isinstance(l_virt, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.weight),
                                                                std=torch.ones_like(l_virt.weight)) * self.noise_std)
-                l_eps.bias = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.bias),
-                                                             std=torch.ones_like(l_virt.bias)) * self.noise_std)
+                if l_eps.bias != None:
+                    l_eps.bias = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.bias),
+                                                                 std=torch.ones_like(l_virt.bias)) * self.noise_std)
 
 
     def add_noise_to_synthetic_env(self, add=True):
@@ -161,10 +162,12 @@ class GTN_Worker(GTN_Base):
             if isinstance(l_virt, nn.Linear):
                 if add: # add eps
                     l_virt.weight = torch.nn.Parameter(l_orig.weight + l_eps.weight)
-                    l_virt.bias = torch.nn.Parameter(l_orig.bias + l_eps.bias)
+                    if l_virt.bias != None:
+                        l_virt.bias = torch.nn.Parameter(l_orig.bias + l_eps.bias)
                 else:   # subtract eps
                     l_virt.weight = torch.nn.Parameter(l_orig.weight - l_eps.weight)
-                    l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
+                    if l_virt.bias != None:
+                        l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
 
 
     def subtract_noise_from_synthetic_env(self):
@@ -175,7 +178,8 @@ class GTN_Worker(GTN_Base):
         for l_eps in self.eps.modules():
             if isinstance(l_eps, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(-l_eps.weight)
-                l_eps.bias = torch.nn.Parameter(-l_eps.bias)
+                if l_eps.bias != None:
+                    l_eps.bias = torch.nn.Parameter(-l_eps.bias)
 
 
     def calc_score(self, env, time_remaining):

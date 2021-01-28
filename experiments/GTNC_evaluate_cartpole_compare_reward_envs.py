@@ -12,10 +12,10 @@ from models.baselines import ICMDDQN
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-21-00_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -67,7 +67,7 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 500
+    config['agents']['ddqn']['train_episodes'] = 1000
     config['agents']['ddqn']['print_rate'] = 100
 
     for i in range(MODEL_AGENTS):

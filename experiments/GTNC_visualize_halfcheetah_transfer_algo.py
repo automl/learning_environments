@@ -2,14 +2,17 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best_transfer_algo1.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_algo2.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_algo0.pt']
+LOG_FILES = ['../results/halfcheetah_compare_reward_envs/best_transfer_algo1.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo2.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo5.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo6.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo3.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo4.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo0.pt']
 
-STD_MULT = 1
-BINS = 200
+STD_MULT = 0.2
 
 def get_data():
     list_data = []
@@ -23,6 +26,7 @@ def get_data():
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
+            print(len(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
 
     # convert data from episodes to steps
@@ -64,12 +68,13 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN', 'PPO'))
-    #plt.xlim(0,99)
+    plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN',
+                'PPO + exc. pot. RN + augm.', 'PPO + add. pot. RN + augm.', 'PPO + exc. non-pot. RN + augm.',
+                'PPO + add. non-pot. RN + augm.', 'PPO'), fontsize=7)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('MountainCarContinuous-v0 transfer algorithm')
+    plt.title('HalfCheetah-v3 transfer algorithm')
     plt.xlabel('steps')
-    #plt.xlim(0,80000)
+    plt.xlim(0,1000000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
@@ -77,6 +82,6 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='cmc_transfer_algo.png')
+    plot_data(proc_data=proc_data, savefig_name='halfcheetah_transfer_algo.png')
 
 

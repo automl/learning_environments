@@ -22,7 +22,7 @@ agents:
     score_transform_type: !!int 3           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
     synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
-    unsolved_weight: !!float 10000          # penalty weight for all solvable environments if they haven't been solved yet
+    unsolved_weight: !!float 100            # penalty weight for all solvable environments if they haven't been solved yet
     agent_name: !!str QL                    # which RL agent to use for meta-training
 
   ql:
@@ -30,38 +30,38 @@ agents:
     test_episodes: !!int 1                  # maximum number of episodes to optimize
     init_episodes: !!int 0                  # number of episodes to prevent an early out
     batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
-    alpha: !!float 0.99                     # Q-Learning update factor
+    alpha: !!float 1                        # Q-Learning update factor
     gamma: !!float 0.8                      # discount factor
     eps_init: !!float 0.01                  # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.0                  # random action decay factor
     rb_size: !!int 1                        # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    print_rate: 1000                        # update rate of avg meters
+    print_rate: 100                         # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
-    early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
   sarsa:
     train_episodes: !!int 100               # maximum number of episodes to optimize
     test_episodes: !!int 1                  # maximum number of episodes to optimize
     init_episodes: !!int 0                  # number of episodes to prevent an early out
     batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
-    alpha: !!float 0.99                     # Q-Learning update factor
+    alpha: !!float 1                        # Q-Learning update factor
     gamma: !!float 0.8                      # discount factor
     eps_init: !!float 0.01                  # initial random action percentage
     eps_min: !!float 0.01                   # final random action percentage
     eps_decay: !!float 0.0                  # random action decay factor
     rb_size: !!int 1                        # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    print_rate: 1000                        # update rate of avg meters
+    print_rate: 100                         # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
-    early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
 envs:
   EmptyRoom22:
     solved_reward: !!float 0.8
     max_steps: !!int 10
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -70,7 +70,7 @@ envs:
   EmptyRoom23:
     solved_reward: !!float 0.8
     max_steps: !!int 15
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -79,7 +79,7 @@ envs:
   EmptyRoom33:
     solved_reward: !!float 0.8
     max_steps: !!int 20
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -88,7 +88,7 @@ envs:
   WallRoom:
     solved_reward: !!float 0.8
     max_steps: !!int 30
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -97,7 +97,7 @@ envs:
   HoleRoom:
     solved_reward: !!float 0.8
     max_steps: !!int 30
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -106,7 +106,7 @@ envs:
   HoleRoomLarge:
     solved_reward: !!float 0.8
     max_steps: !!int 30
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
     hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
@@ -115,17 +115,17 @@ envs:
   HoleRoomLargeShifted:
     solved_reward: !!float 0.8
     max_steps: !!int 30
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 2                # type of reward shaping function
 
   Cliff:
-    solved_reward: !!float -0.2
+    solved_reward: !!float -20
     max_steps: !!int 50
-    activation_fn: !!str leakyrelu          # activation function of the virtual environment
+    activation_fn: !!str prelu              # activation function of the virtual environment
     hidden_size: 32                         # size of the hidden layer of the virtual environment
-    hidden_layer: !!int 2                   # number of hidden layers of the virtual environment
+    hidden_layer: !!int 1                   # number of hidden layers of the virtual environment
     info_dim: !!int 0                       # additional information dimension from step function
     reward_env_type: !!int 2                # type of reward shaping function

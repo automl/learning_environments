@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
-             '../results/cliff_compare_reward_envs/best2.pt',
-             '../results/cliff_compare_reward_envs/best5.pt',
-             '../results/cliff_compare_reward_envs/best6.pt',
-             '../results/cliff_compare_reward_envs/best0.pt']
+LOG_FILES = ['../results/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+             '../results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt']
 
-STD_MULT = 1
-BINS = 200
+STD_MULT = 0.2
+MIN_STEPS = 3000
 
 def get_data():
     list_data = []
@@ -23,9 +23,10 @@ def get_data():
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
         for episode_lengths in episode_length_list:
+            print(sum(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
 
-
+    min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
@@ -40,6 +41,9 @@ def get_data():
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]]*episode_lengths[i]
+
+            while len(concat_list) < min_steps:
+                concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
@@ -63,16 +67,16 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('QL + exc. pot. RN', 'QL + add. pot. RN', 'QL + exc. non-pot. RN', 'QL + add. non-pot. RN', 'QL'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff Walking')
+    plt.title('Cliff Walking vary hyperparameters')
     plt.xlabel('steps')
-    plt.xlim(0,2500)
+    plt.xlim(0,3000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='gridworld_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name='gridworld_transfer_vary_hp.png')
 
 
 

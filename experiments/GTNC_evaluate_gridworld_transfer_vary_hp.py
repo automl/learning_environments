@@ -12,10 +12,10 @@ from envs.env_factory import EnvFactory
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -62,34 +62,34 @@ def load_envs_and_config(model_file):
 
 
 def vary_hp(config):
-    alpha = 1-config['agents']['ql']['alpha']
-    gamma = 1-config['agents']['ql']['gamma']
+    alpha = config['agents']['ql']['alpha']
+    gamma = config['agents']['ql']['gamma']
 
     cs = CS.ConfigurationSpace()
 
     cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='alpha',
-                                                         lower=alpha / 10,
-                                                         upper=alpha * 10,
-                                                         log=True,
+                                                         lower=0.1,
+                                                         upper=1,
+                                                         log=False,
                                                          default_value=alpha)
                           )
 
     cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma',
-                                                         lower=gamma / 3,
-                                                         upper=gamma * 3,
-                                                         log=True,
+                                                         lower=0.1,
+                                                         upper=1,
+                                                         log=False,
                                                          default_value=gamma)
                           )
 
     sample = cs.sample_configuration()
 
     print(f"sampled part of config: "
-          f"alpha: {1-sample['alpha']}, "
-          f"gamma: {1-sample['gamma']}, "
+          f"alpha: {sample['alpha']}, "
+          f"gamma: {sample['gamma']}, "
           )
 
-    config['agents']['ql']['alpha'] = 1-sample['alpha']
-    config['agents']['ql']['gamma'] = 1-sample['gamma']
+    config['agents']['ql']['alpha'] = sample['alpha']
+    config['agents']['ql']['gamma'] = sample['gamma']
 
     return config
 
