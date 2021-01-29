@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import deepcopy
 
 import torch
 import hpbandster.core.result as hpres
@@ -109,12 +110,13 @@ def vary_hp(config):
           f"hidden_layer: {sample['hidden_layer']}"
           )
 
-    config['agents']['td3']['lr'] = sample['lr']
-    config['agents']['td3']['batch_size'] = sample['batch_size']
-    config['agents']['td3']['hidden_size'] = sample['hidden_size']
-    config['agents']['td3']['hidden_layer'] = sample['hidden_layer']
+    config_mod = deepcopy(config)
+    config_mod['agents']['td3']['lr'] = sample['lr']
+    config_mod['agents']['td3']['batch_size'] = sample['batch_size']
+    config_mod['agents']['td3']['hidden_size'] = sample['hidden_size']
+    config_mod['agents']['td3']['hidden_layer'] = sample['hidden_layer']
 
-    return config
+    return config_mod
 
 
 def train_test_agents(mode, env, real_env, config):
@@ -126,13 +128,13 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['train_episodes'] = 100
     config['agents']['td3']['print_rate'] = 100
 
-    config = vary_hp(config)
-
     for i in range(MODEL_AGENTS):
+        config_mod = vary_hp(config)
+
         if mode == '-1':
-            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
+            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config_mod)
         else:
-            agent = select_agent(config=config, agent_name='td3')
+            agent = select_agent(config=config_mod, agent_name='td3')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         print('reward: ' + str(reward))
         rewards.append(reward)

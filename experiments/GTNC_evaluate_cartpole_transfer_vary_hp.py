@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import deepcopy
 
 import torch
 import hpbandster.core.result as hpres
@@ -105,12 +106,13 @@ def vary_hp(config):
           f"hidden_layer: {sample['hidden_layer']}"
           )
 
-    config['agents']['ddqn']['lr'] = sample['lr']
-    config['agents']['ddqn']['batch_size'] = sample['batch_size']
-    config['agents']['ddqn']['hidden_size'] = sample['hidden_size']
-    config['agents']['ddqn']['hidden_layer'] = sample['hidden_layer']
+    config_mod = deepcopy(config)
+    config_mod['agents']['ddqn']['lr'] = sample['lr']
+    config_mod['agents']['ddqn']['batch_size'] = sample['batch_size']
+    config_mod['agents']['ddqn']['hidden_size'] = sample['hidden_size']
+    config_mod['agents']['ddqn']['hidden_layer'] = sample['hidden_layer']
 
-    return config
+    return config_mod
 
 
 def train_test_agents(mode, env, real_env, config):
@@ -122,13 +124,13 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['train_episodes'] = 1000
     config['agents']['ddqn']['print_rate'] = 100
 
-    config = vary_hp(config)
-
     for i in range(MODEL_AGENTS):
+        config_mod = vary_hp(config)
+
         if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
+            agent = ICMDDQN(env=real_env, config=config_mod)
         else:
-            agent = select_agent(config=config, agent_name='ddqn')
+            agent = select_agent(config=config_mod, agent_name='ddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)

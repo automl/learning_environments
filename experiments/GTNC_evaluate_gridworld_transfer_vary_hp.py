@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import deepcopy
 
 import torch
 import hpbandster.core.result as hpres
@@ -88,10 +89,11 @@ def vary_hp(config):
           f"gamma: {sample['gamma']}, "
           )
 
-    config['agents']['ql']['alpha'] = sample['alpha']
-    config['agents']['ql']['gamma'] = sample['gamma']
+    config_mod = deepcopy(config)
+    config_mod['agents']['ql']['alpha'] = sample['alpha']
+    config_mod['agents']['ql']['gamma'] = sample['gamma']
 
-    return config
+    return config_mod
 
 
 def train_test_agents(mode, env, real_env, config):
@@ -103,10 +105,10 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ql']['train_episodes'] = 200
     config['agents']['ql']['print_rate'] = 100
 
-    config = vary_hp(config)
-
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ql')
+        config_mod = vary_hp(config)
+        
+        agent = select_agent(config=config_mod, agent_name='ql')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
