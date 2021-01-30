@@ -67,7 +67,7 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('SARSA + exc. pot. RN', 'SARSA + add. pot. RN', 'SARSA + exc. non-pot. RN', 'SARSA + add. non-pot. RN', 'SARSA'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff Walking transfer algorithm')
+    plt.title('Cliff Walking transferred algorithm')
     plt.xlabel('steps')
     plt.xlim(0,3000)
     plt.ylabel('cumulative reward')

@@ -71,7 +71,7 @@ def plot_data(proc_data, savefig_name):
                 'TD3 + exc. pot. RN + augm.', 'TD3 + add. pot. RN + augm.', 'TD3 + exc. non-pot. RN + augm.',
                 'TD3 + add. non-pot. RN + augm.', 'TD3'), fontsize=7)    #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('HalfCheetah-v3 vary hyperparameters')
+    plt.title('HalfCheetah-v3 varied hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0,100000)
     plt.ylabel('cumulative reward')

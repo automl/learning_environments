@@ -67,7 +67,7 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('QL + exc. pot. RN', 'QL + add. pot. RN', 'QL + exc. non-pot. RN', 'QL + add. non-pot. RN', 'QL'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff Walking vary hyperparameters')
+    plt.title('Cliff Walking varied hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0,3000)
     plt.ylabel('cumulative reward')
