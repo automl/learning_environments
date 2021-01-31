@@ -72,7 +72,7 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN', 'PPO'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('MountainCarContinuous-v0 transfer algorithm')
+    plt.title('MountainCarContinuous-v0 transferred algorithm')
     plt.xlabel('steps')
     plt.xlim(0,100000)
     plt.ylabel('cumulative reward')

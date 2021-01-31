@@ -72,7 +72,7 @@ def plot_data(proc_data, savefig_name):
                 'PPO + exc. pot. RN + augm.', 'PPO + add. pot. RN + augm.', 'PPO + exc. non-pot. RN + augm.',
                 'PPO + add. non-pot. RN + augm.', 'PPO'), fontsize=7)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('HalfCheetah-v3 transfer algorithm')
+    plt.title('HalfCheetah-v3 transferred algorithm')
     plt.xlabel('steps')
     plt.xlim(0,1000000)
     plt.ylabel('cumulative reward')

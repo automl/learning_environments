@@ -62,7 +62,7 @@ def plot_data(proc_data, savefig_name):
     plt.legend(('DDQN + exc. pot. RN', 'DDQN + add. pot. RN', 'DDQN + exc. non-pot. RN', 'DDQN + add. non-pot. RN', 'DDQN'))
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('CartPole-v0 vary hyperparameters')
+    plt.title('CartPole-v0 varied hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0,9000)
     plt.ylabel('cumulative reward')
