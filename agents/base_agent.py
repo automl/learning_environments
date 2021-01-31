@@ -3,6 +3,7 @@ import time
 import torch
 import torch.nn as nn
 from utils import AverageMeter, ReplayBuffer
+from timeit import default_timer as timer
 
 
 class BaseAgent(nn.Module):
@@ -59,6 +60,7 @@ class BaseAgent(nn.Module):
         time_start = time.time()
 
         discretize_action = False
+        times_per_step = []
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
 
@@ -81,6 +83,7 @@ class BaseAgent(nn.Module):
 
         # training loop
         for episode in range(self.train_episodes):
+            times_per_step_episode = []
             # early out if timeout
             if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                max_episodes=self.train_episodes,
@@ -106,9 +109,17 @@ class BaseAgent(nn.Module):
                 # required due to gumble softmax in td3 discrete
                 # todo @fabio: move into agent-specific select_train_action, do the same for test
                 if discretize_action:
-                    next_state, reward, done = env.step(action=action.argmax().unsqueeze(0))
+                    action_ = action.argmax().unsqueeze(0)
+                    t_start = timer()
+                    next_state, reward, done = env.step(action=action_)
+                    time_per_step = timer() - t_start
                 else:
+                    t_start = timer()
                     next_state, reward, done = env.step(action=action)
+                    time_per_step = timer() - t_start
+
+                times_per_step_episode.append(time_per_step)
+
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
                 state = next_state
@@ -141,10 +152,12 @@ class BaseAgent(nn.Module):
                     print('early out after ' + str(episode) + ' episodes')
                     break
 
+            times_per_step.append(times_per_step_episode)
+
         env.close()
 
         # todo: use dict to reduce confusions and bugs
-        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer, times_per_step
 
 
     def test(self, env, time_remaining=1e9):
