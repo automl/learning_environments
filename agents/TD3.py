@@ -119,20 +119,54 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cmc_td3_opt.yaml", "r") as stream:
+    # with open("../default_config_cmc_td3_opt.yaml", "r") as stream:
+    #     config = yaml.safe_load(stream)
+    with open("../default_config_halfcheetah.yaml", "r") as stream:
         config = yaml.safe_load(stream)
+
+    config["device"] = "cpu"
+    config["init_episodes"] = 10
+
     print(config)
     # generate environment
     env_fac = EnvFactory(config)
     #virt_env = env_fac.generate_virtual_env()
-    real_env= env_fac.generate_real_env()
+    real_env = env_fac.generate_real_env()
     #reward_env = env_fac.generate_reward_env()
     td3 = TD3(env=real_env,
               max_action=real_env.get_max_action(),
               config=config)
-    t1 = time.time()
-    td3.train(env=real_env, time_remaining=3600)
-    print(time.time()-t1)
-    td3.test(env=real_env, time_remaining=1200)
-    print(time.time()-t1)
-    #td3.train(env=virt_env, time_remaining=5)
+
+    import numpy as np
+    import os
+    step_times_per_episode_real_env = {}
+    for i in range(5):
+        _, _, _, step_times_real_env = td3.train(env=real_env, time_remaining=500)
+        step_times_per_episode_real_env[real_env.env.env_name + "_" + str(i)] = {
+                "step_times_per_episode_real_env": step_times_real_env,
+                "step_times_mean": np.mean(np.concatenate(step_times_real_env)),
+                "step_times_std": np.std(np.concatenate(step_times_real_env))
+                }
+
+    experiment_name = "evaluate_inference_time_" + "HalfCheetah" + "_mode_2" + "_" + "TD3" + "_device_" + config["device"]
+    file_name = os.path.join(os.getcwd(), experiment_name + '.pt')
+
+    save_dict = {}
+    save_dict['config'] = config
+
+    save_dict['step_times_per_episode_real_env'] = step_times_per_episode_real_env
+    step_times_real_env_lst = [np.concatenate(v["step_times_per_episode_real_env"]) for v in step_times_per_episode_real_env.values()]
+    step_times_real_env_lst = np.concatenate(step_times_real_env_lst)
+
+    save_dict['step_times_real_env_mean'] = np.mean(step_times_real_env_lst)
+    save_dict['step_times_real_env_std'] = np.std(step_times_real_env_lst)
+
+    print("device:", config["device"])
+
+    print("step_times_real_env_mean {:.6f}".format(save_dict['step_times_real_env_mean']))
+    print("step_times_real_env_std {:.6f}".format(save_dict['step_times_real_env_std']))
+    print("number of real env step calls: {}".format(step_times_real_env_lst.size))
+
+
+
+
