@@ -64,7 +64,7 @@ def plot_data(proc_data, savefig_name):
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('CartPole-v0')
     plt.xlabel('steps')
-    plt.xlim(0,9000)
+    plt.xlim(0,10000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

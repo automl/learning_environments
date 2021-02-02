@@ -11,7 +11,9 @@ LOG_FILES = ['../results/halfcheetah_compare_reward_envs/best1.pt',
              '../results/halfcheetah_compare_reward_envs/best7.pt',
              '../results/halfcheetah_compare_reward_envs/best8.pt',
              '../results/halfcheetah_compare_reward_envs/best0.pt',
-             '../results/halfcheetah_compare_reward_envs/best-1.pt']
+             '../results/halfcheetah_compare_reward_envs/best-1.pt',
+             '../results/halfcheetah_compare_reward_envs/best101.pt',
+             '../results/halfcheetah_compare_reward_envs/best102.pt']
 
 STD_MULT = 0.2
 
@@ -70,7 +72,7 @@ def plot_data(proc_data, savefig_name):
 
     plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN',
                 'TD3 + exc. pot. RN + augm.', 'TD3 + add. pot. RN + augm.', 'TD3 + exc. non-pot. RN + augm.', 'TD3 + add. non-pot. RN + augm.',
-                'TD3', 'TD3 + ICM'), fontsize=7)
+                'TD3', 'TD3 + ICM', 'TD3 + exc. ER', 'TD3 + add. ER'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HalfCheetah-v3')

@@ -10,7 +10,9 @@ LOG_FILES = ['../results/halfcheetah_compare_reward_envs/best_transfer_algo1.pt'
              '../results/halfcheetah_compare_reward_envs/best_transfer_algo4.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_algo0.pt']
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo0.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo102.pt']
 
 STD_MULT = 0.2
 
@@ -70,7 +72,7 @@ def plot_data(proc_data, savefig_name):
 
     plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN',
                 'PPO + exc. pot. RN + augm.', 'PPO + add. pot. RN + augm.', 'PPO + exc. non-pot. RN + augm.',
-                'PPO + add. non-pot. RN + augm.', 'PPO'), fontsize=7)
+                'PPO + add. non-pot. RN + augm.', 'PPO', 'PPO + exc. ER', 'PPO + add. ER'), fontsize=7)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HalfCheetah-v3 transferred algorithm')
     plt.xlabel('steps')
