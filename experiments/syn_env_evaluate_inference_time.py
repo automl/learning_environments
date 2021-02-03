@@ -34,8 +34,8 @@ if __name__ == "__main__":
     model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10' \
                 '/GTN_models_CartPole-v0'
 
-    model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13' \
-                '/GTN_models_Acrobot-v1'
+    # model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13' \
+    #             '/GTN_models_Acrobot-v1'
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=int, help='mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)', default=2)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         train_on_venv = True
         with_vary_hp = True
 
-    experiment_name = "evaluate_inference_time_" + env_name + "_mode_" + str(mode) + "_" + agent_name + "_device_" + device
+    experiment_name = "evaluate_inference_time_" + env_name + "_mode_" + str(mode) + "_" + agent_name + "_device_" + device + "_" + "time"
 
     train_episodes = 50
     init_episodes = 10
@@ -76,6 +76,8 @@ if __name__ == "__main__":
 
     step_times_per_episode_real_env = {}
     step_times_per_episode_syn_env = {}
+
+    file_list = file_list[:5]
 
     for i, file_name in enumerate(file_list):
         syn_env, real_env, config = load_envs_and_config(file_name=file_name, model_dir=model_dir, device=device)

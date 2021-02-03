@@ -140,8 +140,8 @@ if __name__ == "__main__":
     import numpy as np
     import os
     step_times_per_episode_real_env = {}
-    for i in range(5):
-        _, _, _, step_times_real_env = td3.train(env=real_env, time_remaining=500)
+    for i in range(3):
+        _, _, _, step_times_real_env = td3.train(env=real_env, time_remaining=800)
         step_times_per_episode_real_env[real_env.env.env_name + "_" + str(i)] = {
                 "step_times_per_episode_real_env": step_times_real_env,
                 "step_times_mean": np.mean(np.concatenate(step_times_real_env)),

@@ -8,7 +8,7 @@ from utils import save_lists
 def get_all_files(with_vary_hp, model_num, model_dir, custom_load_envs_and_config, env_name, device):
     file_list = []
     for file_name in os.listdir(model_dir):
-        if env_name not in file_name:
+        if env_name not in file_name.lower():
             continue
 
         _, _, config = custom_load_envs_and_config(file_name=file_name, model_dir=model_dir, device=device)
