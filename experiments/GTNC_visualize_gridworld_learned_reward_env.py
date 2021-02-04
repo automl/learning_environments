@@ -7,22 +7,11 @@ from envs.env_factory import EnvFactory
 import matplotlib.pyplot as plt
 
 
-# LOG_DICT = {}
-# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
-# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_2'
-# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_5'
-# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_6'
-
 # from gridworld.py
 G_RIGHT = 0
 G_LEFT = 1
 G_DOWN = 2
 G_UP = 3
-
-COLOR_R = '1f'
-COLOR_G = '77'
-COLOR_B = 'b4'
-COLOR = '#' + COLOR_R + COLOR_G + COLOR_B
 
 LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
 MODEL_NUM = 50
@@ -132,7 +121,6 @@ def plot_models(reward_dict, info_dict):
         min_val = min(min_val, reward_avg_dict[key])
         max_val = max(max_val, reward_avg_dict[key])
 
-    m = info_dict['n']
     n = info_dict['n']
     mode = info_dict['mode']
 

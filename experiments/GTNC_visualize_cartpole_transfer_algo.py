@@ -65,6 +65,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('CartPole-v0 transferred algorithm')
     plt.xlabel('steps')
     plt.xlim(0,10000)
+    plt.ylim(0,210)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

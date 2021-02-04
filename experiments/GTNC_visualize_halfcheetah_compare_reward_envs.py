@@ -58,17 +58,28 @@ def get_data():
 
 def plot_data(proc_data, savefig_name):
     fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
     #
     # for mean, _ in data_w:
     #     plt.plot(mean_w)
     #     colors.append(plt.gca().lines[-1].get_color())
 
-    for mean, std in proc_data:
-        plt.plot(mean)
+    for i, data in enumerate(proc_data):
+        mean, std = data
+        if i == 10:
+            plt.plot(mean, color='#575757')
+        elif i == 11:
+            plt.plot(mean, color='#EBBB00')
+        else:
+            plt.plot(mean)
 
-    for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+    for i, data in enumerate(proc_data):
+        mean, std = data
+        if i == 10:
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#575757')
+        elif i == 11:
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#EBBB00')
+        else:
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
     plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN',
                 'TD3 + exc. pot. RN + augm.', 'TD3 + add. pot. RN + augm.', 'TD3 + exc. non-pot. RN + augm.', 'TD3 + add. non-pot. RN + augm.',
@@ -78,6 +89,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('HalfCheetah-v3')
     plt.xlabel('steps')
     plt.xlim(0,100000)
+    plt.ylim(-1000,6000)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()

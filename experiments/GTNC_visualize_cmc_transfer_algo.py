@@ -75,6 +75,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('MountainCarContinuous-v0 transferred algorithm')
     plt.xlabel('steps')
     plt.xlim(0,100000)
+    plt.ylim(-75,100)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
