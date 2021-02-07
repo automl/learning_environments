@@ -70,6 +70,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('Cliff Walking varied hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0,3000)
+    plt.ylim(-100,-10)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
