@@ -8,7 +8,8 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from models.baselines import ICMTD3
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
+# SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
+SAVE_DIR = '/home/ferreira/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
@@ -72,7 +73,7 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['ppo'] = {}
     config['agents']['ppo']['test_episodes'] = 1
-    config['agents']['ppo']['train_episodes'] = 1000
+    config['agents']['ppo']['train_episodes'] = 10000
     config['agents']['ppo']['print_rate'] = 100
     config['agents']['ppo']['init_episodes'] = 0
     config['agents']['ppo']['update_episodes'] = 10
