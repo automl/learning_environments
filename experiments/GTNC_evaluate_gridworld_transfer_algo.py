@@ -68,7 +68,7 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['sarsa'] = {}
     config['agents']['sarsa']['test_episodes'] = 1
-    config['agents']['sarsa']['train_episodes'] = 500
+    config['agents']['sarsa']['train_episodes'] = 200
     config['agents']['sarsa']['print_rate'] = 100
     config['agents']['sarsa']['init_episodes'] = config['agents']['ql']['init_episodes']
     config['agents']['sarsa']['batch_size'] = config['agents']['ql']['batch_size']
