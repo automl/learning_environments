@@ -60,7 +60,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('DDQN + exc. pot. RN', 'DDQN + add. pot. RN', 'DDQN + exc. non-pot. RN', 'DDQN + add. non-pot. RN', 'DDQN', 'DDQN + ICM'))
+    plt.legend(('DDQN + exc. pot. RN', 'DDQN + add. pot. RN', 'DDQN + exc. non-pot. RN', 'DDQN + add. non-pot. RN', 'DDQN', 'DDQN + ICM'), fontsize=7)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('CartPole-v0')
     plt.xlabel('steps')

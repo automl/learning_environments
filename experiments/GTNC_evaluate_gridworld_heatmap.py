@@ -12,13 +12,15 @@ from models.baselines import ICMTD3
 SAVE_DIR = '/home/dingsda/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_2'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-28-16_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
 MODE = '6'
-BREAK='end'   # solved or end
+BREAK='solved'   # solved or end
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -69,7 +71,7 @@ def train_test_agents(env, real_env, config):
     # settings for comparability
     config['agents']['sarsa'] = {}
     config['agents']['sarsa']['test_episodes'] = 1
-    config['agents']['sarsa']['train_episodes'] = 500
+    config['agents']['sarsa']['train_episodes'] = 200
     config['agents']['sarsa']['print_rate'] = 100
     config['agents']['sarsa']['init_episodes'] = config['agents']['ql']['init_episodes']
     config['agents']['sarsa']['batch_size'] = config['agents']['ql']['batch_size']

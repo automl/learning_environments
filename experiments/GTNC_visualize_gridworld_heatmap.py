@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
-RESULT_FILE = '/home/dingsda/master_thesis/learning_environments/results/cliff_compare_reward_envs/heatmap_end_2.pt'
+RESULT_FILE = '/home/dingsda/master_thesis/learning_environments/results/cliff_compare_reward_envs/heatmap_solved_6.pt'
 M = 4
 N = 12
 
@@ -56,10 +56,18 @@ def plot_models():
     plt.text(0, -3, '(S)', size=12, ha='center', va='center')
     plt.text(11, -3, '(G)', size=12, ha='center', va='center')
 
-    if mode == '2' and break_cond == 'solved':
+    if mode == '1' and break_cond == 'solved':
+        plt.title('exclusive potential reward network (solved)')
+    elif mode == '1' and break_cond == 'end':
+        plt.title('exclusive potential reward network (end of training)')
+    elif mode == '2' and break_cond == 'solved':
         plt.title('additive potential reward network (solved)')
     elif mode == '2' and break_cond == 'end':
         plt.title('additive potential reward network (end of training)')
+    elif mode == '5' and break_cond == 'solved':
+        plt.title('exclusive non-potential reward network (solved)')
+    elif mode == '5' and break_cond == 'end':
+        plt.title('exclusive non-potential reward network (end of training)')
     elif mode == '6' and break_cond == 'solved':
         plt.title('additive non-potential reward network (solved)')
     elif mode == '6' and break_cond == 'end':

@@ -13,8 +13,9 @@ G_LEFT = 1
 G_DOWN = 2
 G_UP = 3
 
-LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-01-20-20_1'
+LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
 MODEL_NUM = 50
+SIMPLIFY = False
 
 def idx_to_xy(idx, n):
     x = idx // n
@@ -72,10 +73,17 @@ def eval_models(log_dir):
                 reward_env.env.state = state
                 next_state, reward, _ = reward_env.step(action=torch.tensor([action]))
 
-                if (state, action) not in reward_dict:
-                    reward_dict[(state, action)] = [reward.item()]
+                if SIMPLIFY:
+                    if reward.item() > -50:
+                        if (state, action) not in reward_dict:
+                            reward_dict[(state, action)] = [reward.item()]
+                        else:
+                            reward_dict[(state, action)].append(reward.item())
                 else:
-                    reward_dict[(state, action)].append(reward.item())
+                    if (state, action) not in reward_dict:
+                        reward_dict[(state, action)] = [reward.item()]
+                    else:
+                        reward_dict[(state, action)].append(reward.item())
 
 
     return reward_dict, info_dict
@@ -121,6 +129,8 @@ def plot_models(reward_dict, info_dict):
         min_val = min(min_val, reward_avg_dict[key])
         max_val = max(max_val, reward_avg_dict[key])
 
+    print(min_val)
+    print(max_val)
     n = info_dict['n']
     mode = info_dict['mode']
 
@@ -148,19 +158,33 @@ def plot_models(reward_dict, info_dict):
     plt.text(11, -3, '(G)', size=12, ha='center', va='center')
 
 
-    if mode == '1':
-        plt.title('exclusive potential reward network')
-    elif mode =='2':
-        plt.title('additive potential reward network')
-    elif mode =='5':
-        plt.title('exclusive non-potential reward network')
-    elif mode =='6':
-        plt.title('additive non-potential reward network')
+    if SIMPLIFY:
+        if mode == '1':
+            plt.title('exclusive potential reward network (only rewards > -50)')
+        elif mode =='2':
+            plt.title('additive potential reward network (only rewards > -50)')
+        elif mode =='5':
+            plt.title('exclusive non-potential reward network (only rewards > -50)')
+        elif mode =='6':
+            plt.title('additive non-potential reward network (only rewards > -50)')
+    else:
+        if mode == '1':
+            plt.title('exclusive potential reward network')
+        elif mode == '2':
+            plt.title('additive potential reward network')
+        elif mode == '5':
+            plt.title('exclusive non-potential reward network')
+        elif mode == '6':
+            plt.title('additive non-potential reward network')
 
     ax.axis('equal')
     ax.axis('off')
 
-    plt.savefig('cliff_learned_rewards_' + str(mode) + '.svg', bbox_inches='tight')
+    if SIMPLIFY:
+        plt.savefig('cliff_learned_rewards_' + str(mode) + '_simplified.svg', bbox_inches='tight')
+    else:
+        plt.savefig('cliff_learned_rewards_' + str(mode) + '.svg', bbox_inches='tight')
+
     plt.show()
 
 def load_envs_and_config(model_file):

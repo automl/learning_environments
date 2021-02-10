@@ -59,7 +59,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('Duel.-DDQN + exc. pot. RN', 'Duel.-DDQN + add. pot. RN', 'Duel.-DDQN + exc. non-pot. RN', 'Duel.-DDQN + add. non-pot. RN', 'Duel.-DDQN'))
+    plt.legend(('Duel.-DDQN + exc. pot. RN', 'Duel.-DDQN + add. pot. RN', 'Duel.-DDQN + exc. non-pot. RN', 'Duel.-DDQN + add. non-pot. RN', 'Duel.-DDQN'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('CartPole-v0 transferred algorithm')
