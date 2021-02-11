@@ -23,7 +23,7 @@ The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AA
 - list scripts for producing following figures: 2, 7, 8, 10
 
 
-2. Learning Reward Shaping
+# Learning Reward Shaping
 
 ## Training Reward Networks
 (5.7 Reward Shaping: Performance, Fig. 14)
