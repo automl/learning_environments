@@ -18,7 +18,7 @@ The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AA
 (5.5. Synthetic environments: Performance, Fig. 12)
 
 ## List of Remaining Scripts
-- list scripts for producing following figures: 2, 7, 8, 10
+- list of scripts (and how to call) for producing following figures: 2, 7, 8, 10
 
 
 # Learning Reward Shaping
