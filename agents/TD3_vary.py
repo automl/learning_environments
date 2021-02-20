@@ -10,7 +10,7 @@ from envs.env_factory import EnvFactory
 
 
 class TD3_vary(TD3):
-    def __init__(self, env, max_action, config):
+    def __init__(self, env, max_action, config, icm=False):
         self.agent_name = 'td3'
 
         if config["agents"]["td3_vary"]["vary_hp"]:
@@ -19,7 +19,7 @@ class TD3_vary(TD3):
         else:
             config_mod = config
 
-        super().__init__(env=env, max_action=max_action, config=config_mod)
+        super().__init__(env=env, max_action=max_action, config=config_mod, icm=icm)
 
     def vary_hyperparameters(self, config_mod):
 

@@ -61,6 +61,7 @@ class RewardEnv(nn.Module):
 
     def step(self, action):
         next_state, reward, done, info = self.real_env.step(action)
+
         reward_res = self._calc_reward(state=self.state, next_state=next_state, reward=reward, info=info)
         self.state = next_state
         return next_state, reward_res, done, {}

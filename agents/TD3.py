@@ -1,15 +1,17 @@
-import yaml
 import time
+
 import torch
 import torch.nn.functional as F
+import yaml
+
 from agents.base_agent import BaseAgent
-from models.actor_critic import Actor_TD3, Critic_Q
 from envs.env_factory import EnvFactory
-from utils import ReplayBuffer, AverageMeter
+from models.actor_critic import Actor_TD3, Critic_Q
+from models.icm_baseline import ICM
 
 
 class TD3(BaseAgent):
-    def __init__(self, env, max_action, config):
+    def __init__(self, env, max_action, config, icm=False):
         agent_name = "td3"
         super().__init__(agent_name=agent_name, env=env, config=config)
 
@@ -40,6 +42,9 @@ class TD3(BaseAgent):
 
         self.total_it = 0
 
+        self.icm = None
+        if icm:
+            self.icm = ICM(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device)
 
     def learn(self, replay_buffer, env, episode):
         self.total_it += 1
@@ -47,19 +52,21 @@ class TD3(BaseAgent):
         # Sample replay buffer
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
 
+        if self.icm:
+            self.icm.train(states, next_states, actions)
+            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions)
+
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
-            noise = (torch.randn_like(actions) * self.policy_std
-                     ).clamp(-self.policy_std_clip, self.policy_std_clip)
-            next_actions = (self.actor_target(next_states) + noise
-                            ).clamp(-self.max_action, self.max_action)
+            noise = (torch.randn_like(actions) * self.policy_std).clamp(-self.policy_std_clip, self.policy_std_clip)
+            next_actions = (self.actor_target(next_states) + noise).clamp(-self.max_action, self.max_action)
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
             target_Q2 = self.critic_target_2(next_states, next_actions)
             target_Q = torch.min(target_Q1, target_Q2)
             target_Q = rewards + (1 - dones) * self.gamma * target_Q
-            #target_Q = rewards + self.gamma * target_Q
+            # target_Q = rewards + self.gamma * target_Q
 
         # Get current Q estimates
         current_Q1 = self.critic_1(states, actions)
@@ -94,7 +101,6 @@ class TD3(BaseAgent):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-
     def select_train_action(self, state, env, episode):
         if episode < self.init_episodes:
             return env.get_random_action()
@@ -103,12 +109,10 @@ class TD3(BaseAgent):
                     torch.randn(self.action_dim) * self.action_std * self.max_action
                     ).clamp(-self.max_action, self.max_action)
 
-
     def select_test_action(self, state, env):
         return (self.actor(state.to(self.device)).cpu() +
-                  torch.randn(self.action_dim) * self.action_std * self.max_action
-                  ).clamp(-self.max_action, self.max_action)
-
+                torch.randn(self.action_dim) * self.action_std * self.max_action
+                ).clamp(-self.max_action, self.max_action)
 
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
@@ -117,22 +121,22 @@ class TD3(BaseAgent):
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr)
 
 
-
 if __name__ == "__main__":
-    with open("../default_config_cmc_td3_opt.yaml", "r") as stream:
+    with open("../default_config_halfcheetah.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     print(config)
     # generate environment
     env_fac = EnvFactory(config)
-    #virt_env = env_fac.generate_virtual_env()
-    real_env= env_fac.generate_real_env()
-    #reward_env = env_fac.generate_reward_env()
+    # virt_env = env_fac.generate_virtual_env()
+    real_env = env_fac.generate_real_env()
+    # reward_env = env_fac.generate_reward_env()
     td3 = TD3(env=real_env,
               max_action=real_env.get_max_action(),
-              config=config)
+              config=config,
+              icm=True)
     t1 = time.time()
     td3.train(env=real_env, time_remaining=3600)
-    print(time.time()-t1)
+    print(time.time() - t1)
     td3.test(env=real_env, time_remaining=1200)
-    print(time.time()-t1)
-    #td3.train(env=virt_env, time_remaining=5)
+    print(time.time() - t1)
+    # td3.train(env=virt_env, time_remaining=5)

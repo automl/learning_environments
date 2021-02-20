@@ -1,16 +1,18 @@
-import yaml
-import torch
-import time
 import random
+
+import torch
 import torch.nn.functional as F
+import yaml
+
 from agents.base_agent import BaseAgent
-from models.actor_critic import Critic_DQN
 from envs.env_factory import EnvFactory
-from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
+from models.actor_critic import Critic_DQN
+from models.icm_baseline import ICM
+from utils import to_one_hot_encoding
 
 
 class DDQN(BaseAgent):
-    def __init__(self, env, config):
+    def __init__(self, env, config, icm=False):
         self.agent_name = "ddqn"
 
         super().__init__(agent_name=self.agent_name, env=env, config=config)
@@ -35,6 +37,10 @@ class DDQN(BaseAgent):
 
         self.it = 0
 
+        self.icm = None
+        if icm:
+            actual_action_dim = len(env.get_random_action())
+            self.icm = ICM(state_dim=self.state_dim, action_dim=actual_action_dim, device=self.device)
 
     def learn(self, replay_buffer, env, episode):
         self.it += 1
@@ -50,6 +56,13 @@ class DDQN(BaseAgent):
         if env.has_discrete_state_space():
             states = to_one_hot_encoding(states, self.state_dim)
             next_states = to_one_hot_encoding(next_states, self.state_dim)
+
+        if self.icm:
+            actions_icm = actions
+            if len(actions.shape) == 1:
+                actions_icm = actions.unsqueeze(dim=1)
+            self.icm.train(states, next_states, actions_icm)
+            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions_icm).squeeze()
 
         q_values = self.model(states)
         next_q_values = self.model(next_states)
@@ -69,7 +82,6 @@ class DDQN(BaseAgent):
             target_param.data.copy_(self.tau * param + (1 - self.tau) * target_param)
         return loss
 
-
     def select_train_action(self, state, env, episode):
         if random.random() < self.eps:
             return env.get_random_action()
@@ -77,8 +89,7 @@ class DDQN(BaseAgent):
             if env.has_discrete_state_space():
                 state = to_one_hot_encoding(state, self.state_dim)
             qvals = self.model(state.to(self.device))
-            return  torch.argmax(qvals).unsqueeze(0).detach()
-
+            return torch.argmax(qvals).unsqueeze(0).detach()
 
     def select_test_action(self, state, env):
         if env.has_discrete_state_space():
@@ -86,14 +97,12 @@ class DDQN(BaseAgent):
         qvals = self.model(state.to(self.device))
         return torch.argmax(qvals).unsqueeze(0).detach()
 
-
     def update_parameters_per_episode(self, episode):
         if episode == 0:
             self.eps = self.eps_init
         else:
             self.eps *= self.eps_decay
             self.eps = max(self.eps, self.eps_min)
-
 
     def reset_optimizer(self):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
@@ -113,12 +122,12 @@ if __name__ == "__main__":
     timing = []
     for i in range(10):
         ddqn = DDQN(env=real_env,
-                    config=config)
+                    config=config,
+                    icm=True)
 
-        #ddqn.train(env=virt_env, time_remaining=50)
+        # ddqn.train(env=virt_env, time_remaining=50)
 
         print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
         print('TEST')
         ddqn.test(env=real_env, time_remaining=500)
-

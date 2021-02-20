@@ -7,11 +7,12 @@ import yaml
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 from models.actor_critic import Critic_DuelingDQN
+from models.icm_baseline import ICM
 from utils import to_one_hot_encoding
 
 
 class DuelingDDQN(BaseAgent):
-    def __init__(self, env, config):
+    def __init__(self, env, config, icm=False):
         self.agent_name = "duelingddqn"
 
         super().__init__(agent_name=self.agent_name, env=env, config=config)
@@ -36,6 +37,11 @@ class DuelingDDQN(BaseAgent):
 
         self.it = 0
 
+        self.icm = None
+        if icm:
+            actual_action_dim = len(env.get_random_action())
+            self.icm = ICM(state_dim=self.state_dim, action_dim=actual_action_dim, device=self.device)
+
     def learn(self, replay_buffer, env, episode):
         self.it += 1
 
@@ -50,6 +56,13 @@ class DuelingDDQN(BaseAgent):
         if env.has_discrete_state_space():
             states = to_one_hot_encoding(states, self.state_dim)
             next_states = to_one_hot_encoding(next_states, self.state_dim)
+
+        if self.icm:
+            actions_icm = actions
+            if len(actions.shape) == 1:
+                actions_icm = actions.unsqueeze(dim=1)
+            self.icm.train(states, next_states, actions_icm)
+            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions_icm).squeeze()
 
         q_values = self.model(states)
         next_q_values = self.model(next_states)
@@ -96,7 +109,7 @@ class DuelingDDQN(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cartpole.yaml", "r") as stream:
+    with open("../default_config_acrobot.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)
@@ -109,7 +122,8 @@ if __name__ == "__main__":
     timing = []
     for i in range(10):
         ddqn = DuelingDDQN(env=real_env,
-                           config=config)
+                           config=config,
+                           icm=True)
 
         # ddqn.train(env=virt_env, time_remaining=50)
 

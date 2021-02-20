@@ -7,7 +7,7 @@ import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMDDQN
+from models.icm_baseline import ICMDDQN
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 

@@ -6,10 +6,9 @@ import hpbandster.core.result as hpres
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMTD3
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
@@ -81,11 +80,11 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['gamma'] = 0.95
     config['agents']['ppo']['lr'] = 0.003
     config['agents']['ppo']['vf_coef'] = 1
-    config['agents']['ppo']['ent_coef'] = 0.001
+    config['agents']['ppo']['ent_coef'] = 0.01
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
     config['agents']['ppo']['same_action_num'] = 1
-    config['agents']['ppo']['activation_fn'] = 'relu'
+    config['agents']['ppo']['activation_fn'] = 'tanh'
     config['agents']['ppo']['hidden_size'] = 64
     config['agents']['ppo']['hidden_layer'] = 2
     config['agents']['ppo']['action_std'] = 0.2
@@ -94,7 +93,7 @@ def train_test_agents(mode, env, real_env, config):
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
-            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
+            agent = select_agent(config=config, agent_name='ppo_icm')
         else:
             agent = select_agent(config=config, agent_name='ppo')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
@@ -106,13 +105,14 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo_tanh_' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
     save_dict['model_agents'] = MODEL_AGENTS
     save_dict['reward_list'] = reward_list
     save_dict['episode_length_list'] = episode_length_list
+    print(f"saved dict under {file_name}")
     torch.save(save_dict, file_name)
 
 

@@ -10,7 +10,7 @@ from envs.env_factory import EnvFactory
 
 
 class DuelingDDQN_vary(DuelingDDQN):
-    def __init__(self, env, config):
+    def __init__(self, env, config, icm=False):
         self.agent_name = 'duelingddqn'
 
         if config["agents"]["duelingddqn_vary"]["vary_hp"]:
@@ -19,7 +19,7 @@ class DuelingDDQN_vary(DuelingDDQN):
         else:
             config_mod = config
 
-        super().__init__(env=env, config=config_mod)
+        super().__init__(env=env, config=config_mod, icm=icm)
 
     def vary_hyperparameters(self, config_mod):
 
@@ -89,7 +89,8 @@ if __name__ == "__main__":
     timing = []
     for i in range(10):
         ddqn = DuelingDDQN_vary(env=real_env,
-                                config=config)
+                                config=config,
+                                icm=True)
 
         # ddqn.train(env=virt_env, time_remaining=50)
 

@@ -1,17 +1,20 @@
-import yaml
-import time
-import torch
 import statistics
-import torch.nn as nn
+import sys
+
+import numpy as np
+import torch
 import torch.nn.functional as F
+import yaml
+
 from agents.base_agent import BaseAgent
-from models.actor_critic import Actor_PPO, Critic_V
-from utils import AverageMeter, ReplayBuffer
 from envs.env_factory import EnvFactory
+from models.actor_critic import Actor_PPO, Critic_V
+from models.icm_baseline import ICM
+from utils import AverageMeter, ReplayBuffer
 
 
 class PPO(BaseAgent):
-    def __init__(self, env, config):
+    def __init__(self, env, config, icm=False):
         agent_name = 'ppo'
         super().__init__(agent_name=agent_name, env=env, config=config)
 
@@ -25,6 +28,8 @@ class PPO(BaseAgent):
         self.update_episodes = ppo_config['update_episodes']
         self.early_out_num = ppo_config['early_out_num']
         self.same_action_num = ppo_config['same_action_num']
+
+        self.ppo_config = ppo_config
 
         self.render_env = config["render_env"]
         self.device = config["device"]
@@ -40,9 +45,11 @@ class PPO(BaseAgent):
         self.actor_old.load_state_dict(self.actor.state_dict())
         self.critic_old.load_state_dict(self.critic.state_dict())
 
+        self.icm = None
+        if icm:
+            self.icm = ICM(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device)
 
     def train(self, env, time_remaining=1e9, test_env=None):
-        time_start = time.time()
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
         ad = 1 if env.has_discrete_action_space() else self.action_dim
@@ -55,18 +62,61 @@ class PPO(BaseAgent):
 
         time_step = 0
 
+        last_weights_mean = []
+        last_layer_weights_mean = []
+        last_weights_std = []
+        last_layer_weights_std = []
+
         # training loop
         for episode in range(self.train_episodes):
             state = env.reset()
             episode_reward = 0
             episode_length = 0
 
+            weights = np.concatenate(
+                    [W.detach().cpu().numpy().flatten() for name, W in self.actor_old.net.named_parameters() if 'weight' in name])
+            last_weights_mean.append(np.mean(weights))
+            last_weights_std.append(np.std(weights))
+
+            last_weights = self.actor_old.net[-1].weight.detach().cpu().numpy().flatten()
+            last_layer_weights_mean.append(np.mean(last_weights))
+            last_layer_weights_std.append(np.std(last_weights))
+
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += self.same_action_num
 
                 # run old policy
                 action = self.actor_old(state.to(self.device)).cpu()
-                next_state, reward, done = env.step(action=action)
+                # last_actions.append(action)
+
+                try:
+                    next_state, reward, done = env.step(action=action)
+
+                except Exception as e:
+                    from pprint import pprint
+                    print("\n\n------------------------ Exception -------------------------")
+                    print("exception: ", e)
+                    print("\n\n------------------------ HalfCheetahEnv -------------------------")
+                    pprint(vars(env.env))
+                    print("\n\n------------------------ MjSim State -------------------------")
+                    pprint(env.env.env.sim.get_state())
+                    print("time: ", env.env.env.data.time)
+
+                    print("\n\n------------------------ PPO HPs -------------------------")
+                    print("ent_coef: ", self.ent_coef)
+                    print("eps_clip: ", self.eps_clip)
+                    print("gamma: ", self.gamma)
+                    print("vf_coef: ", self.vf_coef)
+                    print("activation function: ", self.ppo_config["activation_fn"])
+
+                    print("\n\n------------------------ Weight Statistics -------------------------")
+                    print("trajectory of weights (means): ", last_weights_mean)
+                    print("trajectory of weights (std dev): ", last_weights_std)
+
+                    print("trajectory of last layer weights (means): ", last_layer_weights_mean)
+                    print("trajectory of last layer weights (std dev): ", last_layer_weights_std)
+
+                    sys.exit(1)
 
                 # live view
                 if self.render_env and episode % 100 == 0:
@@ -108,14 +158,11 @@ class PPO(BaseAgent):
 
         return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), {}
 
-
     def select_train_action(self, state, env):
         return self.actor_old(state.to(self.device)).cpu()
 
-
     def select_test_action(self, state, env):
         return self.actor_old(state.to(self.device)).cpu()
-
 
     def learn(self, replay_buffer):
         # Monte Carlo estimate of rewards:
@@ -125,10 +172,13 @@ class PPO(BaseAgent):
         # get states from replay buffer
         states, actions, next_states, rewards, dones = replay_buffer.get_all()
 
+        if self.icm:
+            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions)
+
         old_logprobs, _ = self.actor_old.evaluate(states, actions)
         old_logprobs = old_logprobs.detach()
 
-        #calculate rewards
+        # calculate rewards
         for reward, done in zip(reversed(rewards), reversed(dones)):
             if done > 0.5:
                 discounted_reward = 0
@@ -142,8 +192,7 @@ class PPO(BaseAgent):
         # optimize policy for ppo_epochs:
         for it in range(self.ppo_epochs):
             # evaluate old actions and values :
-            logprobs, dist_entropy = self.actor.evaluate(
-                states, actions)
+            logprobs, dist_entropy = self.actor.evaluate(states, actions)
             state_values = self.critic(states).squeeze()
 
             # Finding the ratio (pi_theta / pi_theta__old):
@@ -153,16 +202,16 @@ class PPO(BaseAgent):
             advantages = (new_rewards - state_values).detach()
 
             surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.eps_clip,
-                                1 + self.eps_clip) * advantages
-            loss = - torch.min(surr1, surr2) \
-                   + self.vf_coef * F.mse_loss(state_values, new_rewards) \
-                   - self.ent_coef * dist_entropy
+            surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
+            loss = - torch.min(surr1, surr2) + self.vf_coef * F.mse_loss(state_values, new_rewards) - self.ent_coef * dist_entropy
 
             # take gradient step
             self.optimizer.zero_grad()
             loss.mean().backward()
             self.optimizer.step()
+
+        if self.icm:
+            self.icm.train(states, next_states, actions)
 
         # Copy new weights into old policy:
         self.actor_old.load_state_dict(self.actor.state_dict())
@@ -173,11 +222,13 @@ if __name__ == "__main__":
     with open("../default_config_halfcheetah.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
+    config['envs']['HalfCheetah-v3']['solved_reward'] = 10000
+
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_real_env()
 
     ppo = PPO(env=real_env,
-              config=config)
+              config=config,
+              icm=False)
     ppo.train(env=real_env)
-

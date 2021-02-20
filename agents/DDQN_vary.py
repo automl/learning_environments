@@ -10,7 +10,7 @@ from envs.env_factory import EnvFactory
 
 
 class DDQN_vary(DDQN):
-    def __init__(self, env, config):
+    def __init__(self, env, config, icm=False):
         self.agent_name = 'ddqn'
 
         if config["agents"]["ddqn_vary"]["vary_hp"]:
@@ -19,7 +19,7 @@ class DDQN_vary(DDQN):
         else:
             config_mod = config
 
-        super().__init__(env=env, config=config_mod)
+        super().__init__(env=env, config=config_mod, icm=icm)
 
     def vary_hyperparameters(self, config_mod):
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     timing = []
     for i in range(10):
-        ddqn = DDQN_vary(env=real_env, config=config)
+        ddqn = DDQN_vary(env=real_env, config=config, icm=True)
         # ddqn.train(env=virt_env, time_remaining=50)
         print('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)

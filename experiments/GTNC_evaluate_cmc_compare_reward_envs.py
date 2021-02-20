@@ -6,7 +6,6 @@ import hpbandster.core.result as hpres
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.baselines import ICMTD3
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
 
@@ -71,7 +70,7 @@ def train_test_agents(mode, env, real_env, config):
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
-            agent = ICMTD3(env=real_env, max_action=real_env.get_max_action(), config=config)
+            agent = select_agent(config=config, agent_name='td3_icm')
         else:
             agent = select_agent(config=config, agent_name='td3')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
