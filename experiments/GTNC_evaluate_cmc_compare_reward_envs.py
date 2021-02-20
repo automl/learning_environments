@@ -7,7 +7,8 @@ import hpbandster.core.result as hpres
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
-SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
+# SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
