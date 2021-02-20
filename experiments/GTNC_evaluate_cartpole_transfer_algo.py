@@ -7,7 +7,6 @@ import hpbandster.visualization as hpvis
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.icm_baseline import ICMDDQN
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
@@ -89,7 +88,7 @@ def train_test_agents(mode, env, real_env, config):
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config)
+            agent = select_agent(config=config, agent_name='duelingddqn_icm')
         else:
             agent = select_agent(config=config, agent_name='duelingddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)

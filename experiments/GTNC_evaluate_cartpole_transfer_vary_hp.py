@@ -9,7 +9,6 @@ import ConfigSpace.hyperparameters as CSH
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
-from models.icm_baseline import ICMDDQN
 
 SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
 
@@ -128,7 +127,7 @@ def train_test_agents(mode, env, real_env, config):
         config_mod = vary_hp(config)
 
         if mode == '-1':
-            agent = ICMDDQN(env=real_env, config=config_mod)
+            agent = select_agent(config=config_mod, agent_name='ddqn_icm')
         else:
             agent = select_agent(config=config_mod, agent_name='ddqn')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
