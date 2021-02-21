@@ -78,13 +78,13 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['update_episodes'] = 10
     config['agents']['ppo']['ppo_epochs'] = 5
     config['agents']['ppo']['gamma'] = 0.99
-    config['agents']['ppo']['lr'] = 0.003
+    config['agents']['ppo']['lr'] = 0.002
     config['agents']['ppo']['vf_coef'] = 1
-    config['agents']['ppo']['ent_coef'] = 0.01
+    config['agents']['ppo']['ent_coef'] = 0.001
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
     config['agents']['ppo']['same_action_num'] = 1
-    config['agents']['ppo']['activation_fn'] = 'tanh'
+    config['agents']['ppo']['activation_fn'] = 'relu'
     config['agents']['ppo']['hidden_size'] = 64
     config['agents']['ppo']['hidden_layer'] = 2
     config['agents']['ppo']['action_std'] = 0.2
