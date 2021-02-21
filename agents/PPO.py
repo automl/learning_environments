@@ -108,6 +108,7 @@ class PPO(BaseAgent):
                     print("gamma: ", self.gamma)
                     print("vf_coef: ", self.vf_coef)
                     print("activation function: ", self.ppo_config["activation_fn"])
+                    print("action std: ", self.actor.action_std.detach().cpu().numpy())
 
                     print("\n\n------------------------ Weight Statistics -------------------------")
                     print("trajectory of weights (means): ", last_weights_mean)
@@ -208,6 +209,7 @@ class PPO(BaseAgent):
             # take gradient step
             self.optimizer.zero_grad()
             loss.mean().backward()
+            # torch.nn.utils.clip_grad_norm_(self.actor.parameters(), 0.5)
             self.optimizer.step()
 
         if self.icm:
