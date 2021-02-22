@@ -1,7 +1,5 @@
 import statistics
-import sys
 
-import numpy as np
 import torch
 import torch.nn.functional as F
 import yaml
@@ -62,62 +60,18 @@ class PPO(BaseAgent):
 
         time_step = 0
 
-        last_weights_mean = []
-        last_layer_weights_mean = []
-        last_weights_std = []
-        last_layer_weights_std = []
-
         # training loop
         for episode in range(self.train_episodes):
             state = env.reset()
             episode_reward = 0
             episode_length = 0
 
-            weights = np.concatenate(
-                    [W.detach().cpu().numpy().flatten() for name, W in self.actor_old.net.named_parameters() if 'weight' in name])
-            last_weights_mean.append(np.mean(weights))
-            last_weights_std.append(np.std(weights))
-
-            last_weights = self.actor_old.net[-1].weight.detach().cpu().numpy().flatten()
-            last_layer_weights_mean.append(np.mean(last_weights))
-            last_layer_weights_std.append(np.std(last_weights))
-
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 time_step += self.same_action_num
 
                 # run old policy
                 action = self.actor_old(state.to(self.device)).cpu()
-                # last_actions.append(action)
-
-                try:
-                    next_state, reward, done = env.step(action=action)
-
-                except Exception as e:
-                    from pprint import pprint
-                    print("\n\n------------------------ Exception -------------------------")
-                    print("exception: ", e)
-                    print("\n\n------------------------ HalfCheetahEnv -------------------------")
-                    pprint(vars(env.env))
-                    print("\n\n------------------------ MjSim State -------------------------")
-                    pprint(env.env.env.sim.get_state())
-                    print("time: ", env.env.env.data.time)
-
-                    print("\n\n------------------------ PPO HPs -------------------------")
-                    print("ent_coef: ", self.ent_coef)
-                    print("eps_clip: ", self.eps_clip)
-                    print("gamma: ", self.gamma)
-                    print("vf_coef: ", self.vf_coef)
-                    print("activation function: ", self.ppo_config["activation_fn"])
-                    print("action std: ", self.actor.action_std.detach().cpu().numpy())
-
-                    print("\n\n------------------------ Weight Statistics -------------------------")
-                    print("trajectory of weights (means): ", last_weights_mean)
-                    print("trajectory of weights (std dev): ", last_weights_std)
-
-                    print("trajectory of last layer weights (means): ", last_layer_weights_mean)
-                    print("trajectory of last layer weights (std dev): ", last_layer_weights_std)
-
-                    sys.exit(1)
+                next_state, reward, done = env.step(action=action)
 
                 # live view
                 if self.render_env and episode % 100 == 0:
