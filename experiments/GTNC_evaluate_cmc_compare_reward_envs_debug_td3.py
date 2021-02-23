@@ -91,7 +91,7 @@ def train_test_agents(mode, env, real_env, config):
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
     time = datetime.now().strftime("%Y_%m_%d_%I_%M_%S")
-    file_name = os.path.join(SAVE_DIR, time + "_", 'best' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, time + "_" + 'best' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
