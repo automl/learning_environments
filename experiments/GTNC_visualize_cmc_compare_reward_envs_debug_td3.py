@@ -2,11 +2,18 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 from datetime import datetime
+import glob, os
 
-LOG_FILES = [
-             # '../results/debug_cmc_td3/best-1.pt',
-             '../results/debug_cmc_td3/best0.pt'
-             ]
+LOG_FILES = []
+# os.chdir("../results/debug_cmc_td3")
+for file in glob.glob("../results/debug_cmc_td3/*.pt"):
+    print(file)
+    LOG_FILES.append(file)
+
+# LOG_FILES = [
+#              # '../results/debug_cmc_td3/best-1.pt',
+#              '../results/debug_cmc_td3/best0.pt'
+#              ]
 
 STD_MULT = 0.2
 # STD_MULT = 1.
@@ -16,15 +23,18 @@ IMPORTANT_KEYS = ["action_std", "activiation_fn", "gamma", "lr", "policy_delay",
 
 def get_data():
     list_data = []
-    file_name_hyperparameters = ""
+    list_hyperparameters = []
     for log_file in LOG_FILES:
+        file_name_hyperparameters = ""
         data = torch.load(log_file)
         list_data.append((data['reward_list'], data['episode_length_list']))
         model_num = data['model_num']
         model_agents = data['model_agents']
         for k, v in data["config"]["agents"]["td3"].items():
             if k in IMPORTANT_KEYS:
-                file_name_hyperparameters += f"_{k}_{v}"
+                file_name_hyperparameters += f"{k}: {v} "
+
+        list_hyperparameters.append(file_name_hyperparameters)
 
 
     min_steps = float('Inf')
@@ -60,10 +70,10 @@ def get_data():
 
         proc_data.append((mean,std))
 
-    return proc_data, file_name_hyperparameters
+    return proc_data, list_hyperparameters
 
 
-def plot_data(proc_data, savefig_name):
+def plot_data(proc_data, savefig_name, list_hyperparameters):
     fig, ax = plt.subplots(dpi=600, figsize=(5,4))
     colors = []
     #
@@ -77,7 +87,8 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN', 'TD3', 'TD3 + ICM'), fontsize=7)
+    plt.legend(list_hyperparameters, fontsize=4)
+    # plt.legend(('TD3'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0')
@@ -90,10 +101,10 @@ def plot_data(proc_data, savefig_name):
     plt.show()
 
 if __name__ == "__main__":
-    proc_data, file_name_hyperparameters = get_data()
+    proc_data, list_hyperparameters = get_data()
     time = datetime.now().strftime("%Y_%m_%d_%I_%M_%S")
-    file_name = "../results/debug_cmc_td3/" + time + "_cmc_compare_reward_env" + file_name_hyperparameters + ".png"
-    plot_data(proc_data=proc_data, savefig_name=file_name)
+    file_name = "../results/debug_cmc_td3/" + time + "_cmc_compare_reward_env.png"
+    plot_data(proc_data=proc_data, savefig_name=file_name, list_hyperparameters=list_hyperparameters)
 
 
 
