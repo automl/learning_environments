@@ -16,8 +16,10 @@ LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
 LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
 
-MODEL_NUM = 10
-MODEL_AGENTS = 10
+# MODEL_NUM = 10
+# MODEL_AGENTS = 10
+MODEL_NUM = 5
+MODEL_AGENTS = 3
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -68,6 +70,14 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['test_episodes'] = 1
     config['agents']['td3']['train_episodes'] = 500
     config['agents']['td3']['print_rate'] = 100
+
+    config['agents']['td3']['lr'] = 3e-4
+    config['agents']['td3']['tau'] = 0.005
+    config['agents']['td3']['same_action_num'] = 2
+    config['agents']['td3']['policy_delay'] = 2
+    config['agents']['td3']['policy_std_clip'] = 0.5
+    config['agents']['td3']['policy_std'] = 0.2
+    config['agents']['td3']['action_std'] = 0.1
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
