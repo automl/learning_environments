@@ -139,6 +139,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['action_std'] = 0.1
     config['agents']['td3']['batch_size'] = 256
     config['agents']['td3']['gamma'] = 0.99
+    config['agents']['td3']['rb_size'] = 1000000
 
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)

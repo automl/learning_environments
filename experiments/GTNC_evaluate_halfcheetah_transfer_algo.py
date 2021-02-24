@@ -74,10 +74,11 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['test_episodes'] = 1
     config['agents']['ppo']['train_episodes'] = 10000
     config['agents']['ppo']['print_rate'] = 100
+
     config['agents']['ppo']['init_episodes'] = 0
     config['agents']['ppo']['update_episodes'] = 10
-    # config['agents']['ppo']['ppo_epochs'] = 10
-    config['agents']['ppo']['ppo_epochs'] = 5
+    config['agents']['ppo']['ppo_epochs'] = 10
+    # config['agents']['ppo']['ppo_epochs'] = 5
     config['agents']['ppo']['gamma'] = 0.99
     # config['agents']['ppo']['lr'] = 0.002
     config['agents']['ppo']['lr'] = 3e-4
