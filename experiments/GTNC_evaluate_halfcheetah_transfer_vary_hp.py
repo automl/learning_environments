@@ -126,7 +126,7 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['td3']['test_episodes'] = 1
-    config['agents']['td3']['train_episodes'] = 10000
+    config['agents']['td3']['train_episodes'] = 1000
     config['agents']['td3']['print_rate'] = 100
 
     config['agents']['td3']['lr'] = 3e-4
