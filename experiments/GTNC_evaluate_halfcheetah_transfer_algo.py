@@ -89,7 +89,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['rb_size'] = 1000000
     config['agents']['ppo']['same_action_num'] = 1
     config['agents']['ppo']['activation_fn'] = 'relu'
-    config['agents']['ppo']['hidden_size'] = 64
+    config['agents']['ppo']['hidden_size'] = 128
     config['agents']['ppo']['hidden_layer'] = 2
     config['agents']['ppo']['action_std'] = 0.2
     config['agents']['ppo']['early_out_num'] = 50
