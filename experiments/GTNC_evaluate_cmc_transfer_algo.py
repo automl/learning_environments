@@ -79,7 +79,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['ent_coef'] = 0.01
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
-    config['agents']['ppo']['same_action_num'] = 2
+    config['agents']['ppo']['same_action_num'] = 5  # makes training a bit faster
     config['agents']['ppo']['activation_fn'] = 'relu'
     config['agents']['ppo']['hidden_size'] = 64
     config['agents']['ppo']['hidden_layer'] = 2
