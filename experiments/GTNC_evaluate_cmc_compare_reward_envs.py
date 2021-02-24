@@ -71,12 +71,14 @@ def train_test_agents(mode, env, real_env, config):
 
     config['agents']['td3']['lr'] = 3e-4
     config['agents']['td3']['tau'] = 0.005
+    config['agents']['td3']['activation_fn'] = 'relu'
     config['agents']['td3']['same_action_num'] = 2
     config['agents']['td3']['policy_delay'] = 2
     config['agents']['td3']['policy_std_clip'] = 0.5
     config['agents']['td3']['policy_std'] = 0.2
     config['agents']['td3']['action_std'] = 0.1
     config['agents']['td3']['batch_size'] = 256
+    config['agents']['td3']['gamma'] = 0.99
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

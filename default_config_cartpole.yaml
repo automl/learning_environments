@@ -49,10 +49,10 @@ agents:
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
   icm:
-    learning_rate: !!float 1e-3             # learning rate
+    learning_rate: !!float 1e-4             # learning rate
     beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
     eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
-    feature_dim: !!int 128                  # feature dimension of features model
+    feature_dim: !!int 64                  # feature dimension of features model
 
   duelingddqn_vary:
     vary_hp: !!bool True                    # vary hyperparameters of underlying Dueling DDQN algorithm?
