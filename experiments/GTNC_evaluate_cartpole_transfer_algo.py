@@ -68,24 +68,23 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['duelingddqn'] = {}
     config['agents']['duelingddqn']['test_episodes'] = 1
-    config['agents']['duelingddqn']['train_episodes'] = 1000
+    config['agents']['duelingddqn']['train_episodes'] = 5000
     config['agents']['duelingddqn']['print_rate'] = 100
-    config['agents']['duelingddqn']['init_episodes'] = config['agents']['ddqn']['init_episodes']
-    config['agents']['duelingddqn']['batch_size'] = config['agents']['ddqn']['batch_size']
-    config['agents']['duelingddqn']['gamma'] = config['agents']['ddqn']['gamma']
-    config['agents']['duelingddqn']['lr'] = config['agents']['ddqn']['lr']
-    config['agents']['duelingddqn']['tau'] = config['agents']['ddqn']['tau']
-    config['agents']['duelingddqn']['eps_init'] = config['agents']['ddqn']['eps_init']
-    config['agents']['duelingddqn']['eps_min'] = config['agents']['ddqn']['eps_min']
-    config['agents']['duelingddqn']['eps_decay'] = config['agents']['ddqn']['eps_decay']
-    config['agents']['duelingddqn']['rb_size'] = config['agents']['ddqn']['rb_size']
-    config['agents']['duelingddqn']['same_action_num'] = config['agents']['ddqn']['same_action_num']
-    config['agents']['duelingddqn']['activation_fn'] = config['agents']['ddqn']['activation_fn']
-    config['agents']['duelingddqn']['hidden_size'] = config['agents']['ddqn']['hidden_size']
-    config['agents']['duelingddqn']['hidden_layer'] = config['agents']['ddqn']['hidden_layer']
+
+    config['agents']['duelingddqn']['lr'] = 0.00025
+    config['agents']['duelingddqn']['eps_init'] = 1.0
+    config['agents']['duelingddqn']['eps_min'] = 0.1
+    config['agents']['duelingddqn']['eps_decay'] = 0.9  # original DDQN paper uses linear decay over 1M N's
+    config['agents']['duelingddqn']['gamma'] = 0.99
+    config['agents']['duelingddqn']['batch_size'] = 32
+    config['agents']['duelingddqn']['same_action_num'] = 1
+    config['agents']['duelingddqn']['activation_fn'] = "relu"
+    config['agents']['duelingddqn']['tau'] = 0.01  # original DDQN paper has hard update every N steps
+    config['agents']['duelingddqn']['hidden_size'] = 64
+    config['agents']['duelingddqn']['hidden_layer'] = 1
+    config['agents']['duelingddqn']['rb_size'] = 1000000
+    config['agents']['duelingddqn']['init_episodes'] = 1
     config['agents']['duelingddqn']['feature_dim'] = 128
-    config['agents']['duelingddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
-    config['agents']['duelingddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

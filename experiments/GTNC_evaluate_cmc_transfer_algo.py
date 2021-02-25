@@ -84,8 +84,6 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['hidden_size'] = 64
     config['agents']['ppo']['hidden_layer'] = 2
     config['agents']['ppo']['action_std'] = 0.2
-    config['agents']['ppo']['early_out_num'] = 10
-    config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

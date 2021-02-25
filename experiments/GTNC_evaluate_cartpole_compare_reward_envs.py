@@ -66,7 +66,7 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 1000
+    config['agents']['ddqn']['train_episodes'] = 5000
     config['agents']['ddqn']['print_rate'] = 100
 
     config['agents']['ddqn']['lr'] = 0.00025
@@ -80,7 +80,8 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['tau'] = 0.01  # original DDQN paper has hard update every N steps
     config['agents']['ddqn']['hidden_size'] = 64
     config['agents']['ddqn']['hidden_layer'] = 1
-    config['agents']['ddqn']['rb_size'] = 1  # todo check
+    config['agents']['ddqn']['rb_size'] = 1000000
+    config['agents']['ddqn']['init_episodes'] = 1
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

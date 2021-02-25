@@ -121,8 +121,22 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['ddqn']['test_episodes'] = 1
-    config['agents']['ddqn']['train_episodes'] = 1000
+    config['agents']['ddqn']['train_episodes'] = 5000
     config['agents']['ddqn']['print_rate'] = 100
+
+    config['agents']['ddqn']['lr'] = 0.00025
+    config['agents']['ddqn']['eps_init'] = 1.0
+    config['agents']['ddqn']['eps_min'] = 0.1
+    config['agents']['ddqn']['eps_decay'] = 0.9  # original DDQN paper uses linear decay over 1M N's
+    config['agents']['ddqn']['gamma'] = 0.99
+    config['agents']['ddqn']['batch_size'] = 32
+    config['agents']['ddqn']['same_action_num'] = 1
+    config['agents']['ddqn']['activation_fn'] = "relu"
+    config['agents']['ddqn']['tau'] = 0.01  # original DDQN paper has hard update every N steps
+    config['agents']['ddqn']['hidden_size'] = 64
+    config['agents']['ddqn']['hidden_layer'] = 1
+    config['agents']['ddqn']['rb_size'] = 1000000
+    config['agents']['ddqn']['init_episodes'] = 1
 
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
