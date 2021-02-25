@@ -85,6 +85,9 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['duelingddqn']['rb_size'] = 1000000
     config['agents']['duelingddqn']['init_episodes'] = 1
     config['agents']['duelingddqn']['feature_dim'] = 128
+    config['agents']['duelingddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
+    config['agents']['duelingddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
+
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
