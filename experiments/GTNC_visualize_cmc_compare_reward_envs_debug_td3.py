@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 from datetime import datetime
-import glob, os
+import glob
 
 LOG_FILES = []
 # os.chdir("../results/debug_cmc_td3")
@@ -19,7 +19,11 @@ STD_MULT = 0.2
 # STD_MULT = 1.
 MIN_STEPS = 100000
 
-IMPORTANT_KEYS = ["action_std", "activiation_fn", "gamma", "lr", "policy_delay", "policy_std", "policy_std_clip", "tau", "same_action_num"]
+IMPORTANT_KEYS = ["action_std", "activation_fn", "batch_size", "gamma", "lr", "policy_delay", "policy_std", "policy_std_clip", "tau",
+                  "same_action_num", "rb_size"]
+
+# IMPORTANT_KEYS = ["activation_fn", "lr", "policy_delay", "policy_std_clip", "tau",
+#                   "same_action_num", "rb_size"]
 
 def get_data():
     list_data = []
@@ -74,20 +78,25 @@ def get_data():
 
 
 def plot_data(proc_data, savefig_name, list_hyperparameters):
-    fig, ax = plt.subplots(dpi=600, figsize=(5,4))
-    colors = []
+    # fig, ax = plt.subplots(dpi=600, figsize=(10,10))
+    # colors = []
     #
     # for mean, _ in data_w:
     #     plt.plot(mean_w)
     #     colors.append(plt.gca().lines[-1].get_color())
+    f = plt.figure(figsize=(15, 15))
+    ax = f.add_subplot(111)
 
     for mean, std in proc_data:
         plt.plot(mean)
 
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
-
-    plt.legend(list_hyperparameters, fontsize=4)
+    # plt.legend(loc=(1.04, 0))
+    plt.legend(list_hyperparameters, fontsize=9, loc='best')
+    plt.tight_layout()
+    # plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    # plt.subplots_adjust(right=0.7)
     # plt.legend(('TD3'), fontsize=7)
     #plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
