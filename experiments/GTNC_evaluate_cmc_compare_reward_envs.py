@@ -70,7 +70,8 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['print_rate'] = 100
 
     config['agents']['td3']['lr'] = 3e-4
-    config['agents']['td3']['tau'] = 0.005
+    # config['agents']['td3']['tau'] = 0.005
+    config['agents']['td3']['tau'] = 0.05
     config['agents']['td3']['activation_fn'] = 'relu'
     config['agents']['td3']['same_action_num'] = 2
     config['agents']['td3']['policy_delay'] = 2
