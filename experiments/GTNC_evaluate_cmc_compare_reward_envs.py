@@ -8,7 +8,7 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_tau_0.05'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_1500_train_eps'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
@@ -66,12 +66,11 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['td3']['test_episodes'] = 1
-    config['agents']['td3']['train_episodes'] = 500
+    config['agents']['td3']['train_episodes'] = 1500
     config['agents']['td3']['print_rate'] = 100
 
     config['agents']['td3']['lr'] = 3e-4
-    # config['agents']['td3']['tau'] = 0.005
-    config['agents']['td3']['tau'] = 0.05
+    config['agents']['td3']['tau'] = 0.005
     config['agents']['td3']['activation_fn'] = 'relu'
     config['agents']['td3']['same_action_num'] = 2
     config['agents']['td3']['policy_delay'] = 2

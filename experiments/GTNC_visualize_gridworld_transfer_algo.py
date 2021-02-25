@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import torch
 import numpy as np
+import torch
 
 LOG_FILES = ['../results/cliff_compare_reward_envs/best_transfer_algo1.pt',
              '../results/cliff_compare_reward_envs/best_transfer_algo2.pt',
@@ -11,6 +11,7 @@ LOG_FILES = ['../results/cliff_compare_reward_envs/best_transfer_algo1.pt',
 STD_MULT = 0.2
 MIN_STEPS = 3000
 
+
 def get_data():
     list_data = []
     for log_file in LOG_FILES:
@@ -19,19 +20,27 @@ def get_data():
         model_num = data['model_num']
         model_agents = data['model_agents']
 
+    sums_eps_len = []
+    sums_eps_len_per_model = []
     min_steps = float('Inf')
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
+        sums_eps_len_per_model_i = []
         for episode_lengths in episode_length_list:
             print(sum(episode_lengths))
+            sums_eps_len.append(sum(episode_lengths))
+            sums_eps_len_per_model_i.append(sum(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
+        sums_eps_len_per_model.append(sums_eps_len_per_model_i)
 
+    print("# of episode lens > MIN_STEPS: ", sum(np.asarray(sums_eps_len) >= MIN_STEPS))
+    print("# of episode lens < MIN_STEPS: ", sum(np.asarray(sums_eps_len) < MIN_STEPS))
     min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
     for reward_list, episode_length_list in list_data:
-        np_data = np.zeros([model_num*model_agents,min_steps])
+        np_data = np.zeros([model_num * model_agents, min_steps])
 
         for it, data in enumerate(zip(reward_list, episode_length_list)):
             rewards, episode_lengths = data
@@ -40,23 +49,23 @@ def get_data():
             rewards = rewards
 
             for i in range(len(episode_lengths)):
-                concat_list += [rewards[i]]*episode_lengths[i]
+                concat_list += [rewards[i]] * episode_lengths[i]
 
             while len(concat_list) < min_steps:
                 concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
-        mean = np.mean(np_data,axis=0)
-        std = np.std(np_data,axis=0)
+        mean = np.mean(np_data, axis=0)
+        std = np.std(np_data, axis=0)
 
-        proc_data.append((mean,std))
+        proc_data.append((mean, std))
 
     return proc_data
 
 
 def plot_data(proc_data, savefig_name):
-    fig, ax = plt.subplots(dpi=600, figsize=(5,4))
+    fig, ax = plt.subplots(dpi=600, figsize=(5, 4))
 
     for mean, std in proc_data:
         plt.plot(mean)
@@ -64,20 +73,20 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('SARSA + exc. pot. RN', 'SARSA + add. pot. RN', 'SARSA + exc. non-pot. RN', 'SARSA + add. non-pot. RN', 'SARSA'), fontsize=7)
-    #plt.xlim(0,99)
+    plt.legend(('SARSA + exc. pot. RN', 'SARSA + add. pot. RN', 'SARSA + exc. non-pot. RN', 'SARSA + add. non-pot. RN', 'SARSA'),
+               fontsize=7)
+
+    # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('Cliff Walking transferred algorithm')
+    plt.title('Cliff Walking Transfer')
     plt.xlabel('steps')
-    plt.xlim(0,3000)
-    plt.ylim(-100,-10)
+    plt.xlim(0, MIN_STEPS)
+    plt.ylim(-100, -10)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
 
+
 if __name__ == "__main__":
     proc_data = get_data()
     plot_data(proc_data=proc_data, savefig_name='gridworld_transfer_algo.png')
-
-
-

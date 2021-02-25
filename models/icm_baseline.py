@@ -106,6 +106,8 @@ class ICM:
         self.icm_optimizer = torch.optim.Adam(icm_params, lr=self.lr)
 
     def train(self, states, next_states, actions):
+        if len(actions.shape) == 1:
+            actions = actions.unsqueeze(dim=1)
         next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(states, next_states, actions))
 
         # compute ICM loss
@@ -118,6 +120,8 @@ class ICM:
         self.icm_optimizer.step()
 
     def compute_intrinsic_rewards(self, state, next_state, action):
+        if len(action.shape) == 1:
+            action = action.unsqueeze(dim=1)
         next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(state, next_state, action))
         intrinsic_reward = self.eta * F.mse_loss(next_states_encoded, next_states_pred_encoded, reduction="none").mean(-1)
         return intrinsic_reward.detach().unsqueeze(dim=1)

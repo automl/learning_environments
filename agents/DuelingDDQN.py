@@ -58,11 +58,8 @@ class DuelingDDQN(BaseAgent):
             next_states = to_one_hot_encoding(next_states, self.state_dim)
 
         if self.icm:
-            actions_icm = actions
-            if len(actions.shape) == 1:
-                actions_icm = actions.unsqueeze(dim=1)
-            self.icm.train(states, next_states, actions_icm)
-            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions_icm).squeeze()
+            self.icm.train(states, next_states, actions)
+            rewards += self.icm.compute_intrinsic_rewards(states, next_states, actions).squeeze()
 
         q_values = self.model(states)
         next_q_values = self.model(next_states)

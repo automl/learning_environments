@@ -2,15 +2,18 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-LOG_FILES = ['../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+LOG_FILES = [
+             '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt']
+             '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'
+        ]
 
 STD_MULT = 0.2
-MIN_STEPS = 100000
+# MIN_STEPS = 100000
+MIN_STEPS = 150000
 
 def get_data():
     list_data = []
@@ -20,12 +23,21 @@ def get_data():
         model_num = data['model_num']
         model_agents = data['model_agents']
 
+    sums_eps_len = []
+    sums_eps_len_per_model = []
     min_steps = float('Inf')
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
+        sums_eps_len_per_model_i = []
         for episode_lengths in episode_length_list:
             print(sum(episode_lengths))
+            sums_eps_len.append(sum(episode_lengths))
+            sums_eps_len_per_model_i.append(sum(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
+        sums_eps_len_per_model.append(sums_eps_len_per_model_i)
+
+    print("# of episode lens > MIN_STEPS: ", sum(np.asarray(sums_eps_len) >= MIN_STEPS))
+    print("# of episode lens < MIN_STEPS: ", sum(np.asarray(sums_eps_len) < MIN_STEPS))
 
     min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
@@ -75,7 +87,8 @@ def plot_data(proc_data, savefig_name):
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0 varied hyperparameters')
     plt.xlabel('steps')
-    plt.xlim(0,100000)
+    plt.xlim(0, MIN_STEPS)
+    ax.xaxis.set_tick_params(labelsize='small')
     plt.ylim(-75,100)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
