@@ -71,8 +71,13 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['test_episodes'] = 1
     config['agents']['td3']['train_episodes'] = 500
 
-    config['agents']['td3']['tau'] = 0.001
-    # config['agents']['td3']['same_action_num'] = 1
+    config['agents']['td3']['activation_fn'] = "relu"
+    config['agents']['td3']['lr'] = 0.001
+    config['agents']['td3']['tau'] = 0.005
+    config['agents']['td3']['same_action_num'] = 2
+    config['agents']['td3']['policy_delay'] = 2
+    config['agents']['td3']['rb_size'] = 10000000
+    # config['agents']['td3']['policy_std_clip'] = 0.9
 
     config['agents']['td3']['print_rate'] = 100
 

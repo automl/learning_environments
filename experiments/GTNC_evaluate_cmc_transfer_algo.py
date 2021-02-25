@@ -8,7 +8,7 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_1500_train_eps'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_3000_train_eps'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
@@ -67,7 +67,7 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['ppo'] = {}
     config['agents']['ppo']['test_episodes'] = 1
-    config['agents']['ppo']['train_episodes'] = 1500
+    config['agents']['ppo']['train_episodes'] = 3000
     config['agents']['ppo']['print_rate'] = 100
 
     config['agents']['ppo']['init_episodes'] = 0
