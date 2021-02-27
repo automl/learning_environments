@@ -1,12 +1,24 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import os
 
-LOG_FILES = ['../results/cartpole_compare_reward_envs/best_transfer_algo1.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_algo2.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt']
+# LOG_FILES = [
+#              '../results/cartpole_compare_reward_envs/best_transfer_algo1.pt',
+#              '../results/cartpole_compare_reward_envs/best_transfer_algo2.pt',
+#              '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
+#              '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
+#              '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt'
+#              ]
+
+LOG_FILES = [
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo1.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo2.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo5.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo6.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo0.pt'
+             ]
+
 
 STD_MULT = 0.2
 MIN_STEPS = 10000

@@ -3,14 +3,25 @@ import torch
 import numpy as np
 import os
 
+# LOG_FILES = [
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+#              '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'
+#             ]
+
 LOG_FILES = [
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp1.pt',
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp2.pt',
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp5.pt',
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp6.pt',
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp0.pt',
+             '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_vary_hp-1.pt'
             ]
+
+
 
 STD_MULT = 0.2
 MIN_STEPS = 100000

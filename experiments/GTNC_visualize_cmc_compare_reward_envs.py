@@ -4,14 +4,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+# LOG_FILES = [
+#         '../results/cmc_compare_reward_envs/best1.pt',
+#         '../results/cmc_compare_reward_envs/best2.pt',
+#         '../results/cmc_compare_reward_envs/best5.pt',
+#         '../results/cmc_compare_reward_envs/best6.pt',
+#         '../results/cmc_compare_reward_envs/best0.pt',
+#         '../results/cmc_compare_reward_envs/best-1.pt'
+#         ]
+
 LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best1.pt',
-        '../results/cmc_compare_reward_envs/best2.pt',
-        '../results/cmc_compare_reward_envs/best5.pt',
-        '../results/cmc_compare_reward_envs/best6.pt',
-        '../results/cmc_compare_reward_envs/best0.pt',
-        '../results/cmc_compare_reward_envs/best-1.pt'
+        '../results/cmc_compare_reward_envs_3000_train_eps/best1.pt',
+        '../results/cmc_compare_reward_envs_3000_train_eps/best2.pt',
+        '../results/cmc_compare_reward_envs_3000_train_eps/best5.pt',
+        '../results/cmc_compare_reward_envs_3000_train_eps/best6.pt',
+        '../results/cmc_compare_reward_envs_3000_train_eps/best0.pt',
+        '../results/cmc_compare_reward_envs_3000_train_eps/best-1.pt'
         ]
+
 
 STD_MULT = 0.2
 # STD_MULT = 1.

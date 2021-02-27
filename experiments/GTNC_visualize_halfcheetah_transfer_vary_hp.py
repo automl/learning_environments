@@ -4,18 +4,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = ['../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt']
+# LOG_FILES = [
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+#              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+#              ]
+
+LOG_FILES = [
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp1.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp2.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp5.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp6.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp3.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp4.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp7.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp8.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp0.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp-1.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp101.pt',
+             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best_transfer_vary_hp102.pt'
+             ]
+
 
 STD_MULT = 0.2
 MIN_STEPS = 100000

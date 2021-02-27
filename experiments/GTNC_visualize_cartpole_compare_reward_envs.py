@@ -4,12 +4,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = ['../results/cartpole_compare_reward_envs/best1.pt',
-             '../results/cartpole_compare_reward_envs/best2.pt',
-             '../results/cartpole_compare_reward_envs/best5.pt',
-             '../results/cartpole_compare_reward_envs/best6.pt',
-             '../results/cartpole_compare_reward_envs/best0.pt',
-             '../results/cartpole_compare_reward_envs/best-1.pt']
+# LOG_FILES = [
+#              '../results/cartpole_compare_reward_envs/best1.pt',
+#              '../results/cartpole_compare_reward_envs/best2.pt',
+#              '../results/cartpole_compare_reward_envs/best5.pt',
+#              '../results/cartpole_compare_reward_envs/best6.pt',
+#              '../results/cartpole_compare_reward_envs/best0.pt',
+#              '../results/cartpole_compare_reward_envs/best-1.pt'
+#              ]
+
+LOG_FILES = [
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best1.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best2.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best5.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best6.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best0.pt',
+             '../results/cartpole_compare_reward_envs_5000_train_eps/best-1.pt'
+             ]
+
 
 STD_MULT = 0.2
 MIN_STEPS = 10000
