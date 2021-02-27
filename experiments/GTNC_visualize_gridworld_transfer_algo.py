@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -83,10 +85,11 @@ def plot_data(proc_data, savefig_name):
     plt.xlim(0, MIN_STEPS)
     plt.ylim(-100, -10)
     plt.ylabel('cumulative reward')
-    plt.savefig(savefig_name)
+    base_dir = os.path.dirname(LOG_FILES[0])
+    plt.savefig(os.path.join(base_dir, savefig_name))
     plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='gridworld_transfer_algo.png')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_algo_{MIN_STEPS}_steps.png')

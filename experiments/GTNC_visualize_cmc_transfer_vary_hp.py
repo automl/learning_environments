@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 import numpy as np
+import os
 
 LOG_FILES = [
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
@@ -9,11 +10,11 @@ LOG_FILES = [
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
              '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'
-        ]
+            ]
 
 STD_MULT = 0.2
-# MIN_STEPS = 100000
-MIN_STEPS = 150000
+MIN_STEPS = 100000
+# MIN_STEPS = 150000
 
 def get_data():
     list_data = []
@@ -88,15 +89,16 @@ def plot_data(proc_data, savefig_name):
     plt.title('MountainCarContinuous-v0 varied hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    ax.xaxis.set_tick_params(labelsize='small')
+    # ax.xaxis.set_tick_params(labelsize='small')
     plt.ylim(-75,100)
     plt.ylabel('cumulative reward')
-    plt.savefig(savefig_name)
+    base_dir = os.path.dirname(LOG_FILES[0])
+    plt.savefig(os.path.join(base_dir, savefig_name))
     plt.show()
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name='cmc_transfer_vary_hp.png')
+    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_vary_hp_{MIN_STEPS}_steps.png')
 
 
 
