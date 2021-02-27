@@ -4,34 +4,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# LOG_FILES = [
-#              '../results/halfcheetah_compare_reward_envs/best1.pt',
-#              '../results/halfcheetah_compare_reward_envs/best2.pt',
-#              '../results/halfcheetah_compare_reward_envs/best5.pt',
-#              '../results/halfcheetah_compare_reward_envs/best6.pt',
-#              '../results/halfcheetah_compare_reward_envs/best3.pt',
-#              '../results/halfcheetah_compare_reward_envs/best4.pt',
-#              '../results/halfcheetah_compare_reward_envs/best7.pt',
-#              '../results/halfcheetah_compare_reward_envs/best8.pt',
-#              '../results/halfcheetah_compare_reward_envs/best0.pt',
-#              '../results/halfcheetah_compare_reward_envs/best-1.pt',
-#              '../results/halfcheetah_compare_reward_envs/best101.pt',
-#              '../results/halfcheetah_compare_reward_envs/best102.pt'
-#              ]
-
 LOG_FILES = [
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best1.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best2.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best5.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best6.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best3.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best4.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best7.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best8.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best0.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best-1.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best101.pt',
-             '../results/halfcheetah_compare_reward_envs_3000_train_eps/best102.pt'
+             '../results/halfcheetah_compare_reward_envs/best1.pt',
+             '../results/halfcheetah_compare_reward_envs/best2.pt',
+             '../results/halfcheetah_compare_reward_envs/best5.pt',
+             '../results/halfcheetah_compare_reward_envs/best6.pt',
+             '../results/halfcheetah_compare_reward_envs/best3.pt',
+             '../results/halfcheetah_compare_reward_envs/best4.pt',
+             '../results/halfcheetah_compare_reward_envs/best7.pt',
+             '../results/halfcheetah_compare_reward_envs/best8.pt',
+             '../results/halfcheetah_compare_reward_envs/best0.pt',
+             '../results/halfcheetah_compare_reward_envs/best-1.pt',
+             '../results/halfcheetah_compare_reward_envs/best101.pt',
+             '../results/halfcheetah_compare_reward_envs/best102.pt'
              ]
 
 STD_MULT = 0.2
