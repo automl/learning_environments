@@ -8,7 +8,8 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
@@ -72,18 +73,17 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['ppo'] = {}
     config['agents']['ppo']['test_episodes'] = 1
-    config['agents']['ppo']['train_episodes'] = 5000
+    config['agents']['ppo']['train_episodes'] = 3000
     config['agents']['ppo']['print_rate'] = 100
 
     config['agents']['ppo']['init_episodes'] = 0
-    config['agents']['ppo']['update_episodes'] = 10
-    config['agents']['ppo']['ppo_epochs'] = 10
-    # config['agents']['ppo']['ppo_epochs'] = 5
+    # config['agents']['ppo']['update_episodes'] = 10
+    config['agents']['ppo']['update_episodes'] = 5
+    # config['agents']['ppo']['ppo_epochs'] = 10
+    config['agents']['ppo']['ppo_epochs'] = 80
     config['agents']['ppo']['gamma'] = 0.99
-    # config['agents']['ppo']['lr'] = 0.002
     config['agents']['ppo']['lr'] = 3e-4
     config['agents']['ppo']['vf_coef'] = 1
-    # config['agents']['ppo']['ent_coef'] = 0.001
     config['agents']['ppo']['ent_coef'] = 0.01
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
