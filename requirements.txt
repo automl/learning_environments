@@ -1,7 +1,10 @@
-torch
-numpy
 ConfigSpace
 hpbandster
-gym
-pyyaml
+gym[all]
+matplotlib
+mujoco-py
+numpy
 psutil
+pyyaml
+seaborn
+torch

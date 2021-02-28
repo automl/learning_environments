@@ -1,4 +1,4 @@
-env_name: !!str Cliff
+env_name: !!str EmptyRoom23
 device: !!str cpu                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 

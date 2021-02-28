@@ -12,9 +12,11 @@ os.chdir(par_dir)
 if __name__ == "__main__":
     torch.set_num_threads(1)
 
+    gtn = GTN_Worker(bohb_id=0, id=0)
+    gtn.clean_working_dir()
+
     def run_gtn_worker(id):
         gtn = GTN_Worker(bohb_id=0, id=id)
-        gtn.clean_working_dir()
         gtn.run()
 
     num_workers = 16

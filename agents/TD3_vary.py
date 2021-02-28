@@ -60,7 +60,7 @@ class TD3_vary(TD3):
 
 
 if __name__ == "__main__":
-    with open("../default_config_halfcheetah_td3_opt_common.yaml", "r") as stream:
+    with open("../default_config_halfcheetah_reward_env.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)

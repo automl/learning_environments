@@ -18,8 +18,8 @@ LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
-MODE = '6'
-BREAK='solved'   # solved or end
+MODE = '6'       # '1', '2', '5', '6'
+BREAK='solved'   # 'solved' or 'end'
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
