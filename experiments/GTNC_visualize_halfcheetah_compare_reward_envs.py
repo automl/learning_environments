@@ -5,22 +5,37 @@ import numpy as np
 import torch
 
 LOG_FILES = [
-             '../results/halfcheetah_compare_reward_envs/best1.pt',
-             '../results/halfcheetah_compare_reward_envs/best2.pt',
-             '../results/halfcheetah_compare_reward_envs/best5.pt',
-             '../results/halfcheetah_compare_reward_envs/best6.pt',
-             '../results/halfcheetah_compare_reward_envs/best3.pt',
-             '../results/halfcheetah_compare_reward_envs/best4.pt',
-             '../results/halfcheetah_compare_reward_envs/best7.pt',
-             '../results/halfcheetah_compare_reward_envs/best8.pt',
-             '../results/halfcheetah_compare_reward_envs/best0.pt',
-             '../results/halfcheetah_compare_reward_envs/best-1.pt',
-             '../results/halfcheetah_compare_reward_envs/best101.pt',
-             '../results/halfcheetah_compare_reward_envs/best102.pt'
-             ]
+        '../results/halfcheetah_compare_reward_envs/best1.pt',
+        '../results/halfcheetah_compare_reward_envs/best2.pt',
+        '../results/halfcheetah_compare_reward_envs/best5.pt',
+        '../results/halfcheetah_compare_reward_envs/best6.pt',
+        '../results/halfcheetah_compare_reward_envs/best3.pt',
+        '../results/halfcheetah_compare_reward_envs/best4.pt',
+        '../results/halfcheetah_compare_reward_envs/best7.pt',
+        '../results/halfcheetah_compare_reward_envs/best8.pt',
+        '../results/halfcheetah_compare_reward_envs/best0.pt',
+        # '../results/halfcheetah_compare_reward_envs/best-1.pt',
+        '../results/halfcheetah_compare_reward_envs/best101.pt',
+        '../results/halfcheetah_compare_reward_envs/best102.pt'
+        ]
 
-STD_MULT = 0.2
-MIN_STEPS = 100000
+LEGEND = [
+        'TD3 + exc. pot. RN',
+        'TD3 + add. pot. RN',
+        'TD3 + exc. non-pot. RN',
+        'TD3 + add. non-pot. RN',
+        'TD3 + exc. pot. RN + augm.',
+        'TD3 + add. pot. RN + augm.',
+        'TD3 + exc. non-pot. RN + augm.',
+        'TD3 + add. non-pot. RN + augm.',
+        'TD3',
+        # 'TD3 + ICM',
+        'TD3 + exc. ER',
+        'TD3 + add. ER',
+        ]
+
+STD_MULT = .2
+MIN_STEPS = 1000000
 
 
 def get_data():
@@ -46,6 +61,7 @@ def get_data():
 
     print("# of episode lens > MIN_STEPS: ", sum(np.asarray(sums_eps_len) >= MIN_STEPS))
     print("# of episode lens < MIN_STEPS: ", sum(np.asarray(sums_eps_len) < MIN_STEPS))
+    min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
@@ -60,6 +76,9 @@ def get_data():
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]] * episode_lengths[i]
+
+            while len(concat_list) < min_steps:
+                concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
@@ -96,16 +115,13 @@ def plot_data(proc_data, savefig_name):
         else:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN',
-                'TD3 + exc. pot. RN + augm.', 'TD3 + add. pot. RN + augm.', 'TD3 + exc. non-pot. RN + augm.',
-                'TD3 + add. non-pot. RN + augm.',
-                'TD3', 'TD3 + ICM', 'TD3 + exc. ER', 'TD3 + add. ER'), fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HalfCheetah-v3')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    plt.ylim(-1000, 6000)
+    plt.ylim(-1000, 7500)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))

@@ -4,28 +4,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# LOG_FILES = [
-#         '../results/cmc_compare_reward_envs/best1.pt',
-#         '../results/cmc_compare_reward_envs/best2.pt',
-#         '../results/cmc_compare_reward_envs/best5.pt',
-#         '../results/cmc_compare_reward_envs/best6.pt',
-#         '../results/cmc_compare_reward_envs/best0.pt',
-#         '../results/cmc_compare_reward_envs/best-1.pt'
-#         ]
-
 LOG_FILES = [
-        '../results/cmc_compare_reward_envs_3000_train_eps/best1.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best2.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best5.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best6.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best0.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best-1.pt'
+        '../results/cmc_compare_reward_envs/best1.pt',  # 3k eps running
+        '../results/cmc_compare_reward_envs/best2.pt',
+        '../results/cmc_compare_reward_envs/best5.pt',
+        '../results/cmc_compare_reward_envs/best6.pt',
+        '../results/cmc_compare_reward_envs/best0.pt',
+        # '../results/cmc_compare_reward_envs/best-1.pt' # 3k eps running
         ]
 
+LEGEND = [
+        'TD3 + exc. pot. RN',
+        'TD3 + add. pot. RN',
+        'TD3 + exc. non-pot. RN',
+        'TD3 + add. non-pot. RN',
+        'TD3',
+        # 'TD3 + ICM',
+        ]
 
 STD_MULT = 0.2
 # STD_MULT = 1.
-MIN_STEPS = 100000
+MIN_STEPS = 250000
 
 
 # MIN_STEPS = 150000
@@ -96,8 +95,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('TD3 + exc. pot. RN', 'TD3 + add. pot. RN', 'TD3 + exc. non-pot. RN', 'TD3 + add. non-pot. RN', 'TD3', 'TD3 + ICM'),
-               fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
 
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)

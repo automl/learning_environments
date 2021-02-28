@@ -9,7 +9,8 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 #SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cartpole_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cartpole_compare_reward_envs_5000_train_eps'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cartpole_compare_reward_envs_5000_train_eps'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cartpole_compare_reward_envs'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_1'
@@ -68,7 +69,7 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['duelingddqn'] = {}
     config['agents']['duelingddqn']['test_episodes'] = 1
-    config['agents']['duelingddqn']['train_episodes'] = 5000
+    config['agents']['duelingddqn']['train_episodes'] = 1000
     config['agents']['duelingddqn']['print_rate'] = 100
 
     config['agents']['duelingddqn']['lr'] = 0.00025

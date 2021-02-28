@@ -4,30 +4,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# LOG_FILES = [
-#         '../results/cmc_compare_reward_envs/best_transfer_algo1.pt',
-#         '../results/cmc_compare_reward_envs/best_transfer_algo2.pt',
-#         '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
-#         '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
-#         '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
-#         '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt'
-#         ]
-
 LOG_FILES = [
-        # '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo1.pt',
-        # '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo2.pt',
-        # '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo5.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo6.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo0.pt',
-        '../results/cmc_compare_reward_envs_3000_train_eps/best_transfer_algo-1.pt'
+        '../results/cmc_compare_reward_envs/best_transfer_algo1.pt',  # running
+        '../results/cmc_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt'
+        ]
+
+LEGEND = [
+        'PPO + exc. pot. RN',
+        'PPO + add. pot. RN',
+        'PPO + exc. non-pot. RN',
+        'PPO + add. non-pot. RN',
+        'PPO',
+        'PPO + ICM',
         ]
 
 STD_MULT = .2
 # STD_MULT = 1.
-MIN_STEPS = 100000
-
-
-# MIN_STEPS = 150000
+MIN_STEPS = 200000
 
 def get_data():
     list_data = []
@@ -48,6 +45,7 @@ def get_data():
             sums_eps_len.append(sum(episode_lengths))
             sums_eps_len_per_model_i.append(sum(episode_lengths))
             min_steps = min(min_steps, sum(episode_lengths))
+        sums_eps_len_per_model.append(sums_eps_len_per_model_i)
 
     print("# of episode lens > MIN_STEPS: ", sum(np.asarray(sums_eps_len) >= MIN_STEPS))
     print("# of episode lens < MIN_STEPS: ", sum(np.asarray(sums_eps_len) < MIN_STEPS))
@@ -94,8 +92,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('PPO + exc. pot. RN', 'PPO + add. pot. RN', 'PPO + exc. non-pot. RN', 'PPO + add. non-pot. RN', 'PPO', 'PPO + ICM'),
-               fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0 Transfer')
