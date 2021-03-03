@@ -68,19 +68,24 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['sarsa'] = {}
     config['agents']['sarsa']['test_episodes'] = 1
-    config['agents']['sarsa']['train_episodes'] = 200
+    config['agents']['sarsa']['train_episodes'] = 500
     config['agents']['sarsa']['print_rate'] = 100
-    config['agents']['sarsa']['init_episodes'] = config['agents']['ql']['init_episodes']
-    config['agents']['sarsa']['batch_size'] = config['agents']['ql']['batch_size']
-    config['agents']['sarsa']['alpha'] = config['agents']['ql']['alpha']
-    config['agents']['sarsa']['gamma'] = config['agents']['ql']['gamma']
-    config['agents']['sarsa']['eps_init'] = config['agents']['ql']['eps_init']
-    config['agents']['sarsa']['eps_min'] = config['agents']['ql']['eps_min']
-    config['agents']['sarsa']['eps_decay'] = config['agents']['ql']['eps_decay']
-    config['agents']['sarsa']['rb_size'] = config['agents']['ql']['rb_size']
-    config['agents']['sarsa']['same_action_num'] = config['agents']['ql']['same_action_num']
-    config['agents']['sarsa']['early_out_num'] = config['agents']['ql']['early_out_num']
-    config['agents']['sarsa']['early_out_virtual_diff'] = config['agents']['ql']['early_out_virtual_diff']
+
+    config['agents']['sarsa']['alpha'] = 1.0
+    config['agents']['sarsa']['eps_decay'] = 0.0
+    config['agents']['sarsa']['eps_init'] = 0.1
+    config['agents']['sarsa']['eps_min'] = 0.1
+    config['agents']['sarsa']['gamma'] = 0.8
+    config['agents']['sarsa']['same_action_num'] = 1
+    config['agents']['sarsa']['rb_size'] = 1  # custom to reward env and gridworld
+    config['agents']['sarsa']['init_episodes'] = 0
+    config['agents']['sarsa']['batch_size'] = 1
+
+    config['agents']['sarsa']['early_out_num'] = 10
+    config['agents']['sarsa']['early_out_virtual_diff'] = 0.02
+
+
+
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='sarsa')

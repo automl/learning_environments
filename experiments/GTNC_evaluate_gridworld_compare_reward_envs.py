@@ -67,8 +67,21 @@ def train_test_agents(mode, env, real_env, config):
 
     # settings for comparability
     config['agents']['ql']['test_episodes'] = 1
-    config['agents']['ql']['train_episodes'] = 200
+    config['agents']['ql']['train_episodes'] = 500
     config['agents']['ql']['print_rate'] = 100
+
+    config['agents']['ql']['alpha'] = 1.0
+    config['agents']['ql']['eps_decay'] = 0.0
+    config['agents']['ql']['eps_init'] = 0.1
+    config['agents']['ql']['eps_min'] = 0.1
+    config['agents']['ql']['gamma'] = 0.8
+    config['agents']['ql']['same_action_num'] = 1
+    config['agents']['ql']['rb_size'] = 1  # custom to reward env and gridworld
+    config['agents']['ql']['init_episodes'] = 0
+    config['agents']['ql']['batch_size'] = 1
+
+    config['agents']['ql']['early_out_num'] = 10
+    config['agents']['ql']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
         agent = select_agent(config=config, agent_name='ql')
