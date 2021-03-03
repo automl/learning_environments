@@ -84,7 +84,10 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ql']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='ql')
+        if mode == '-1':
+            agent = select_agent(config=config, agent_name='ql_cb')
+        else:
+            agent = select_agent(config=config, agent_name='ql')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -135,7 +138,7 @@ def eval_base(mode, log_dir):
     save_list(mode, config, reward_list, episode_length_list)
 
 
-def eval_icm(mode, log_dir):
+def eval_count_based(mode, log_dir):
     best_models = get_best_models_from_log(log_dir)
 
     reward_list = []
@@ -158,6 +161,8 @@ if __name__ == "__main__":
 
     if mode == '0':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
+    elif mode == '-1':
+        eval_count_based(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
 

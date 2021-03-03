@@ -1,13 +1,15 @@
-import yaml
-import torch
-import time
+import math
 import random
+
+import torch
+import yaml
+
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
-from utils import ReplayBuffer, AverageMeter
+
 
 class QL(BaseAgent):
-    def __init__(self, env, config):
+    def __init__(self, env, config, count_based=False):
         self.agent_name = "ql"
         super().__init__(agent_name=self.agent_name, env=env, config=config)
 
@@ -19,10 +21,14 @@ class QL(BaseAgent):
         self.eps_init = ql_config["eps_init"]
         self.eps_min = ql_config["eps_min"]
         self.eps_decay = ql_config["eps_decay"]
-        self.q_table = [[0]*self.action_dim for _ in range(self.state_dim)]
+        self.q_table = [[0] * self.action_dim for _ in range(self.state_dim)]
 
         self.it = 0
 
+        self.count_based = count_based
+        if self.count_based:
+            self.beta = 0.1
+            self.visitation_table = [0 for _ in range(self.state_dim)]
 
     def learn(self, replay_buffer, env, episode):
         self.it += 1
@@ -38,11 +44,16 @@ class QL(BaseAgent):
             reward = reward.item()
             done = done.item()
 
+            if self.count_based:
+                self.visitation_table[state] += 1
+                intrinsic_reward = self.beta / (math.sqrt(self.visitation_table[state] + 1e-9))
+                # print(intrinsic_reward)
+                reward += intrinsic_reward
+
             delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
         replay_buffer.clear()
-
 
     def plot_q_function(self, env):
         # m = len(env.env.grid)
@@ -57,7 +68,6 @@ class QL(BaseAgent):
                 strng += ' {:3f}'.format(max(self.q_table[i * n + k]))
             print(strng)
 
-
     def select_train_action(self, state, env, episode):
         if random.random() < self.eps:
             action = env.get_random_action()
@@ -66,11 +76,9 @@ class QL(BaseAgent):
             q_vals = torch.tensor(self.q_table[int(state.item())])
             return torch.argmax(q_vals).unsqueeze(0).detach()
 
-
     def select_test_action(self, state, env):
         q_vals = torch.tensor(self.q_table[int(state.item())])
         return torch.argmax(q_vals).unsqueeze(0).detach()
-
 
     def update_parameters_per_episode(self, episode):
         if episode == 0:
@@ -89,18 +97,20 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_real_env()
-    #virtual_env = env_fac.generate_virtual_env()
+    # virtual_env = env_fac.generate_virtual_env()
     reward_env = env_fac.generate_reward_env()
 
     reward_list_len = []
     for i in range(20):
         ql = QL(env=real_env,
-                config=config)
-        reward_list_train, episode_length_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=500)
+                config=config,
+                count_based=True)
+        reward_list_train, episode_length_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=5000)
         reward_list_test, episode_length_list_test, _ = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
         print(len(reward_list_train))
         print(sum(episode_length_list_train))
 
     import statistics
+
     print(statistics.mean(reward_list_len))

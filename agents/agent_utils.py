@@ -55,6 +55,8 @@ def select_agent(config, agent_name):
         return TD3_discrete_vary(env=dummy_env, config=config, min_action=min_action, max_action=max_action)
     elif agent_name == "ql":
         return QL(env=dummy_env, config=config)
+    elif agent_name == "ql_cb":
+        return QL(env=dummy_env, count_based=True, config=config)
     elif agent_name == "sarsa":
         return SARSA(env=dummy_env, config=config)
     else:
