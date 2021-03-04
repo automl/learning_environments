@@ -1,8 +1,9 @@
-import math
 import random
 
+import numpy as np
 import torch
 import yaml
+import math
 
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
@@ -22,13 +23,16 @@ class QL(BaseAgent):
         self.eps_min = ql_config["eps_min"]
         self.eps_decay = ql_config["eps_decay"]
         self.q_table = [[0] * self.action_dim for _ in range(self.state_dim)]
+        self.count_based = count_based
 
         self.it = 0
 
-        self.count_based = count_based
         if self.count_based:
-            self.beta = 0.1
-            self.visitation_table = [0 for _ in range(self.state_dim)]
+            self.beta = ql_config["beta"]
+            self.visitation_table = np.zeros((self.state_dim, self.action_dim))  # n(s,a)
+            self.visitation_table_triple = np.zeros((self.state_dim, self.action_dim, self.state_dim))  # n(s,a,s')
+            # self.r_hat = np.zeros((self.state_dim, self.action_dim))
+            self.t_hat = np.zeros((self.state_dim, self.action_dim, self.state_dim))
 
     def learn(self, replay_buffer, env, episode):
         self.it += 1
@@ -45,11 +49,23 @@ class QL(BaseAgent):
             done = done.item()
 
             if self.count_based:
-                self.visitation_table[state] += 1
-                intrinsic_reward = self.beta / (math.sqrt(self.visitation_table[state] + 1e-9))
-                # print(intrinsic_reward)
+                self.visitation_table[state][action] += 1
+                intrinsic_reward = self.beta / (math.sqrt(self.visitation_table[state][action]) + 1e-9)
                 reward += intrinsic_reward
 
+                # MBIE-EB
+                # self.visitation_table[state][action] += 1
+                # self.visitation_table_triple[state][action][next_state] += 1
+                # # self.r_hat[state][action] = reward  # deterministic & stationary MDP -> mean reward for (s,a) = reward for (s,a)
+                # self.t_hat[state][action][next_state] = self.visitation_table_triple[state][action][next_state] / \
+                #                                         self.visitation_table[state][action]
+                #
+                # intrinsic_reward = self.beta / (math.sqrt(self.visitation_table[state][action]) + 1e-9)
+                # reward += intrinsic_reward
+                # t = sum(self.t_hat[state][action])
+                # self.q_table[state][action] = reward + self.gamma * t * max(self.q_table[next_state]) * (done < 0.5)
+
+            # else:
             delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
@@ -89,7 +105,7 @@ class QL(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_gridworld_reward_env.yaml", "r") as stream:
+    with open("../default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     print(config)
     torch.set_num_threads(1)
