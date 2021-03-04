@@ -123,7 +123,7 @@ def train_test_agents(mode, env, real_env, config):
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
         if mode == '-1':
-            agent = select_agent(config=config, agent_name='ql_cb')
+            agent = select_agent(config=config_mod, agent_name='ql_cb')
         else:
             agent = select_agent(config=config_mod, agent_name='ql')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)

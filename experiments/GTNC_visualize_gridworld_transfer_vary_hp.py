@@ -5,15 +5,25 @@ import numpy as np
 import torch
 
 LOG_FILES = [
-             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt'
-             ]
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt'  # running
+        ]
+
+LEGEND = [
+        'QL + exc. pot. RN',
+        'QL + add. pot. RN',
+        'QL + exc. non-pot. RN',
+        'QL + add. non-pot. RN',
+        'QL',
+        'QL + count-based expl.'
+        ]
 
 STD_MULT = 0.2
-MIN_STEPS = 3000
+MIN_STEPS = 5000
 
 
 def get_data():
@@ -77,7 +87,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('QL + exc. pot. RN', 'QL + add. pot. RN', 'QL + exc. non-pot. RN', 'QL + add. non-pot. RN', 'QL'), fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('Cliff Walking varied hyperparameters')

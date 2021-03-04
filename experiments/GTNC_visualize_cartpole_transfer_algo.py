@@ -12,21 +12,13 @@ LOG_FILES = [
              # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt'  # running
              ]
 
-LOG_FILES = [
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo1.pt',
-             # '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo2.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo5.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo6.pt',
-             # '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo0.pt'
-             ]
-
 LEGEND = [
         'Duel.-DDQN + exc. pot. RN',
-        # 'Duel.-DDQN + add. pot. RN',
+        'Duel.-DDQN + add. pot. RN',
         'Duel.-DDQN + exc. non-pot. RN',
         'Duel.-DDQN + add. non-pot. RN',
         'Duel.-DDQN',
-        # 'Duel.-DDQN + ICM'
+        'Duel.-DDQN + ICM'
         ]
 
 
