@@ -56,9 +56,9 @@ class DDQN(BaseAgent):
                            eta=self.icm_eta,
                            feature_dim=self.icm_feature_dim,
                            hidden_size=self.icm_hidden_dim,
-                           act_1=self.icm_act1,
-                           act_2=self.icm_act2,
-                           act_3=self.icm_act3,
+                           act_1=self.icm_act_1,
+                           act_2=self.icm_act_2,
+                           act_3=self.icm_act_3,
                            device=self.device)
 
     def learn(self, replay_buffer, env, episode):
