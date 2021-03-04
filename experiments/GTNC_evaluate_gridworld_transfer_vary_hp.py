@@ -115,10 +115,12 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ql']['rb_size'] = 1  # custom to reward env and gridworld
     config['agents']['ql']['init_episodes'] = 0
     config['agents']['ql']['batch_size'] = 1
-    config['agents']['ql']['beta'] = 0.005
 
     config['agents']['ql']['early_out_num'] = 10
     config['agents']['ql']['early_out_virtual_diff'] = 0.02
+
+    # for count-based q-learning
+    config['agents']['ql']['beta'] = 0.005
 
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
