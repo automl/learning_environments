@@ -10,7 +10,7 @@ LOG_FILES = [
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt'  # running
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt'
         ]
 
 LEGEND = [

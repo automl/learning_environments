@@ -85,7 +85,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['sarsa']['early_out_virtual_diff'] = 0.02
 
     # for count-based q-learning
-    config['agents']['sarsa']['beta'] = 0.3  # 0.005
+    config['agents']['sarsa']['beta'] = 0.005
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

@@ -19,7 +19,7 @@ LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'
              ]
 
-# LOG_FILES = [
+LOG_FILES = [
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo1.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo2.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo5.pt',
@@ -28,29 +28,29 @@ LOG_FILES = [
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo4.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo7.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo8.pt',
-#              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo0.pt',
+              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_10_lr_3e-3/best_transfer_algo0.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo-1.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo101.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo102.pt'
-#              ]
+             ]
 
 LEGEND = [
-        'PPO + exc. pot. RN',
-        'PPO + add. pot. RN',
-        'PPO + exc. non-pot. RN',
-        'PPO + add. non-pot. RN',
-        'PPO + exc. pot. RN + augm.',
-        'PPO + add. pot. RN + augm.',
-        'PPO + exc. non-pot. RN + augm.',
-        'PPO + add. non-pot. RN + augm.',
+        # 'PPO + exc. pot. RN',
+        # 'PPO + add. pot. RN',
+        # 'PPO + exc. non-pot. RN',
+        # 'PPO + add. non-pot. RN',
+        # 'PPO + exc. pot. RN + augm.',
+        # 'PPO + add. pot. RN + augm.',
+        # 'PPO + exc. non-pot. RN + augm.',
+        # 'PPO + add. non-pot. RN + augm.',
         'PPO',
-        'PPO + ICM',
-        'PPO + exc. ER',
-        'PPO + add. ER',
+        # 'PPO + ICM',
+        # 'PPO + exc. ER',
+        # 'PPO + add. ER',
         ]
 
 STD_MULT = 0.2
-MIN_STEPS = 5000000
+MIN_STEPS = 3000000
 
 
 def get_data():
