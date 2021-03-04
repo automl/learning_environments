@@ -29,7 +29,7 @@ LOG_FILES = [
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo7.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo8.pt',
               '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_10_lr_3e-3/best_transfer_algo0.pt',
-#              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo-1.pt',
+             '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo-1.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo101.pt',
 #              '../results/halfcheetah_compare_reward_envs_ppo_epochs_80_update_eps_5/best_transfer_algo102.pt'
              ]
@@ -44,7 +44,7 @@ LEGEND = [
         # 'PPO + exc. non-pot. RN + augm.',
         # 'PPO + add. non-pot. RN + augm.',
         'PPO',
-        # 'PPO + ICM',
+        'PPO + ICM',
         # 'PPO + exc. ER',
         # 'PPO + add. ER',
         ]

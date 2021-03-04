@@ -52,6 +52,9 @@ agents:
     eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
     feature_dim: !!int 64                   # feature dimension of features model
     hidden_size: !!int 128                  # size of all ICM sub-network layers
+    act_1: !!str leakyrelu                  # activation function for icm feature and forward-pre subnetwork
+    act_2: !!str relu                       # activation function for icm inverse subnetwork
+    act_3: !!str identity                   # activation function for icm forward-post subnetwork
 
   ppo:
     train_episodes: !!int 10000             # maximum number of episodes to optimize

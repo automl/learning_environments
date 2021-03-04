@@ -396,15 +396,10 @@ def get_bright_random_color():
     return colorsys.hls_to_rgb(h, l, s)
 
 if __name__ == '__main__':
-    #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
-    #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
-    #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
-    # log_dir = '../results/cmc_ppo_params_bohb_2020-12-16-17'
-    # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-02-23-18'
     log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-04-09'
-    log_dir = '../results/bohb_params_ql_cb_cliff_2021-03-04-16'
-    log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-04-17'
+    # log_dir = '../results/bohb_params_ql_cb_cliff_2021-03-04-16'
+    # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-04-17'
+    # log_dir = '../results/bohb_params_ql_cb_cliff_2021-03-04-20'
     analyze_bohb(log_dir)
 
 

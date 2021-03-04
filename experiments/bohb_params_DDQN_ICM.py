@@ -29,11 +29,17 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-1, log=True, default_value=1e-4))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='beta', lower=0.1, upper=1.0, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='eta', lower=0.1, upper=1.0, log=True, default_value=0.5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-4, upper=1e-3, log=True, default_value=1e-4))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='beta', lower=0.01, upper=1.0, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='eta', lower=0.01, upper=1.0, log=True, default_value=0.5))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=256, log=True, default_value=64))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='act_1', choices=['relu', 'tanh', 'leakyrelu', 'prelu'],
+                                                            default_value='leakyrelu'))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='act_2', choices=['relu', 'tanh', 'leakyrelu', 'prelu'],
+                                                            default_value='relu'))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='act_3', choices=['relu', 'tanh', 'leakyrelu', 'prelu', 'identity'],
+                                                            default_value='identity'))
 
         return cs
 
@@ -45,6 +51,9 @@ class ExperimentWrapper():
         config["agents"]["icm"]["eta"] = cso["eta"]
         config["agents"]["icm"]["feature_dim"] = cso["feature_dim"]
         config["agents"]["icm"]["hidden_size"] = cso["hidden_size"]
+        config["agents"]["icm"]["act_1"] = cso["act_1"]
+        config["agents"]["icm"]["act_2"] = cso["act_2"]
+        config["agents"]["icm"]["act_3"] = cso["act_3"]
 
         return config
 
