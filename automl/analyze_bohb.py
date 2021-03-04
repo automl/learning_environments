@@ -401,9 +401,10 @@ if __name__ == '__main__':
     #log_dir = '../results/GTNC_evaluate_acrobot_params_2020-11-23-18'
     #log_dir = '../results/GTNC_evaluate_pendulum_params_2020-12-10-14_2'
     # log_dir = '../results/cmc_ppo_params_bohb_2020-12-16-17'
-    log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-02-23-18'
+    # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-02-23-18'
     log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-04-09'
     log_dir = '../results/bohb_params_ql_cb_cliff_2021-03-04-16'
+    log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-04-17'
     analyze_bohb(log_dir)
 
 

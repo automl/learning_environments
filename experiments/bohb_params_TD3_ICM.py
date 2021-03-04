@@ -67,8 +67,9 @@ class ExperimentWrapper():
         env = env_fac.generate_real_env()
 
         td3 = TD3(env=env,
-                config=config,
-                icm=True)
+                  max_action=env.get_max_action(),
+                  config=config,
+                  icm=True)
         rewards, _, _ = td3.train(env)
         score = len(rewards)
 
