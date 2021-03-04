@@ -1,9 +1,8 @@
 import os
 import sys
 
-import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import torch
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -19,6 +18,7 @@ LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
+
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -40,7 +40,7 @@ def get_best_models_from_log(log_dir):
             continue
 
     best_models.sort(key=lambda x: x[0])
-    #best_models.sort(key=lambda x: x[0], reverse=True)
+    # best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -50,7 +50,7 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    #config['device'] = 'cuda'
+    # config['device'] = 'cuda'
     config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
@@ -84,11 +84,14 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['sarsa']['early_out_num'] = 10
     config['agents']['sarsa']['early_out_virtual_diff'] = 0.02
 
-
-
+    # for count-based q-learning
+    config['agents']['sarsa']['beta'] = 0.005
 
     for i in range(MODEL_AGENTS):
-        agent = select_agent(config=config, agent_name='sarsa')
+        if mode == '-1':
+            agent = select_agent(config=config, agent_name='sarsa_cb')
+        else:
+            agent = select_agent(config=config, agent_name='sarsa')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -164,4 +167,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

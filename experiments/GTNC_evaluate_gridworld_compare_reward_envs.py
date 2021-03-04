@@ -72,8 +72,8 @@ def train_test_agents(mode, env, real_env, config):
 
     config['agents']['ql']['alpha'] = 1.0
     config['agents']['ql']['eps_decay'] = 0.0
-    config['agents']['ql']['eps_init'] = 0.01  # todo set to 0.1
-    config['agents']['ql']['eps_min'] = 0.01  # todo set to 0.1
+    config['agents']['ql']['eps_init'] = 0.1
+    config['agents']['ql']['eps_min'] = 0.1
     config['agents']['ql']['gamma'] = 0.8
     config['agents']['ql']['same_action_num'] = 1
     config['agents']['ql']['rb_size'] = 1  # custom to reward env and gridworld
@@ -82,6 +82,9 @@ def train_test_agents(mode, env, real_env, config):
 
     config['agents']['ql']['early_out_num'] = 10
     config['agents']['ql']['early_out_virtual_diff'] = 0.02
+
+    # for count-based q-learning
+    config['agents']['ql']['beta'] = 0.005  # 0.01 also works fine
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

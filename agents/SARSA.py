@@ -1,13 +1,16 @@
-import yaml
-import torch
-import time
+import math
 import random
+
+import numpy as np
+import torch
+import yaml
+
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
-from utils import ReplayBuffer, AverageMeter
+
 
 class SARSA(BaseAgent):
-    def __init__(self, env, config):
+    def __init__(self, env, config, count_based=False):
         self.agent_name = "sarsa"
         super().__init__(agent_name=self.agent_name, env=env, config=config)
 
@@ -19,10 +22,16 @@ class SARSA(BaseAgent):
         self.eps_init = ql_config["eps_init"]
         self.eps_min = ql_config["eps_min"]
         self.eps_decay = ql_config["eps_decay"]
-        self.q_table = [[0]*self.action_dim for _ in range(self.state_dim)]
+        self.q_table = [[0] * self.action_dim for _ in range(self.state_dim)]
+
+        self.count_based = count_based
 
         self.it = 0
 
+        if self.count_based:
+            self.beta = ql_config["beta"]
+            self.visitation_table = np.zeros((self.state_dim, self.action_dim))  # n(s,a)
+            self.t_hat = np.zeros((self.state_dim, self.action_dim, self.state_dim))
 
     def learn(self, replay_buffer, env, episode):
         self.it += 1
@@ -40,11 +49,15 @@ class SARSA(BaseAgent):
             reward = reward.item()
             done = done.item()
 
+            if self.count_based:
+                self.visitation_table[state][action] += 1
+                intrinsic_reward = self.beta / (math.sqrt(self.visitation_table[state][action]) + 1e-9)
+                reward += intrinsic_reward
+
             delta = reward + self.gamma * self.q_table[next_state][next_action] * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
         replay_buffer.clear()
-
 
     def plot_q_function(self, env):
         # m = len(env.env.grid)
@@ -59,7 +72,6 @@ class SARSA(BaseAgent):
                 strng += ' {:3f}'.format(max(self.q_table[i * n + k]))
             print(strng)
 
-
     def select_train_action(self, state, env, episode):
         if random.random() < self.eps:
             action = env.get_random_action()
@@ -68,11 +80,9 @@ class SARSA(BaseAgent):
             q_vals = torch.tensor(self.q_table[int(state.item())])
             return torch.argmax(q_vals).unsqueeze(0).detach()
 
-
     def select_test_action(self, state, env):
         q_vals = torch.tensor(self.q_table[int(state.item())])
         return torch.argmax(q_vals).unsqueeze(0).detach()
-
 
     def update_parameters_per_episode(self, episode):
         if episode == 0:
@@ -80,7 +90,6 @@ class SARSA(BaseAgent):
         else:
             self.eps *= self.eps_decay
             self.eps = max(self.eps, self.eps_min)
-
 
 
 if __name__ == "__main__":
@@ -92,16 +101,16 @@ if __name__ == "__main__":
     # generate environment
     env_fac = EnvFactory(config)
     real_env = env_fac.generate_real_env()
-    #virtual_env = env_fac.generate_virtual_env()
+    # virtual_env = env_fac.generate_virtual_env()
 
     timing = []
     reward_list_len = []
-    for i in range(100):
+    for i in range(20):
         sarsa = SARSA(env=real_env,
-                      config=config)
+                      config=config,
+                      count_based=False)
         reward_list_train, episode_length_list_train, _ = sarsa.train(env=real_env, time_remaining=500)
         reward_list, _, replay_buffer = sarsa.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
         print(len(reward_list_train))
         print(sum(episode_length_list_train))
-

@@ -29,7 +29,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='beta', lower=0.001, upper=1.0, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='beta', lower=0.0001, upper=2, log=True, default_value=0.1))
 
         return cs
 

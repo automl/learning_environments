@@ -27,7 +27,7 @@ agents:
 
   ql:
     train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 1                  # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to evaluate
     init_episodes: !!int 0                  # number of episodes to prevent an early out
     batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 1.                       # Q-Learning update factor
@@ -37,14 +37,14 @@ agents:
     eps_decay: !!float 0.0                  # random action decay factor
     rb_size: !!int 1                        # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
-    beta: !!float 0.1                       # beta parameter for count-based exploration, only used if count_based is True
+    beta: !!float 0.005                      # beta parameter for count-based exploration, only used if count_based is True
     print_rate: 100                         # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
   sarsa:
     train_episodes: !!int 200               # maximum number of episodes to optimize
-    test_episodes: !!int 1                  # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to evaluate
     init_episodes: !!int 5                  # number of episodes to prevent an early out
     batch_size: !!int 1                     # batch size when running a policy update step -> keep at 1
     alpha: !!float 0.99                     # Q-Learning update factor
@@ -54,9 +54,10 @@ agents:
     eps_decay: !!float 0.0                  # random action decay factor
     rb_size: !!int 1                        # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
+    beta: !!float 0.008                     # beta parameter for count-based exploration, only used if count_based is True
     print_rate: 100                         # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
-    early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
 envs:
   EmptyRoom22:

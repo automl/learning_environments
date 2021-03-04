@@ -56,9 +56,11 @@ def select_agent(config, agent_name):
     elif agent_name == "ql":
         return QL(env=dummy_env, config=config)
     elif agent_name == "ql_cb":
-        return QL(env=dummy_env, count_based=True, config=config)
+        return QL(env=dummy_env, config=config, count_based=True)
     elif agent_name == "sarsa":
         return SARSA(env=dummy_env, config=config)
+    elif agent_name == "sarsa_cb":
+        return SARSA(env=dummy_env, config=config, count_based=True)
     else:
         raise NotImplementedError("Unknownn RL agent")
 

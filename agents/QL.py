@@ -29,8 +29,9 @@ class QL(BaseAgent):
 
         if self.count_based:
             self.beta = ql_config["beta"]
+            print("beta: ", self.beta)
             self.visitation_table = np.zeros((self.state_dim, self.action_dim))  # n(s,a)
-            self.visitation_table_triple = np.zeros((self.state_dim, self.action_dim, self.state_dim))  # n(s,a,s')
+            # self.visitation_table_triple = np.zeros((self.state_dim, self.action_dim, self.state_dim))  # n(s,a,s')
             # self.r_hat = np.zeros((self.state_dim, self.action_dim))
             self.t_hat = np.zeros((self.state_dim, self.action_dim, self.state_dim))
 
@@ -64,8 +65,8 @@ class QL(BaseAgent):
                 # reward += intrinsic_reward
                 # t = sum(self.t_hat[state][action])
                 # self.q_table[state][action] = reward + self.gamma * t * max(self.q_table[next_state]) * (done < 0.5)
-
             # else:
+
             delta = reward + self.gamma * max(self.q_table[next_state]) * (done < 0.5) - self.q_table[state][action]
             self.q_table[state][action] += self.alpha * delta
 
