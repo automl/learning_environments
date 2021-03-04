@@ -73,8 +73,8 @@ def train_test_agents(mode, env, real_env, config):
 
     config['agents']['sarsa']['alpha'] = 1.0
     config['agents']['sarsa']['eps_decay'] = 0.0
-    config['agents']['sarsa']['eps_init'] = 0.1
-    config['agents']['sarsa']['eps_min'] = 0.1
+    config['agents']['sarsa']['eps_init'] = 0.01
+    config['agents']['sarsa']['eps_min'] = 0.01
     config['agents']['sarsa']['gamma'] = 0.8
     config['agents']['sarsa']['same_action_num'] = 1
     config['agents']['sarsa']['rb_size'] = 1  # custom to reward env and gridworld
@@ -85,7 +85,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['sarsa']['early_out_virtual_diff'] = 0.02
 
     # for count-based q-learning
-    config['agents']['sarsa']['beta'] = 0.005
+    config['agents']['sarsa']['beta'] = 0.01  # 0.005
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

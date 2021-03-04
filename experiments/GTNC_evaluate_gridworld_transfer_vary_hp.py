@@ -115,14 +115,17 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ql']['rb_size'] = 1  # custom to reward env and gridworld
     config['agents']['ql']['init_episodes'] = 0
     config['agents']['ql']['batch_size'] = 1
+    config['agents']['ql']['beta'] = 0.005
 
     config['agents']['ql']['early_out_num'] = 10
     config['agents']['ql']['early_out_virtual_diff'] = 0.02
 
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
-        
-        agent = select_agent(config=config_mod, agent_name='ql')
+        if mode == '-1':
+            agent = select_agent(config=config, agent_name='ql_cb')
+        else:
+            agent = select_agent(config=config_mod, agent_name='ql')
         reward, episode_length, _ = agent.train(env=env, test_env=real_env)
         rewards.append(reward)
         episode_lengths.append(episode_length)
@@ -173,28 +176,13 @@ def eval_base(mode, log_dir):
     save_list(mode, config, reward_list, episode_length_list)
 
 
-def eval_icm(mode, log_dir):
-    best_models = get_best_models_from_log(log_dir)
-
-    reward_list = []
-    episode_length_list = []
-
-    for i in range(MODEL_NUM):
-        reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
-        reward_list += rewards
-        episode_length_list += episode_lengths
-
-    save_list(mode, config, reward_list, episode_length_list)
-
-
 if __name__ == "__main__":
 
     for arg in sys.argv[1:]:
         print(arg)
     mode = str(sys.argv[1])
 
-    if mode == '0':
+    if mode == '0' or mode == '-1':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])

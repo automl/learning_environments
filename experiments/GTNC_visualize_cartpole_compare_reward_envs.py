@@ -13,16 +13,6 @@ LOG_FILES = [
              '../results/cartpole_compare_reward_envs/best-1.pt'
              ]
 
-# LOG_FILES = [
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best1.pt',
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best2.pt',
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best5.pt',
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best6.pt',
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best0.pt',
-#              '../results/cartpole_compare_reward_envs_5000_train_eps/best-1.pt'
-#              ]
-
-
 LEGEND = [
         'DDQN + exc. pot. RN',
         'DDQN + add. pot. RN',
