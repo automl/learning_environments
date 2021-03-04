@@ -6,7 +6,7 @@ from models.model_utils import build_nn_from_config
 
 
 class ICMModel(nn.Module):
-    def __init__(self, state_dim, action_dim, feature_dim=64):
+    def __init__(self, state_dim, action_dim, feature_dim=64, hidden_size=128):
         super(ICMModel, self).__init__()
 
         self.state_dim = state_dim
@@ -14,22 +14,22 @@ class ICMModel(nn.Module):
         self.feature_dim = feature_dim
 
         nn_features_config = {
-                'hidden_size': 128,
+                'hidden_size': hidden_size,
                 'hidden_layer': 2,
                 'activation_fn': 'leakyrelu'
                 }
         nn_inverse_config = {
-                'hidden_size': 128,
+                'hidden_size': hidden_size,
                 'hidden_layer': 2,
                 'activation_fn': 'relu'
                 }
         nn_forward_pre_config = {
-                'hidden_size': 128,
+                'hidden_size': hidden_size,
                 'hidden_layer': 2,
                 'activation_fn': 'leakyrelu'
                 }
         nn_forward_post_config = {
-                'hidden_size': 128,
+                'hidden_size': hidden_size,
                 'hidden_layer': 1,
                 'activation_fn': 'identity'
                 }
@@ -95,9 +95,9 @@ class ICMModel(nn.Module):
 class ICM:
     """ Intrinsic Curiosity Module """
 
-    def __init__(self, state_dim, action_dim, feature_dim=64, learning_rate=1e-4, beta=.2, eta=.5, device="cpu"):
+    def __init__(self, state_dim, action_dim, feature_dim=64, hidden_size=128, learning_rate=1e-4, beta=.2, eta=.5, device="cpu"):
         self.device = device
-        self.model = ICMModel(state_dim=state_dim, action_dim=action_dim, feature_dim=feature_dim).to(self.device)
+        self.model = ICMModel(state_dim=state_dim, action_dim=action_dim, feature_dim=feature_dim, hidden_size=hidden_size).to(self.device)
         self.beta = beta
         self.lr = learning_rate
         self.eta = eta

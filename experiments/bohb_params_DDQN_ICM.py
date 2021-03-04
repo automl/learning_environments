@@ -29,10 +29,11 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='learning_rate', lower=1e-4, upper=1e-1, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='learning_rate', lower=1e-4, upper=1e-1, log=True, default_value=1e-4))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='beta', lower=0.1, upper=1.0, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='eta', lower=0.1, upper=1.0, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='feature_dim', lower=32, upper=256, log=True, default_value=64))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=32, upper=256, log=True, default_value=128))
 
         return cs
 
@@ -43,6 +44,7 @@ class ExperimentWrapper():
         config["agents"]["icm"]["beta"] = cso["beta"]
         config["agents"]["icm"]["eta"] = cso["eta"]
         config["agents"]["icm"]["feature_dim"] = cso["feature_dim"]
+        config["agents"]["icm"]["hidden_size"] = cso["hidden_size"]
 
         return config
 

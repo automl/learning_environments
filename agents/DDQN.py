@@ -39,8 +39,21 @@ class DDQN(BaseAgent):
 
         self.icm = None
         if icm:
+            icm_config = config["agents"]["icm"]
+            self.icm_lr = icm_config["learning_rate"]
+            self.icm_beta = icm_config["beta"]
+            self.icm_eta = icm_config["eta"]
+            self.icm_feature_dim = icm_config["feature_dim"]
+            self.icm_hidden_dim = icm_config["hidden_size"]
             actual_action_dim = len(env.get_random_action())
-            self.icm = ICM(state_dim=self.state_dim, action_dim=actual_action_dim, device=self.device)
+            self.icm = ICM(state_dim=self.state_dim,
+                           action_dim=actual_action_dim,
+                           learning_rate=self.icm_lr,
+                           beta=self.icm_beta,
+                           eta=self.icm_eta,
+                           feature_dim=self.icm_feature_dim,
+                           hidden_size=self.icm_hidden_dim,
+                           device=self.device)
 
     def learn(self, replay_buffer, env, episode):
         self.it += 1
