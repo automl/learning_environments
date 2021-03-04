@@ -1,9 +1,8 @@
 import os
 import sys
 
-import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import torch
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -19,6 +18,7 @@ LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
+
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -40,7 +40,7 @@ def get_best_models_from_log(log_dir):
             continue
 
     best_models.sort(key=lambda x: x[0])
-    #best_models.sort(key=lambda x: x[0], reverse=True)
+    # best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -50,7 +50,7 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    #config['device'] = 'cuda'
+    # config['device'] = 'cuda'
     config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
@@ -141,31 +141,13 @@ def eval_base(mode, log_dir):
     save_list(mode, config, reward_list, episode_length_list)
 
 
-def eval_count_based(mode, log_dir):
-    best_models = get_best_models_from_log(log_dir)
-
-    reward_list = []
-    episode_length_list = []
-
-    for i in range(MODEL_NUM):
-        reward_env, real_env, config = load_envs_and_config(best_models[0][1])
-        rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
-        reward_list += rewards
-        episode_length_list += episode_lengths
-
-    save_list(mode, config, reward_list, episode_length_list)
-
-
 if __name__ == "__main__":
 
     for arg in sys.argv[1:]:
         print(arg)
     mode = str(sys.argv[1])
 
-    if mode == '0':
+    if mode == '0' or mode == '-1':
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
-    elif mode == '-1':
-        eval_count_based(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-
