@@ -74,7 +74,7 @@ agents:
 
   td3_discrete_vary:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -98,7 +98,7 @@ agents:
 
   td3_discrete_vary_layer_norm_2:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor

@@ -40,7 +40,7 @@ class DDQN(BaseAgent):
         self.icm = None
         if icm:
             icm_config = config["agents"]["icm"]
-            self.icm_lr = icm_config["learning_rate"]
+            self.icm_lr = icm_config["lr"]
             self.icm_beta = icm_config["beta"]
             self.icm_eta = icm_config["eta"]
             self.icm_feature_dim = icm_config["feature_dim"]

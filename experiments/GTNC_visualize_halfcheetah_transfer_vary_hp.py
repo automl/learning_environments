@@ -14,7 +14,7 @@ LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-             # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+             # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',  # running
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
              ]

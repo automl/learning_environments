@@ -83,6 +83,16 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['hidden_layer'] = 1
     config['agents']['ddqn']['rb_size'] = 1000000
     config['agents']['ddqn']['init_episodes'] = 1
+    config['agents']['ddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
+    config['agents']['ddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
+
+    # icm
+    config['agents']['icm'] = {}
+    config['agents']['icm']['beta'] = 0.1
+    config['agents']['icm']['eta'] = 0.1
+    config['agents']['icm']['feature_dim'] = 32
+    config['agents']['icm']['hidden_size'] = 128
+    config['agents']['icm']['learning_rate'] = 1e-4
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

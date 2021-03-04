@@ -5,12 +5,12 @@ import numpy as np
 import torch
 
 LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',  # running
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',  # running
+        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',  # running
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',  # running
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'  # running
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'  # running
         ]
 
 # LOG_FILES = [
@@ -23,17 +23,17 @@ LOG_FILES = [
 #             ]
 
 LEGEND = [
-        'TD3 + exc. pot. RN',
+        # 'TD3 + exc. pot. RN',
         'TD3 + add. pot. RN',
         'TD3 + exc. non-pot. RN',
         'TD3 + add. non-pot. RN',
         'TD3',
-        'TD3 + ICM',
+        # 'TD3 + ICM',
         ]
 
 STD_MULT = 0.2
 # MIN_STEPS = 100000
-MIN_STEPS = 200000
+MIN_STEPS = 250000
 
 def get_data():
     list_data = []

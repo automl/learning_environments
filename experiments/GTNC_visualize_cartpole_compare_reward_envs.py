@@ -4,27 +4,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# LOG_FILES = [
-#              '../results/cartpole_compare_reward_envs/best1.pt',
-#              '../results/cartpole_compare_reward_envs/best2.pt',
-#              '../results/cartpole_compare_reward_envs/best5.pt',
-#              '../results/cartpole_compare_reward_envs/best6.pt',
-#              '../results/cartpole_compare_reward_envs/best0.pt',
-#              '../results/cartpole_compare_reward_envs/best-1.pt'
-#              ]
-
 LOG_FILES = [
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best1.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best2.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best5.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best6.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best0.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best-1.pt'
+             '../results/cartpole_compare_reward_envs/best1.pt',
+             '../results/cartpole_compare_reward_envs/best2.pt',
+             '../results/cartpole_compare_reward_envs/best5.pt',
+             '../results/cartpole_compare_reward_envs/best6.pt',
+             '../results/cartpole_compare_reward_envs/best0.pt',
+             '../results/cartpole_compare_reward_envs/best-1.pt'
              ]
 
+# LOG_FILES = [
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best1.pt',
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best2.pt',
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best5.pt',
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best6.pt',
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best0.pt',
+#              '../results/cartpole_compare_reward_envs_5000_train_eps/best-1.pt'
+#              ]
+
+
+LEGEND = [
+        'DDQN + exc. pot. RN',
+        'DDQN + add. pot. RN',
+        'DDQN + exc. non-pot. RN',
+        'DDQN + add. non-pot. RN',
+        'DDQN',
+        'DDQN + ICM',
+        ]
 
 STD_MULT = 0.2
-MIN_STEPS = 10000
+MIN_STEPS = 50000
 
 
 def get_data():
@@ -50,6 +59,7 @@ def get_data():
 
     print("# of episode lens > MIN_STEPS: ", sum(np.asarray(sums_eps_len) >= MIN_STEPS))
     print("# of episode lens < MIN_STEPS: ", sum(np.asarray(sums_eps_len) < MIN_STEPS))
+    min_steps = max(min_steps, MIN_STEPS)
     # convert data from episodes to steps
     proc_data = []
 
@@ -64,6 +74,9 @@ def get_data():
 
             for i in range(len(episode_lengths)):
                 concat_list += [rewards[i]] * episode_lengths[i]
+
+            while len(concat_list) < min_steps:
+                concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
@@ -84,8 +97,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('DDQN + exc. pot. RN', 'DDQN + add. pot. RN', 'DDQN + exc. non-pot. RN', 'DDQN + add. non-pot. RN', 'DDQN', 'DDQN + ICM'),
-               fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('CartPole-v0')
     plt.xlabel('steps')

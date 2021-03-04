@@ -84,7 +84,7 @@ class SARSA(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_gridworld.yaml", "r") as stream:
+    with open("../default_config_gridworld_reward_env.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)
@@ -95,9 +95,13 @@ if __name__ == "__main__":
     #virtual_env = env_fac.generate_virtual_env()
 
     timing = []
+    reward_list_len = []
     for i in range(100):
         sarsa = SARSA(env=real_env,
                       config=config)
-        sarsa.train(env=real_env, time_remaining=500)
+        reward_list_train, episode_length_list_train, _ = sarsa.train(env=real_env, time_remaining=500)
         reward_list, _, replay_buffer = sarsa.test(env=real_env, time_remaining=500)
+        reward_list_len.append(len(reward_list_train))
+        print(len(reward_list_train))
+        print(sum(episode_length_list_train))
 

@@ -27,7 +27,7 @@ agents:
 
   td3:
     train_episodes: !!int 70                # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 20                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -48,7 +48,7 @@ agents:
 
   ppo:
     train_episodes: !!int 10000             # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 0                  # number of episodes to fill the replay buffer
     update_episodes: !!float 20             # update policy every x episodes (can be float)
     ppo_epochs: !!int 100                   # update policy for x epochs

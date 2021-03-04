@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import yaml
 
-from agents.DDQN import DDQN
+from agents.TD3 import TD3
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 from envs.env_factory import EnvFactory
 
@@ -49,7 +49,7 @@ class ExperimentWrapper():
         return config
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_cartpole.yaml", 'r') as stream:
+        with open("default_config_cmc.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -66,10 +66,10 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
-        ddqn = DDQN(env=env,
-                    config=config,
-                    icm=True)
-        rewards, _, _ = ddqn.train(env)
+        td3 = TD3(env=env,
+                config=config,
+                icm=True)
+        rewards, _, _ = td3.train(env)
         score = len(rewards)
 
         info['config'] = str(config)
@@ -87,7 +87,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_DDQN_ICM_cartpole_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_td3_icm_cmc_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

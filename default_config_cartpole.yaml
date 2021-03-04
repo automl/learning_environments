@@ -49,10 +49,10 @@ agents:
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
   icm:
-    learning_rate: !!float 1e-4             # learning rate
+    lr: !!float 1e-4                       # learning rate
     beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
     eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
-    feature_dim: !!int 64                  # feature dimension of features model
+    feature_dim: !!int 64                   # feature dimension of features model
     hidden_size: !!int 128                  # size of all ICM sub-network layers
 
   duelingddqn_vary:
@@ -81,7 +81,7 @@ agents:
 
   td3_discrete_vary:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -105,7 +105,7 @@ agents:
 
   td3_discrete_vary_layer_norm:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -130,7 +130,7 @@ agents:
 
   td3_discrete_vary_layer_norm_2:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -155,7 +155,7 @@ agents:
 
   td3_discrete_vary_tanh:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -179,7 +179,7 @@ agents:
 
   td3_discrete_vary_tanh_2:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -203,7 +203,7 @@ agents:
 
   td3_discrete_vary_tanh_3:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor

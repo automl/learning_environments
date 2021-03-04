@@ -179,6 +179,7 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     config['envs']['HalfCheetah-v3']['solved_reward'] = 10000
+    # config['envs']['MountainCarContinuous-v0']['solved_reward'] = 10000
 
     # generate environment
     env_fac = EnvFactory(config)

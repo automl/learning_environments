@@ -5,7 +5,7 @@ render_env: !!bool False                     # render environment
 agents:
   td3:
     train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  210                  # batch size when running a policy update step
     gamma: !!float 0.985                    # discount factor

@@ -120,7 +120,7 @@ if __name__ == "__main__":
     for i in range(20):
         ql = QL(env=real_env,
                 config=config,
-                count_based=True)
+                count_based=False)
         reward_list_train, episode_length_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=5000)
         reward_list_test, episode_length_list_test, _ = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best_transfer_algo1.pt',  # running
+        '../results/cmc_compare_reward_envs/best_transfer_algo1.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo2.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
@@ -24,7 +24,7 @@ LEGEND = [
 
 STD_MULT = .2
 # STD_MULT = 1.
-MIN_STEPS = 200000
+MIN_STEPS = 500000
 
 def get_data():
     list_data = []

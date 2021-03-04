@@ -3,25 +3,35 @@ import numpy as np
 import torch
 import os
 
-# LOG_FILES = [
-#              '../results/cartpole_compare_reward_envs/best_transfer_algo1.pt',
-#              '../results/cartpole_compare_reward_envs/best_transfer_algo2.pt',
-#              '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-#              '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
-#              '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt'
-#              ]
+LOG_FILES = [
+             '../results/cartpole_compare_reward_envs/best_transfer_algo1.pt',
+             '../results/cartpole_compare_reward_envs/best_transfer_algo2.pt',
+             '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
+             '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
+             '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt',
+             # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt'  # running
+             ]
 
 LOG_FILES = [
              '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo1.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo2.pt',
+             # '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo2.pt',
              '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo5.pt',
              '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo6.pt',
-             '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo0.pt'
+             # '../results/cartpole_compare_reward_envs_5000_train_eps/best_transfer_algo0.pt'
              ]
+
+LEGEND = [
+        'Duel.-DDQN + exc. pot. RN',
+        # 'Duel.-DDQN + add. pot. RN',
+        'Duel.-DDQN + exc. non-pot. RN',
+        'Duel.-DDQN + add. non-pot. RN',
+        'Duel.-DDQN',
+        # 'Duel.-DDQN + ICM'
+        ]
 
 
 STD_MULT = 0.2
-MIN_STEPS = 10000
+MIN_STEPS = 50000
 
 
 def get_data():
@@ -82,8 +92,7 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(('Duel.-DDQN + exc. pot. RN', 'Duel.-DDQN + add. pot. RN', 'Duel.-DDQN + exc. non-pot. RN', 'Duel.-DDQN + add. non-pot. RN',
-                'Duel.-DDQN'), fontsize=7)
+    plt.legend(LEGEND, fontsize=7)
 
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)

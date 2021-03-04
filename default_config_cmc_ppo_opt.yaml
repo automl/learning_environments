@@ -5,7 +5,7 @@ render_env: !!bool False                    # render environment
 agents:
   ppo:
     train_episodes: !!int 10000             # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
     init_episodes: !!int 0                  # number of episodes to fill the replay buffer
     update_episodes: !!float 1              # update policy every x episodes (can be float)
     ppo_epochs: !!int 152                   # update policy for x epochs

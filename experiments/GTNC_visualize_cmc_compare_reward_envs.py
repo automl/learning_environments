@@ -10,7 +10,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best5.pt',
         '../results/cmc_compare_reward_envs/best6.pt',
         '../results/cmc_compare_reward_envs/best0.pt',
-        # '../results/cmc_compare_reward_envs/best-1.pt' # 3k eps running
+        '../results/cmc_compare_reward_envs/best-1.pt'
         ]
 
 LEGEND = [
@@ -19,12 +19,12 @@ LEGEND = [
         'TD3 + exc. non-pot. RN',
         'TD3 + add. non-pot. RN',
         'TD3',
-        # 'TD3 + ICM',
+        'TD3 + ICM',
         ]
 
 STD_MULT = 0.2
 # STD_MULT = 1.
-MIN_STEPS = 250000
+MIN_STEPS = 200000
 
 
 # MIN_STEPS = 150000

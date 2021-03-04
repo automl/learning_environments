@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = ['../results/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt']
+LOG_FILES = [
+             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+             '../results/thomas_results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt'
+             ]
 
 STD_MULT = 0.2
 MIN_STEPS = 3000

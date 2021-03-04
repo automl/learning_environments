@@ -14,7 +14,7 @@ LOG_FILES = [
         '../results/halfcheetah_compare_reward_envs/best7.pt',
         '../results/halfcheetah_compare_reward_envs/best8.pt',
         '../results/halfcheetah_compare_reward_envs/best0.pt',
-        # '../results/halfcheetah_compare_reward_envs/best-1.pt',
+        '../results/halfcheetah_compare_reward_envs/best-1.pt',
         '../results/halfcheetah_compare_reward_envs/best101.pt',
         '../results/halfcheetah_compare_reward_envs/best102.pt'
         ]
@@ -29,7 +29,7 @@ LEGEND = [
         'TD3 + exc. non-pot. RN + augm.',
         'TD3 + add. non-pot. RN + augm.',
         'TD3',
-        # 'TD3 + ICM',
+        'TD3 + ICM',
         'TD3 + exc. ER',
         'TD3 + add. ER',
         ]

@@ -44,7 +44,20 @@ class TD3(BaseAgent):
 
         self.icm = None
         if icm:
-            self.icm = ICM(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device)
+            icm_config = config["agents"]["icm"]
+            self.icm_lr = icm_config["lr"]
+            self.icm_beta = icm_config["beta"]
+            self.icm_eta = icm_config["eta"]
+            self.icm_feature_dim = icm_config["feature_dim"]
+            self.icm_hidden_dim = icm_config["hidden_size"]
+            self.icm = ICM(state_dim=self.state_dim,
+                           action_dim=self.action_dim,
+                           learning_rate=self.icm_lr,
+                           beta=self.icm_beta,
+                           eta=self.icm_eta,
+                           feature_dim=self.icm_feature_dim,
+                           hidden_size=self.icm_hidden_dim,
+                           device=self.device)
 
     def learn(self, replay_buffer, env, episode):
         self.total_it += 1
@@ -122,7 +135,7 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cmc.yaml", "r") as stream:
+    with open("../default_config_halfcheetah.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     print(config)
     # generate environment
