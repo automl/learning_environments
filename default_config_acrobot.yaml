@@ -31,7 +31,7 @@ agents:
   ddqn:
     train_episodes: !!int 1000              # maximum number of episodes to train
     test_episodes: !!int 10                 # maximum number of episodes to test
-    init_episodes: !!int 10                 # number of episodes to fill the replay buffer
+    init_episodes: !!int 1                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                   # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 1e-3                        # learning rate

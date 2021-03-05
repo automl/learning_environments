@@ -45,9 +45,8 @@ class DDQN(BaseAgent):
             self.icm_eta = icm_config["eta"]
             self.icm_feature_dim = icm_config["feature_dim"]
             self.icm_hidden_dim = icm_config["hidden_size"]
-            actual_action_dim = len(env.get_random_action())
             self.icm = ICM(state_dim=self.state_dim,
-                           action_dim=actual_action_dim,
+                           action_dim=self.action_dim,
                            has_discrete_actions=env.has_discrete_action_space(),
                            learning_rate=self.icm_lr,
                            beta=self.icm_beta,
@@ -139,6 +138,6 @@ if __name__ == "__main__":
         # ddqn.train(env=virt_env, time_remaining=50)
 
         print('TRAIN')
-        ddqn.train(env=real_env, time_remaining=500)
+        reward, episode_length, _ = ddqn.train(env=real_env, test_env=real_env)
         print('TEST')
         ddqn.test(env=real_env, time_remaining=500)

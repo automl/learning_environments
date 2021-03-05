@@ -53,6 +53,7 @@ class PPO(BaseAgent):
             self.icm_hidden_dim = icm_config["hidden_size"]
             self.icm = ICM(state_dim=self.state_dim,
                            action_dim=self.action_dim,
+                           actual_action_dim=None,
                            has_discrete_actions=env.has_discrete_action_space(),
                            learning_rate=self.icm_lr,
                            beta=self.icm_beta,

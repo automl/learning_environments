@@ -30,8 +30,8 @@ agents:
 
   ddqn:
     train_episodes: !!int 1000              # maximum number of episodes to train
-    test_episodes: !!int 10                 # maximum number of episodes to test
-    init_episodes: !!int 10                 # number of episodes to fill the replay buffer
+    test_episodes: !!int 1                 # maximum number of episodes to test
+    init_episodes: !!int 1                 # number of episodes to fill the replay buffer
     batch_size: !!int 32                   # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
     lr: !!float 0.00025                        # learning rate
@@ -39,12 +39,12 @@ agents:
     eps_init: !!float 1                     # initial random action percentage
     eps_min: !!float 0.1                   # final random action percentage
     eps_decay: !!float 0.9                  # random action decay factor
-    rb_size: !!int 100000                   # size of the replay buffer
+    rb_size: !!int 1000000                   # size of the replay buffer
     same_action_num: !!int 1                # how often to perform the same action subsequently
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 64                  # size of the actor/critic hidden layer
     hidden_layer: !!int 1                   # number of hidden layers
-    print_rate: 10                          # update rate of avg meters
+    print_rate: 100                          # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
@@ -227,7 +227,7 @@ agents:
 
 envs:
   CartPole-v0:
-    solved_reward: !!float 195              # used for early out in RL agent training
+    solved_reward: !!float 10000              # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment

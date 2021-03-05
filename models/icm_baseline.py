@@ -6,7 +6,7 @@ from models.model_utils import build_nn_from_config
 
 
 class ICMModel(nn.Module):
-    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128):
+    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128, ):
         super(ICMModel, self).__init__()
 
         self.state_dim = state_dim
@@ -32,16 +32,23 @@ class ICMModel(nn.Module):
         nn_forward_post_config = {
                 'hidden_size': hidden_size,
                 'hidden_layer': 1,
-                'activation_fn': "identity"
+                'activation_fn': "leakyrelu"
                 }
 
-        self.features_model = build_nn_from_config(input_dim=state_dim, output_dim=feature_dim, nn_config=nn_features_config)
-        self.inverse_model = build_nn_from_config(input_dim=feature_dim * 2, output_dim=action_dim, nn_config=nn_inverse_config)
+        if self.has_discrete_actions and self.action_dim == 2:
+            action_dim = 1
+
+        self.features_model = build_nn_from_config(input_dim=state_dim,
+                                                   output_dim=feature_dim,
+                                                   nn_config=nn_features_config)
+
+        self.inverse_model = build_nn_from_config(input_dim=feature_dim * 2,
+                                                  output_dim=action_dim,
+                                                  nn_config=nn_inverse_config)
 
         self.forward_pre_model = build_nn_from_config(input_dim=action_dim + feature_dim,
                                                       output_dim=feature_dim,
-                                                      nn_config=nn_forward_pre_config
-                                                      )
+                                                      nn_config=nn_forward_pre_config)
 
         class ResidualBlock(nn.Module):
             def __init__(self, input_dim, output_dim):
@@ -78,8 +85,6 @@ class ICMModel(nn.Module):
         # get predicted action from inverse model
         state_next_state_concat = torch.cat((state_encoded, next_state_encoded), 1)
         action_pred = self.inverse_model(state_next_state_concat)
-        if self.has_discrete_actions:
-            action_pred = F.softmax(action_pred, dim=1)
 
         # get predicted next state encoding from forward model with residual connections
         forward_model_input = torch.cat([state_encoded, action], 1)
@@ -98,12 +103,27 @@ class ICMModel(nn.Module):
 class ICM:
     """ Intrinsic Curiosity Module """
 
-    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128, learning_rate=1e-4, beta=.2, eta=.5,
-                 device="cpu"):
+    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128, learning_rate=1e-4,
+                 beta=.2, eta=.5, device="cpu"):
+
         self.device = device
+        self.action_dim = action_dim
         self.has_discrete_actions = has_discrete_actions
-        self.model = ICMModel(state_dim=state_dim, action_dim=action_dim, has_discrete_actions=has_discrete_actions,
-                              feature_dim=feature_dim, hidden_size=hidden_size).to(self.device)
+
+        if self.has_discrete_actions:
+            if self.action_dim == 2:
+                self.action_criterion = nn.BCEWithLogitsLoss()
+            else:
+                self.action_criterion = nn.CrossEntropyLoss()
+        else:
+            self.action_criterion = nn.MSELoss()
+
+        self.model = ICMModel(state_dim=state_dim,
+                              action_dim=action_dim,
+                              has_discrete_actions=has_discrete_actions,
+                              feature_dim=feature_dim,
+                              hidden_size=hidden_size).to(self.device)
+
         self.beta = beta
         self.lr = learning_rate
         self.eta = eta
@@ -112,13 +132,25 @@ class ICM:
         self.icm_optimizer = torch.optim.Adam(icm_params, lr=self.lr)
 
     def train(self, states, next_states, actions):
-        if len(actions.shape) == 1:
+        # necessary for 2d action spaces but which are actually 1d (e.g. CartPole)
+        if len(actions.shape) == 1 and self.action_dim == 2:
             actions = actions.unsqueeze(dim=1)
-        next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(states, next_states, actions))
+
+        # necessary since cross entropy needs one hot encoding when action space is discrete and action_dim > 2
+        if self.has_discrete_actions and self.action_dim > 2:
+            actions = actions.to(torch.long)
+            actions_inp = torch.nn.functional.one_hot(actions.to(torch.long))
+        else:
+            actions_inp = actions
+
+        next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(states, next_states, actions_inp))
 
         # compute ICM loss
-        icm_loss = (1 - self.beta) * F.mse_loss(actions_pred, actions) + self.beta * F.mse_loss(next_states_encoded,
-                                                                                                next_states_pred_encoded)
+        icm_loss = (1 - self.beta) * self.action_criterion(actions_pred, actions) + self.beta * F.mse_loss(next_states_pred_encoded,
+                                                                                                           next_states_encoded)
+
+        # print("action loss: ", self.action_criterion(actions_pred, actions).data.cpu().numpy(),
+        #       "state loss: ", F.mse_loss(next_states_encoded, next_states_pred_encoded).data.cpu().numpy())
 
         # Optimize ICM
         self.icm_optimizer.zero_grad()
@@ -126,8 +158,15 @@ class ICM:
         self.icm_optimizer.step()
 
     def compute_intrinsic_rewards(self, state, next_state, action):
-        if len(action.shape) == 1:
+        # necessary for 2d action spaces but which are actually 1d (e.g. CartPole)
+        if len(action.shape) == 1 and self.action_dim == 2:
             action = action.unsqueeze(dim=1)
-        next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(state, next_state, action))
+
+        if self.has_discrete_actions and self.action_dim != 2:
+            actions_inp = torch.nn.functional.one_hot(action.to(torch.long))
+        else:
+            actions_inp = action
+
+        next_states_encoded, next_states_pred_encoded, actions_pred = self.model(input=(state, next_state, actions_inp))
         intrinsic_reward = self.eta * F.mse_loss(next_states_encoded, next_states_pred_encoded, reduction="none").mean(-1)
         return intrinsic_reward.detach().unsqueeze(dim=1)

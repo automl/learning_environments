@@ -9,7 +9,7 @@ LOG_FILES = [
              '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt',
-             # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt'  # running
+             '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt'
              ]
 
 LEGEND = [
