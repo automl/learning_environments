@@ -92,6 +92,9 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['rb_size'] = 1000000
     config['agents']['td3']['init_episodes'] = 20  # set via time steps in original td3 implementation
 
+    config['agents']['td3']['early_out_num'] = 50
+    config['agents']['td3']['early_out_virtual_diff'] = 0.02
+
     for i in range(MODEL_AGENTS):
         if mode == '-1':
             agent = select_agent(config=config, agent_name='td3_icm')

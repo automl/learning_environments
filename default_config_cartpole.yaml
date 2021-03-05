@@ -227,7 +227,7 @@ agents:
 
 envs:
   CartPole-v0:
-    solved_reward: !!float 10000              # used for early out in RL agent training
+    solved_reward: !!float 195              # used for early out in RL agent training
     max_steps: !!int 200                    # maximum number of steps per episode
     activation_fn: !!str leakyrelu          # activation function of the virtual environment
     hidden_size: 128                        # size of the hidden layer of the virtual environment

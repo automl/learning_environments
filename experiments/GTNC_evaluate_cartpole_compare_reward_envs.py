@@ -83,6 +83,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['hidden_layer'] = 1
     config['agents']['ddqn']['rb_size'] = 1000000
     config['agents']['ddqn']['init_episodes'] = 1
+
     config['agents']['ddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
     config['agents']['ddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
 

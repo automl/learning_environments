@@ -139,6 +139,9 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['rb_size'] = 1000000
     config['agents']['ddqn']['init_episodes'] = 1
 
+    config['agents']['ddqn']['early_out_num'] = 10
+    config['agents']['ddqn']['early_out_virtual_diff'] = 0.02
+
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
 
