@@ -46,19 +46,14 @@ class DDQN(BaseAgent):
             self.icm_feature_dim = icm_config["feature_dim"]
             self.icm_hidden_dim = icm_config["hidden_size"]
             actual_action_dim = len(env.get_random_action())
-            self.icm_act_1 = icm_config["act_1"]
-            self.icm_act_2 = icm_config["act_2"]
-            self.icm_act_3 = icm_config["act_3"]
             self.icm = ICM(state_dim=self.state_dim,
                            action_dim=actual_action_dim,
+                           has_discrete_actions=env.has_discrete_action_space(),
                            learning_rate=self.icm_lr,
                            beta=self.icm_beta,
                            eta=self.icm_eta,
                            feature_dim=self.icm_feature_dim,
                            hidden_size=self.icm_hidden_dim,
-                           act_1=self.icm_act_1,
-                           act_2=self.icm_act_2,
-                           act_3=self.icm_act_3,
                            device=self.device)
 
     def learn(self, replay_buffer, env, episode):

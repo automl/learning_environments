@@ -44,9 +44,16 @@ agents:
     activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
     hidden_size: !!int 128                  # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
-    print_rate: 1                           # update rate of avg meters
+    print_rate: 10                           # update rate of avg meters
     early_out_num: 10                       # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
+
+  icm:
+    lr: !!float 1e-4                       # learning rate
+    beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
+    eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
+    feature_dim: !!int 32                   # feature dimension of features model
+    hidden_size: !!int 128                  # size of all ICM sub-network layers
 
   duelingddqn_vary:
     vary_hp: !!bool True                    # vary hyperparameters of underlying Dueling DDQN algorithm?

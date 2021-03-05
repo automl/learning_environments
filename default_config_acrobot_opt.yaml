@@ -48,6 +48,13 @@ agents:
     early_out_num: 10                       # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 1e-2    # performance difference for an early out for virtual envs
 
+  icm:
+    lr: !!float 1e-4                       # learning rate
+    beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
+    eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
+    feature_dim: !!int 32                   # feature dimension of features model
+    hidden_size: !!int 128                  # size of all ICM sub-network layers
+
   td3_discrete_vary:
     train_episodes: !!int 1000              # maximum number of episodes to optimize
     test_episodes: !!int 10                 # maximum number of episodes to evaluate

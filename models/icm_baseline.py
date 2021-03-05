@@ -6,32 +6,33 @@ from models.model_utils import build_nn_from_config
 
 
 class ICMModel(nn.Module):
-    def __init__(self, state_dim, action_dim, feature_dim=64, hidden_size=128, act_1="leakyrelu", act_2="relu", act_3="identity"):
+    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128):
         super(ICMModel, self).__init__()
 
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.feature_dim = feature_dim
+        self.has_discrete_actions = has_discrete_actions
 
         nn_features_config = {
                 'hidden_size': hidden_size,
                 'hidden_layer': 2,
-                'activation_fn': act_1
+                'activation_fn': "leakyrelu"
                 }
         nn_inverse_config = {
                 'hidden_size': hidden_size,
                 'hidden_layer': 2,
-                'activation_fn': act_2
+                'activation_fn': "relu"
                 }
         nn_forward_pre_config = {
                 'hidden_size': hidden_size,
                 'hidden_layer': 2,
-                'activation_fn': act_1
+                'activation_fn': "leakyrelu"
                 }
         nn_forward_post_config = {
                 'hidden_size': hidden_size,
                 'hidden_layer': 1,
-                'activation_fn': act_3
+                'activation_fn': "identity"
                 }
 
         self.features_model = build_nn_from_config(input_dim=state_dim, output_dim=feature_dim, nn_config=nn_features_config)
@@ -77,6 +78,8 @@ class ICMModel(nn.Module):
         # get predicted action from inverse model
         state_next_state_concat = torch.cat((state_encoded, next_state_encoded), 1)
         action_pred = self.inverse_model(state_next_state_concat)
+        if self.has_discrete_actions:
+            action_pred = F.softmax(action_pred, dim=1)
 
         # get predicted next state encoding from forward model with residual connections
         forward_model_input = torch.cat([state_encoded, action], 1)
@@ -95,11 +98,12 @@ class ICMModel(nn.Module):
 class ICM:
     """ Intrinsic Curiosity Module """
 
-    def __init__(self, state_dim, action_dim, feature_dim=64, hidden_size=128, learning_rate=1e-4, beta=.2, eta=.5, act_1="leakyrelu",
-                 act_2="relu", act_3="identity", device="cpu"):
+    def __init__(self, state_dim, action_dim, has_discrete_actions, feature_dim=64, hidden_size=128, learning_rate=1e-4, beta=.2, eta=.5,
+                 device="cpu"):
         self.device = device
-        self.model = ICMModel(state_dim=state_dim, action_dim=action_dim, feature_dim=feature_dim, hidden_size=hidden_size, act_1=act_1,
-                              act_2=act_2, act_3=act_3).to(self.device)
+        self.has_discrete_actions = has_discrete_actions
+        self.model = ICMModel(state_dim=state_dim, action_dim=action_dim, has_discrete_actions=has_discrete_actions,
+                              feature_dim=feature_dim, hidden_size=hidden_size).to(self.device)
         self.beta = beta
         self.lr = learning_rate
         self.eta = eta

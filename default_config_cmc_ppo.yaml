@@ -24,6 +24,13 @@ agents:
     early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 0.02    # performance difference for an early out for virtual envs
 
+  icm:
+    lr: !!float 1e-4                        # learning rate
+    beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
+    eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
+    feature_dim: !!int 64                   # feature dimension of features model
+    hidden_size: !!int 128                  # size of all ICM sub-network layers
+
 envs:
   MountainCarContinuous-v0:
     solved_reward: !!float 90               # used for early out in RL agent training
