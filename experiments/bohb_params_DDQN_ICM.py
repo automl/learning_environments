@@ -69,8 +69,14 @@ class ExperimentWrapper():
         ddqn = DDQN(env=env,
                     config=config,
                     icm=True)
-        rewards, _, _ = ddqn.train(env)
-        score = len(rewards)
+
+        score_list = []
+        for _ in range(5):
+            rewards, _, _ = ddqn.train(env)
+            score_i = len(rewards)
+            score_list.append(score_i)
+
+        score = np.mean(score_list)
 
         info['config'] = str(config)
 

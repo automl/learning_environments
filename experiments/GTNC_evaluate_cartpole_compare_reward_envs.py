@@ -93,7 +93,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['icm']['eta'] = 0.1
     config['agents']['icm']['feature_dim'] = 32
     config['agents']['icm']['hidden_size'] = 128
-    config['agents']['icm']['learning_rate'] = 1e-4
+    config['agents']['icm']['lr'] = 1e-4
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':

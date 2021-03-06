@@ -66,12 +66,19 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         env = env_fac.generate_real_env()
 
+
         td3 = TD3(env=env,
                   max_action=env.get_max_action(),
                   config=config,
                   icm=True)
-        rewards, _, _ = td3.train(env)
-        score = len(rewards)
+
+        score_list = []
+        for _ in range(5):
+            rewards, _, _ = td3.train(env)
+            score_i = len(rewards)
+            score_list.append(score_i)
+
+        score = np.mean(score_list)
 
         info['config'] = str(config)
 
