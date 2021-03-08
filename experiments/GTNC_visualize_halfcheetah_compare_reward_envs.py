@@ -36,6 +36,7 @@ LEGEND = [
 
 STD_MULT = .2
 MIN_STEPS = 1000000
+# MIN_STEPS = 200000
 
 
 def get_data():

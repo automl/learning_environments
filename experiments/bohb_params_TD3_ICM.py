@@ -49,7 +49,9 @@ class ExperimentWrapper():
         return config
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_halfcheetah.yaml", 'r') as stream:
+        # with open("default_config_halfcheetah.yaml", 'r') as stream:
+        #     default_config = yaml.safe_load(stream)
+        with open("default_config_cmc.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -72,7 +74,7 @@ class ExperimentWrapper():
                   icm=True)
 
         score_list = []
-        for _ in range(5):
+        for _ in range(10):
             rewards, _, _ = td3.train(env)
             score_i = len(rewards)
             score_list.append(score_i)
@@ -94,7 +96,8 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_td3_icm_hc_' + x.strftime("%Y-%m-%d-%H")
+    # run_id = 'bohb_params_td3_icm_hc_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_td3_icm_cmc_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
