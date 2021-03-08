@@ -404,8 +404,10 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-04-22'
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-05-13'
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-05-13'
-    log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-00'
-    log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-06-00'
+    # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-00'
+    # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-06-00'
+    log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-06-10'
+    # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-10'
     analyze_bohb(log_dir)
 
 
