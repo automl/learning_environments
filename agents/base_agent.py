@@ -66,7 +66,7 @@ class BaseAgent(nn.Module):
         if env.has_discrete_action_space():
             ad = 1
             # in case of td3_discrete, action_dim=1 does not reflect the required action_dim for the gumbel softmax distribution
-            if self.agent_name == "td3_discrete_vary":
+            if "td3_discrete" in self.agent_name:
                 ad = env.get_action_dim()
                 discretize_action = True
         else:

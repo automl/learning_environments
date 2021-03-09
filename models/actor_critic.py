@@ -25,13 +25,14 @@ class Actor_TD3_discrete(nn.Module):
 
         self.net = build_nn_from_config(input_dim=state_dim, output_dim=action_dim, nn_config=config["agents"][agent_name])
         self.max_action = max_action
-        gumbel_softmax_temp = config["agents"][agent_name]["gumbel_softmax_temp"]
-        self.gumbel_softmax_temp = torch.nn.Parameter(torch.tensor(gumbel_softmax_temp), requires_grad=True)
+        # gumbel_softmax_temp = config["agents"][agent_name]["gumbel_softmax_temp"]
+        # self.gumbel_softmax_temp = torch.nn.Parameter(torch.tensor(gumbel_softmax_temp), requires_grad=True)
+        self.gumbel_softmax_temp = config["agents"][agent_name]["gumbel_softmax_temp"]
         self.gumbel_softmax_hard = config["agents"][agent_name]["gumbel_softmax_hard"]
 
-    def forward(self, state):
+    def forward(self, state, tau):
         action = self.net(state) * self.max_action
-        return F.gumbel_softmax(action, tau=self.gumbel_softmax_temp, hard=self.gumbel_softmax_hard)
+        return F.gumbel_softmax(action, tau=tau, hard=self.gumbel_softmax_hard)
 
 
 class Actor_PPO(nn.Module):

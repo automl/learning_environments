@@ -24,7 +24,7 @@ def load_envs_and_config(file_name, model_dir, device):
     with open("../default_config_cartpole.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm_2"]
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_temp_anneal"]
 
     return virtual_env, real_env, config
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_" + \
+    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_temp_anneal_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "CartPole"

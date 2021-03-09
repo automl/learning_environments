@@ -55,7 +55,17 @@ class TD3_discrete_vary(BaseAgent):
 
         self.total_it = 0
 
+        # Gumbel temperature annealing
+        self.gumbel_temp_anneal_steps = np.linspace(self.actor.gumbel_softmax_temp, self.actor.gumbel_softmax_temp / 20, 1000)
+        self.gumbel_temp_annealed = self.gumbel_temp_anneal_steps[0]
+
     def learn(self, replay_buffer, env, episode):
+
+        if self.total_it >= len(self.gumbel_temp_anneal_steps):
+            self.gumbel_temp_annealed = self.gumbel_temp_anneal_steps[-1]
+        else:
+            self.gumbel_temp_annealed = self.gumbel_temp_anneal_steps[self.total_it]
+
         self.total_it += 1
 
         # Sample replay buffer
@@ -63,9 +73,8 @@ class TD3_discrete_vary(BaseAgent):
 
         with torch.no_grad():
             # Select action according to policy and add clipped noise, no_grad since target will be copied
-            noise = (torch.randn_like(actions) * self.policy_std
-                    ).clamp(-self.policy_std_clip, self.policy_std_clip)
-            next_actions = self.actor_target(next_states) + noise
+            noise = (torch.randn_like(actions) * self.policy_std).clamp(-self.policy_std_clip, self.policy_std_clip)
+            next_actions = self.actor_target(next_states, self.gumbel_temp_annealed) + noise
 
             # Compute the target Q value
             target_Q1 = self.critic_target_1(next_states, next_actions)
@@ -90,7 +99,7 @@ class TD3_discrete_vary(BaseAgent):
         if self.total_it % self.policy_delay == 0:
             # Compute actor loss
             # todo: check algorithm 1 in original paper; has additional multiplicative term here
-            actor_loss = (-self.critic_1(states, self.actor(states))).mean()
+            actor_loss = (-self.critic_1(states, self.actor(states, self.gumbel_temp_annealed))).mean()
 
             # Optimize the actor
             self.actor_optimizer.zero_grad()
@@ -150,11 +159,11 @@ class TD3_discrete_vary(BaseAgent):
             diag = torch.eye(self.action_dim)
             return diag[action.long()]  # for CartPole: 0 -> [1,0], 1 -> [0,1]
         else:
-            action = self.actor(state.to(self.device)).cpu()
+            action = self.actor(state.to(self.device), self.gumbel_temp_annealed).cpu()
             return action + (torch.randn(self.action_dim) * self.action_std)
 
     def select_test_action(self, state, env):
-        action = self.actor(state.to(self.device)).cpu()
+        action = self.actor(state.to(self.device), self.gumbel_temp_annealed).cpu()
         return action + (torch.randn(self.action_dim) * self.action_std)
 
     def reset_optimizer(self):
