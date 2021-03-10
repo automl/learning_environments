@@ -10,7 +10,8 @@ LOG_FILES = [
              '../results/cartpole_compare_reward_envs/best5.pt',
              '../results/cartpole_compare_reward_envs/best6.pt',
              '../results/cartpole_compare_reward_envs/best0.pt',
-             '../results/cartpole_compare_reward_envs/best-1.pt'
+             '../results/cartpole_compare_reward_envs/best-1.pt',
+             # '../results/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
              ]
 
 LEGEND = [
@@ -20,6 +21,7 @@ LEGEND = [
         'DDQN + add. non-pot. RN',
         'DDQN',
         'DDQN + ICM',
+        # 'DDQN + ICM (opt.)', # optimizing ICM HPs did not help
         ]
 
 STD_MULT = 0.2

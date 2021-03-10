@@ -87,13 +87,21 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ddqn']['early_out_num'] = config['agents']['ddqn']['early_out_num']
     config['agents']['ddqn']['early_out_virtual_diff'] = config['agents']['ddqn']['early_out_virtual_diff']
 
-    # icm
+    # optimized ICM HPs:
+    # config['agents']['icm'] = {}
+    # config['agents']['icm']['beta'] = 0.05
+    # config['agents']['icm']['eta'] = 0.03
+    # config['agents']['icm']['feature_dim'] = 32
+    # config['agents']['icm']['hidden_size'] = 128
+    # config['agents']['icm']['lr'] = 1e-5
+
+    # default ICM HPs:
     config['agents']['icm'] = {}
-    config['agents']['icm']['beta'] = 0.05
-    config['agents']['icm']['eta'] = 0.03
-    config['agents']['icm']['feature_dim'] = 32
+    config['agents']['icm']['beta'] = 0.2
+    config['agents']['icm']['eta'] = 0.5
+    config['agents']['icm']['feature_dim'] = 64
     config['agents']['icm']['hidden_size'] = 128
-    config['agents']['icm']['lr'] = 1e-5
+    config['agents']['icm']['lr'] = 1e-4
 
     for i in range(MODEL_AGENTS):
         if mode == '-1':
@@ -108,7 +116,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '_ft.pt')  # fine-tuned by bohb
+    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
