@@ -53,7 +53,6 @@ class PPO(BaseAgent):
             self.icm_hidden_dim = icm_config["hidden_size"]
             self.icm = ICM(state_dim=self.state_dim,
                            action_dim=self.action_dim,
-                           actual_action_dim=None,
                            has_discrete_actions=env.has_discrete_action_space(),
                            learning_rate=self.icm_lr,
                            beta=self.icm_beta,
@@ -61,7 +60,6 @@ class PPO(BaseAgent):
                            feature_dim=self.icm_feature_dim,
                            hidden_size=self.icm_hidden_dim,
                            device=self.device)
-
 
     def train(self, env, time_remaining=1e9, test_env=None):
 
@@ -203,5 +201,5 @@ if __name__ == "__main__":
 
     ppo = PPO(env=real_env,
               config=config,
-              icm=False)
+              icm=True)
     ppo.train(env=real_env)
