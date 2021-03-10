@@ -11,8 +11,8 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_3000_train_eps'
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_3000_train_eps'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs'
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
@@ -173,7 +173,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + 'icm_opt.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '_icm_opt.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
