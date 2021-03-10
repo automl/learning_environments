@@ -36,6 +36,10 @@ FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_e
 plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_new.eps'
 title = "Transfer DDQN -> TD3"
 
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/annealed_temp'
+plot_name = 'ddqn_to_td3_discrete_annealed_temp.eps'
+title = "Transfer DDQN -> TD3"
+
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
 # /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
 # plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_config.eps'

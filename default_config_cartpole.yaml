@@ -231,7 +231,7 @@ agents:
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
-    lr: !!float 5e-3                        # learning rate
+    lr: !!float 5e-4                        # learning rate
     tau: !!float 0.01                       # target network update rate
     policy_delay: !!int 2                   # frequency of delayed policy updates
     rb_size: !!int 1000000                  # size of the replay buffer

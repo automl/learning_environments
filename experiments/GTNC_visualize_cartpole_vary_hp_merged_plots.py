@@ -121,7 +121,7 @@ def barplot_err(x, y, xerr=None, yerr=None, data=None, **kwargs):
 
 if __name__ == "__main__":
     # fig = plt.figure(figsize=(22.5, 9))
-    fig, axes = plt.subplots(figsize=(23, 7), ncols=3, nrows=2, sharex="row", sharey="row")
+    fig, axes = plt.subplots(figsize=(16, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={'height_ratios': [2, 1.2]})
 
     for i, data in enumerate(zip(FILE_DIRS, PLOT_NAMES, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
         FILE_DIR, plot_name, title, mean_train_steps, std_train_steps = data
@@ -151,11 +151,11 @@ if __name__ == "__main__":
 
 
         data_dict = {
-                'train: real and HP: varying': data_list[0],
+                'train: real, HP: varying': data_list[0],
 
-                'train: synth. and HP: varying': data_list[1],
+                'train: synth., HP: varying': data_list[1],
 
-                'train: synth. and HP: fixed': data_list[2]}
+                'train: synth., HP: fixed': data_list[2]}
 
         df = pd.DataFrame(data=data_dict)
         df = df.melt(value_name="cumulative rewards", var_name="type")
@@ -184,8 +184,8 @@ if __name__ == "__main__":
 
         barplot_df = pd.DataFrame({
                 "type": ["steps", "episodes", "steps", "episodes", "steps", "episodes"],
-                "method": ["train: real and HP: varying", "train: real and HP: varying", "train: synth. and HP: varying",
-                           "train: synth. and HP: varying", "train: synth. and HP: fixed", "train: synth. and HP: fixed"],
+                "method": ["train: real\nHP: varying", "train: real\nHP: varying", "train: synth.\nHP: varying",
+                           "train: synth.\nHP: varying", "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"],
                 "means": [mean_train_steps[0], episode_num_needed_means[0], mean_train_steps[1], episode_num_needed_means[1],
                           mean_train_steps[2], episode_num_needed_means[2]],
                 "std dev": [std_train_steps[0], episode_num_needed_stds[0], std_train_steps[1], episode_num_needed_stds[1],
@@ -208,8 +208,8 @@ if __name__ == "__main__":
 
         if i == 0:
             p.axes.get_legend().set_title("")
-            axis_left.set_ylabel("mean num. train steps")
-            axis_right.set_ylabel("mean num. train episodes", rotation=-90, labelpad=10)
+            axis_left.set_ylabel("mean train steps")
+            axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=10)
             axis_left.get_xaxis().get_label().set_visible(False)
 
             # x = p.patches[0].get_height()
@@ -233,7 +233,6 @@ if __name__ == "__main__":
         for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
             plt.text(x, y, mean, ha='center', va='top')
 
-    # plt.savefig(os.path.join(FILE_DIR, plot_name), bbox_inches='tight')
-
     plt.tight_layout()
+    plt.savefig(os.path.join(os.getcwd(), "CP_vary_hp_merged_plots.pdf"))
     plt.show()
