@@ -11,7 +11,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt',
-        # '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'
+        # '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
         ]
 
 LEGEND = [
@@ -21,7 +21,7 @@ LEGEND = [
         'PPO + add. non-pot. RN',
         'PPO',
         'PPO + ICM',
-        # 'PPO + ICM (opt.)',
+        # 'PPO + ICM (opt.)',  # optimizing ICM HPs did not help
         ]
 
 STD_MULT = .2
@@ -89,7 +89,7 @@ def plot_data(proc_data, savefig_name):
     #     colors.append(plt.gca().lines[-1].get_color())
 
     for mean, std in proc_data:
-        plt.plot(mean)
+        plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)

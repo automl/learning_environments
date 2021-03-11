@@ -79,7 +79,7 @@ def plot_data(proc_data, savefig_name):
     fig, ax = plt.subplots(dpi=600, figsize=(5, 4))
 
     for mean, std in proc_data:
-        plt.plot(mean)
+        plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)

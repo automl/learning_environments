@@ -85,7 +85,7 @@ def plot_data(proc_data, savefig_name):
     fig, ax = plt.subplots(dpi=600, figsize=(5, 4))
 
     for mean, std in proc_data:
-        plt.plot(mean)
+        plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
@@ -94,7 +94,7 @@ def plot_data(proc_data, savefig_name):
 
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('CartPole-v0 varied hyperparameters')
+    plt.title('CartPole-v0 Varied Hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
     plt.ylim(0, 210)

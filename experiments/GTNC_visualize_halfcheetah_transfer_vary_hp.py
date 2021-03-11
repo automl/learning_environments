@@ -101,11 +101,11 @@ def plot_data(proc_data, savefig_name):
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.plot(mean, color='#575757')
+            plt.plot(mean, color='#575757', linewidth=1)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00')
+            plt.plot(mean, color='#EBBB00', linewidth=1)
         else:
-            plt.plot(mean)
+            plt.plot(mean, linewidth=1)
 
     for i, data in enumerate(proc_data):
         mean, std = data
@@ -118,7 +118,7 @@ def plot_data(proc_data, savefig_name):
 
     plt.legend(LEGEND, fontsize=7)  # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.title('HalfCheetah-v3 varied hyperparameters')
+    plt.title('HalfCheetah-v3 Varied Hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
     plt.ylim(-1000, 7000)

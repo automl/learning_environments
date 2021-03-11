@@ -121,7 +121,7 @@ def barplot_err(x, y, xerr=None, yerr=None, data=None, **kwargs):
 
 if __name__ == "__main__":
     # fig = plt.figure(figsize=(22.5, 9))
-    fig, axes = plt.subplots(figsize=(16, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={'height_ratios': [2, 1.2]})
+    fig, axes = plt.subplots(figsize=(15, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={'height_ratios': [2, 1.2]})
 
     for i, data in enumerate(zip(FILE_DIRS, PLOT_NAMES, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
         FILE_DIR, plot_name, title, mean_train_steps, std_train_steps = data
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         mean_list = []
         episode_num_needed_means = []
         episode_num_needed_stds = []
-        for file in FILE_LIST:
+        for j, file in enumerate(FILE_LIST):
             file_path = os.path.join(FILE_DIR, file)
             save_dict = torch.load(file_path)
             reward_list = save_dict['reward_list']
@@ -143,7 +143,10 @@ if __name__ == "__main__":
                 reward_list_single += r_list
 
             data_list.append(reward_list_single)
-            mean_list.append('mean reward: {:.2f}'.format((statistics.mean(reward_list_single))))
+            if i == 0 and j == 0:
+                mean_list.append('mean reward: {:.2f}'.format((statistics.mean(reward_list_single))))
+            else:
+                mean_list.append('{:.2f}'.format((statistics.mean(reward_list_single))))
 
             episode_num_needed_means.append(mean_episode_num)
             episode_num_needed_stds.append(std_episode_num)
@@ -161,9 +164,12 @@ if __name__ == "__main__":
         df = df.melt(value_name="cumulative rewards", var_name="type")
 
         sns.set_context(rc={
-                "font.size": 8.5,
-                "axes.titlesize": 10,
-                "axes.labelsize": 10
+                "font.size": 11,
+                "axes.titlesize": 11,
+                "axes.labelsize": 11,
+                "legend.fontsize": 11,
+                "xtick.labelsize": 9,
+                "ytick.labelsize": 9
                 })
 
         if i == 0:
@@ -209,7 +215,7 @@ if __name__ == "__main__":
         if i == 0:
             p.axes.get_legend().set_title("")
             axis_left.set_ylabel("mean train steps")
-            axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=10)
+            axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
             axis_left.get_xaxis().get_label().set_visible(False)
 
             # x = p.patches[0].get_height()
@@ -231,7 +237,7 @@ if __name__ == "__main__":
 
         # todo:
         for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
-            plt.text(x, y, mean, ha='center', va='top')
+            plt.text(x, y, mean, ha='center', va='top', fontsize=9)
 
     plt.tight_layout()
     plt.savefig(os.path.join(os.getcwd(), "CP_vary_hp_merged_plots.pdf"))

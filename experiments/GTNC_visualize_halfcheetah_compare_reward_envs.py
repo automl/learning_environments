@@ -101,11 +101,11 @@ def plot_data(proc_data, savefig_name):
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.plot(mean, color='#575757')
+            plt.plot(mean, color='#575757', linewidth=1)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00')
+            plt.plot(mean, color='#EBBB00', linewidth=1)
         else:
-            plt.plot(mean)
+            plt.plot(mean, linewidth=1)
 
     for i, data in enumerate(proc_data):
         mean, std = data
