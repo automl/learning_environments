@@ -145,6 +145,14 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['early_out_num'] = 50
     config['agents']['td3']['early_out_virtual_diff'] = 0.02
 
+    # icm
+    config['agents']['icm'] = {}
+    config['agents']['icm']['beta'] = 0.05
+    config['agents']['icm']['eta'] = 0.01
+    config['agents']['icm']['feature_dim'] = 32
+    config['agents']['icm']['hidden_size'] = 128
+    config['agents']['icm']['lr'] = 1e-5
+
     for i in range(MODEL_AGENTS):
         config_mod = vary_hp(config)
 

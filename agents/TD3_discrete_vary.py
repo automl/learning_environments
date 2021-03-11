@@ -56,7 +56,7 @@ class TD3_discrete_vary(BaseAgent):
         self.total_it = 0
 
         # Gumbel temperature annealing
-        self.gumbel_temp_anneal_steps = np.linspace(self.actor.gumbel_softmax_temp, self.actor.gumbel_softmax_temp / 20, 1000)
+        self.gumbel_temp_anneal_steps = np.linspace(self.actor.gumbel_softmax_temp, self.actor.gumbel_softmax_temp / 20, 5000)
         self.gumbel_temp_annealed = self.gumbel_temp_anneal_steps[0]
 
     def learn(self, replay_buffer, env, episode):

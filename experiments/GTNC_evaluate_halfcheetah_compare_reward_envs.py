@@ -97,7 +97,7 @@ def train_test_agents(mode, env, real_env, config):
 
     # icm
     config['agents']['icm'] = {}
-    config['agents']['icm']['beta'] = 0.03
+    config['agents']['icm']['beta'] = 0.05
     config['agents']['icm']['eta'] = 0.01
     config['agents']['icm']['feature_dim'] = 32
     config['agents']['icm']['hidden_size'] = 128
