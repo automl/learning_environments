@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import torch
+import seaborn as sns
 
 
 class ReplayBuffer:
@@ -154,3 +155,23 @@ def save_lists(mode, config, reward_list, train_steps_needed, episode_length_nee
     save_dict['env_reward_overview'] = pd.DataFrame.from_dict(env_reward_overview, orient="index")
 
     torch.save(save_dict, file_name)
+
+
+def barplot_err(x, y, xerr=None, yerr=None, data=None, **kwargs):
+
+    _data = []
+    for _i in data.index:
+
+        _data_i = pd.concat([data.loc[_i:_i]]*3, ignore_index=True, sort=False)
+        _row = data.loc[_i]
+        if xerr is not None:
+            _data_i[x] = [_row[x]-_row[xerr], _row[x], _row[x]+_row[xerr]]
+        if yerr is not None:
+            _data_i[y] = [_row[y]-_row[yerr], _row[y], _row[y]+_row[yerr]]
+        _data.append(_data_i)
+
+    _data = pd.concat(_data, ignore_index=True, sort=False)
+
+    _ax = sns.barplot(x=x,y=y,data=_data,ci='sd',**kwargs)
+
+    return _ax

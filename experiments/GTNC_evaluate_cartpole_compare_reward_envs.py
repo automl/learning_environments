@@ -1,9 +1,8 @@
 import os
 import sys
 
-import torch
 import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
+import torch
 
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
@@ -19,6 +18,7 @@ LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
+
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -40,7 +40,7 @@ def get_best_models_from_log(log_dir):
             continue
 
     best_models.sort(key=lambda x: x[0])
-    #best_models.sort(key=lambda x: x[0], reverse=True)
+    # best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -185,4 +185,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

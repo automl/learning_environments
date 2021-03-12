@@ -7,6 +7,8 @@ import pandas as pd
 import seaborn as sns
 import torch
 
+from utils import barplot_err
+
 # FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
 
 FILE_DIRS = []
@@ -98,30 +100,11 @@ STD_TRAIN_STEPS.append(td3_std_train_steps)
 # mean_train_steps = td3_mean_train_steps
 # std_train_steps = td3_std_train_steps
 
-
-def barplot_err(x, y, xerr=None, yerr=None, data=None, **kwargs):
-
-    _data = []
-    for _i in data.index:
-
-        _data_i = pd.concat([data.loc[_i:_i]]*3, ignore_index=True, sort=False)
-        _row = data.loc[_i]
-        if xerr is not None:
-            _data_i[x] = [_row[x]-_row[xerr], _row[x], _row[x]+_row[xerr]]
-        if yerr is not None:
-            _data_i[y] = [_row[y]-_row[yerr], _row[y], _row[y]+_row[yerr]]
-        _data.append(_data_i)
-
-    _data = pd.concat(_data, ignore_index=True, sort=False)
-
-    _ax = sns.barplot(x=x,y=y,data=_data,ci='sd',**kwargs)
-
-    return _ax
-
-
 if __name__ == "__main__":
     # fig = plt.figure(figsize=(22.5, 9))
-    fig, axes = plt.subplots(figsize=(15, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={'height_ratios': [2, 1.2]})
+    fig, axes = plt.subplots(figsize=(15, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={
+            'height_ratios': [2, 1.2]
+            })
 
     for i, data in enumerate(zip(FILE_DIRS, PLOT_NAMES, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
         FILE_DIR, plot_name, title, mean_train_steps, std_train_steps = data
@@ -151,14 +134,13 @@ if __name__ == "__main__":
             episode_num_needed_means.append(mean_episode_num)
             episode_num_needed_stds.append(std_episode_num)
 
-
-
         data_dict = {
                 'train: real, HP: varying': data_list[0],
 
                 'train: synth., HP: varying': data_list[1],
 
-                'train: synth., HP: fixed': data_list[2]}
+                'train: synth., HP: fixed': data_list[2]
+                }
 
         df = pd.DataFrame(data=data_dict)
         df = df.melt(value_name="cumulative rewards", var_name="type")
@@ -204,7 +186,7 @@ if __name__ == "__main__":
 
         # clrs = ["blue", "lightblue", "orange", "lightorange", "green", "lightgreen"]
 
-        p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[1,i],
+        p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[1, i],
                         palette=sns.color_palette("Paired"))
 
         axis_left = axes[1, i]

@@ -5,12 +5,13 @@ import numpy as np
 import torch
 
 LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best1.pt',  # 3k eps running
+        '../results/cmc_compare_reward_envs/best1.pt',
         '../results/cmc_compare_reward_envs/best2.pt',
         '../results/cmc_compare_reward_envs/best5.pt',
         '../results/cmc_compare_reward_envs/best6.pt',
         '../results/cmc_compare_reward_envs/best0.pt',
-        '../results/cmc_compare_reward_envs/best-1.pt'
+        '../results/cmc_compare_reward_envs/best-1.pt',
+        '../results/cmc_compare_reward_envs/best-1_icm_opt1.pt'
         ]
 
 LEGEND = [
@@ -20,6 +21,7 @@ LEGEND = [
         'TD3 + add. non-pot. RN',
         'TD3',
         'TD3 + ICM',
+        'TD3 + ICM (opt.)',
         ]
 
 STD_MULT = 0.2
