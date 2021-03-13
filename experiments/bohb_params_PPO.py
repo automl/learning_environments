@@ -7,6 +7,7 @@ from copy import deepcopy
 from agents.PPO import PPO
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
+import numpy as np
 
 NUM_EVALS = 3
 
@@ -79,15 +80,17 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        score = 0
+        # score = 0
+        rewards_list = []
         for i in range(NUM_EVALS):
             ppo = PPO(env=real_env,
                       config=config)
             rewards, _, _ = ppo.train(real_env)
-            score += len(rewards)
+            rewards_list.append(sum(rewards))
+            # score += len(rewards)
 
-        score = score/NUM_EVALS
-
+        # score = score/NUM_EVALS
+        score = -np.mean(rewards_list)
         info['config'] = str(config)
 
         print('----------------------------')

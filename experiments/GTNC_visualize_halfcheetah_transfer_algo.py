@@ -22,7 +22,7 @@ import torch
 
 LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo1.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_algo2.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo2.pt',
              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo5.pt',
              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo6.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_algo3.pt',   # smaller lr running
