@@ -1,16 +1,12 @@
-import random
 import colorsys
 import math
-
-import numpy as np
-import hpbandster.core.result as hpres
-import hpbandster.visualization as hpvis
-
+import os
+import random
 from decimal import Decimal
-import numpy as np
-from scipy.stats import ttest_ind
-import matplotlib.pyplot as plt
 
+import hpbandster.core.result as hpres
+import matplotlib.pyplot as plt
+import numpy as np
 
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
@@ -20,7 +16,7 @@ OUTLIER_PERC_WORST = 0.5
 OUTLIER_PERC_BEST = 0.0
 
 
-def analyze_bohb(log_dir):
+def analyze_bohb(log_dir, title):
     # load the example run from the log files
     result = hpres.logged_results_to_HBS_result(log_dir)
 
@@ -67,17 +63,19 @@ def analyze_bohb(log_dir):
 
     result = remove_outliers(result)
 
-    #result = filter_values(result)
+    # result = filter_values(result)
 
-    #print_configs_sorted_by_loss(result)
+    # print_configs_sorted_by_loss(result)
 
-    #print_stats_per_value(result)
+    # print_stats_per_value(result)
 
-    #plot_accuracy_over_budget(result)
+    # plot_accuracy_over_budget(result)
 
     plot_parallel_scatter(result)
-
+    plt.title(title)
     plt.show()
+    file_name = str(title).strip().replace(' ', '_').lower()
+    plt.savefig(os.path.join("../experiments/automl_plots/", file_name + ".png"))
 
 
 def print_configs_sorted_by_loss(result):
@@ -87,16 +85,15 @@ def print_configs_sorted_by_loss(result):
         for k2, v2 in v1.results.items():
             loss = v2['loss']
             config = v1.config
-            lst.append((loss,config))
+            lst.append((loss, config))
 
-    lst.sort(key = lambda x: x[0])
+    lst.sort(key=lambda x: x[0])
 
     for elem in lst:
         print(elem)
 
 
 def print_stats_per_value(result):
-
     # get all possible keys
     min_epoch = float('Inf')
 
@@ -150,9 +147,9 @@ def remove_outliers(result):
     worst_loss = sorted(filtered_lut, reverse=REVERSE_LOSS)[0][0]
 
     if REVERSE_LOSS:
-        worst_loss += 0.01*abs(worst_loss)
+        worst_loss += 0.01 * abs(worst_loss)
     else:
-        worst_loss -= 0.01*abs(worst_loss)
+        worst_loss -= 0.01 * abs(worst_loss)
 
     # remove NaN's
     for i in range(len(lut)):
@@ -164,11 +161,11 @@ def remove_outliers(result):
                     continue
                 else:
                     result.data[lut[i][1]].results[key]['loss'] = worst_loss
-            #result.data.pop(elem[1], None)
+            # result.data.pop(elem[1], None)
 
-    lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
-    n_remove_worst = math.ceil(len(lut)*OUTLIER_PERC_WORST)
-    n_remove_best = math.ceil(len(lut)*OUTLIER_PERC_BEST)
+    lut.sort(key=lambda x: x[0], reverse=REVERSE_LOSS)
+    n_remove_worst = math.ceil(len(lut) * OUTLIER_PERC_WORST)
+    n_remove_best = math.ceil(len(lut) * OUTLIER_PERC_BEST)
 
     # remove percentage of worst values
     for i in range(n_remove_worst):
@@ -332,7 +329,7 @@ def plot_parallel_scatter(result):
 
             # log scale if min/max value differs to much
             if max_val / min_val > 100:
-                val050 = np.exp((np.log(min_val)+np.log(max_val))/2)
+                val050 = np.exp((np.log(min_val) + np.log(max_val)) / 2)
                 for i in range(len(values)):
                     for k in range(len(data)):
                         if data[k][0] == values[i]:
@@ -364,6 +361,7 @@ def linear_interpolation(x, x0, x1, y0, y1):
     # linearly interpolate between two x/y values for a given x value
     return y0 + (y1 - y0) * (x - x0) / (x1 - x0 + 1e-9)
 
+
 def map_to_zero_one_range(loss, loss_m, loss_M):
     if loss_M < 1 and loss_m > 0 and REVERSE_LOSS == False:
         # if we have already a loss in the [0,1] range, there is no need to normalize anything
@@ -373,13 +371,14 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
         acc = -loss
     else:
         # normalize loss to the 0 (bad) - 1(good) range
-        acc = (loss-loss_m) / (loss_M - loss_m + 1e-9)
+        acc = (loss - loss_m) / (loss_M - loss_m + 1e-9)
         if REVERSE_LOSS:
-            acc = 1-acc
+            acc = 1 - acc
 
     acc = acc ** EXP_LOSS
 
     return acc
+
 
 def get_color(acc):
     if acc <= 0:
@@ -391,9 +390,11 @@ def get_color(acc):
     else:
         return np.array([[0, 1, 0]])
 
+
 def get_bright_random_color():
     h, s, l = random.random(), 1, 0.5
     return colorsys.hls_to_rgb(h, l, s)
+
 
 if __name__ == '__main__':
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-04-09'
@@ -407,12 +408,20 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-00'
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-06-00'
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-06-10'
+
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-10'
+    # title = "DDQN ICM on CartPole"
+
     # log_dir = '../results/bohb_params_td3_icm_hc_2021-03-08-20'
+    # title = "TD3 ICM on HC"
+
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-08-22'
-    log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_2021-03-11-14'
+    # title = "TD3 ICM on CMC"
+
+    # log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_2021-03-11-14'
+    # title = "Discrete TD3 with annealed temp on CartPole"
+
     log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_on_syn_env_2_2021-03-11-23'
-    analyze_bohb(log_dir)
+    title = "Discrete TD3 with annealed temp on CartPole Syn Env Model 2"
 
-
-
+    analyze_bohb(log_dir, title=title)
