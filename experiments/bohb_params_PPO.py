@@ -103,7 +103,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'cmc_ppo_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_ppo_hc_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
