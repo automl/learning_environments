@@ -82,17 +82,17 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        # score = 0
-        rewards_list = []
+        score = 0
+        # rewards_list = []
         for i in range(NUM_EVALS):
             ppo = PPO(env=real_env,
                       config=config)
             rewards, _, _ = ppo.train(real_env)
-            rewards_list.append(sum(rewards))
-            # score += len(rewards)
+            # rewards_list.append(sum(rewards))
+            score += len(rewards)
 
-        # score = score/NUM_EVALS
-        score = -np.mean(rewards_list)
+        score = score/NUM_EVALS
+        # score = -np.mean(rewards_list)
         info['config'] = str(config)
 
         print('----------------------------')

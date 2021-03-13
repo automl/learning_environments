@@ -69,7 +69,6 @@ def load_envs_and_config(model_file):
 
     config = save_dict['config']
     config['device'] = 'cuda'
-    # config['envs']['CartPole-v0']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
     reward_env = env_factory.generate_reward_env()
