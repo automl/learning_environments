@@ -73,7 +73,7 @@ agents:
     action_std: !!float 0.2                 # action noise standard deviation
     print_rate: 10                          # update rate of avg meters
     early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
-    early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
+    early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
 envs:
   HalfCheetah-v3:

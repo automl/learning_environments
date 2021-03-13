@@ -159,7 +159,7 @@ if __name__ == "__main__":
         for tick in axis_left.yaxis.get_major_ticks():
             tick.label.set_fontsize(9)
 
-        # axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
+        axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
 
         if i == 0:
             p.axes.get_legend().set_title("")
