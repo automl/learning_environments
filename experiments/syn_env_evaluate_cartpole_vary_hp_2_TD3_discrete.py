@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_temp_anneal_" + \
+    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_temp_anneal_bohb_optim_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "CartPole"
