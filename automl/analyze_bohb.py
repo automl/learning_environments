@@ -421,7 +421,10 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_2021-03-11-14'
     # title = "Discrete TD3 with annealed temp on CartPole"
 
-    log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_on_syn_env_2_2021-03-11-23'
-    title = "Discrete TD3 with annealed temp on CartPole Syn Env Model 2"
+    # log_dir = '../results/bohb_params_TD3_discrete_gumbel_temp_annealing_on_syn_env_2_2021-03-11-23'
+    # title = "Discrete TD3 with annealed temp on CartPole Syn Env Model 2"
+
+    log_dir = '../results/bohb_params_ppo_hc_2021-03-13-12'
+    title = "PPO on HC"
 
     analyze_bohb(log_dir, title=title)
