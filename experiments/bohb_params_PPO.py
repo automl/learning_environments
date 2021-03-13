@@ -14,8 +14,8 @@ NUM_EVALS = 3
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
-        params['min_budget'] = 1000
-        params['max_budget'] = 8000
+        params['min_budget'] = 1
+        params['max_budget'] = 2
         params['eta'] = 2
         params['iterations'] = 1000
         params['random_fraction'] = 0.3
@@ -27,7 +27,9 @@ class ExperimentWrapper():
         cs = CS.ConfigurationSpace()
 
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='update_episodes', lower=1, upper=100, log=True, default_value=20))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ppo_epochs', lower=1, upper=100, log=True, default_value=10))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ppo_epochs', lower=1, upper=100, log=True, default_value=10))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='ppo_epochs', lower=1, upper=80, log=True, default_value=10))
+        # 100 ppo epochs might lead to action NaNs
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=1e-5, upper=1e-2, log=True, default_value=3e-4))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='vf_coef', lower=0.1, upper=2, log=True, default_value=1.0))
@@ -72,7 +74,7 @@ class ExperimentWrapper():
         print('BUDGET: ' + str(budget))
         print('----------------------------')
 
-        config["agents"]["ppo"]["train_episodes"] = int(budget)
+        config["agents"]["ppo"]["train_episodes"] = 1000
 
         info = {}
 
