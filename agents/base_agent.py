@@ -94,12 +94,11 @@ class BaseAgent(nn.Module):
             state = env.reset()
             episode_reward = 0
             episode_length = 0
-
             for t in range(0, env.max_episode_steps(), self.same_action_num):
                 action = self.select_train_action(state=state, env=env, episode=episode)
 
                 # live view
-                if self.render_env and episode % 10 == 0:
+                if self.render_env:
                     env.render()
 
                 # state-action transition
@@ -188,7 +187,7 @@ class BaseAgent(nn.Module):
                     action = self.select_test_action(state, env)
 
                     # live view
-                    if self.render_env and episode % 10 == 0:
+                    if self.render_env:
                         env.render()
 
                     # state-action transition
