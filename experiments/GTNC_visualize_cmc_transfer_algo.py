@@ -11,7 +11,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt',
-        # '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
+        '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
         ]
 
 LEGEND = [
@@ -21,7 +21,7 @@ LEGEND = [
         'PPO + add. non-pot. RN',
         'PPO',
         'PPO + ICM',
-        # 'PPO + ICM (opt.)',  # optimizing ICM HPs did not help
+        'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
         ]
 
 STD_MULT = .2

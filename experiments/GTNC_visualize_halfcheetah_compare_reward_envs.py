@@ -4,32 +4,68 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+# LOG_FILES = [
+#         '../results/halfcheetah_compare_reward_envs/best1.pt',
+#         '../results/halfcheetah_compare_reward_envs/best2.pt',
+#         '../results/halfcheetah_compare_reward_envs/best5.pt',
+#         '../results/halfcheetah_compare_reward_envs/best6.pt',
+#         '../results/halfcheetah_compare_reward_envs/best3.pt',
+#         '../results/halfcheetah_compare_reward_envs/best4.pt',
+#         '../results/halfcheetah_compare_reward_envs/best7.pt',
+#         '../results/halfcheetah_compare_reward_envs/best8.pt',
+#         '../results/halfcheetah_compare_reward_envs/best0.pt',
+#         '../results/halfcheetah_compare_reward_envs/best-1.pt',
+#         '../results/halfcheetah_compare_reward_envs/best101.pt',
+#         '../results/halfcheetah_compare_reward_envs/best102.pt'
+#         ]
+
 LOG_FILES = [
         '../results/halfcheetah_compare_reward_envs/best1.pt',
         '../results/halfcheetah_compare_reward_envs/best2.pt',
         '../results/halfcheetah_compare_reward_envs/best5.pt',
         '../results/halfcheetah_compare_reward_envs/best6.pt',
-        '../results/halfcheetah_compare_reward_envs/best3.pt',
-        '../results/halfcheetah_compare_reward_envs/best4.pt',
-        '../results/halfcheetah_compare_reward_envs/best7.pt',
-        '../results/halfcheetah_compare_reward_envs/best8.pt',
+
         '../results/halfcheetah_compare_reward_envs/best0.pt',
         '../results/halfcheetah_compare_reward_envs/best-1.pt',
+
+        '../results/halfcheetah_compare_reward_envs/best3.pt',  #
+        '../results/halfcheetah_compare_reward_envs/best4.pt',  #
+        '../results/halfcheetah_compare_reward_envs/best7.pt',  #
+        '../results/halfcheetah_compare_reward_envs/best8.pt',  #
+
         '../results/halfcheetah_compare_reward_envs/best101.pt',
         '../results/halfcheetah_compare_reward_envs/best102.pt'
         ]
+
+# LEGEND = [
+#         'TD3 + exc. pot. RN',
+#         'TD3 + add. pot. RN',
+#         'TD3 + exc. non-pot. RN',
+#         'TD3 + add. non-pot. RN',
+#         'TD3 + exc. pot. RN + augm.',
+#         'TD3 + add. pot. RN + augm.',
+#         'TD3 + exc. non-pot. RN + augm.',
+#         'TD3 + add. non-pot. RN + augm.',
+#         'TD3',
+#         'TD3 + ICM',
+#         'TD3 + exc. ER',
+#         'TD3 + add. ER',
+#         ]
 
 LEGEND = [
         'TD3 + exc. pot. RN',
         'TD3 + add. pot. RN',
         'TD3 + exc. non-pot. RN',
         'TD3 + add. non-pot. RN',
+
+        'TD3',
+        'TD3 + ICM',
+
         'TD3 + exc. pot. RN + augm.',
         'TD3 + add. pot. RN + augm.',
         'TD3 + exc. non-pot. RN + augm.',
         'TD3 + add. non-pot. RN + augm.',
-        'TD3',
-        'TD3 + ICM',
+
         'TD3 + exc. ER',
         'TD3 + add. ER',
         ]

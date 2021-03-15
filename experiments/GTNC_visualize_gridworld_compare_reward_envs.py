@@ -9,7 +9,8 @@ LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
              '../results/cliff_compare_reward_envs/best5.pt',
              '../results/cliff_compare_reward_envs/best6.pt',
              '../results/cliff_compare_reward_envs/best0.pt',
-             '../results/cliff_compare_reward_envs/best-1.pt'
+             '../results/cliff_compare_reward_envs/best-1.pt',
+             '../results/cliff_compare_reward_envs/best-1_opt.pt'
              ]
 
 LEGEND = [
@@ -18,7 +19,8 @@ LEGEND = [
         'QL + exc. non-pot. RN',
         'QL + add. non-pot. RN',
         'QL',
-        'QL + count-based expl.'
+        'QL + count-based expl.',
+        'QL + count-based expl. (tuned)'
         ]
 
 STD_MULT = 0.2

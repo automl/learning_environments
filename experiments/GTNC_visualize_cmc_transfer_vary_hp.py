@@ -10,7 +10,8 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt'
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'
         ]
 
 # LOG_FILES = [
@@ -29,6 +30,7 @@ LEGEND = [
         'TD3 + add. non-pot. RN',
         'TD3',
         'TD3 + ICM',
+        'TD3 + ICM (tuned)',
         ]
 
 STD_MULT = 0.2

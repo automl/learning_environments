@@ -10,7 +10,8 @@ LOG_FILES = [
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
         '../results/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt'
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
         ]
 
 LEGEND = [
@@ -19,7 +20,8 @@ LEGEND = [
         'QL + exc. non-pot. RN',
         'QL + add. non-pot. RN',
         'QL',
-        'QL + count-based expl.'
+        'QL + count-based expl.',
+        'QL + count-based expl. (tuned)'
         ]
 
 STD_MULT = 0.2

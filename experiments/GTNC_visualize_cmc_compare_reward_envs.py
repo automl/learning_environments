@@ -21,14 +21,12 @@ LEGEND = [
         'TD3 + add. non-pot. RN',
         'TD3',
         'TD3 + ICM',
-        'TD3 + ICM (opt.)',
+        'TD3 + ICM (tuned)',
         ]
 
 STD_MULT = 0.2
 # STD_MULT = 1.
 MIN_STEPS = 250000
-
-
 # MIN_STEPS = 150000
 
 def get_data():

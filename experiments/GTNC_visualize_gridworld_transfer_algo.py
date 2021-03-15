@@ -10,7 +10,8 @@ LOG_FILES = [
         '../results/cliff_compare_reward_envs/best_transfer_algo5.pt',
         '../results/cliff_compare_reward_envs/best_transfer_algo6.pt',
         '../results/cliff_compare_reward_envs/best_transfer_algo0.pt',
-        '../results/cliff_compare_reward_envs/best_transfer_algo-1.pt'
+        '../results/cliff_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/cliff_compare_reward_envs/best_transfer_algo-1_opt.pt',
         ]
 
 LEGEND = [
@@ -19,7 +20,8 @@ LEGEND = [
         'SARSA + exc. non-pot. RN',
         'SARSA + add. non-pot. RN',
         'SARSA',
-        'SARSA + count-based expl.'
+        'SARSA + count-based expl.',
+        'SARSA + count-based expl. (tuned)'
         ]
 
 STD_MULT = 0.2

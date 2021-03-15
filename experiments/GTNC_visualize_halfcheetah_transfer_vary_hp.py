@@ -9,12 +9,15 @@ LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt', #
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt', #
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt', #
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt', #
+
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
              ]
@@ -24,12 +27,15 @@ LEGEND = [
         'TD3 + add. pot. RN',
         'TD3 + exc. non-pot. RN',
         'TD3 + add. non-pot. RN',
+
+        'TD3',
+        'TD3 + ICM',
+
         'TD3 + exc. pot. RN + augm.',
         'TD3 + add. pot. RN + augm.',
         'TD3 + exc. non-pot. RN + augm.',
         'TD3 + add. non-pot. RN + augm.',
-        'TD3',
-        'TD3 + ICM',
+
         'TD3 + exc. ER',
         'TD3 + add. ER',
         ]
