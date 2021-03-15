@@ -87,7 +87,7 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['lr'] = 1e-5
     # config['agents']['ppo']['lr'] = 1e-3
     # config['agents']['ppo']['vf_coef'] = 1
-    config['agents']['ppo']['vf_coef'] = 0.1
+    config['agents']['ppo']['vf_coef'] = 0.2
     # config['agents']['ppo']['ent_coef'] = 0.01
     config['agents']['ppo']['ent_coef'] = 0.001
     config['agents']['ppo']['eps_clip'] = 0.2
@@ -98,12 +98,12 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['hidden_size'] = 128
     config['agents']['ppo']['hidden_layer'] = 2
     # config['agents']['ppo']['action_std'] = 0.2
-    config['agents']['ppo']['action_std'] = 0.1
+    config['agents']['ppo']['action_std'] = 0.05
 
     config['agents']['ppo']['early_out_num'] = 50
     config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
-    # todo
+    # todo: optimize ICM HPs with above PPO HPs
     config['agents']['icm'] = {}
     config['agents']['icm']['beta'] = 0.05
     config['agents']['icm']['eta'] = 0.01
