@@ -73,13 +73,16 @@ class ExperimentWrapper():
                   config=config,
                   icm=True)
 
-        score_list = []
-        for _ in range(10):
+        # score_list = []
+        rewards_list = []
+        for _ in range(5):
             rewards, _, _ = td3.train(env)
-            score_i = len(rewards)
-            score_list.append(score_i)
+            rewards_list.append(sum(rewards))
+            # score_i = len(rewards)
+            # score_list.append(score_i)
 
-        score = np.mean(score_list)
+        score = -np.mean(rewards_list)
+        # score = np.mean(score_list)
 
         info['config'] = str(config)
 
