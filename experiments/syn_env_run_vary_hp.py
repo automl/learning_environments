@@ -5,7 +5,7 @@ import numpy as np
 from utils import save_lists
 
 
-def get_all_files(with_vary_hp, model_num, model_dir, custom_load_envs_and_config, env_name, device):
+def get_all_files(with_vary_hp, model_num, model_dir, custom_load_envs_and_config, env_name, device, filter_models_list=None):
     file_list = []
     for file_name in os.listdir(model_dir):
         if env_name not in file_name:
@@ -17,14 +17,20 @@ def get_all_files(with_vary_hp, model_num, model_dir, custom_load_envs_and_confi
 
     # sort file list by random characters/digits -> make randomness deterministic
     file_list = sorted(file_list, key=lambda elem: elem[-9:])
-    if len(file_list) < model_num:
+    if len(file_list) < model_num and filter_models_list is None:
         raise ValueError("Not enough saved models")
+
+    if filter_models_list is not None:
+        filtered_file_list = [f for f in file_list if f in filter_models_list]
+        print(f"model files filtered. Old number of models: {len(file_list)} new number of models: {len(filtered_file_list)}")
+        print("used models: ", filtered_file_list)
+        return filtered_file_list
 
     return file_list[:model_num]
 
 
 def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_load_envs_and_config,
-                custom_train_test_agents, env_name, pool=None, device="cuda"):
+                custom_train_test_agents, env_name, pool=None, device="cuda", filter_models_list=None):
     if mode == 0:
         train_on_venv = False
     elif mode == 1:
@@ -69,7 +75,8 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_tpl[i])
     else:
         file_list = get_all_files(with_vary_hp=with_vary_hp, model_num=model_num, model_dir=model_dir,
-                                  custom_load_envs_and_config=custom_load_envs_and_config, env_name=env_name, device=device)
+                                  custom_load_envs_and_config=custom_load_envs_and_config, env_name=env_name, device=device,
+                                  filter_models_list=filter_models_list)
 
         if pool is None:
             for file_name in file_list:

@@ -19,6 +19,10 @@ from envs.env_factory import EnvFactory
 MODEL_NUM = 3
 MODEL_AGENTS = 5
 
+MODEL_NUM = 20
+MODEL_AGENTS = 3
+
+
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
@@ -202,6 +206,9 @@ class ExperimentWrapper():
 if __name__ == "__main__":
     x = datetime.datetime.now()
     run_id = 'bohb_params_TD3_discrete_gumbel_temp_annealing_on_syn_env_2_' + x.strftime("%Y-%m-%d-%H")
+
+    # get_best_models_from_log('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_1')
+    get_best_models_from_log('/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10')
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

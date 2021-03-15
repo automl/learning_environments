@@ -9,9 +9,8 @@ import torch
 
 from utils import barplot_err
 
-# FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-
 FILE_DIRS = []
+FILE_LISTS = []
 PLOT_NAMES = []
 TITLES = []
 MEAN_TRAIN_STEPS = []
@@ -20,63 +19,20 @@ STD_TRAIN_STEPS = []
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
 PLOT_NAMES.append('cartpole_ddqn_vary_hp_both_lengths.eps')
 TITLES.append("Trained synth. env. with DDQN")
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
 PLOT_NAMES.append('cartpole_ddqn_to_duelingddqn_vary_hp_both_lengths.eps')
 TITLES.append("Transfer DDQN -> Dueling DDQN")
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
-# plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp_both_lengths.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/not_learned_init_1_relu_hard_False_lr_1e-3'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_not_learned_temp_relu.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_relu_hard_False_lr_5e-4'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_hard_false_lr_5e-4.eps'
-# title = "Transfer DDQN -> TD3"
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
                  '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4')
 PLOT_NAMES.append('ddqn_to_td3_discrete_gumbel_learned_temp_tanh_both_lengths.eps')
 TITLES.append("Transfer DDQN -> TD3")
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_relu_layer_norm'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_layer_norm.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_better_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_better_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_layer_norm_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_layer_norm_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length
-# /ddqn_vary_trained_on'
-# plot_name = 'cartpole_ddqn_vary_hp_episode_length.eps'
-# title = "Trained synth. env. with DDQN"
-
-FILE_LIST = ['0.pt', '2.pt', '1.pt']
-# FILE_LIST = ['0.pt', '1.pt']
-
+plot_name = "CP_vary_hp_merged_plots.pdf"
 
 ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
 ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706]
@@ -94,20 +50,26 @@ STD_TRAIN_STEPS.append(dueling_ddqn_std_train_steps)
 td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
 td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
+# mode 2, 5 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py for which one), 4k evals (80(agents_num)*5(models)*10(
+# evals per model))
+# td3_mean_train_steps[1] = 6287.5
+# td3_std_train_steps[1] = 1970.6455160682756
+# TITLES[2] = "Transfer DDQN -> TD3 (5 best)"
+# FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
+# plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3.pdf'
+
+key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
 STD_TRAIN_STEPS.append(td3_std_train_steps)
 
-# mean_train_steps = td3_mean_train_steps
-# std_train_steps = td3_std_train_steps
 
 if __name__ == "__main__":
-    # fig = plt.figure(figsize=(22.5, 9))
     fig, axes = plt.subplots(figsize=(15, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={
             'height_ratios': [2, 1.2]
             })
 
-    for i, data in enumerate(zip(FILE_DIRS, PLOT_NAMES, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
-        FILE_DIR, plot_name, title, mean_train_steps, std_train_steps = data
+    for i, data in enumerate(zip(FILE_DIRS, FILE_LISTS, PLOT_NAMES, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
+        FILE_DIR, FILE_LIST, _, title, mean_train_steps, std_train_steps = data
 
         data_list = []
         mean_list = []
@@ -118,8 +80,15 @@ if __name__ == "__main__":
             save_dict = torch.load(file_path)
             reward_list = save_dict['reward_list']
 
-            mean_episode_num = np.mean(save_dict["train_steps_needed"])
-            std_episode_num = np.std(save_dict["train_steps_needed"])
+            if key in file:
+                # keys got falsely named in the beginning of experiment:
+                # train_steps were named num_episodes
+                # new models are now correctly using keys --> mapping needed
+                mean_episode_num = np.mean(save_dict["episode_length_needed"])
+                std_episode_num = np.std(save_dict["episode_length_needed"])
+            else:
+                mean_episode_num = np.mean(save_dict["train_steps_needed"])
+                std_episode_num = np.std(save_dict["train_steps_needed"])
 
             reward_list_single = []
             for r_list in reward_list:
@@ -200,10 +169,6 @@ if __name__ == "__main__":
             axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
             axis_left.get_xaxis().get_label().set_visible(False)
 
-            # x = p.patches[0].get_height()
-            # y = p.patches[0].get_x()
-            # p.annotate("test", (y, x+9.), color="black", va="bottom")
-
         else:
             p.axes.get_xaxis().get_label().set_visible(False)
             p.axes.get_legend().set_visible(False)
@@ -217,10 +182,9 @@ if __name__ == "__main__":
             axis_right.get_yaxis().set_ticklabels([])
             axes[1, i].get_xaxis().get_label().set_visible(False)
 
-        # todo:
         for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
             plt.text(x, y, mean, ha='center', va='top', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), "CP_vary_hp_merged_plots.pdf"))
+    plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name), bbox_inches='tight')
     plt.show()

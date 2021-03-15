@@ -34,12 +34,13 @@ title = "Transfer DDQN -> Dueling DDQN"
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4'
 plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_new.eps'
+plot_name = 'ddqn_to_td3_discrete_vary_layer_norm_2_filtered_models.eps'
 title = "Transfer DDQN -> TD3"
 
-FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
-           '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/annealed_temp_lr_5e-4'
-plot_name = 'ddqn_to_td3_discrete_annealed_temp.eps'
-title = "Transfer DDQN -> TD3"
+# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
+#            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/annealed_temp_bohb_optimized'
+# plot_name = 'ddqn_to_td3_discrete_annealed_temp.eps'
+# title = "Transfer DDQN -> TD3"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
 # /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
@@ -78,7 +79,10 @@ title = "Transfer DDQN -> TD3"
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments'
 
 # FILE_LIST = ['2.pt', '1.pt']
-FILE_LIST = ['0.pt', '2.pt', '1.pt']
+# FILE_LIST = ['0.pt', '2.pt', '1.pt']
+# FILE_LIST = ['0.pt', '2_10_best_filtered_models.pt', '1.pt']
+FILE_LIST = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
+# FILE_LIST = ['2_filtered_models.pt']
 # FILE_LIST = ['0.pt', '1.pt']
 
 if __name__ == "__main__":
@@ -112,6 +116,8 @@ if __name__ == "__main__":
             'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})'.format(
                     episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
             }
+
+    data_dict = dict([(k, pd.Series(v)) for k, v in data_dict.items()])
 
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))

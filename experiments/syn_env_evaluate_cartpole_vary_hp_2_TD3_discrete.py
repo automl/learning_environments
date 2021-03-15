@@ -9,6 +9,16 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from experiments.syn_env_run_vary_hp import run_vary_hp
 
+filter_models_list = ["CartPole-v0_25_4I271D.pt", "CartPole-v0_22_CW9CSH.pt", "CartPole-v0_21_DRWNIK.pt", "CartPole-v0_8_QGN9IF.pt",
+                      "CartPole-v0_39_VICT5Q.pt", "CartPole-v0_17_WPWK3R.pt"]
+
+# 5 models
+# filter_models_list = ["CartPole-v0_25_4I271D.pt", "CartPole-v0_22_CW9CSH.pt", "CartPole-v0_21_DRWNIK.pt", "CartPole-v0_8_QGN9IF.pt",
+#                       "CartPole-v0_17_WPWK3R.pt"]
+
+mediocre = ["CartPole-v0_9_CM4I44.pt", "CartPole-v0_37_5N1W77.pt", "CartPole-v0_18_F54MTK.pt", "CartPole-v0_9_U821ST.pt"]
+
+filter_models_list += mediocre
 
 def load_envs_and_config(file_name, model_dir, device):
     file_path = os.path.join(model_dir, file_name)
@@ -24,7 +34,8 @@ def load_envs_and_config(file_name, model_dir, device):
     with open("../default_config_cartpole.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
-    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_temp_anneal"]
+    # config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_temp_anneal"]
+    config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm_2"]
 
     return virtual_env, real_env, config
 
@@ -73,7 +84,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_temp_anneal_bohb_optim_" + \
+    experiment_name = "ddqn_to_td3_discrete_vary_transfer_reward_overview_only_10_best_filtered_models_4000_evals_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "CartPole"
@@ -87,9 +98,9 @@ if __name__ == "__main__":
     if args.mode is not None:
         run_vary_hp(mode=args.mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
                     model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
-                    custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device)
+                    custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, filter_models_list=filter_models_list)
     else:
         for mode in range(3):
             run_vary_hp(mode=mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
                         model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
-                        custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device)
+                        custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, filter_models_list=filter_models_list)

@@ -7,68 +7,25 @@ import pandas as pd
 import seaborn as sns
 import torch
 
-# FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-
+# DDQN
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on'
 plot_name = 'cartpole_ddqn_vary_hp_both_lengths.eps'
 title = "Trained synth. env. with DDQN"
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary'
-# plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
-# title = "Transfer DDQN -> Dueling DDQN"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
-# plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp_both_lengths.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/not_learned_init_1_relu_hard_False_lr_1e-3'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_not_learned_temp_relu.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_relu_hard_False_lr_5e-4'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_hard_false_lr_5e-4.eps'
-# title = "Transfer DDQN -> TD3"
-
+# Transfer discrete TD3
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4'
 plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_both_lengths.eps'
 title = "Transfer DDQN -> TD3"
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_relu_layer_norm'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_layer_norm.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_better_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_better_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_layer_norm_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_layer_norm_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length
-# /ddqn_vary_trained_on'
-# plot_name = 'cartpole_ddqn_vary_hp_episode_length.eps'
-# title = "Trained synth. env. with DDQN"
+# Transfer discrete TD3 with 5 / 10 best models
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
+           '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4'
+plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_new.eps'
+title = "Transfer DDQN -> TD3"
 
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 # FILE_LIST = ['0.pt', '1.pt']
-
 
 ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
 ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706]
@@ -80,6 +37,22 @@ dueling_ddqn_std_train_steps = [14972.211664, 2198.149523570906, 3209.8083018]
 td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
 td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
+# mode 2, 5 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py for which one), 4k evals (80(agents_num)*5(models)*10(
+# evals per model))
+td3_mean_train_steps[1] = 6287.5
+td3_std_train_steps[1] = 1970.6455160682756
+key = "2_5_best_filtered_models"
+subtitle = "(5 best)"
+FILE_LIST = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
+plot_name = 'ddqn_to_td3_discrete_vary_layer_norm_2_filtered_models_best_5_4k_evals.eps'
+
+# mode 2, 10 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py), 4k evals (agents_num 80)
+# td3_mean_train_steps[1] = 5968.5776
+# td3_std_train_steps[1] = 1814.0397236537435
+# key = "2_10_best_filtered_models"
+# subtitle = "(10 best)"
+# FILE_LIST = ['0.pt', '2_10_best_filtered_models.pt', '1.pt']
+# plot_name = 'ddqn_to_td3_discrete_vary_layer_norm_2_filtered_models_best_10_4k_evals.eps'
 
 mean_train_steps = td3_mean_train_steps
 std_train_steps = td3_std_train_steps
@@ -94,15 +67,25 @@ if __name__ == "__main__":
         save_dict = torch.load(file_path)
         reward_list = save_dict['reward_list']
 
-        mean_episode_num = np.mean(save_dict["train_steps_needed"])
-        std_episode_num = np.std(save_dict["train_steps_needed"])
+        if key in file:
+            # keys got falsely named in the beginning of experiment:
+            # train_steps were named num_episodes
+            # new models are now correctly using keys --> mapping needed
+            mean_episode_num = np.mean(save_dict["episode_length_needed"])
+            std_episode_num = np.std(save_dict["episode_length_needed"])
+        else:
+            mean_episode_num = np.mean(save_dict["train_steps_needed"])
+            std_episode_num = np.std(save_dict["train_steps_needed"])
 
         reward_list_single = []
         for r_list in reward_list:
             reward_list_single += r_list
 
         data_list.append(reward_list_single)
-        mean_list.append('mean: {:.2f}'.format((statistics.mean(reward_list_single))))
+        if key in file:
+            mean_list.append('mean {}: {:.2f}'.format(subtitle, (statistics.mean(reward_list_single))))
+        else:
+            mean_list.append('mean: {:.2f}'.format((statistics.mean(reward_list_single))))
 
         episode_num_needed_means.append(mean_episode_num)
         episode_num_needed_stds.append(std_episode_num)
@@ -121,6 +104,8 @@ if __name__ == "__main__":
                     mean_train_steps[2], std_train_steps[2]): data_list[2]
             }
 
+    data_dict = dict([(k, pd.Series(v)) for k, v in data_dict.items()])
+
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
@@ -129,7 +114,6 @@ if __name__ == "__main__":
             "axes.labelsize": 8
             })
     ax = sns.violinplot(data=df, cut=0, inner=None)
-    # ax = sns.violinplot(data=df, cut=0, inner=None).set_title(title, y=1.05)
     plt.ylabel(title + '\ncumulative reward')
 
     for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
