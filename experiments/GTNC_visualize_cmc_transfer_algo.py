@@ -10,7 +10,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt',
+        # '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt',
         '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
         ]
 
@@ -21,7 +21,7 @@ LEGEND = [
         'PPO + add. non-pot. RN',
         'PPO',
         'PPO + ICM',
-        'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
+        # 'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
         ]
 
 STD_MULT = .2
@@ -107,9 +107,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo_{MIN_STEPS}_steps.png')
+    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.png')

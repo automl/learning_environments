@@ -11,15 +11,15 @@ from envs.env_factory import EnvFactory
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cliff_compare_reward_envs'
 
 LOG_DICT = {}
-# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_1'
-# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_2'
-# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
-# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_6'
+LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_1'
+LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_2'
+LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
+LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
-LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-01-20-20_1'
-LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-01-20-20_2'
-LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-01-20-20_5'
-LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-01-20-20_6'
+# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_1'
+# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -141,13 +141,13 @@ def eval_base(mode, log_dir):
     episode_length_list = []
 
     for i in range(MODEL_NUM):
-        if not os.path.isdir(best_models[0][1]):
-            model_file = best_models[0][1].replace('/home/dingsda/master_thesis/learning_environments/results',
-                                                   '/home/ferreira/Projects/learning_environments/results/thomas_results')
-        else:
-            model_file = best_models[0][1]
+        # if not os.path.isdir(best_models[0][1]):
+        #     model_file = best_models[0][1].replace('/home/dingsda/master_thesis/learning_environments/results',
+        #                                            '/home/ferreira/Projects/learning_environments/results/thomas_results')
+        # else:
+        #     model_file = best_models[0][1]
 
-        reward_env, real_env, config = load_envs_and_config(model_file)
+        reward_env, real_env, config = load_envs_and_config(best_models[0][1])
         rewards, episode_lengths = train_test_agents(mode=mode, env=real_env, real_env=real_env, config=config)
         reward_list += rewards
         episode_length_list += episode_lengths

@@ -9,7 +9,7 @@ LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
              '../results/cliff_compare_reward_envs/best5.pt',
              '../results/cliff_compare_reward_envs/best6.pt',
              '../results/cliff_compare_reward_envs/best0.pt',
-             '../results/cliff_compare_reward_envs/best-1.pt',
+             # '../results/cliff_compare_reward_envs/best-1.pt',
              '../results/cliff_compare_reward_envs/best-1_opt.pt'
              ]
 
@@ -20,7 +20,7 @@ LEGEND = [
         'QL + add. non-pot. RN',
         'QL',
         'QL + count-based expl.',
-        'QL + count-based expl. (tuned)'
+        # 'QL + count-based expl. (tuned)'
         ]
 
 STD_MULT = 0.2
@@ -98,9 +98,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env_{MIN_STEPS}_steps.png')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env.png')

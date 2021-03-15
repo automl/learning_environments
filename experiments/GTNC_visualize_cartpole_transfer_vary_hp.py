@@ -10,8 +10,8 @@ LOG_FILES = [
              '../results/cartpole_compare_reward_envs/best_transfer_vary_hp5.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # optimizing ICM HPs did not help
+             # '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
+             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # optimizing ICM HPs did not help
              ]
 
 LEGEND = [
@@ -21,7 +21,7 @@ LEGEND = [
         'DDQN + add. non-pot. RN',
         'DDQN',
         'DDQN + ICM',
-        'DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
+        # 'DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
         ]
 
 
@@ -101,9 +101,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp_{MIN_STEPS}_steps.png')
+    plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.png')

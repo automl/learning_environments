@@ -3,43 +3,43 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-#
-# LOG_FILES = [
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo1.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo2.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo5.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo6.pt',   # smaller lr running
-
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo0.pt',   # replaced by smaller lr
-#              # '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo0.pt',
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo-1.pt',   # to start after ICM BOHB done
-
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo3.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo4.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',   # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',   # smaller lr running
-
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',  # smaller lr running
-#              '../results/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'   # smaller lr running
-#              ]
 
 LOG_FILES = [
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo1.pt',
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo2.pt',
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo5.pt',
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo6.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo1.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo2.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo5.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo6.pt',   # smaller lr running
 
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo0.pt',
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo-1.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo0.pt',   # replaced by smaller lr
+             # '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo0.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo-1.pt',   # to start after ICM BOHB done
 
-            '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo3.pt',
-            '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo4.pt',
-            '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo7.pt',
-            '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo8.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo3.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo4.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',   # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',   # smaller lr running
 
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo101.pt',
-             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo102.pt'
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',  # smaller lr running
+             '../results/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'   # smaller lr running
              ]
+
+# LOG_FILES = [
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo1.pt',
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo2.pt',
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo5.pt',
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo6.pt',
+#
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo0.pt',
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo-1.pt',
+#
+#             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo3.pt',
+#             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo4.pt',
+#             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo7.pt',
+#             '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo8.pt',
+#
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo101.pt',
+#              '../results/halfcheetah_compare_reward_envs_lr_1e-5/best_transfer_algo102.pt'
+#              ]
 
 
 LEGEND = [
@@ -150,9 +150,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo_{MIN_STEPS}_steps.png')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.png')

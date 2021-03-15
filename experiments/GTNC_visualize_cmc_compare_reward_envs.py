@@ -10,7 +10,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best5.pt',
         '../results/cmc_compare_reward_envs/best6.pt',
         '../results/cmc_compare_reward_envs/best0.pt',
-        '../results/cmc_compare_reward_envs/best-1.pt',
+        # '../results/cmc_compare_reward_envs/best-1.pt',
         '../results/cmc_compare_reward_envs/best-1_icm_opt1.pt'
         ]
 
@@ -21,7 +21,7 @@ LEGEND = [
         'TD3 + add. non-pot. RN',
         'TD3',
         'TD3 + ICM',
-        'TD3 + ICM (tuned)',
+        # 'TD3 + ICM (tuned)',
         ]
 
 STD_MULT = 0.2
@@ -108,9 +108,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_compare_reward_env_{MIN_STEPS}_steps.png')
+    plot_data(proc_data=proc_data, savefig_name=f'cmc_compare_reward_env.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'cmc_compare_reward_env.png')
