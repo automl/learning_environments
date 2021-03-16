@@ -129,6 +129,10 @@ class EnvWrapper(nn.Module):
     def render(self):
         if not self.is_virtual_env():
             return self.env.render()
+        else:
+            # hacky
+            self.env.reset_env.state = self.env.state
+            return self.env.reset_env.render()
 
     def close(self):
         if not self.is_virtual_env():
