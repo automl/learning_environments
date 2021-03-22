@@ -42,7 +42,8 @@ def train_test_agents(train_env, test_env, config):
 
 
 if __name__ == "__main__":
-    file_path = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0/CartPole-v0_24_I8EZDI.pt'
+    # file_path = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0/CartPole-v0_24_I8EZDI.pt'
+    file_path = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTN_models_CartPole-v0_opt/CartPole-v0_39_ICNUC3.pt'
 
     virtual_env, real_env, config = load_envs_and_config(file_path, device='cuda')
     train_test_agents(train_env=virtual_env, test_env=real_env, config=config)

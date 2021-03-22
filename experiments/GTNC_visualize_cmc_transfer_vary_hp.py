@@ -11,7 +11,7 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
         '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
-        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # running
+        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance, probably overfitted and can't cope with changing HPs
         ]
 
 
@@ -107,7 +107,7 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

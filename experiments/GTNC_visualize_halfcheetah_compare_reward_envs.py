@@ -27,6 +27,7 @@ LOG_FILES = [
 
         '../results/halfcheetah_compare_reward_envs/best0.pt',
         '../results/halfcheetah_compare_reward_envs/best-1.pt',
+        '../results/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',  # optimizing ICM HPs did not help
 
         '../results/halfcheetah_compare_reward_envs/best3.pt',  #
         '../results/halfcheetah_compare_reward_envs/best4.pt',  #
@@ -60,6 +61,7 @@ LEGEND = [
 
         'TD3',
         'TD3 + ICM',
+        'TD3 + ICM (tuned)',
 
         'TD3 + exc. pot. RN + augm.',
         'TD3 + add. pot. RN + augm.',
@@ -72,6 +74,7 @@ LEGEND = [
 
 STD_MULT = .2
 MIN_STEPS = 1000000
+MIN_STEPS = 500000
 # MIN_STEPS = 200000
 
 
@@ -134,14 +137,21 @@ def plot_data(proc_data, savefig_name):
     #     plt.plot(mean_w)
     #     colors.append(plt.gca().lines[-1].get_color())
 
+    styl_list = ['-', '--', '-.', ':']  # list of basic linestyles
+    # colors = ["darkturquoise", "cadetblue", "lightseagreen", "darkcyan", "deepskyblue", "lightskyblue", "steelblue", "cyan"]
+
     for i, data in enumerate(proc_data):
         mean, std = data
+        # if i >= 7:
+        #     plt.plot(mean, linewidth=.5, color=colors[i-7])
         if i == 10:
-            plt.plot(mean, color='#575757', linewidth=1)
+            plt.plot(mean, color='#575757', linewidth=.8)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00', linewidth=1)
+            plt.plot(mean, color='#EBBB00', linewidth=.8)
+        elif i == 12:
+            plt.plot(mean, color="darkcyan", linewidth=.8)
         else:
-            plt.plot(mean, linewidth=1)
+            plt.plot(mean, linewidth=.8)
 
     for i, data in enumerate(proc_data):
         mean, std = data
@@ -149,6 +159,8 @@ def plot_data(proc_data, savefig_name):
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#575757')
         elif i == 11:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#EBBB00')
+        elif i == 12:
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color="darkcyan")
         else:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
@@ -162,10 +174,10 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env.png')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_2.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_2.png')

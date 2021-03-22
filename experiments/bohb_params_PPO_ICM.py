@@ -122,7 +122,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'bohb_params_ppo_hc_icm_1e-3_ent_coef_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'bohb_params_ppo_hc_icm_1e-3_ent_coef_1e-1_action_std_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

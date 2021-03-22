@@ -11,12 +11,13 @@ LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
 
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+             # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
 
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt', #
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt', #
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt', #
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt', #
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
 
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
@@ -30,6 +31,7 @@ LEGEND = [
 
         'TD3',
         'TD3 + ICM',
+        # 'TD3 + ICM (tuned)',
 
         'TD3 + exc. pot. RN + augm.',
         'TD3 + add. pot. RN + augm.',
@@ -107,11 +109,13 @@ def plot_data(proc_data, savefig_name):
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.plot(mean, color='#575757', linewidth=1)
+            plt.plot(mean, color='#575757', linewidth=.8)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00', linewidth=1)
+            plt.plot(mean, color='#EBBB00', linewidth=.8)
+        elif i == 12:
+            plt.plot(mean, color="darkcyan", linewidth=.8)
         else:
-            plt.plot(mean, linewidth=1)
+            plt.plot(mean, linewidth=.8)
 
     for i, data in enumerate(proc_data):
         mean, std = data
@@ -119,6 +123,8 @@ def plot_data(proc_data, savefig_name):
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#575757')
         elif i == 11:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#EBBB00')
+        elif i == 12:
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color="darkcyan")
         else:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
@@ -131,7 +137,7 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

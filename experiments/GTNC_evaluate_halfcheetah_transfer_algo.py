@@ -7,10 +7,11 @@ import hpbandster.core.result as hpres
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
-# SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/halfcheetah_compare_reward_envs'
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs'
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_lr_1e-3_update_eps_1_ppo_epochs_10'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_bohb_opt_1k_episodes'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_5e-2_action_std'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_5e-2_action_std'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std'
+
 
 LOG_DICT = {}
 LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
@@ -75,30 +76,27 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['ppo'] = {}
     config['agents']['ppo']['test_episodes'] = 1
-    config['agents']['ppo']['train_episodes'] = 1000
+    config['agents']['ppo']['train_episodes'] = 5000
     config['agents']['ppo']['print_rate'] = 100
 
     config['agents']['ppo']['init_episodes'] = 0
-    # config['agents']['ppo']['update_episodes'] = 10
     config['agents']['ppo']['update_episodes'] = 1
     config['agents']['ppo']['ppo_epochs'] = 10
     config['agents']['ppo']['gamma'] = 0.99
     # config['agents']['ppo']['lr'] = 3e-4
     config['agents']['ppo']['lr'] = 1e-5
-    # config['agents']['ppo']['lr'] = 1e-3
-    # config['agents']['ppo']['vf_coef'] = 1
-    config['agents']['ppo']['vf_coef'] = 0.2
+    config['agents']['ppo']['vf_coef'] = 1
     # config['agents']['ppo']['ent_coef'] = 0.01
-    config['agents']['ppo']['ent_coef'] = 0.001
+    # config['agents']['ppo']['ent_coef'] = 0.001
+    config['agents']['ppo']['ent_coef'] = 0.0
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
     config['agents']['ppo']['same_action_num'] = 1
-    # config['agents']['ppo']['activation_fn'] = 'relu'
     config['agents']['ppo']['activation_fn'] = 'tanh'
     config['agents']['ppo']['hidden_size'] = 128
     config['agents']['ppo']['hidden_layer'] = 2
-    # config['agents']['ppo']['action_std'] = 0.2
-    config['agents']['ppo']['action_std'] = 0.05
+    # config['agents']['ppo']['action_std'] = 0.05  # bohb opt
+    config['agents']['ppo']['action_std'] = 0.1
 
     config['agents']['ppo']['early_out_num'] = 50
     config['agents']['ppo']['early_out_virtual_diff'] = 0.02
@@ -106,10 +104,10 @@ def train_test_agents(mode, env, real_env, config):
     # todo: optimize ICM HPs with above PPO HPs
     config['agents']['icm'] = {}
     config['agents']['icm']['beta'] = 0.05
-    config['agents']['icm']['eta'] = 0.01
+    config['agents']['icm']['eta'] = 0.03
     config['agents']['icm']['feature_dim'] = 32
     config['agents']['icm']['hidden_size'] = 128
-    config['agents']['icm']['lr'] = 1e-5
+    config['agents']['icm']['lr'] = 1e-4
 
     # default ICM HPs:
     # config['agents']['icm'] = {}

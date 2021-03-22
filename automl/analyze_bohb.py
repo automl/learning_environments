@@ -412,8 +412,8 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-10'
     # title = "DDQN ICM on CartPole"
 
-    # log_dir = '../results/bohb_params_td3_icm_hc_2021-03-08-20'
-    # title = "TD3 ICM on HC"
+    log_dir = '../results/bohb_params_td3_icm_hc_2021-03-08-20'
+    title = "TD3 ICM on HC"
 
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-08-22'
     # title = "TD3 ICM on CMC"
@@ -427,10 +427,13 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_ppo_hc_2021-03-13-23'
     # title = "PPO on HC"
 
-    log_dir = '../results/bohb_params_td3_icm_cmc_max_reward_2021-03-16-00'
-    title = "TD3 ICM on CM (max. reward)"
+    # log_dir = '../results/bohb_params_td3_icm_cmc_max_reward_2021-03-16-00'
+    # title = "TD3 ICM on CMC max. reward"
 
     # log_dir = '../results/bohb_params_td3_icm_hc_max_reward_2021-03-16-00'
-    # title = "TD3 ICM on HC (max. reward)"
+    # title = "TD3 ICM on HC max. reward"
+
+    log_dir = '../results/bohb_params_ppo_hc_icm_1e-3_ent_coef_1e-1_action_std_2021-03-19-20'
+    title = "PPO ICM on HC max. reward"
 
     analyze_bohb(log_dir, title=title)

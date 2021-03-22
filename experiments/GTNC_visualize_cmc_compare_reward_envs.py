@@ -10,8 +10,8 @@ LOG_FILES = [
         '../results/cmc_compare_reward_envs/best5.pt',
         '../results/cmc_compare_reward_envs/best6.pt',
         '../results/cmc_compare_reward_envs/best0.pt',
-        # '../results/cmc_compare_reward_envs/best-1.pt',
-        '../results/cmc_compare_reward_envs/best-1_icm_opt1.pt'
+        '../results/cmc_compare_reward_envs/best-1.pt',
+        # '../results/cmc_compare_reward_envs/best-1_icm_opt.pt'
         ]
 
 LEGEND = [
@@ -108,7 +108,7 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

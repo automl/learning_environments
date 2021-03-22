@@ -96,9 +96,17 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['td3']['early_out_virtual_diff'] = 0.02
 
     # optimized ICM HPs:
+    # config['agents']['icm'] = {}
+    # config['agents']['icm']['beta'] = 0.05
+    # config['agents']['icm']['eta'] = 0.01
+    # config['agents']['icm']['feature_dim'] = 32
+    # config['agents']['icm']['hidden_size'] = 128
+    # config['agents']['icm']['lr'] = 1e-5
+
+    # optimized ICM HPs (from max. reward run):
     config['agents']['icm'] = {}
-    config['agents']['icm']['beta'] = 0.05
-    config['agents']['icm']['eta'] = 0.01
+    config['agents']['icm']['beta'] = 0.001
+    config['agents']['icm']['eta'] = 0.1
     config['agents']['icm']['feature_dim'] = 32
     config['agents']['icm']['hidden_size'] = 128
     config['agents']['icm']['lr'] = 1e-5
@@ -125,6 +133,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
+    # file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + "_bohb_max_reward_run" + '.pt')
     file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
