@@ -290,3 +290,9 @@ python3 experiments/GTNC_visuaize_gridworld_heatmap.py
 ```
 with a suitable "RESULT_FILE" variable.
 
+## Cuda vs. CPU
+
+CPU as device shall be used whenever there is training with ES involved. In all other cases (i.e. when evaluating the pretrained
+virtual envs) one can use either Cuda or CPU.
+
+
