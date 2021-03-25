@@ -21,9 +21,14 @@ Several scripts in the experiments folder make use of the three-level optimizati
 
 During parallelization, the logic is as follows: A single BOHB master orchestrates several BOHB workers (done by the BOHB package).
 Every BOHB worker corresponds to a GTN-RL master and every GTN-RL master (GTN_master.py) orchestrates several GTN-RL workers  
-(GTN_worker.py) via file IO. In each GTN-RL outer loop the GTN-RL master writes an individual input file and an input check file 
-(the latter just prevents the first file from being read too early) to all of its GTN-RL works. After they finished calculations,
-they write a result file and a result check file, which is then read again by the GTN-RL master.
+(GTN_worker.py) via file IO. In each GTN-RL outer loop the GTN-RL master writes an individual input file (```<XXX>_input.py```) 
+and an input check file (```<XXX>_input_check.py```)
+(the latter just prevents the first file from being read too early) to all of its GTN-RL workers. After they finished calculations,
+they write a result file (```<XXX>_result.py```) and a result check file (```<XXX>_result_check.py```), 
+which contains the result of their calculations (i.e. the cumulative reward for the disturbed environment) 
+and is then read again by the GTN-RL master.
+After having received the result file from all GTN-RL workers, the GTN-RL master optimizes the synthetic/reward environment
+and a new GTN-RL outer loop begins.
 
 To ensure that the individual files can be distinguished, every GTN-RL master and worker can be uniquely identified by
 a combination of its BOHB-ID (assigned to the GTN-RL master and all GTN-RL workers of a single BOHB worker) and its ID
@@ -78,7 +83,7 @@ source ~/master_thesis/mtenv/bin/activate
 echo "run script"
 export PYTHONPATH=$PYTHONPATH:/home/nierhoff/master_thesis/learning_environments
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/nierhoff/.mujoco/mjpro150/bin
-bohb_id=$(($SLURM_ARRAY_TASK_ID/3+0))
+bohb_id=$(($SLURM_ARRAY_TASK_ID/3+0))   # round down because every GTN-RL master (identified by the bohb_id) has three GTN-RL workers
 id=$(($SLURM_ARRAY_TASK_ID%3))
 cd experiments
 python3 -u GTN_Worker.py $bohb_id $id
@@ -119,14 +124,16 @@ python3 GTNC_evaluate_cartpole.py &
 
 ## Training Synthetic Environments after HPO
 
-To train synthetic environments, run the corresponding "GTNC_evaluate_XXX.py" script, e.g.
+To train synthetic environments, run the corresponding "GTNC_evaluate_<XXX>.py" script, e.g.
 ```
 GTNC_evaluate_gridworld.py
 GTNC_evaluate_acrobot.py
 GTNC_evaluate_cartpole.py
 ```
 as described in the "Example" section before. It might be necessary to modify some parameters in the corresponding .yaml file.
-The trained synthetic environments are then called within other functions to generate the plots as described in the "Visualizations scripts" section
+The trained synthetic environments are then called within other functions to generate the plots as described in the "Visualizations scripts" section.
+Note that aforementioned scripts only use BOHB to parallelize the calculations but not to optimize any hyperparameters.
+The "run_id" parameter in the *.py files determines the output path where all synthetic environments are saved
 
 ## Training Reward Environments after HPO
 
