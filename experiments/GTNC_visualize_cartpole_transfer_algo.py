@@ -9,7 +9,7 @@ LOG_FILES = [
              '../results/cartpole_compare_reward_envs/best_transfer_algo5.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_algo6.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_algo0.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
+             # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
              '../results/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
              ]
 
@@ -20,7 +20,7 @@ LEGEND = [
         'Duel.-DDQN + add. non-pot. RN',
         'Duel.-DDQN',
         'Duel.-DDQN + ICM',
-        'Duel.-DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
+        # 'Duel.-DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
         ]
 
 

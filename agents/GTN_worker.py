@@ -200,6 +200,7 @@ class GTN_Worker(GTN_Base):
             else:
                 print(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
                 # we maximize the objective
+                # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
                 return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
 
 

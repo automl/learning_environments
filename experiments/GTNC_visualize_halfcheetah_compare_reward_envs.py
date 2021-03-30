@@ -27,12 +27,13 @@ LOG_FILES = [
 
         '../results/halfcheetah_compare_reward_envs/best0.pt',
         '../results/halfcheetah_compare_reward_envs/best-1.pt',
-        '../results/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',  # optimizing ICM HPs did not help
+        # '../results/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',
+        # '../results/halfcheetah_compare_reward_envs/best-1_bohb_max_reward_run.pt', # optimizing ICM HPs did not help
 
-        '../results/halfcheetah_compare_reward_envs/best3.pt',  #
-        '../results/halfcheetah_compare_reward_envs/best4.pt',  #
-        '../results/halfcheetah_compare_reward_envs/best7.pt',  #
-        '../results/halfcheetah_compare_reward_envs/best8.pt',  #
+        '../results/halfcheetah_compare_reward_envs/best3.pt',
+        '../results/halfcheetah_compare_reward_envs/best4.pt',
+        '../results/halfcheetah_compare_reward_envs/best7.pt',
+        '../results/halfcheetah_compare_reward_envs/best8.pt',
 
         '../results/halfcheetah_compare_reward_envs/best101.pt',
         '../results/halfcheetah_compare_reward_envs/best102.pt'
@@ -61,7 +62,7 @@ LEGEND = [
 
         'TD3',
         'TD3 + ICM',
-        'TD3 + ICM (tuned)',
+        # 'TD3 + ICM (tuned)',
 
         'TD3 + exc. pot. RN + augm.',
         'TD3 + add. pot. RN + augm.',
@@ -73,9 +74,9 @@ LEGEND = [
         ]
 
 STD_MULT = .2
-MIN_STEPS = 1000000
+# MIN_STEPS = 1000000
 MIN_STEPS = 500000
-# MIN_STEPS = 200000
+# MIN_STEPS = 300000
 
 
 def get_data():
@@ -145,24 +146,24 @@ def plot_data(proc_data, savefig_name):
         # if i >= 7:
         #     plt.plot(mean, linewidth=.5, color=colors[i-7])
         if i == 10:
-            plt.plot(mean, color='#575757', linewidth=.8)
+            plt.plot(mean, color='#575757', linewidth=1)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00', linewidth=.8)
+            plt.plot(mean, color='#EBBB00', linewidth=1)
         elif i == 12:
-            plt.plot(mean, color="darkcyan", linewidth=.8)
+            plt.plot(mean, color="darkcyan", linewidth=1)
         else:
-            plt.plot(mean, linewidth=.8)
+            plt.plot(mean, linewidth=1)
 
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#575757')
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color='#575757')
         elif i == 11:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#EBBB00')
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color='#EBBB00')
         elif i == 12:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color="darkcyan")
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color="darkcyan")
         else:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
 
     plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
@@ -170,7 +171,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('HalfCheetah-v3')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    plt.ylim(-1000, 7500)
+    plt.ylim(-1000, 6000)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
@@ -179,5 +180,5 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_2.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_2.png')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.png')

@@ -88,7 +88,7 @@ def plot_data(proc_data, savefig_name):
         plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.3)
 
     plt.legend(LEGEND, fontsize=7)
 
@@ -101,7 +101,7 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

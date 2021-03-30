@@ -11,8 +11,9 @@ LOG_FILES = [
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
 
              '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-             # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+            # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+            # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
 
             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
@@ -43,8 +44,9 @@ LEGEND = [
         ]
 
 STD_MULT = .2
-MIN_STEPS = 1000000
+# MIN_STEPS = 1000000
 # MIN_STEPS = 300000
+MIN_STEPS = 500000
 
 
 def get_data():
@@ -109,13 +111,13 @@ def plot_data(proc_data, savefig_name):
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.plot(mean, color='#575757', linewidth=.8)
+            plt.plot(mean, color='#575757', linewidth=1)
         elif i == 11:
-            plt.plot(mean, color='#EBBB00', linewidth=.8)
+            plt.plot(mean, color='#EBBB00', linewidth=1)
         elif i == 12:
-            plt.plot(mean, color="darkcyan", linewidth=.8)
+            plt.plot(mean, color="darkcyan", linewidth=1)
         else:
-            plt.plot(mean, linewidth=.8)
+            plt.plot(mean, linewidth=1)
 
     for i, data in enumerate(proc_data):
         mean, std = data
@@ -133,7 +135,7 @@ def plot_data(proc_data, savefig_name):
     plt.title('HalfCheetah-v3 Varied Hyperparameters')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    plt.ylim(-1000, 7000)
+    plt.ylim(-1000, 6000)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
@@ -142,5 +144,5 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp.png')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.png')

@@ -5,9 +5,9 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 20                # maximum number of GTN iterations
+    max_iterations: !!int 100               # maximum number of GTN iterations
     num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
-    num_workers: !!int 16                   # size of the population
+    num_workers: !!int 128                  # size of the population
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
@@ -16,19 +16,19 @@ agents:
     grad_eval_type: !!str mean              # mean or minmax
     weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
-    time_max: !!float 3600                  # maximum allocated time for first iteration
+    time_max: !!float 360000                # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 7           # 0-7
     quit_when_solved: !!bool True           # continue training once the environment has been solved?
-    synthetic_env_type: !!int 1             # 0: virtual env / 1: reward env
+    synthetic_env_type: !!int 0             # 0: virtual env / 1: reward env
     unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
-    agent_name: !!str td3                   # which RL agent to use for meta-training
+    agent_name: !!str td3_vary              # which RL agent to use for meta-training
 
 
   td3:
-    train_episodes: !!int 1000               # maximum number of episodes to optimize
-    test_episodes: !!int 1                 # maximum number of episodes to evaluate
+    train_episodes: !!int 1000              # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to evaluate
     init_episodes: !!int 20                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
     gamma: !!float 0.99                     # discount factor
@@ -43,8 +43,8 @@ agents:
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1                          # update rate of avg meters
-    early_out_num: !!int 50                  # based on how many training episodes shall an early out happen
+    print_rate: 1                           # update rate of avg meters
+    early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 
   icm:
