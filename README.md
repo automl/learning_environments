@@ -39,7 +39,7 @@ with X as the number of GTN-RL workers per GTN-RL master.
 
 ### Example
 
-To start a BOHB script (in this example: experiments/GTNC_evaluate_cartpole.py) with two BOHB workers (i.e. two GTN-RL master) 
+To start a BOHB script (in this example: experiments/GTNC_evaluate_cartpole_params.py) with two BOHB workers (i.e. two GTN-RL master) 
 and 3 GTN-RL slaves per GTN-RL master, execute the following procedure:
 
 - ensure that the values in the loaded config file (look up the .py file to see which yaml file is loaded) are set to proper values:
@@ -54,8 +54,8 @@ python3 GTN_Worker.py 0 2 &
 python3 GTN_Worker.py 1 0 &
 python3 GTN_Worker.py 1 1 &
 python3 GTN_Worker.py 1 2 &
-python3 GTNC_evaluate_cartpole.py 0 3 &
-python3 GTNC_evaluate_cartpole.py 1 3 &
+python3 GTNC_evaluate_cartpole_params.py 0 3 &
+python3 GTNC_evaluate_cartpole_params.py 1 3 &
 ```
 
 An easier way on the slurm cluster would be the use of two scripts, the first script to call the GTN-RL workers (change absolute paths where necessary):
@@ -114,7 +114,7 @@ A third alternative is to run everything (single GTN-RL master and multiple GTN-
 All the scripts in the experiments folder containing a "run_bohb_serial" method support this feature. Just call 
 ```
 python3 GTN_Worker_single_pc.py &
-python3 GTNC_evaluate_cartpole.py &
+python3 GTNC_evaluate_cartpole_params.py &
 ```
 
 ## Training Synthetic Environments after HPO
