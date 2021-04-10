@@ -15,11 +15,13 @@ TITLES = []
 MEAN_TRAIN_STEPS = []
 STD_TRAIN_STEPS = []
 
-FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_vary_trained_on')
+FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/' \
+                 '/ddqn_vary_trained_on')
 PLOT_NAMES.append('acrobot_ddqn_vary_hp.eps')
 TITLES.append("Trained synth. env. with DDQN")
 
-FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_to_duelingddqn_vary')
+FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot' \
+                 '/ddqn_to_duelingddqn_vary')
 PLOT_NAMES.append('acrobot_ddqn_to_duelingddqn_vary_hp_both_lengths.eps')
 TITLES.append("Transfer DDQN -> Dueling DDQN")
 
@@ -42,12 +44,15 @@ dueling_ddqn_std_train_steps = [79218.56009538576, 6401.7216619706105, 8945.4778
 MEAN_TRAIN_STEPS.append(dueling_ddqn_mean_train_steps)
 STD_TRAIN_STEPS.append(dueling_ddqn_std_train_steps)
 
-# MEAN_TRAIN_STEPS.append([50000, 50000, 50000])
-# STD_TRAIN_STEPS.append([50000, 50000, 50000])
+td3d_mean_train_steps = []
+td3d_std_train_steps = []
+
+MEAN_TRAIN_STEPS.append(td3d_mean_train_steps)
+STD_TRAIN_STEPS.append(td3d_std_train_steps)
 
 if __name__ == "__main__":
 
-    fig, axes = plt.subplots(figsize=(10, 5), ncols=2, nrows=2, sharex="row", sharey="row", gridspec_kw={
+    fig, axes = plt.subplots(figsize=(15, 5), ncols=3, nrows=2, sharex="row", sharey="row", gridspec_kw={
             'height_ratios': [2, 1.2]
             })
 
@@ -137,39 +142,37 @@ if __name__ == "__main__":
                             std_train_steps[2], episode_num_needed_stds[2]]
                 })
 
-        scale = 1000
+        scale = 100
         barplot_df['means'] = np.where(barplot_df['type'] == 'episodes', barplot_df['means'] * scale, barplot_df['means'])
         barplot_df['std dev'] = np.where(barplot_df['type'] == 'episodes', barplot_df['std dev'] * scale, barplot_df['std dev'])
+
+        axis_left = axes[1, i]
+        print("before:", axis_left.get_ylim())
+        print("before:", axis_left.get_yticks())
 
         p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[1, i],
                         palette=sns.color_palette("Paired"))
 
-        axis_left = axes[1, i]
-        axis_right = axis_left.twinx()
-        # axis_right.set_ylim(axis_left.get_ylim())
-
-        # axis_left.set_yticks(np.linspace(axis_left.get_ybound()[0], axis_left.get_ybound()[1], 5))
-        # axis_right.set_yticks(np.linspace(axis_left.get_ybound()[0], axis_left.get_ybound()[1], 5))
-
-        axis_right.set_yticks(np.linspace(axis_left.get_yticks()[0], axis_left.get_yticks()[-1], len(axis_left.get_yticks())))
-        axis_left.set_yticks(np.linspace(axis_right.get_yticks()[0], axis_right.get_yticks()[-1], len(axis_right.get_yticks())))
-        plt.setp(axis_right.get_yticklabels()[0], visible=False)
-        plt.setp(axis_right.get_yticklabels()[-1], visible=False)
-
-        for tick in axis_left.yaxis.get_major_ticks():
-            tick.label.set_fontsize(9)
-
-        axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
+        print("after:", axis_left.get_ylim())
+        print("after:", axis_left.get_yticks())
 
         if i == 0:
             p.axes.get_legend().set_title("")
-            axis_left.set_ylabel("mean train steps")
-            axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
+            axis_left_after = axes[1, i]
+            axis_right_after = axis_left.twinx()
+            axis_left_after.set_ylabel("mean train steps")
+            axis_right_after.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
+
             axis_left.get_xaxis().get_label().set_visible(False)
 
         else:
             p.axes.get_xaxis().get_label().set_visible(False)
             p.axes.get_legend().set_visible(False)
+
+            axis_left = axes[1, i]
+            axis_right = axis_left.twinx()
+            axis_right.set_ylim(axis_left.get_ylim())
+            axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
 
             # remove tick labels from 2nd and 3rd plot but keep it in first while sharedx is active
             axes[1, i].tick_params(labelbottom=False)
@@ -177,13 +180,15 @@ if __name__ == "__main__":
             axis_left.get_yaxis().get_label().set_visible(False)
             axis_left.get_xaxis().get_label().set_visible(False)
             axis_right.get_yaxis().get_label().set_visible(False)
-            axis_right.get_yaxis().set_ticklabels([])
+            # axis_right.get_yaxis().set_ticklabels([])
             axes[1, i].get_xaxis().get_label().set_visible(False)
 
-        # todo:
-        # for x, y, mean in zip([0, 1], [220, 220], mean_list):
-        #     plt.text(x, y, mean, ha='center', va='top', fontsize=9)
+        for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
+            plt.text(x, y, mean, ha='center', va='top', fontsize=9)
+
+    axis_right_after.set_ylim(axis_left_after.get_ylim())
+    axis_right_after.set_yticklabels(np.round(axis_left_after.get_yticks() / scale, 1).astype(int))
 
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), "AB_vary_hp_merged_plots.pdf"))
+    plt.savefig(os.path.join(os.getcwd(), "AB_vary_hp_merged_plots.pdf"), bbox_inches='tight')
     plt.show()
