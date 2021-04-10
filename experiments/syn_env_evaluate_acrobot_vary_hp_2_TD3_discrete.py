@@ -9,6 +9,10 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 from experiments.syn_env_run_vary_hp import run_vary_hp
 
+# 5 models
+filter_models_list = ["Acrobot-v1_223R5W.pt", "Acrobot-v1_2XMO40.pt", "Acrobot-v1_7DQP5Z.pt",
+                      "Acrobot-v1_8MYN67.pt", "Acrobot-v1_9MA9G8.pt"]
+
 
 def load_envs_and_config(file_name, model_dir, device):
     file_path = os.path.join(model_dir, file_name)
@@ -86,9 +90,9 @@ if __name__ == "__main__":
     if args.mode is not None:
         run_vary_hp(mode=args.mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
                     model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
-                    custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device)
+                    custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, filter_models_list=filter_models_list)
     else:
         for mode in range(3):
             run_vary_hp(mode=mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
                         model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
-                        custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device)
+                        custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, filter_models_list=filter_models_list)
