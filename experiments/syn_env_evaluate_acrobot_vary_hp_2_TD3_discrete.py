@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
 
-    experiment_name = "ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2" + \
+    experiment_name = "ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2_best_5_models_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "Acrobot"
