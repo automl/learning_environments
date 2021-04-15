@@ -13,6 +13,7 @@ from experiments.syn_env_run_vary_hp import run_vary_hp
 filter_models_list = ["Acrobot-v1_223R5W.pt", "Acrobot-v1_2XMO40.pt", "Acrobot-v1_7DQP5Z.pt",
                       "Acrobot-v1_8MYN67.pt", "Acrobot-v1_9MA9G8.pt"]
 
+# filter_models_list = None
 
 def load_envs_and_config(file_name, model_dir, device):
     file_path = os.path.join(model_dir, file_name)
@@ -78,6 +79,9 @@ if __name__ == "__main__":
 
     experiment_name = "ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2_best_5_models_" + \
                       str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
+
+    # experiment_name = "ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2_" + \
+    #                   str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
 
     env_name = "Acrobot"
 

@@ -46,7 +46,6 @@ td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
 td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
 show_5_best_jointly_with_other = True
-show_only_kde = False
 
 if show_5_best_jointly_with_other:
     # mode 2, 5 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py for which one), 4k evals (80(agents_num)*5(models)*10(
@@ -56,26 +55,18 @@ if show_5_best_jointly_with_other:
     TITLES[2] = "Transfer DDQN -> TD3"
     FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
 
-if show_only_kde:
-    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde.pdf'
-else:
-    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3.pdf'
+plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_barplot.pdf'
 
 key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
 STD_TRAIN_STEPS.append(td3_std_train_steps)
 
 if __name__ == "__main__":
-    if show_only_kde:
-        nrows = 1
-        gridspec_kw = {}
-        figsize = (15, 3)
-    else:
-        nrows = 2
-        gridspec_kw = {'height_ratios': [2, 1.2]}
-        figsize = (15, 5)
+    nrows = 1
+    gridspec_kw = {}
+    figsize = (15, 2)
 
-    fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex="row", sharey="row", gridspec_kw=gridspec_kw)
+    fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex=False, sharey="row", gridspec_kw=gridspec_kw)
 
     for i, data in enumerate(zip(FILE_DIRS, FILE_LISTS, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
         FILE_DIR, FILE_LIST, title, mean_train_steps, std_train_steps = data
@@ -167,96 +158,85 @@ if __name__ == "__main__":
         else:
             palette = ["C0", "C1", "C2"]
 
-        if show_only_kde:
-            ax = axes[i]
+        barplot_data_dct = {
+                "type": ["steps", "episodes",
+                         "steps", "episodes",
+                         "steps", "episodes"],
+                "method": ["train: real\nHP: varying", "train: real\nHP: varying",
+                           "train: synth.\nHP: varying", "train: synth.\nHP: varying",
+                           "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"],
+                "means": [mean_train_steps[0], episode_num_needed_means[0],
+                          mean_train_steps[1], episode_num_needed_means[1],
+                          mean_train_steps[2], episode_num_needed_means[2]],
+                "std dev": [std_train_steps[0], episode_num_needed_stds[0],
+                            std_train_steps[1], episode_num_needed_stds[1],
+                            std_train_steps[2], episode_num_needed_stds[2]]
+                }
+
+        if show_5_best_jointly_with_other and i == 2:
+            barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
+                                          "train: synth.\nHP: varying (5 best)", "train: synth.\nHP: varying (5 best)",
+                                          "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
         else:
-            ax = axes[0, i]
-        g = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax, palette=palette)
-        g.set_title(title)
+            barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
+                                          "train: synth.\nHP: varying", "train: synth.\nHP: varying",
+                                          "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
+
+        barplot_df = pd.DataFrame(barplot_data_dct)
+
+        scale = 100
+        barplot_df['means'] = np.where(barplot_df['type'] == 'episodes', barplot_df['means'] * scale, barplot_df['means'])
+        barplot_df['std dev'] = np.where(barplot_df['type'] == 'episodes', barplot_df['std dev'] * scale, barplot_df['std dev'])
+
+        p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[i],
+                        palette=sns.color_palette("Paired"))
+
+        axis_left = axes[i]
+        # axis_right = axis_left.twinx()
+        # axis_right.set_ylim(axis_left.get_ylim())
+        # axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
 
         if i == 0:
-            # remove legend title with hue-kdeplot
-            g.axes.get_legend().set_title("")
-            ax.set_xlabel('cumulative rewards')
-            ax.set_ylabel('Density')
+            p.axes.get_legend().set_title("")
+            axis_left_after = axes[i]
+            # axis_left_after.set_ylim((-10000, 100000))
+            # axis_left_after.set_ylim((-5000, axis_left_after.get_ylim()[1]))
+            axis_right_after = axis_left.twinx()
+            axis_left_after.set_ylabel("mean train steps")
+            axis_right_after.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
+            axis_left.get_xaxis().get_label().set_visible(False)
+
             if show_5_best_jointly_with_other:
-                g.axes.get_legend().set_visible(False)
-        elif i == 2 and show_5_best_jointly_with_other:
-            g.axes.get_legend().set_title("")
-            ax.get_xaxis().get_label().set_visible(False)
-            ax.get_yaxis().get_label().set_visible(False)
+                axes[i].tick_params(labelbottom=True)
+
         else:
-            g.axes.get_legend().set_visible(False)
-            ax.get_xaxis().get_label().set_visible(False)
-            ax.get_yaxis().get_label().set_visible(False)
+            p.axes.get_xaxis().get_label().set_visible(False)
+            p.axes.get_legend().set_visible(False)
 
-        if not show_only_kde:
-
-            barplot_data_dct = {
-                    "type": ["steps", "episodes",
-                             "steps", "episodes",
-                             "steps", "episodes"],
-                    "method": ["train: real\nHP: varying", "train: real\nHP: varying",
-                               "train: synth.\nHP: varying", "train: synth.\nHP: varying",
-                               "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"],
-                    "means": [mean_train_steps[0], episode_num_needed_means[0],
-                              mean_train_steps[1], episode_num_needed_means[1],
-                              mean_train_steps[2], episode_num_needed_means[2]],
-                    "std dev": [std_train_steps[0], episode_num_needed_stds[0],
-                                std_train_steps[1], episode_num_needed_stds[1],
-                                std_train_steps[2], episode_num_needed_stds[2]]
-                    }
-
-            if show_5_best_jointly_with_other and i == 2:
-                barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
-                                              "train: synth.\nHP: varying (5 best)", "train: synth.\nHP: varying (5 best)",
-                                              "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
-            else:
-                barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
-                                              "train: synth.\nHP: varying", "train: synth.\nHP: varying",
-                                              "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
-
-            barplot_df = pd.DataFrame(barplot_data_dct)
-
-            scale = 100
-            barplot_df['means'] = np.where(barplot_df['type'] == 'episodes', barplot_df['means'] * scale, barplot_df['means'])
-            barplot_df['std dev'] = np.where(barplot_df['type'] == 'episodes', barplot_df['std dev'] * scale, barplot_df['std dev'])
-
-            p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[1, i],
-                            palette=sns.color_palette("Paired"))
-
-            axis_left = axes[1, i]
+            axis_left = axes[i]
+            # axis_left.set_ylim((-10000, 100000))
+            # axis_left.set_ylim((-5000, axis_left.get_ylim()[1]))
             axis_right = axis_left.twinx()
             axis_right.set_ylim(axis_left.get_ylim())
             axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
 
-            if i == 0:
-                p.axes.get_legend().set_title("")
-                axis_left.set_ylabel("mean train steps")
-                axis_right.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
-                axis_left.get_xaxis().get_label().set_visible(False)
+            # remove tick labels from 2nd and 3rd plot but keep it in first while sharedx is active
+            axes[i].tick_params(labelbottom=False)
 
-                if show_5_best_jointly_with_other:
-                    axes[1, i].tick_params(labelbottom=True)
+            axis_left.get_yaxis().get_label().set_visible(False)
+            axis_left.get_xaxis().get_label().set_visible(False)
+            axis_right.get_yaxis().get_label().set_visible(False)
+            axis_right.get_yaxis().set_ticklabels([])
+            axes[i].get_xaxis().get_label().set_visible(False)
 
-            else:
-                p.axes.get_xaxis().get_label().set_visible(False)
-                p.axes.get_legend().set_visible(False)
+            if show_5_best_jointly_with_other:
+                axes[i].tick_params(labelbottom=True)
 
-                # remove tick labels from 2nd and 3rd plot but keep it in first while sharedx is active
-                axes[1, i].tick_params(labelbottom=False)
+        for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
+            plt.text(x, y, mean, ha='center', va='top', fontsize=8)
 
-                axis_left.get_yaxis().get_label().set_visible(False)
-                axis_left.get_xaxis().get_label().set_visible(False)
-                axis_right.get_yaxis().get_label().set_visible(False)
-                axis_right.get_yaxis().set_ticklabels([])
-                axes[1, i].get_xaxis().get_label().set_visible(False)
-
-                if show_5_best_jointly_with_other:
-                    axes[1, i].tick_params(labelbottom=True)
-
-            for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
-                plt.text(x, y, mean, ha='center', va='top', fontsize=9)
+        axis_right_after.set_ylim(axis_left_after.get_ylim())
+        axis_right_after.set_yticklabels(np.round(axis_left_after.get_yticks() / scale, 1).astype(int))
 
     plt.tight_layout()
     plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name))

@@ -11,14 +11,14 @@ FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_e
 plot_name = 'acrobot_ddqn_to_duelingddqn_vary_hp_both_lengths.eps'
 title = "Transfer DDQN -> Dueling DDQN"
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_vary_trained_on'
-# plot_name = 'acrobot_ddqn_vary_hp.eps'
-# title = "Trained synth. env. with DDQN"
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_vary_trained_on'
+plot_name = 'acrobot_ddqn_vary_hp.eps'
+title = "Trained synth. env. with DDQN"
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_to_td3_discrete_vary' \
-#            '/learned_temp_relu_hard_false_config'
-# plot_name = 'acrobot_ddqn_to_td3_vary_hp_learned_temp_relu_hard_false.eps'
-# title = "Transfer DDQN -> TD3"
+FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/ddqn_to_td3_discrete_vary' \
+           '/learned_temp_relu_hard_false_config'
+plot_name = 'acrobot_ddqn_to_td3_vary_hp_learned_temp_relu_hard_false.eps'
+title = "Transfer DDQN -> TD3"
 
 FILE_LIST = ['0.pt', '2.pt', '1.pt']
 
