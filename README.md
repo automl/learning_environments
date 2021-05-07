@@ -24,31 +24,31 @@ pip install -r requirements.txt
 
 Several scripts in the experiments folder make use of the three-level optimization approach. 
 - outer loop: BOHB
-- middle loop: GTN-RL
+- middle loop: NES (in scripts referred to as "GTN-RL")
 - inner loop: RL 
 
 During parallelization, the logic is as follows: A single BOHB master orchestrates several BOHB workers (done by the BOHB package).
-Every BOHB worker corresponds to a GTN-RL master and every GTN-RL master (GTN_master.py) orchestrates several GTN-RL workers  
-(GTN_worker.py) via file IO. In each GTN-RL outer loop the GTN-RL master writes an individual input file and an input check file 
-(the latter just prevents the first file from being read too early) to all of its GTN-RL works. After they finished calculations,
-they write a result file and a result check file, which is then read again by the GTN-RL master.
+Every BOHB worker corresponds to a NES master and every NES master (referred to as "GTN" -> see GTN_master.py) orchestrates several NES workers  
+(GTN_worker.py) via file IO. In each NES outer loop the NES master writes an individual input file and an input check file 
+(the latter just prevents the first file from being read too early) to all of its NES works. After they finished calculations,
+they write a result file and a result check file, which is then read again by the NES master.
 
-To ensure that the individual files can be distinguished, every GTN-RL master and worker can be uniquely identified by
-a combination of its BOHB-ID (assigned to the GTN-RL master and all GTN-RL workers of a single BOHB worker) and its ID
-(assigned individually to each GTN-RL worker). The general file types for file IO between GTN-RL master and GTN-RL workers thus are:
+To ensure that the individual files can be distinguished, every NES master and worker can be uniquely identified by
+a combination of its BOHB-ID (assigned to the NES master and all NES workers of a single BOHB worker) and its ID
+(assigned individually to each NES worker). The general file types for file IO between NES master and NES workers thus are:
 ```
 <BOHB-ID>_<ID>_input.pt 
 <BOHB-ID>_<ID>_input_check.pt
 <BOHB-ID>_<ID>_result.pt 
 <BOHB-ID>_<ID>_result_check.pt
 ```
-Many scripts allow the BOHB-ID to be chosen manually whereas the ID for the different GTN-RL workers must span the range [0,X] 
-with X as the number of GTN-RL workers per GTN-RL master.
+Many scripts allow the BOHB-ID to be chosen manually whereas the ID for the different NES workers must span the range [0,X] 
+with X as the number of NES workers per NES master.
 
 ### Example
 
-To start a BOHB script (in this example: experiments/GTNC_evaluate_cartpole_params.py) with two BOHB workers (i.e. two GTN-RL master) 
-and 3 GTN-RL slaves per GTN-RL master, execute the following procedure:
+To start a BOHB script (in this example: experiments/GTNC_evaluate_cartpole_params.py) with two BOHB workers (i.e. two NES master) 
+and 3 NES slaves per NES master, execute the following procedure:
 
 - ensure that the values in the loaded config file (look up the .py file to see which yaml file is loaded) are set to proper values:
 ```
@@ -66,7 +66,7 @@ python3 GTNC_evaluate_cartpole_params.py 0 3 &
 python3 GTNC_evaluate_cartpole_params.py 1 3 &
 ```
 
-An easier way on the slurm cluster would be the use of two scripts, the first script to call the GTN-RL workers (change absolute paths where necessary):
+An easier way on the slurm cluster would be the use of two scripts, the first script to call the NES workers (change absolute paths where necessary):
 ```
 #!/bin/bash
 #SBATCH -p bosch_cpu-cascadelake # partition (queue)
@@ -92,7 +92,7 @@ cd experiments
 python3 -u GTN_Worker.py $bohb_id $id
 echo "done"
 ```
-and the second script to call BOHB respectively the GTN-RL master (change absolute paths where necessary):
+and the second script to call BOHB respectively the NES master (change absolute paths where necessary):
 ```
 #!/bin/bash
 #SBATCH -p bosch_cpu-cascadelake # partition (queue)
@@ -118,7 +118,7 @@ python3 -u GTNC_evaluate_cartpole.py $bohb_id 3
 echo "done"
 ```
 
-A third alternative is to run everything (single GTN-RL master and multiple GTN-RL workers) on a single PC, e.g for debug purposes
+A third alternative is to run everything (single NES master and multiple NES workers) on a single PC, e.g for debug purposes
 All the scripts in the experiments folder containing a "run_bohb_serial" method support this feature. Just call 
 ```
 python3 GTN_Worker_single_pc.py &
