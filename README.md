@@ -1,13 +1,13 @@
 # Learning Synthetic Environments for RL with Evolution Strategies Models:
 
 # Paper / Results
-<todo>
+todo
 
 # SE Model Download
 The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AAABsp_5rEwQchZLf1fJDwR7a?dl=0
 
 # RN Model Download
-The models can be downloaded here: <todo>
+The models can be downloaded here: todo
 
 # Installation
 
