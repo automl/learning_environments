@@ -1,5 +1,8 @@
 # Learning Synthetic Environments for RL with Evolution Strategies Models:
 
+# Paper / Results
+<todo>
+
 # SE Model Download
 The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AAABsp_5rEwQchZLf1fJDwR7a?dl=0
 
@@ -18,7 +21,7 @@ pip install -r requirements.txt
 
 # Learning Synthetic Environments
 
-## Optimizing Hyperparameters for Learning Synthetic Environments (three-level optimization)
+## Optimizing Hyperparameters for Learning Synthetic Environments (initial three-level optimization)
 
 ### Overall structure
 
