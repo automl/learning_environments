@@ -1,11 +1,19 @@
 # Learning Synthetic Environments for RL with Evolution Strategies Models:
-## AcroBot-v1 and CartPole-v0:
+
+# SE Model Download
 The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AAABsp_5rEwQchZLf1fJDwR7a?dl=0
+
+# RN Model Download
+The models can be downloaded here: <todo>
 
 # Installation
 
 To install the required packages, you need mujoco (http://mujoco.org/).
-The python3 packages can be installed using the requirements.txt file.
+The python3 packages can be installed using the requirements.txt file:
+
+```
+pip install -r requirements.txt
+```
 
 
 # Learning Synthetic Environments
