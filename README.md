@@ -128,7 +128,7 @@ GTNC_evaluate_cartpole.py
 as described in the "Example" section before. It might be necessary to modify some parameters in the corresponding .yaml file.
 The trained synthetic environments are then called within other functions to generate the plots as described in the "Visualizations scripts" section
 
-## Training Reward Environments after HPO
+## Training Reward Networks after HPO
 
 To train reward environments, run the corresponding "GTNC_evaluate_XXX_reward_env.py" script if there exists a "GTNC_evaluate_XXX.py" script as well.
 In all other cases the script is called "GTNC_evaluate_XXX.py", e.g.
@@ -219,7 +219,7 @@ python3 experiments/GTNC_evaluate_cmc_compare_reward_envs.py <mode>
 python3 experiments/GTNC_evaluate_halfcheetah_compare_reward_envs.py <mode>
 ```
 with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as 
-described in the "Training Reward Environments after HPO" section. Finally run
+described in the "Training Reward Networks after HPO" section. Finally run
 ```
 python3 experiments/GTNC_visualize_gridworld_compare_reward_envs.py
 python3 experiments/GTNC_visualize_cartpole_compare_reward_envs.py
@@ -241,7 +241,7 @@ python3 experiments/GTNC_evaluate_cmc_transfer_vary_hp.py <mode>
 python3 experiments/GTNC_evaluate_halfcheetah_transfer_vary_hp.py <mode>
 ```
 with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as
-described in the "Training Reward Environments after HPO" section. Finally run
+described in the "Training Reward Networks after HPO" section. Finally run
 ```
 python3 experiments/GTNC_visualize_gridworld_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_cartpole_transfer_vary_hp.py
@@ -263,7 +263,7 @@ python3 experiments/GTNC_evaluate_cmc_transfer_algo.py <mode>
 python3 experiments/GTNC_evaluate_halfcheetah_transfer_algo.py <mode>
 ```
 with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as
-described in the "Training Reward Environments after HPO" section. Finally run
+described in the "Training Reward Networks after HPO" section. Finally run
 ```
 python3 experiments/GTNC_visualize_gridworld_transfer_algo.py
 python3 experiments/GTNC_visualize_cartpole_transfer_algo.py
