@@ -34,7 +34,7 @@ class ExperimentWrapper():
         config = deepcopy(default_config)
         global reward_env_type
         config["envs"]['Cliff']['reward_env_type'] = reward_env_type
-        config["envs"]['Cliff']['solved_reward'] = 10000  # AUC
+        config["envs"]['Cliff']['solved_reward'] = sys.maxsize  # AUC
         return config
 
 

@@ -26,7 +26,7 @@ class BaseAgent(nn.Module):
         self.device = config["device"]
 
 
-    def time_is_up(self, avg_meter_reward, max_episodes, time_elapsed, time_remaining):
+    def time_is_up(self, avg_meter_reward, avg_meter_episode_length, max_episodes, time_elapsed, time_remaining):
         if time_elapsed > time_remaining:
             print("timeout")
             # fill remaining rewards with minimum reward achieved so far
@@ -34,6 +34,13 @@ class BaseAgent(nn.Module):
                 avg_meter_reward.update(-1e9)
             while len(avg_meter_reward.get_raw_data()) < max_episodes:
                 avg_meter_reward.update(min(avg_meter_reward.get_raw_data()), print_rate=1e9)
+
+            # also fill remaining episode lengths with maximum length achieved so far so that avg_meter_reward and avg_meter_episode_length
+            # have same length for computing AUC
+            if len(avg_meter_episode_length.get_raw_data()) == 0:
+                avg_meter_episode_length.update(1e9)
+            while len(avg_meter_episode_length.get_raw_data()) < max_episodes:
+                avg_meter_episode_length.update(max(avg_meter_episode_length.get_raw_data()), print_rate=1e9)
             return True
         else:
             return False
@@ -83,6 +90,7 @@ class BaseAgent(nn.Module):
         for episode in range(self.train_episodes):
             # early out if timeout
             if self.time_is_up(avg_meter_reward=avg_meter_reward,
+                               avg_meter_episode_length=avg_meter_episode_length,
                                max_episodes=self.train_episodes,
                                time_elapsed=time.time() - time_start,
                                time_remaining=time_remaining):
