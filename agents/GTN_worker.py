@@ -3,6 +3,7 @@ import torch.nn as nn
 import os
 import time
 import statistics
+import numpy as np
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
@@ -195,13 +196,16 @@ class GTN_Worker(GTN_Base):
         if env.is_virtual_env():
             return avg_reward_test
         else:
-            if not real_env.can_be_solved():
-                return avg_reward_test
-            else:
-                print(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
-                # we maximize the objective
-                # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
-                return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
+            print(np.dot(reward_list_train, episode_length_train))
+            return np.dot(reward_list_train, episode_length_train)
+
+            # if not real_env.can_be_solved():
+            #     return avg_reward_test
+            # else:
+            #     print(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
+            #     # we maximize the objective
+            #     # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
+            #     return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
 
 
     def calc_best_score(self, score_sub, score_add):
