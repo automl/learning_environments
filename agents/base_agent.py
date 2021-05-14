@@ -182,6 +182,7 @@ class BaseAgent(nn.Module):
             for episode in range(self.test_episodes):
                 # early out if timeout
                 if self.time_is_up(avg_meter_reward=avg_meter_reward,
+                                   avg_meter_episode_length=avg_meter_episode_length,
                                    max_episodes=self.test_episodes,
                                    time_elapsed=time.time() - time_start,
                                    time_remaining=time_remaining):
