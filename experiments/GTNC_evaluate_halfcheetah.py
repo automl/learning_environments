@@ -34,6 +34,7 @@ class ExperimentWrapper():
         config = deepcopy(default_config)
         global reward_env_type
         config["envs"]['HalfCheetah-v3']['reward_env_type'] = reward_env_type
+        config["envs"]['HalfCheetah-v3']['solved_reward'] = sys.maxsize  # AUC
         return config
 
 
@@ -89,7 +90,7 @@ if __name__ == "__main__":
 
     global reward_env_type
     reward_env_type = int(sys.argv[3])
-    run_id = 'GTNC_evaluate_halfcheetah_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
+    run_id = 'GTNC_evaluate_auc_halfcheetah_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
     seed = id+int(time.time())
     random.seed(seed)
