@@ -101,7 +101,7 @@ and the second script to call BOHB respectively the NES master (change absolute 
 #SBATCH -p bosch_cpu-cascadelake # partition (queue)
 #SBATCH -t 3-23:59 # time (D-HH:MM)
 #SBATCH -c 1 # number of cores
-#SBATCH -a 0-1 # array size
+#SBATCH -a 0-2 # array size
 #SBATCH -D /home/nierhoff/master_thesis/learning_environments # Change working_dir
 #SBATCH -o /home/nierhoff/master_thesis/scripts/log/%x.%N.%A.%a.out # STDOUT  (the folder log has to exist) %A will be replaced by the SLURM_ARRAY_JOB_ID value, whilst %a will be replaced by the SLURM_ARRAY_TASK_ID
 #SBATCH -e /home/nierhoff/master_thesis/scripts/log/%x.%N.%A.%a.err # STDERR  (the folder log has to exist) %A will be replaced by the SLURM_ARRAY_JOB_ID value, whilst %a will be replaced by the SLURM_ARRAY_TASK_ID
