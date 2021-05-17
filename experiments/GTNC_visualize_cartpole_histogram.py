@@ -5,6 +5,8 @@ import time
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import random
+import numpy as np
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 from utils import ReplayBuffer
@@ -25,7 +27,7 @@ def load_envs_and_config(dir, file_name):
     return virtual_env, real_env, config
 
 
-def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None):
+def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None, agentname="none"):
     plt.figure(dpi=600, figsize=(3.5, 3))
     plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
 
@@ -36,19 +38,20 @@ def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None):
 
     if h3 is not None:
         plt.hist(h3, alpha=0.4, bins=max(1, int((max(h3)-min(h3)) / BIN_WIDTH)))
-    plt.xlabel(xlabel)
-    plt.ylabel('occurrence')
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel('occurrence', fontsize=12)
     plt.yscale('log')
     if h3 is not None:
-        plt.legend((h1l, h2l, h3l), loc='upper left')
+        plt.legend((h1l, h2l, h3l), loc='upper left', fontsize=10)
     else:
-        plt.legend((h1l, h2l), loc='upper left')
-    plt.subplots_adjust(bottom=0.15, left=0.15)
-    plt.savefig('cartpole_histogram' + str(save_idx) + '.png', bbox_inches='tight')
+        plt.legend((h1l, h2l), loc='upper left', fontsize=10)
+    plt.subplots_adjust(bottom=0.15, left=0.16)
+    plt.tick_params(labelsize=12)
+    plt.savefig('cartpole_histogram_' + agentname + '_' + 'CW9CSH' + '_' + str(save_idx) + '.png', bbox_inches='tight')
     plt.show()
 
 
-def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all):
+def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all, agentname):
     states_train, actions_train, next_states_train, rewards_train, dones_train = replay_buffer_train_all.get_all()
     states_test, actions_test, next_states_test, rewards_test, dones_test = replay_buffer_test_all.get_all()
 
@@ -91,7 +94,8 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
                   h2l='real env. (test)',
                   h3l='synth. env. on real env. data',
                   xlabel=plot_name,
-                  save_idx=i+1)
+                  save_idx=i+1,
+                  agentname=agentname)
 
     plot_hist(h1=rewards_train.squeeze().detach().numpy(),
               h2=rewards_test.squeeze().detach().numpy(),
@@ -100,30 +104,64 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
               h2l='real env. (test)',
               h3l='synth. env. on real env. data',
               xlabel='reward',
-              save_idx=len(next_states_test[0])+1)
+              save_idx=len(next_states_test[0])+1,
+              agentname=agentname)
 
 
 if __name__ == "__main__":
-    # dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    # file_name = 'CartPole-v0_24_I8EZDI.pt'
+    dir = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10' \
+          '/GTN_models_CartPole-v0'
+    # file_name = 'CartPole-v0_31_VXBIVI.pt' # default model
+    file_name = 'CartPole-v0_22_CW9CSH.pt'  # td3 well performing model
 
-    dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-    file_name = 'CartPole-v0_31_VXBIVI.pt'
+    print("using model: ", file_name)
+
+    agentname = 'ddqn'
+    # agentname = 'duelingddqn'
+    # agentname = 'td3_discrete_vary'
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
     print(config)
+    #config['device'] = 'cuda'
+    #config['agents'][agentname]['print_rate'] = 1
+    #config['agents'][agentname]['test_episodes'] = 10
+
+    import yaml
+    with open("default_config_cartpole.yaml", "r") as stream:
+        config2 = yaml.safe_load(stream)
+    if 'td3' in agentname:
+        config['agents'][agentname] = config2['agents']["td3_discrete_vary_layer_norm_2"]
+    else:
+        config['agents'][agentname] = config2['agents'][agentname]
+
     config['device'] = 'cuda'
-    config['agents']['ddqn']['print_rate'] = 1
-    config['agents']['ddqn']['test_episodes'] = 10
+    config['agents'][agentname]['print_rate'] = 1
+    config['agents'][agentname]['test_episodes'] = 10
 
     replay_buffer_train_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
     replay_buffer_test_all = ReplayBuffer(state_dim=4, action_dim=1, device='cpu')
 
+    rewards = []
+
     for i in range(10):
-        agent = select_agent(config=config, agent_name='DDQN')
+        np.random.seed(int(time.time()))
+        random.seed(int(time.time()))
+        torch.manual_seed(int(time.time()))
+        torch.cuda.manual_seed_all(int(time.time()))
+        
+        agent = select_agent(config=config, agent_name=agentname)
+        print(agent)
         _, _, replay_buffer_train = agent.train(env=virtual_env)
         reward, _, replay_buffer_test = agent.test(env=real_env)
+        print(np.mean(reward))
+        rewards.append(np.mean(reward))
+
+        if "td3" in agentname:
+            replay_buffer_train.make_one_hot_buffer()
+            replay_buffer_test.make_one_hot_buffer()
+
         replay_buffer_train_all.merge_buffer(replay_buffer_train)
         replay_buffer_test_all.merge_buffer(replay_buffer_test)
 
-    compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all)
+    print("avg. reward", np.mean(rewards))
+    compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_all, agentname)

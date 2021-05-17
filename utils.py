@@ -68,6 +68,8 @@ class ReplayBuffer:
     def clear(self):
         self.__init__(state_dim=self.state_dim, action_dim=self.action_dim, device=self.device, max_size=self.max_size)
 
+    def make_one_hot_buffer(self, dim=1):
+        self.action = torch.argmax(self.action, dim=dim)
 
 class AverageMeter:
     def __init__(self, print_str):

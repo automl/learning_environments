@@ -35,7 +35,7 @@ class ExperimentWrapper():
         global reward_env_type
         config["envs"]['HalfCheetah-v3']['reward_env_type'] = reward_env_type
         config["envs"]['HalfCheetah-v3']['solved_reward'] = sys.maxsize  # AUC
-        config["envs"]['HalfCheetah-v3']['device'] = "cuda:0"  # AUC
+        # config["envs"]['HalfCheetah-v3']['device'] = "cuda:0"  # AUC
         return config
 
 

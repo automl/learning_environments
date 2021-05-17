@@ -67,7 +67,7 @@ STD_TRAIN_STEPS.append(td3_std_train_steps)
 if __name__ == "__main__":
     nrows = 1
     gridspec_kw = {}
-    figsize = (15, 2)
+    figsize = (15, 2.3)
 
     fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex=False, sharey=False, gridspec_kw=gridspec_kw)
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
             data_list.append(reward_list_single)
             if i == 0 and j == 0:
-                mean_list.append('mean reward: {:.2f}'.format((statistics.mean(reward_list_single))))
+                mean_list.append('{:.2f}'.format((statistics.mean(reward_list_single))))
             elif key in file and show_5_best_jointly_with_other:
                 mean_list.append('{:.2f} (all: {:.2f})'.format(statistics.mean(reward_list_single), statistics.mean(reward_list_single_2)))
             else:
@@ -147,11 +147,11 @@ if __name__ == "__main__":
         df = df.melt(value_name="cumulative rewards", var_name="type")
 
         sns.set_context(rc={
-                "font.size": 11,
-                "axes.titlesize": 11,
-                "axes.labelsize": 9,
+                "font.size": 13,
+                "axes.titlesize": 13,
+                "axes.labelsize": 11,
                 "legend.fontsize": 11,
-                "xtick.labelsize": 9,
+                "xtick.labelsize": 11,
                 "ytick.labelsize": 9
                 })
 
@@ -182,7 +182,7 @@ if __name__ == "__main__":
 
         if show_5_best_jointly_with_other and i == 2:
             barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
-                                          "train: synth.\nHP: varying (5 best)", "train: synth.\nHP: varying (5 best)",
+                                          "train: synth.\nHP: varying\n(5 best)", "train: synth.\nHP: varying\n(5 best)",
                                           "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
         else:
             barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
@@ -209,9 +209,10 @@ if __name__ == "__main__":
             # axis_left_after.set_ylim((-10000, 100000))
             axis_left_after.set_ylim((-40000, axis_left_after.get_ylim()[1]))
             axis_right_after = axis_left.twinx()
-            axis_left_after.set_ylabel("mean train steps")
-            axis_right_after.set_ylabel("mean train episodes", rotation=-90, labelpad=12)
+            axis_left_after.set_ylabel("mean train steps", fontsize=11)
+            axis_right_after.set_ylabel("mean train episodes", rotation=-90, fontsize=11, labelpad=12)
             axis_left.get_xaxis().get_label().set_visible(False)
+            p.xaxis.set_tick_params(labelsize=11)
 
             if show_5_best_jointly_with_other:
                 axes[i].tick_params(labelbottom=True)
@@ -235,12 +236,13 @@ if __name__ == "__main__":
             axis_right.get_yaxis().get_label().set_visible(False)
             # axis_right.get_yaxis().set_ticklabels([])
             axes[i].get_xaxis().get_label().set_visible(False)
+            p.xaxis.set_tick_params(labelsize=11)
 
             if show_5_best_jointly_with_other:
                 axes[i].tick_params(labelbottom=True)
 
         for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
-            plt.text(x, y, mean, ha='center', va='top', fontsize=8)
+            plt.text(x, y, mean, ha='center', va='top', fontsize=10.5)
 
         axis_right_after.set_ylim(axis_left_after.get_ylim())
         axis_right_after.set_yticklabels(np.round(axis_left_after.get_yticks() / scale, 1).astype(int))
