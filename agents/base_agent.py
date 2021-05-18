@@ -37,10 +37,10 @@ class BaseAgent(nn.Module):
 
             # also fill remaining episode lengths with maximum length achieved so far so that avg_meter_reward and avg_meter_episode_length
             # have same length for computing AUC
-            # if len(avg_meter_episode_length.get_raw_data()) == 0:
-            #     avg_meter_episode_length.update(1e9)
-            # while len(avg_meter_episode_length.get_raw_data()) < max_episodes:
-            #     avg_meter_episode_length.update(max(avg_meter_episode_length.get_raw_data()), print_rate=1e9)
+            if len(avg_meter_episode_length.get_raw_data()) == 0:
+                avg_meter_episode_length.update(1e9)
+            while len(avg_meter_episode_length.get_raw_data()) < max_episodes:
+                avg_meter_episode_length.update(max(avg_meter_episode_length.get_raw_data()), print_rate=1e9)
             return True
         else:
             return False

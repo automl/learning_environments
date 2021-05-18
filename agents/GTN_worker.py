@@ -196,11 +196,11 @@ class GTN_Worker(GTN_Base):
         if env.is_virtual_env():
             return avg_reward_test
         else:
-            # when timeout occurs, reward_list_train is padded (with min. reward values) and episode_length_train is not
-            if len(episode_length_train) < len(reward_list_train):
-                print("due to timeout, reward_list_train has been padded")
-                print(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
-                reward_list_train = reward_list_train[:len(episode_length_train)]
+            # # when timeout occurs, reward_list_train is padded (with min. reward values) and episode_length_train is not
+            # if len(episode_length_train) < len(reward_list_train):
+            #     print("due to timeout, reward_list_train has been padded")
+            #     print(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
+            #     reward_list_train = reward_list_train[:len(episode_length_train)]
 
             print("AUC: ", np.dot(reward_list_train, episode_length_train))
             return np.dot(reward_list_train, episode_length_train)
