@@ -11,10 +11,12 @@ from envs.env_factory import EnvFactory
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cartpole_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_6'
+# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_1'
+# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_2'
+# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_5'
+# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_6'
+
+# AUC objective
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -39,8 +41,13 @@ def get_best_models_from_log(log_dir):
         except:
             continue
 
-    best_models.sort(key=lambda x: x[0])
-    # best_models.sort(key=lambda x: x[0], reverse=True)
+    # before AUC (objective minimized)
+    # print("sorting from low to high values (non-AUC)")
+    # best_models.sort(key=lambda x: x[0])
+
+    # AUC (objective maximized)
+    print("sorting from high to low values (AUC)")
+    best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models

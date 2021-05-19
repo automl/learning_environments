@@ -38,8 +38,13 @@ def get_best_models_from_log(log_dir):
         except:
             continue
 
-    best_models.sort(key=lambda x: x[0])
-    #best_models.sort(key=lambda x: x[0], reverse=True)
+    # before AUC (objective minimized)
+    # print("sorting from low to high values (non-AUC)")
+    # best_models.sort(key=lambda x: x[0])
+
+    # AUC (objective maximized)
+    print("sorting from high to low values (AUC)")
+    best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
