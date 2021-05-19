@@ -8,13 +8,14 @@ from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cmc_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_3000_train_eps'
+# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cmc_compare_reward_envs_3000_train_eps'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
-LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
-LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
-LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
+# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
+# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
+# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
+# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
