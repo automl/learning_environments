@@ -276,7 +276,7 @@ and the *transfer* experiments:
 ```
 python3 experiments/GTNC_evaluate_x_transfer_algo_hp.py <mode>
 ```
-where ```x```stands for ```cartpole```, ```gridworld```, ```cmc``` or ```halfcheetah```. Then follow the approach described in Variant 1 to produce the figures.
+replace ```x``` with ```cartpole```, ```gridworld```, ```cmc``` or ```halfcheetah```. Then follow the approach described in Variant 1 to produce the figures.
  
   
 ## Figure 10  
