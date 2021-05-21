@@ -279,6 +279,14 @@ python3 experiments/GTNC_evaluate_x_transfer_algo_hp.py <mode>
 where ```x```stands for ```cartpole```, ```gridworld```, ```cmc``` or ```halfcheetah```. Then follow the approach described in Variant 1 to produce the figures.
  
   
+## Figure 10  
+Download all subfolders in ```Reward Networks/with reward threshold objective/Cliff``` and place them in ```results/```. Now run
+```
+python3 experiments/GTN_visualize_gridworld_learned_reward_env.py
+```
+and adjust the variable ```LOG_DIR``` at the top of the script with the approriate model with the suffix _1, _2, _5, or _6 which correspond o the RN types list above (i.e. one sub-plot row of Figure 10) . For each call of this script, there will be created one sub-plots of Figure 10 (simplified and non-simplified) and by turning on/off the ```SIMPLIFY``` flag you can choose whether to create the left or the right sub-plot.
+  
+  
   
 Fig. 2 (standalone):
 ```
