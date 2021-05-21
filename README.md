@@ -223,7 +223,7 @@ python3 experiments/GTNC_visualize_cmc_compare_reward_envs.py
 python3 experiments/GTNC_visualize_halfcheetah_compare_reward_envs.py
 ```
   
-or any of the following scripts for varied hyperparameter plots:
+or any of the following scripts for *varied hyperparameter* plots:
 ```
 python3 experiments/GTNC_visualize_gridworld_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_cartpole_transfer_vary_hp.py
@@ -231,7 +231,7 @@ python3 experiments/GTNC_visualize_cmc_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_halfcheetah_transfer_vary_hp.py
 ```
   
-or any of the following scripts for transfer plots:
+or any of the following scripts for *transfer plots*:
 ```
 python3 experiments/GTNC_visualize_gridworld_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_cartpole_transfer_vary_hp.py
@@ -264,45 +264,20 @@ python3 experiments/GTNC_evaluate_cartpole_compare_reward_envs.py <mode>
 python3 experiments/GTNC_evaluate_cmc_compare_reward_envs.py <mode>
 python3 experiments/GTNC_evaluate_halfcheetah_compare_reward_envs.py <mode>
 ```
-with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as 
+with appropriate ```LOG_DICT``` and ```SAVE_DIR``` variables and ```mode``` as additional script input as 
 described in the "Training Reward Networks after HPO" section.
   
-Do the same for varying hyperparameters:
+Do the same for *varying hyperparameters* experiments:
 ```
-python3 experiments/GTNC_evaluate_gridworld_transfer_vary_hp.py <mode>
+python3 experiments/GTNC_evaluate_x_transfer_vary_hp.py <mode>
 ``` 
 
-and agent transfer:
+and the *transfer* experiments:
 ```
 python3 experiments/GTNC_evaluate_x_transfer_algo_hp.py <mode>
 ```
 where ```x```stands for ```cartpole```, ```gridworld```, ```cmc``` or ```halfcheetah```. Then follow the approach described in Variant 1 to produce the figures.
  
-  
-  
-  
-  Fig. 14: First run 
-"GTNC_evaluate_gridworld_reward_env.py",
-"GTNC_evaluate_cartpole_reward_env.py",
-"GTNC_evaluate_cmc.py",
-"GTNC_evaluate_halfcheetah.py",
-as described in the "Example" section with the different modes as input. Then run
-```
-python3 experiments/GTNC_evaluate_gridworld_compare_reward_envs.py <mode>
-python3 experiments/GTNC_evaluate_cartpole_compare_reward_envs.py <mode>
-python3 experiments/GTNC_evaluate_cmc_compare_reward_envs.py <mode>
-python3 experiments/GTNC_evaluate_halfcheetah_compare_reward_envs.py <mode>
-```
-with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as 
-described in the "Training Reward Networks after HPO" section. Finally run
-```
-python3 experiments/GTNC_visualize_gridworld_compare_reward_envs.py
-python3 experiments/GTNC_visualize_cartpole_compare_reward_envs.py
-python3 experiments/GTNC_visualize_cmc_compare_reward_envs.py
-python3 experiments/GTNC_visualize_halfcheetah_compare_reward_envs.py
-```
-with appropriate "LOG_FILES" variable and matching legend to plot.
-
   
   
 Fig. 2 (standalone):
