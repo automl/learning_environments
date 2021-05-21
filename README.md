@@ -17,11 +17,11 @@ The packages can be installed using the requirements.txt file:
 pip install -r requirements.txt
 ```
 
-# Learning Synthetic Environments
+# Documentation
 
-## Optimizing Hyperparameters for Learning Synthetic Environments (initial three-level optimization with BOHB)
+# Optimizing Hyperparameters for Learning Synthetic Environments (initial three-level optimization with BOHB)
 
-### Overall structure
+## Overall structure
 
 Several scripts in the experiments folder make use of the three-level optimization approach. 
 - outer loop: BOHB
@@ -46,7 +46,7 @@ a combination of its BOHB-ID (assigned to the NES master and all NES workers of 
 Many scripts allow the BOHB-ID to be chosen manually whereas the ID for the different NES workers must span the range [0,X] 
 with X as the number of NES workers per NES master.
 
-### Example
+## Example
 
 To start a BOHB script (in this example: experiments/GTNC_evaluate_cartpole_params.py) with two BOHB workers (i.e. two NES master) 
 and 3 NES slaves per NES master, execute the following procedure:
@@ -126,7 +126,7 @@ python3 GTN_Worker_single_pc.py &
 python3 GTNC_evaluate_cartpole_params.py &
 ```
 
-## Training Synthetic Environments after HPO
+# Training Synthetic Environments after HPO
 
 To train synthetic environments, run the corresponding "GTNC_evaluate_XXX.py" script, e.g.
 ```
@@ -137,7 +137,7 @@ GTNC_evaluate_cartpole.py
 as described in the "Example" section before. It might be necessary to modify some parameters in the corresponding .yaml file.
 The trained synthetic environments are then called within other functions to generate the plots as described in the "Visualizations scripts" section
 
-## Training Reward Networks after HPO
+# Training Reward Networks after HPO
 
 To train reward environments, run the corresponding "GTNC_evaluate_XXX_reward_env.py" script if there exists a "GTNC_evaluate_XXX.py" script as well.
 In all other cases the script is called "GTNC_evaluate_XXX.py", e.g.
@@ -166,11 +166,11 @@ The only difference is that these scripts feature another input parameter specif
 
 The trained reward environments are then called within other functions to generate the plots as described in the "Visualizations scripts" section
 
-## Visualizations scripts
+# Visualizations scripts
 
 Please note that for the visualization scripts we assume existing trained SEs and RNs (see previous section how to train these or furhter above how to download them). Simply place the SEs and RNs in the corresponding <results> directory. Below figure enumeration corresponds to paper figure enumeration.
 
-### Figure 2 
+## Figure 2 
 
 Place the model directories ```GTNC_evaluate_cartpole_2020-12-04-12``` and ```GTNC_evaluate_acrobot_2020-11-28-16``` under ```learning_environments/results```. If you want to train the models from scratch, run ```GTNC_evaluate_cartpole.py``` with optimized parameters (```default_config_cartpole_syn_env.yaml```) and 
 ```GTNC_evaluate_acrobot.py``` with optimized parameters (```default_config_acrobot_syn_env.yaml```) 
@@ -180,9 +180,17 @@ python3 experiments/GTNC_visualize_cartpole_acrobot_success_perc.py.py
 ```
 with appropriate "LOG_DIRS" variable.
 
-### Figure 3
-
-
+## Figure 3 and 7
+There are two ways to produce these figures: 
+  1) run the evaluation on existing SE models from scratch.
+  2) use the outputs of our evaluation.
+  
+1) 
+2) Download the directory ```transfer_experiments``` (see link above) and move it to ```learning_environmets/experiments```. 
+  
+Now run ```GTNC_visualize_cartpole_vary_hp_merged_plots.py``` (adjust the ```FILE_DIRS``` paths at the top of the file accordingly). For Acrobot (Figure 7) run ```GTNC_visualize_acrobot_vary_hp_merged_plots.py```.
+  
+```GTNC_visualize_cartpole_vary_hp_merged_plots.py````
 Fig. 2 (standalone):
 ```
 python3 experiments/demo_score_transform.py
