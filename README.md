@@ -2,25 +2,24 @@
 ![Overview](https://github.com/automl/learning_environments/blob/master/overview.png?raw=true)
 We explore meta-learning agent-agnostic neural Synthetic Environments (SEs) and Reward Networks (RNs) for efﬁciently training Reinforcement Learning (RL) agents. While an SE acts as a full proxy to a target environment by learning about its state dynamics and rewards, an RN resembles a partial proxy that learns to augment or replace rewards. We use bi-level optimization to evolve SEs and RNs: the inner loop trains the RL agent, and the outer loop trains the parameters of the SE / RN via an evolution strategy. We evaluate these methods on a broad range of RL algorithms (Q-Learning, SARSA, DDQN, Dueling DDQN, TD3, PPO) and environments (CartPole and Acrobot for SEs, as well as Cliff Walking, CartPole, MountaincarContinuous and HalfCheetah for RNs). Additionally, we learn several variants of potential-based reward shaping functions. The learned proxies allow us to train agents signiﬁcantly faster than when directly training them on the target environment while maintaining the original task performance. Our empirical results suggest that they achieve this by learning informed representations that bias the agents towards relevant states, making the learned representation surprisingly interpretable. Moreover, we ﬁnd that these proxies are robust against hyperparameter variation and can also transfer to unseen agents.
 
-# Results
+Paper link: tba
 
 
 # Download Trained SE and RN Models
 All SE and RN models can be downloaded here: https://www.dropbox.com/sh/fo32x0sd2ntu2vt/AACjv7RJ0CvfqwCXhTUZXqgwa?dl=0
 
 # Installation
+Dependencies: python3, torch, gym, numpy, mujoco-py (only in case of learning RNs for HalfCheetah-v3 environment). We also use hpbandster for 1) three-level optimization with BOHB and 2) for parallel + distributed NES optimiziation, i.e. for job scheduling and communication between workers and masters in a distributed setting. Below scripts are for SLURM but can easily be adapted to any other job scheduling software.
 
-To install the required packages, you need mujoco (http://mujoco.org/).
-The python3 packages can be installed using the requirements.txt file:
+The packages can be installed using the requirements.txt file:
 
 ```
 pip install -r requirements.txt
 ```
 
-
 # Learning Synthetic Environments
 
-## Optimizing Hyperparameters for Learning Synthetic Environments (initial three-level optimization)
+## Optimizing Hyperparameters for Learning Synthetic Environments (initial three-level optimization with BOHB)
 
 ### Overall structure
 
@@ -76,7 +75,7 @@ An easier way on the slurm cluster would be the use of two scripts, the first sc
 #SBATCH -c 1 # number of cores
 #SBATCH -a 0-5 # array size
 #SBATCH -D /home/user/learning_environments # Change working_dir
-#SBATCH -o /home/userscripts/log/%x.%N.%A.%a.out # STDOUT  (the folder log has to exist) %A will be replaced by the SLURM_ARRAY_JOB_ID value, whilst %a will be replaced by the SLURM_ARRAY_TASK_ID
+#SBATCH -o /home/user/scripts/log/%x.%N.%A.%a.out # STDOUT  (the folder log has to exist) %A will be replaced by the SLURM_ARRAY_JOB_ID value, whilst %a will be replaced by the SLURM_ARRAY_TASK_ID
 #SBATCH -e /home/user/scripts/log/%x.%N.%A.%a.err # STDERR  (the folder log has to exist) %A will be replaced by the SLURM_ARRAY_JOB_ID value, whilst %a will be replaced by the SLURM_ARRAY_TASK_ID
 
 export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
@@ -112,7 +111,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
 echo "source activate"
 source ~/master_thesis/mtenv/bin/activate
 echo "run script"
-export PYTHONPATH=$PYTHONPATH:/home/userlearning_environments
+export PYTHONPATH=$PYTHONPATH:/home/user/learning_environments
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/user/.mujoco/mjpro150/bin
 cd experiments
 bohb_id=$(($SLURM_ARRAY_TASK_ID+0))
