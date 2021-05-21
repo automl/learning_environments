@@ -3,11 +3,8 @@
 # Paper / Results
 todo
 
-# SE Model Download
-The models can be downloaded here: https://www.dropbox.com/sh/1najkivfzc6tskw/AAABsp_5rEwQchZLf1fJDwR7a?dl=0
-
-# RN Model Download
-The models can be downloaded here: todo
+# Download Trained SE and RN Models
+All SE and RN models can be downloaded here: https://www.dropbox.com/sh/fo32x0sd2ntu2vt/AACjv7RJ0CvfqwCXhTUZXqgwa?dl=0
 
 # Installation
 
