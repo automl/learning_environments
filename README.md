@@ -168,7 +168,20 @@ The trained reward environments are then called within other functions to genera
 
 ## Visualizations scripts
 
-Please note that for the visualization scripts we assume existing trained SEs and RNs (see previous section how to train these or furhter above how to download them)
+Please note that for the visualization scripts we assume existing trained SEs and RNs (see previous section how to train these or furhter above how to download them). Simply place the SEs and RNs in the corresponding <results> directory. Below figure enumeration corresponds to paper figure enumeration.
+
+### Figure 2 
+
+Place the model directories ```GTNC_evaluate_cartpole_2020-12-04-12``` and ```GTNC_evaluate_acrobot_2020-11-28-16``` under ```learning_environments/results```. If you want to train the models from scratch, run ```GTNC_evaluate_cartpole.py``` with optimized parameters (```default_config_cartpole_syn_env.yaml```) and 
+```GTNC_evaluate_acrobot.py``` with optimized parameters (```default_config_acrobot_syn_env.yaml```) 
+as described in the "Example" section. Then run
+```
+python3 experiments/GTNC_visualize_cartpole_acrobot_success_perc.py.py
+```
+with appropriate "LOG_DIRS" variable.
+
+### Figure 3
+
 
 Fig. 2 (standalone):
 ```
