@@ -168,8 +168,7 @@ The trained reward environments are then called within other functions to genera
 
 ## Visualizations scripts
 
-Please note that form many scripts (in general all starting with "GTNC_visualize") first the corresponding environments must
-be trained as described in the previous section.
+Please note that for the visualization scripts we assume existing trained SEs and RNs (see previous section how to train these or furhter above how to download them)
 
 Fig. 2 (standalone):
 ```
