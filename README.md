@@ -181,22 +181,26 @@ python3 experiments/GTNC_visualize_cartpole_acrobot_success_perc.py.py
 with appropriate "LOG_DIRS" variable.
 
 ## Figure 3 and 7
-There are two ways to produce these figures:
+There are two variants to produce these figures:
   1) run the evaluation on existing SE models from scratch (for generating the SE models, see above)
   2) use the outputs of our evaluation.
   
-### 1)
-Download the directories ```GTNC_evaluate_cartpole_vary_hp_2020-11-17-10``` and ```GTNC_evaluate_acrobot_vary_hp_2020-12-12-13``` and place them in ```experiments/results/```. Now adjust the ```model_dir``` path inside ```experiments/syn_env_evaluate_cartpole_vary_hp_2.py``` or ```experiments/syn_env_evaluate_acrobot_vary_hp_2.py``` and run the script with the ```mode```parameter (mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)) which correspond to the three different settings (train: syn/real HP: fixed/varying) of Figure 3 and 7. These scripts will produce the data for the DDQN curves and hereby create ```<mode>.pt``` files which can be processed for visualization (see step 2) below). Repeat the process for the transfers for Dueling DDQN and discrete TD3 with the following files:
+### Variant 1
+Download the directories ```GTNC_evaluate_cartpole_vary_hp_2020-11-17-10``` and ```GTNC_evaluate_acrobot_vary_hp_2020-12-12-13``` and place them in ```results/```. Now adjust the ```model_dir``` path inside ```experiments/syn_env_evaluate_cartpole_vary_hp_2.py``` or ```experiments/syn_env_evaluate_acrobot_vary_hp_2.py``` and run the script with the ```mode``` parameter (mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)) which correspond to the three different settings (train: syn/real HP: fixed/varying) of Figure 3 and 7. These scripts will produce the data for the DDQN curves and hereby create ```<mode>.pt``` files which can be processed for visualization (see variant 2) below). Repeat the process for the transfers for Dueling DDQN and discrete TD3 with the following files:
   ```
   syn_env_evaluate_cartpole_vary_hp_2_DuelingDDQN.py
   syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py
   syn_env_evaluate_acrobot_vary_hp_2_DuelingDDQN.py
   syn_env_evaluate_acrobot_vary_hp_2_TD3_discrete.py
   ```
-### 2)
+### Variant 2
 Download the directory ```transfer_experiments``` (see link above) and move it to ```experiments/```. Now run ```GTNC_visualize_cartpole_vary_hp_merged_plots.py``` (adjust the ```FILE_DIRS``` paths at the top of the file accordingly). For Acrobot (Figure 7) run ```GTNC_visualize_acrobot_vary_hp_merged_plots.py```.
   
-```GTNC_visualize_cartpole_vary_hp_merged_plots.py````
+## Figure 4 and 8
+Download the directories ```GTNC_evaluate_cartpole_vary_hp_2020-11-17-10``` and ```GTNC_evaluate_acrobot_vary_hp_2020-12-12-13``` and place them in ```results/```. Now adjust the ```dir``` path inside ```experiments/GTNC_visualize_cartpole_histogram.py``` or ```experiments/GTNC_visualize_acrobot_histogram.py``` and select the ```agentname``` you want to plot the histograms for.
+  
+  
+
 Fig. 2 (standalone):
 ```
 python3 experiments/demo_score_transform.py
