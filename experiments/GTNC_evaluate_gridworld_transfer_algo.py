@@ -121,7 +121,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '_eps_0.01.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
