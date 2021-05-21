@@ -17,16 +17,16 @@ LOG_DICT = {}
 # LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
 # LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
-# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_1'
-# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_2'
-# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_5'
-# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/thomas_results/GTNC_evaluate_cliff_2021-02-09-21_6'
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_1'
+LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_2'
+LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_5'
+LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
 # AUC objective
-LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_1'
-LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-19_2'
-LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_5'
-LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-20_6'
+# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_1'
+# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-19_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-20_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -54,6 +54,7 @@ def get_best_models_from_log(log_dir):
     # before AUC (objective minimized)
     # print("sorting from low to high values (non-AUC)")
     # best_models.sort(key=lambda x: x[0])
+    # best_models = best_models[:MODEL_NUM]
 
     # AUC (objective maximized)
     print("sorting from high to low values (AUC)")

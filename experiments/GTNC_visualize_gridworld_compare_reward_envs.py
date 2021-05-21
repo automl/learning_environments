@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = ['../results/cliff_compare_reward_envs/best1.pt',
-             '../results/cliff_compare_reward_envs/best2.pt',
-             '../results/cliff_compare_reward_envs/best5.pt',
-             '../results/cliff_compare_reward_envs/best6.pt',
-             '../results/cliff_compare_reward_envs/best0.pt',
-             # '../results/cliff_compare_reward_envs/best-1.pt',
-             '../results/cliff_compare_reward_envs/best-1_opt.pt'
+LOG_FILES = ['../results/3_rn_auc/cliff_compare_reward_envs/best1.pt',
+             '../results/3_rn_auc/cliff_compare_reward_envs/best2.pt',
+             '../results/3_rn_auc/cliff_compare_reward_envs/best5.pt',
+             '../results/3_rn_auc/cliff_compare_reward_envs/best6.pt',
+             '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
+             # '../results/0_before_auc/cliff_compare_reward_envs/best-1.pt',
+             '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt'
              ]
 
 LEGEND = [
@@ -98,7 +98,7 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

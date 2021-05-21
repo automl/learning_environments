@@ -54,6 +54,7 @@ def get_best_models_from_log(log_dir):
     # before AUC (objective minimized)
     # print("sorting from low to high values (non-AUC)")
     # best_models.sort(key=lambda x: x[0])
+    # best_models = best_models[:MODEL_NUM]
 
     # AUC (objective maximized)
     print("sorting from high to low values (AUC)")
@@ -90,8 +91,8 @@ def train_test_agents(mode, env, real_env, config):
 
     config['agents']['sarsa']['alpha'] = 1.0
     config['agents']['sarsa']['eps_decay'] = 0.0
-    config['agents']['sarsa']['eps_init'] = 0.1  # 0.01
-    config['agents']['sarsa']['eps_min'] = 0.1  # 0.01
+    config['agents']['sarsa']['eps_init'] = 0.01  # 0.01
+    config['agents']['sarsa']['eps_min'] = 0.01  # 0.01
     config['agents']['sarsa']['gamma'] = 0.8
     config['agents']['sarsa']['same_action_num'] = 1
     config['agents']['sarsa']['rb_size'] = 1  # custom to reward env and gridworld
@@ -120,7 +121,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_algo' + str(mode) + '_eps_0.01.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
