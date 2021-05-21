@@ -187,12 +187,12 @@ There are two variants to produce these figures:
   
 ### Variant 1
 Download the directories ```Synthetic Environments/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10``` and ```Synthetic Environments/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13``` and place them in ```results/```. Now adjust the ```model_dir``` path inside ```experiments/syn_env_evaluate_cartpole_vary_hp_2.py``` or ```experiments/syn_env_evaluate_acrobot_vary_hp_2.py``` and run the script with the ```mode``` parameter (mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)) which correspond to the three different settings (train: syn/real HP: fixed/varying) of Figure 3 and 7. These scripts will produce the data for the DDQN curves and hereby create ```<mode>.pt``` files which can be processed for visualization (see variant 2) below). Repeat the process for the transfers for Dueling DDQN and discrete TD3 with the following files:
-  ```
-  experiments/syn_env_evaluate_cartpole_vary_hp_2_DuelingDDQN.py
-  experiments/syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py
-  experiments/syn_env_evaluate_acrobot_vary_hp_2_DuelingDDQN.py
-  experiments/syn_env_evaluate_acrobot_vary_hp_2_TD3_discrete.py
-  ```
+```
+experiments/syn_env_evaluate_cartpole_vary_hp_2_DuelingDDQN.py
+experiments/syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py
+experiments/syn_env_evaluate_acrobot_vary_hp_2_DuelingDDQN.py
+experiments/syn_env_evaluate_acrobot_vary_hp_2_TD3_discrete.py
+```
 ### Variant 2
 Download the directory ```Synthetic Environments/Figure 3/transfer_experiments``` (see link above) and move it to ```experiments/```. Now run ```experiments/GTNC_visualize_cartpole_vary_hp_merged_plots.py``` (adjust the ```FILE_DIRS``` paths at the top of the file accordingly). For Acrobot (Figure 7) run ```experiments/GTNC_visualize_acrobot_vary_hp_merged_plots.py```.
   
@@ -202,23 +202,20 @@ Download the directories ```Synthetic Environments/GTNC_evaluate_cartpole_vary_h
   
 ## Figure 5 and 9
 There are two variants to produce these figures:
-  1) run the evaluation on existing SE models from scratch (for generating the SE models, see above)
-  2) use directly the outputs of our evaluation.
+  1) use directly the outputs of our evaluation.
+  2) run the evaluation on existing SE models from scratch (for generating the SE models, see above)
   
+ 
 ### Variant 1
-  
-  
-  
-### Variant 2
 Download the directories
 ```
-  Reward Networks/evaluations/cartpole_compare_reward_envs
-  Reward Networks/evaluations/cliff_compare_reward_envs
-  Reward Networks/evaluations/cmc_compare_reward_envs
-  Reward Networks/evaluations/halfcheetah_compare_reward_envs
+Reward Networks/evaluations/cartpole_compare_reward_envs
+Reward Networks/evaluations/cliff_compare_reward_envs
+Reward Networks/evaluations/cmc_compare_reward_envs
+Reward Networks/evaluations/halfcheetah_compare_reward_envs
 ```
   
-and place them in ```results/```. Now, run any of the following scripts:
+and place them in ```results/``` (only the environment folders without the structure above). Now, run any of the following scripts:
 ```
 python3 experiments/GTNC_visualize_gridworld_compare_reward_envs.py
 python3 experiments/GTNC_visualize_cartpole_compare_reward_envs.py
@@ -241,6 +238,47 @@ python3 experiments/GTNC_visualize_cartpole_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_cmc_transfer_vary_hp.py
 python3 experiments/GTNC_visualize_halfcheetah_transfer_vary_hp.py
 ```
+  
+### Variant 2
+To generate the content of 
+```
+Reward Networks/evaluations/cartpole_compare_reward_envs
+Reward Networks/evaluations/cliff_compare_reward_envs
+Reward Networks/evaluations/cmc_compare_reward_envs
+Reward Networks/evaluations/halfcheetah_compare_reward_envs
+```
+
+first download the directories (only the environment folders without the structure above)
+```
+Reward Networks/with reward threshold objective/Cliff
+Reward Networks/with reward threshold objective/CartPole-v0
+Reward Networks/with reward threshold objective/MountainCarContinuous-v0
+Reward Networks/with reward threshold objective/HalfCheetah-v3
+```
+  
+and place them in ```results/```. Now run
+
+```
+python3 experiments/GTNC_evaluate_gridworld_compare_reward_envs.py <mode>
+python3 experiments/GTNC_evaluate_cartpole_compare_reward_envs.py <mode>
+python3 experiments/GTNC_evaluate_cmc_compare_reward_envs.py <mode>
+python3 experiments/GTNC_evaluate_halfcheetah_compare_reward_envs.py <mode>
+```
+with appropriate "LOG_DICT"/"SAVE_DIR" variables and "mode" as additional script input as 
+described in the "Training Reward Networks after HPO" section.
+  
+Do the same for varying hyperparameters:
+```
+python3 experiments/GTNC_evaluate_gridworld_transfer_vary_hp.py <mode>
+``` 
+
+and agent transfer:
+```
+python3 experiments/GTNC_evaluate_x_transfer_algo_hp.py <mode>
+```
+where ```x```stands for ```cartpole```, ```gridworld```, ```cmc``` or ```halfcheetah```. Then follow the approach described in Variant 1 to produce the figures.
+ 
+  
   
   
   Fig. 14: First run 
