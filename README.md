@@ -194,7 +194,7 @@ experiments/syn_env_evaluate_acrobot_vary_hp_2_DuelingDDQN.py
 experiments/syn_env_evaluate_acrobot_vary_hp_2_TD3_discrete.py
 ```
 ### Variant 2
-Download the directory ```Synthetic Environments/Figure 3/transfer_experiments``` (see link above) and move it to ```experiments/```. Now run ```experiments/GTNC_visualize_cartpole_vary_hp_merged_plots.py``` (adjust the ```FILE_DIRS``` paths at the top of the file accordingly). For Acrobot (Figure 7) run ```experiments/GTNC_visualize_acrobot_vary_hp_merged_plots.py```.
+Download the directory ```Synthetic Environments/transfer_experiments``` (see link above) and move it to ```experiments/```. Now run ```experiments/GTNC_visualize_cartpole_vary_hp_merged_plots.py``` (adjust the ```FILE_DIRS``` paths at the top of the file accordingly). For Acrobot (Figure 7) run ```experiments/GTNC_visualize_acrobot_vary_hp_merged_plots.py```.
   
 ## Figure 4 and 8
 Download the directories ```Synthetic Environments/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10``` and ```Synthetic Environments/GTNC_evaluate_acrobot_vary_hp_2020-12-12-13``` and place them in ```results/```. Now adjust the ```dir``` path inside ```experiments/GTNC_visualize_cartpole_histogram.py``` or ```experiments/GTNC_visualize_acrobot_histogram.py``` and select the ```agentname``` you want to plot the histograms for.
