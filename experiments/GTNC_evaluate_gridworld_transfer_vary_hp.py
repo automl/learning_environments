@@ -54,14 +54,14 @@ def get_best_models_from_log(log_dir):
             continue
 
     # before AUC (objective minimized)
-    print("sorting from low to high values (non-AUC)")
-    best_models.sort(key=lambda x: x[0])
-    best_models = best_models[:MODEL_NUM]
+    # print("sorting from low to high values (non-AUC)")
+    # best_models.sort(key=lambda x: x[0])
+    # best_models = best_models[:MODEL_NUM]
 
     # AUC (objective maximized)
-    # print("sorting from high to low values (AUC)")
-    # best_models.sort(key=lambda x: x[0], reverse=True)
-    # best_models = best_models[:MODEL_NUM]
+    print("sorting from high to low values (AUC)")
+    best_models.sort(key=lambda x: x[0], reverse=True)
+    best_models = best_models[:MODEL_NUM]
 
     return best_models
 
@@ -157,7 +157,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '_not_reversed.pt')
+    file_name = os.path.join(SAVE_DIR, 'best_transfer_vary_hp' + str(mode) + '.pt')
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

@@ -11,7 +11,7 @@ class GTN_Base(nn.Module):
         self.bohb_id = bohb_id
 
         sync_dir_base = os.getcwd()
-        self.sync_dir = str(os.path.join(sync_dir_base, 'results/GTN_sync2'))
+        self.sync_dir = str(os.path.join(sync_dir_base, 'results/GTN_sync3'))
         print('SYNC DIR: ' + str(self.sync_dir))
 
         os.makedirs(self.sync_dir, exist_ok=True)

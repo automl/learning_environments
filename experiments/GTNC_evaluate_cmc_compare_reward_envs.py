@@ -12,7 +12,7 @@ from envs.env_factory import EnvFactory
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-# LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
 # LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
 # LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
 # LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
@@ -34,7 +34,8 @@ def get_best_models_from_log(log_dir):
             model_name = value.results[1.0]['info']['model_name']
 
             if not os.path.isfile(model_name):
-                model_name = model_name.replace('nierhoff', 'dingsda')
+                model_name = model_name.replace('/home/nierhoff/master_thesis/learning_environments/results',
+                                                '/home/ferreira/Projects/learning_environments/results/2_thomas_results')
             best_models.append((loss, model_name))
         except:
             continue

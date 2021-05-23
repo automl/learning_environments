@@ -104,5 +104,5 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp_with_tuned.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp_with_tuned.png')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp_with_tuned.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp_with_tuned.png')

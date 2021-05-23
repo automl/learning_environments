@@ -5,7 +5,8 @@ import ast
 import statistics
 from copy import deepcopy
 
-LOG_DIRS = ['../results/GTNC_evaluate_cartpole_2020-12-04-12', '../results/GTNC_evaluate_acrobot_2020-11-28-16']
+LOG_DIRS = ['../results/2_thomas_results/GTNC_evaluate_cartpole_2020-12-04-12',
+            '../results/2_thomas_results/GTNC_evaluate_acrobot_2020-11-28-16']
 MAX_VALS = 40
 STD_MULT = 1
 

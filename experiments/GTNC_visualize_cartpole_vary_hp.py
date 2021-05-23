@@ -7,8 +7,6 @@ import pandas as pd
 import seaborn as sns
 import torch
 
-# FILE_DIR = '/home/dingsda/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
-
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on'
 plot_name = 'cartpole_ddqn_vary_hp_new.svg'
 title = "Trained synth. env. with DDQN"
@@ -17,61 +15,11 @@ FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_e
 plot_name = 'cartpole_ddqn_to_duelingddqn_vary_hp_new.eps'
 title = "Transfer DDQN -> Dueling DDQN"
 
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary'
-# plot_name = 'cartpole_ddqn_to_td3_discrete_vary_hp.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/not_learned_init_1_relu_hard_False_lr_1e-3'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_not_learned_temp_relu.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_relu_hard_False_lr_5e-4'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_hard_false_lr_5e-4.eps'
-# title = "Transfer DDQN -> TD3"
-
 FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4'
 plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_new.eps'
 plot_name = 'ddqn_to_td3_discrete_vary_layer_norm_2_filtered_models.eps'
 title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
-#            '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/annealed_temp_bohb_optimized'
-# plot_name = 'ddqn_to_td3_discrete_annealed_temp.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_relu_layer_norm'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_relu_layer_norm.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_better_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_better_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole
-# /ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_tanh_less_hpo_layer_norm_config'
-# plot_name = 'ddqn_to_td3_discrete_gumbel_learned_temp_tanh_less_hpo_layer_norm_config.eps'
-# title = "Transfer DDQN -> TD3"
-
-# FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length
-# /ddqn_vary_trained_on'
-# plot_name = 'cartpole_ddqn_vary_hp_episode_length.eps'
-# title = "Trained synth. env. with DDQN"
 
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_vary_trained_on'
 # FILE_DIR = '/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/correct_episode_length/ddqn_to_duelingddqn_vary'

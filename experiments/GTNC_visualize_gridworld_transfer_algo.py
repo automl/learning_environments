@@ -105,5 +105,5 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_algo.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_algo.png')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.png')
