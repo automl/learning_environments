@@ -7,10 +7,7 @@ import hpbandster.core.result as hpres
 from agents.agent_utils import select_agent
 from envs.env_factory import EnvFactory
 
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std'
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_5e-2_action_std'
 # SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std'
-# SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_5e-2_action_std'
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/halfcheetah_compare_reward_envs'
 
 
@@ -25,6 +22,17 @@ LOG_DICT = {}
 # LOG_DICT['8'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-24-19_8'
 # LOG_DICT['101'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-29-21_101'
 # LOG_DICT['102'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-28-22_102'
+
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-19_1'
+LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-19_2'
+LOG_DICT['3'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-20_3'
+LOG_DICT['4'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-20_4'
+LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-10_5'
+LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-10_6'
+LOG_DICT['7'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-11_7'
+LOG_DICT['8'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-13_8'
+LOG_DICT['101'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-23-11_101'
+LOG_DICT['102'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-23-12_102'
 
 MODEL_NUM = 5
 MODEL_AGENTS = 5
@@ -93,7 +101,6 @@ def train_test_agents(mode, env, real_env, config):
     config['agents']['ppo']['lr'] = 1e-5
     config['agents']['ppo']['vf_coef'] = 1
     config['agents']['ppo']['ent_coef'] = 0.001
-    # config['agents']['ppo']['ent_coef'] = 0.0
     config['agents']['ppo']['eps_clip'] = 0.2
     config['agents']['ppo']['rb_size'] = 1000000
     config['agents']['ppo']['same_action_num'] = 1

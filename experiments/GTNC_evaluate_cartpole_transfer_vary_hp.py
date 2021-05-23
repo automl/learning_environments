@@ -21,6 +21,12 @@ LOG_DICT = {}
 # LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_5'
 # LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_2021-01-28-18_6'
 
+# AUC objective
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cartpole_2021-05-18-11_1'
+LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cartpole_2021-05-15-17_2'
+LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cartpole_2021-05-19-20_5'
+LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cartpole_2021-05-23-11_6'
+
 MODEL_NUM = 10
 MODEL_AGENTS = 10
 

@@ -24,6 +24,17 @@ LOG_DICT = {}
 # LOG_DICT['101'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-29-21_101'
 # LOG_DICT['102'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-28-22_102'
 
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-19_1'
+LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-19_2'
+LOG_DICT['3'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-20_3'
+LOG_DICT['4'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-17-20_4'
+LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-10_5'
+LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-10_6'
+LOG_DICT['7'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-11_7'
+LOG_DICT['8'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-19-13_8'
+LOG_DICT['101'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-23-11_101'
+LOG_DICT['102'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_halfcheetah_2021-05-23-12_102'
+
 MODEL_NUM = 5
 MODEL_AGENTS = 5
 
