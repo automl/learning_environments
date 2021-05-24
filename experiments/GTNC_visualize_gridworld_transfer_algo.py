@@ -4,15 +4,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = [
-        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo1.pt',
-        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo2.pt',
-        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo5.pt',
-        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo6.pt',
-        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo0.pt',
-        # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1.pt',
-        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1_opt.pt',
-        ]
+AUC = False
+
+if AUC:
+    LOG_FILES = [
+            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo1.pt',
+            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo2.pt',
+            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo5.pt',
+            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_algo6.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo0.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1_opt.pt',
+            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1.pt'
+            ]
+else:
+    LOG_FILES = [
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo1.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo2.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo5.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo6.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo0.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1_opt.pt',
+            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_algo-1.pt'
+            ]
 
 LEGEND = [
         'SARSA + exc. pot. RN',
@@ -24,7 +37,7 @@ LEGEND = [
         # 'SARSA + count-based expl. (tuned)'
         ]
 
-STD_MULT = 0.2
+STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 5000
 
 
@@ -87,7 +100,7 @@ def plot_data(proc_data, savefig_name):
         plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.3)
 
     plt.legend(LEGEND, fontsize=7)
 
@@ -105,5 +118,9 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_algo.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_algo.png')

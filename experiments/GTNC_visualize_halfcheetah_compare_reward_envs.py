@@ -4,40 +4,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# LOG_FILES = [
-#         '../results/halfcheetah_compare_reward_envs/best1.pt',
-#         '../results/halfcheetah_compare_reward_envs/best2.pt',
-#         '../results/halfcheetah_compare_reward_envs/best5.pt',
-#         '../results/halfcheetah_compare_reward_envs/best6.pt',
-#         '../results/halfcheetah_compare_reward_envs/best3.pt',
-#         '../results/halfcheetah_compare_reward_envs/best4.pt',
-#         '../results/halfcheetah_compare_reward_envs/best7.pt',
-#         '../results/halfcheetah_compare_reward_envs/best8.pt',
-#         '../results/halfcheetah_compare_reward_envs/best0.pt',
-#         '../results/halfcheetah_compare_reward_envs/best-1.pt',
-#         '../results/halfcheetah_compare_reward_envs/best101.pt',
-#         '../results/halfcheetah_compare_reward_envs/best102.pt'
-#         ]
+AUC = Fal
 
-LOG_FILES = [
-        '../results/halfcheetah_compare_reward_envs/best1.pt',
-        '../results/halfcheetah_compare_reward_envs/best2.pt',
-        '../results/halfcheetah_compare_reward_envs/best5.pt',
-        '../results/halfcheetah_compare_reward_envs/best6.pt',
+if AUC:
+    LOG_FILES = [
+            '../results/halfcheetah_compare_reward_envs/best1.pt',
+            '../results/halfcheetah_compare_reward_envs/best2.pt',
+            '../results/halfcheetah_compare_reward_envs/best5.pt',
+            '../results/halfcheetah_compare_reward_envs/best6.pt',
 
-        '../results/halfcheetah_compare_reward_envs/best0.pt',
-        '../results/halfcheetah_compare_reward_envs/best-1.pt',
-        # '../results/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',
-        # '../results/halfcheetah_compare_reward_envs/best-1_bohb_max_reward_run.pt', # optimizing ICM HPs did not help
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best0.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_bohb_max_reward_run.pt', # optimizing ICM HPs did not help
 
-        '../results/halfcheetah_compare_reward_envs/best3.pt',
-        '../results/halfcheetah_compare_reward_envs/best4.pt',
-        '../results/halfcheetah_compare_reward_envs/best7.pt',
-        '../results/halfcheetah_compare_reward_envs/best8.pt',
+            '../results/halfcheetah_compare_reward_envs/best3.pt',
+            '../results/halfcheetah_compare_reward_envs/best4.pt',
+            '../results/halfcheetah_compare_reward_envs/best7.pt',
+            '../results/halfcheetah_compare_reward_envs/best8.pt',
 
-        '../results/halfcheetah_compare_reward_envs/best101.pt',
-        '../results/halfcheetah_compare_reward_envs/best102.pt'
-        ]
+            '../results/halfcheetah_compare_reward_envs/best101.pt',
+            '../results/halfcheetah_compare_reward_envs/best102.pt'
+            ]
+else:
+    LOG_FILES = [
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best1.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best2.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best5.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best6.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best0.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_bohb_max_reward_run.pt', # optimizing ICM HPs did not help
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best3.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best4.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best7.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best8.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best101.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs/best102.pt'
+            ]
 
 # LEGEND = [
 #         'TD3 + exc. pot. RN',
@@ -73,7 +81,7 @@ LEGEND = [
         'TD3 + add. ER',
         ]
 
-STD_MULT = .2
+STD_MULT = .2  # standard error of the mean
 # MIN_STEPS = 1000000
 MIN_STEPS = 500000
 # MIN_STEPS = 300000
@@ -180,5 +188,9 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env_with_tuned.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.png')

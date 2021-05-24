@@ -4,15 +4,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best_transfer_algo1.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo2.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo5.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo6.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo0.pt',
-        # '../results/cmc_compare_reward_envs/best_transfer_algo-1.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
-        ]
+AUC = False
+
+if AUC:
+    LOG_FILES = [
+            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
+            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
+            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
+            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
+            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
+            ]
+else:
+    LOG_FILES = [
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
+            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
+            ]
 
 LEGEND = [
         'PPO + exc. pot. RN',
@@ -24,7 +37,7 @@ LEGEND = [
         # 'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
         ]
 
-STD_MULT = .2
+STD_MULT = .1  # standard error of the mean
 # STD_MULT = 1.
 MIN_STEPS = 250000
 
@@ -92,7 +105,7 @@ def plot_data(proc_data, savefig_name):
         plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.3)
 
     plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
@@ -107,10 +120,15 @@ def plot_data(proc_data, savefig_name):
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_auc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_auc_transfer_algo.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.png')
+

@@ -4,15 +4,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = [
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-        '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
-        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance, probably overfitted and can't cope with changing HPs
-        ]
+AUC = False
+
+if AUC:
+    LOG_FILES = [
+            '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+            '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
+            '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
+            '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
+            # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance, probably overfitted and can't cope with changing HPs
+            ]
+else:
+    LOG_FILES = [
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
+            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance,
+            # probably overfitted and can't cope with changing HPs
+            ]
 
 
 LEGEND = [
@@ -25,7 +39,7 @@ LEGEND = [
         # 'TD3 + ICM (tuned)',
         ]
 
-STD_MULT = 0.2
+STD_MULT = 0.1  # standard error of the mean
 # MIN_STEPS = 100000
 MIN_STEPS = 250000
 
@@ -94,7 +108,7 @@ def plot_data(proc_data, savefig_name):
         plt.plot(mean, linewidth=1)
 
     for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.3)
 
     plt.legend(LEGEND, fontsize=7)
     # plt.xlim(0,99)
@@ -112,5 +126,9 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_vary_hp.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_vary_hp.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_auc_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_auc_transfer_vary_hp.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_vary_hp.png')

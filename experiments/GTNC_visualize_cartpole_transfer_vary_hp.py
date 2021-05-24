@@ -4,15 +4,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = [
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp0.pt',
-             # '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
-             '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # optimizing ICM HPs did not help
-             ]
+AUC = True
+if AUC:
+    LOG_FILES = [
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp1.pt',
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp2.pt',
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp5.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',  # todo
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp0.pt',
+                 # '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # optimizing ICM HPs did not help
+                 ]
+else:
+    LOG_FILES = [
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp1.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp2.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp5.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp0.pt',
+                 # '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
+                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # optimizing ICM HPs did not help
+                 ]
 
 LEGEND = [
         'DDQN + exc. pot. RN',
@@ -25,7 +37,7 @@ LEGEND = [
         ]
 
 
-STD_MULT = 0.2
+STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 50000
 
 
@@ -106,5 +118,10 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_vary_hp.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_vary_hp.png')
+
