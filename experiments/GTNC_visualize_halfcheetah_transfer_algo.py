@@ -4,43 +4,47 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-# 0.001 ent_coeff, 0.1 action_std
-# LOG_FILES = [
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo1.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo2.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo5.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo6.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo0.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo-1.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo3.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo4.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo7.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo8.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo101.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo102.pt'
-#         ]
+AUC = False
 
-# 0.0 ent_coeff, 0.1 action_std
-# LOG_FILES = [
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo1.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo2.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo5.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo6.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo0.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo-1.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo3.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo4.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo7.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo8.pt',
-#
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo101.pt',
-#         '../results/halfcheetah_compare_reward_envs_5k_episodes_0_ent_coeff_1e-1_action_std/best_transfer_algo102.pt'
-#         ]
+if AUC:
+    # 0.001 ent_coeff, 0.1 action_std
+    LOG_FILES = [
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo1.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo2.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo5.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo6.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo0.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo-1.pt',
+
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo3.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo4.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',
+
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'
+            ]
+
+else:
+    # 0.001 ent_coeff, 0.1 action_std
+    LOG_FILES = [
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo1.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo2.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo5.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo6.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo0.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo-1.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo3.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo4.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo7.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo8.pt',
+
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo101.pt',
+            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo102.pt'
+            ]
 
 
 LEGEND = [
@@ -180,5 +184,9 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    # plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo_smooth.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo_smooth.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo_smooth.png')

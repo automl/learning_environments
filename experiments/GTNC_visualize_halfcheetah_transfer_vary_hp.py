@@ -4,25 +4,49 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-LOG_FILES = [
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
+AUC = False
 
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
-            # '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
+if AUC:
+    LOG_FILES = [
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
 
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
-            '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
 
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
-             '../results/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
-             ]
+                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+                 ]
+else:
+    LOG_FILES = [
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
+
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
+
+                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+                 ]
+
 
 LEGEND = [
         'TD3 + exc. pot. RN',
@@ -122,13 +146,13 @@ def plot_data(proc_data, savefig_name):
     for i, data in enumerate(proc_data):
         mean, std = data
         if i == 10:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#575757')
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color='#575757')
         elif i == 11:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color='#EBBB00')
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color='#EBBB00')
         elif i == 12:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1, color="darkcyan")
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2, color="darkcyan")
         else:
-            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
+            plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
 
     plt.legend(LEGEND, fontsize=7)  # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
@@ -144,5 +168,9 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.pdf')
-    plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.png')
+    if AUC:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_vary_hp_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_vary_hp_with_tuned.png')
+    else:
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_vary_hp_with_tuned.png')

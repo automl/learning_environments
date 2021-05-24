@@ -4,27 +4,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = Fal
+AUC = False
 
 if AUC:
     LOG_FILES = [
-            '../results/halfcheetah_compare_reward_envs/best1.pt',
-            '../results/halfcheetah_compare_reward_envs/best2.pt',
-            '../results/halfcheetah_compare_reward_envs/best5.pt',
-            '../results/halfcheetah_compare_reward_envs/best6.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best1.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best2.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best5.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best6.pt',
 
             '../results/0_before_auc/halfcheetah_compare_reward_envs/best0.pt',
             '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1.pt',
             # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_icm_opt.pt',
             # '../results/0_before_auc/halfcheetah_compare_reward_envs/best-1_bohb_max_reward_run.pt', # optimizing ICM HPs did not help
 
-            '../results/halfcheetah_compare_reward_envs/best3.pt',
-            '../results/halfcheetah_compare_reward_envs/best4.pt',
-            '../results/halfcheetah_compare_reward_envs/best7.pt',
-            '../results/halfcheetah_compare_reward_envs/best8.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best3.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best4.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best7.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best8.pt',
 
-            '../results/halfcheetah_compare_reward_envs/best101.pt',
-            '../results/halfcheetah_compare_reward_envs/best102.pt'
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best101.pt',
+            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best102.pt'
             ]
 else:
     LOG_FILES = [
