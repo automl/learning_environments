@@ -23,8 +23,8 @@ else:
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
+            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
             ]
 
 
@@ -119,8 +119,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp.png')

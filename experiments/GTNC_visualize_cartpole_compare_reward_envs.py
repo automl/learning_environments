@@ -117,8 +117,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env.png')

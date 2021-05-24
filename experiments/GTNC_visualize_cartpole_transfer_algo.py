@@ -116,8 +116,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo_with_tuned.png')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo.png')

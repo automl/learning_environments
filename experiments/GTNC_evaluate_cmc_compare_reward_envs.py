@@ -12,10 +12,15 @@ from envs.env_factory import EnvFactory
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/cmc_compare_reward_envs'
 
 LOG_DICT = {}
-LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
-# LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
-# LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
-# LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
+# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
+# LOG_DICT['2'] = '//home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
+
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cmc_2021-05-23-15_1'
+# LOG_DICT['2'] = '//home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
@@ -125,7 +130,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '_icm_opt.pt')   # fine-tuned by bohb
+    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')   # fine-tuned by bohb
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM

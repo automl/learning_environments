@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = True
+AUC = False
+
 if AUC:
     LOG_FILES = [
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp1.pt',
