@@ -68,7 +68,7 @@ def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    # config['device'] = 'cuda'
+    config['device'] = 'cpu'
     config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
