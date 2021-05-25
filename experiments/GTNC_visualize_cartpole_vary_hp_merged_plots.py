@@ -175,6 +175,7 @@ if __name__ == "__main__":
         g.set_title(title)
         ax.xaxis.set_tick_params(labelsize=11)
         ax.yaxis.set_tick_params(labelsize=11)
+
         if i == 0:
             # remove legend title with hue-kdeplot
             g.axes.get_legend().set_title("")
@@ -182,6 +183,17 @@ if __name__ == "__main__":
             ax.set_ylabel('Density')
             if show_5_best_jointly_with_other:
                 g.axes.get_legend().set_visible(False)
+
+            ax2 = plt.axes([0.1, .7, .1, .1], facecolor='w')
+            g2 = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax2, palette=palette)
+            g2.axes.get_legend().set_visible(False)
+            ax2.set_title('zoom')
+            ax2.get_xaxis().get_label().set_visible(False)
+            ax2.get_yaxis().get_label().set_visible(False)
+            ax2.set_yticks([])
+            ax2.set_xlim([-50, 50])
+            ax2.set_ylim([0.0, 0.001])
+
         elif i == 2 and show_5_best_jointly_with_other:
             g.axes.get_legend().set_title("")
             ax.get_xaxis().get_label().set_visible(False)
@@ -264,3 +276,4 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name))
     plt.show()
+
