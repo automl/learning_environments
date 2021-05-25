@@ -11,7 +11,7 @@ if AUC:
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp1.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp2.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp5.pt',
-                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',  # todo
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_vary_hp6.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp0.pt',
                  # '../results/cartpole_compare_reward_envs/best_transfer_vary_hp-1.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt'  # optimizing ICM HPs did not help
