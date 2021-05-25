@@ -13,7 +13,7 @@ SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/cmc_c
 
 LOG_DICT = {}
 # LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_1'
-# LOG_DICT['2'] = '//home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
+# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_2'
 # LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_5'
 # LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cmc_subopt_2021-01-21-09_6'
 

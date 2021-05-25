@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+AUC = True
 
 if AUC:
     LOG_FILES = [
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best1.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best2.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best5.pt',
-                 '../results/0_before_auc/cartpole_compare_reward_envs/best6.pt',  # todo
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best6.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
                  # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help

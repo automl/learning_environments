@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import os
 
-AUC = False
+AUC = True
 
 if AUC:
     LOG_FILES = [
@@ -38,7 +38,7 @@ LEGEND = [
 
 
 STD_MULT = 0.1  # standard error of the mean
-MIN_STEPS = 50000
+MIN_STEPS = 10000
 
 
 def get_data():
@@ -116,8 +116,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo.png')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo_10k.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_transfer_algo_10k.png')
     else:
         plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo.pdf')
         plot_data(proc_data=proc_data, savefig_name=f'cartpole_transfer_algo.png')
