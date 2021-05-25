@@ -78,7 +78,7 @@ def train_test_agents(mode, env, real_env, config):
     # settings for comparability
     config['agents']['ppo'] = {}
     config['agents']['ppo']['test_episodes'] = 1
-    config['agents']['ppo']['train_episodes'] = 5000
+    config['agents']['ppo']['train_episodes'] = 3000
     config['agents']['ppo']['print_rate'] = 100
 
     config['agents']['ppo']['init_episodes'] = 0
