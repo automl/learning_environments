@@ -102,7 +102,11 @@ def plot_data(proc_data, savefig_name):
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.3)
 
-    plt.legend(LEGEND, fontsize=7)
+    leg = plt.legend(LEGEND, fontsize=9)
+
+    for legobj in leg.legendHandles:
+        legobj.set_linewidth(2.0)
+
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('Cliff Walking')
@@ -118,8 +122,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_compare_reward_env.pdf')
+        # plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_compare_reward_env.pdf')
         plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_compare_reward_env.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env.pdf')
+        # plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env.pdf')
         plot_data(proc_data=proc_data, savefig_name=f'gridworld_compare_reward_env.png')

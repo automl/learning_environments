@@ -23,8 +23,8 @@ if AUC:
             '../results/3_rn_auc/halfcheetah_compare_reward_envs/best7.pt',
             '../results/3_rn_auc/halfcheetah_compare_reward_envs/best8.pt',
 
-            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best101.pt',
-            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best102.pt'
+            # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best101.pt',
+            # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best102.pt'
             ]
 else:
     LOG_FILES = [
@@ -43,24 +43,9 @@ else:
             '../results/0_before_auc/halfcheetah_compare_reward_envs/best7.pt',
             '../results/0_before_auc/halfcheetah_compare_reward_envs/best8.pt',
 
-            '../results/0_before_auc/halfcheetah_compare_reward_envs/best101.pt',
-            '../results/0_before_auc/halfcheetah_compare_reward_envs/best102.pt'
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best101.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs/best102.pt'
             ]
-
-# LEGEND = [
-#         'TD3 + exc. pot. RN',
-#         'TD3 + add. pot. RN',
-#         'TD3 + exc. non-pot. RN',
-#         'TD3 + add. non-pot. RN',
-#         'TD3 + exc. pot. RN + augm.',
-#         'TD3 + add. pot. RN + augm.',
-#         'TD3 + exc. non-pot. RN + augm.',
-#         'TD3 + add. non-pot. RN + augm.',
-#         'TD3',
-#         'TD3 + ICM',
-#         'TD3 + exc. ER',
-#         'TD3 + add. ER',
-#         ]
 
 LEGEND = [
         'TD3 + exc. pot. RN',
@@ -77,14 +62,14 @@ LEGEND = [
         'TD3 + exc. non-pot. RN + augm.',
         'TD3 + add. non-pot. RN + augm.',
 
-        'TD3 + exc. ER',
-        'TD3 + add. ER',
+        # 'TD3 + exc. ER',
+        # 'TD3 + add. ER',
         ]
 
 STD_MULT = .2  # standard error of the mean
 # MIN_STEPS = 1000000
+# MIN_STEPS = 100000
 MIN_STEPS = 500000
-# MIN_STEPS = 300000
 
 
 def get_data():
@@ -173,13 +158,19 @@ def plot_data(proc_data, savefig_name):
         else:
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
 
-    plt.legend(LEGEND, fontsize=7)
+    leg = plt.legend(LEGEND, fontsize=9)
+
+    for legobj in leg.legendHandles:
+        legobj.set_linewidth(2.0)
+
+
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HalfCheetah-v3')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
     plt.ylim(-1000, 6000)
+    # plt.ylim(-1000, 5000)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
@@ -189,8 +180,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env_with_tuned.png')
+        # plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_compare_reward_env.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.png')
+        # plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env_with_tuned.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_compare_reward_env.png')

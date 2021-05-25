@@ -22,8 +22,8 @@ if AUC:
             '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo7.pt',
             '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo8.pt',
 
-            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',
-            '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'
+            # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo101.pt',
+            # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_algo102.pt'
             ]
 
 else:
@@ -42,8 +42,8 @@ else:
             '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo7.pt',
             '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo8.pt',
 
-            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo101.pt',
-            '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo102.pt'
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo101.pt',
+            # '../results/0_before_auc/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std/best_transfer_algo102.pt'
             ]
 
 
@@ -61,13 +61,13 @@ LEGEND = [
         'PPO + exc. non-pot. RN + augm.',
         'PPO + add. non-pot. RN + augm.',
 
-        'PPO + exc. ER',
-        'PPO + add. ER',
+        # 'PPO + exc. ER',
+        # 'PPO + add. ER',
         ]
 
 STD_MULT = 0.2
 MIN_STEPS = 5000000
-# MIN_STEPS = 1000000
+# MIN_STEPS = 2000000
 
 
 def get_data():
@@ -169,13 +169,17 @@ def plot_data(proc_data, savefig_name):
             plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
             # plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
-    plt.legend(LEGEND, fontsize=7)
+    leg = plt.legend(LEGEND, fontsize=7)
+
+    for legobj in leg.legendHandles:
+        legobj.set_linewidth(2.0)
+
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('HalfCheetah-v3 Transfer')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    # plt.ylim(-1000, 6000)
-    plt.ylim(-1000, 3000)
+    plt.ylim(-1000, 6000)
+    # plt.ylim(-1000, 3000)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))
@@ -185,8 +189,8 @@ def plot_data(proc_data, savefig_name):
 if __name__ == "__main__":
     proc_data = get_data()
     if AUC:
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo_smooth.png')
+        # plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_auc_transfer_algo.png')
     else:
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo_smooth.png')
+        # plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.pdf')
+        plot_data(proc_data=proc_data, savefig_name=f'halfcheetah_transfer_algo.png')
