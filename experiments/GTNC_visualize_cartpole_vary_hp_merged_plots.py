@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 
 from utils import barplot_err
 
@@ -171,7 +172,11 @@ if __name__ == "__main__":
             ax = axes[i]
         else:
             ax = axes[0, i]
+
+
         g = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax, palette=palette)
+        # sns.rugplot(x="cumulative rewards", hue="type", data=df, ax=ax, palette=palette)
+
         g.set_title(title)
         ax.xaxis.set_tick_params(labelsize=11)
         ax.yaxis.set_tick_params(labelsize=11)
@@ -184,24 +189,45 @@ if __name__ == "__main__":
             if show_5_best_jointly_with_other:
                 g.axes.get_legend().set_visible(False)
 
-            ax2 = plt.axes([0.1, .7, .1, .1], facecolor='w')
+            ax2 = plt.axes([0.08, .75, .1, .1], facecolor='w')
             g2 = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax2, palette=palette)
             g2.axes.get_legend().set_visible(False)
             ax2.set_title('zoom')
             ax2.get_xaxis().get_label().set_visible(False)
             ax2.get_yaxis().get_label().set_visible(False)
             ax2.set_yticks([])
-            ax2.set_xlim([-50, 50])
-            ax2.set_ylim([0.0, 0.001])
+            ax2.set_xlim([150, 200])
+            ax2.set_ylim([0.0, 0.02])
 
         elif i == 2 and show_5_best_jointly_with_other:
             g.axes.get_legend().set_title("")
             ax.get_xaxis().get_label().set_visible(False)
             ax.get_yaxis().get_label().set_visible(False)
+
+            # ax4 = plt.axes([.85, .65, .1, .1], facecolor='w')
+            # g4 = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax4, palette=palette)
+            # g4.axes.get_legend().set_visible(False)
+            # ax4.set_title('zoom')
+            # ax4.get_xaxis().get_label().set_visible(False)
+            # ax4.get_yaxis().get_label().set_visible(False)
+            # ax4.set_yticks([])
+            # ax4.set_xlim([50, 150])
+            # ax4.set_ylim([0.0, 0.001])
+
         else:
             g.axes.get_legend().set_visible(False)
             ax.get_xaxis().get_label().set_visible(False)
             ax.get_yaxis().get_label().set_visible(False)
+
+            # ax3 = plt.axes([.405, .75, .1, .1], facecolor='w')
+            # g3 = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax3, palette=palette)
+            # g3.axes.get_legend().set_visible(False)
+            # ax3.set_title('zoom')
+            # ax3.get_xaxis().get_label().set_visible(False)
+            # ax3.get_yaxis().get_label().set_visible(False)
+            # ax3.set_yticks([])
+            # ax3.set_xlim([50, 150])
+            # ax3.set_ylim([0.0, 0.001])
 
 
         if not show_only_kde:

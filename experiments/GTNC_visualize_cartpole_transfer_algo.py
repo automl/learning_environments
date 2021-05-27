@@ -3,14 +3,14 @@ import numpy as np
 import torch
 import os
 
-AUC = False
+AUC = True
 
 if AUC:
     LOG_FILES = [
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo1.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo2.pt',
                  '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-                 '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',  # todo
+                 '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
                  # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
                  '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
@@ -38,7 +38,7 @@ LEGEND = [
 
 
 STD_MULT = 0.1  # standard error of the mean
-MIN_STEPS = 50000
+MIN_STEPS = 10000
 
 
 def get_data():

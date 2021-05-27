@@ -60,8 +60,8 @@ def get_data():
         for i in range(len(np_data)):
             np_data[i] = np.array(data[i])
 
-        mean = np.mean(np_data,axis=0)
-        std = np.std(np_data,axis=0)
+        mean = np.mean(np_data, axis=0)
+        std = np.std(np_data, axis=0)
 
         proc_data.append((mean,std))
 
@@ -76,11 +76,17 @@ def plot_data(proc_data, list_data, savefig_name):
     #     plt.plot(mean_w)
     #     colors.append(plt.gca().lines[-1].get_color())
 
-    for mean, std in proc_data:
+    thresh_data = [
+            ([0, 200], [195, 195], '--', colors[0], 2),
+            ([0, 200], [-100, -100], '--', colors[1], 2)
+            ]
+
+    for (mean, std), thresh in zip(proc_data, thresh_data):
+        plt.plot(thresh[0], thresh[1], thresh[2], color=thresh[3], linewidth=thresh[4])
         plt.plot(mean, linewidth=2)
 
-    plt.plot([0, 49], [195, 195], '--', color=colors[0], linewidth=2)
-    plt.plot([0, 49], [-100, -100], '--', color=colors[1], linewidth=2)
+    # plt.plot([0, 200], [195, 195], '--', color=colors[0], linewidth=2)
+    # plt.plot([0, 200], [-100, -100], '--', color=colors[1], linewidth=2)
 
     for mean, std in proc_data:
         plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.2)
@@ -92,15 +98,15 @@ def plot_data(proc_data, list_data, savefig_name):
                 continue
             plt.plot(avg_rewards, linewidth=0.3, color=colors[i])
 
-    plt.legend(['CartPole-v0', 'Acrobot-v1', 'CartPole-v0 solved', 'Acrobot-v1 solved'], loc='lower right')
-    plt.xlim(0,199)
-    plt.xlabel('GTN-RL outer loop iteration')
+    plt.legend(['CartPole-v0', 'CartPole-v0 solved threshold', 'Acrobot-v1', 'Acrobot-v1 solved threshold'], loc='lower right')
+    plt.xlim(0, 199)
+    plt.xlabel('ES outer loop iteration')
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":
     proc_data, list_data = get_data()
-    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.svg')
+    plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.png')
 
 
