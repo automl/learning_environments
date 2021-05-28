@@ -34,7 +34,8 @@ class ExperimentWrapper():
         config = deepcopy(default_config)
         global reward_env_type
         config["envs"]['Cliff']['reward_env_type'] = reward_env_type
-        config["envs"]['Cliff']['solved_reward'] = sys.maxsize  # AUC
+        # config["envs"]['Cliff']['solved_reward'] = sys.maxsize  # AUC
+        config['agents']['GTN']['max_iterations'] = 200
         return config
 
 
@@ -90,7 +91,7 @@ if __name__ == "__main__":
 
     global reward_env_type
     reward_env_type = int(sys.argv[3])
-    run_id = 'GTNC_evaluate_auc_cliff_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
+    run_id = 'GTNC_evaluate_reward_cliff_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
     seed = id+int(time.time())
     random.seed(seed)

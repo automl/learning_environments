@@ -18,7 +18,7 @@ STD_TRAIN_STEPS = []
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot/' \
                  '/ddqn_vary_trained_on')
-TITLES.append("Trained synth. env. with DDQN")
+TITLES.append("DDQN on DDQN-trained SE")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/acrobot' \
@@ -126,21 +126,21 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                    'train: real, HP: varying': data_list[0],
+                    'train: real': data_list[0],
 
-                    'train: synth., HP: varying': data_list[1],
+                    'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HP: fixed': data_list[3],
+                    'train: synth., HPs: fixed': data_list[3],
 
-                    'train: synth., HP: varying (5 best)': data_list[2],
+                    'train: synth., HPs: varied (5 best)': data_list[2],
                     }
         else:
             data_dict = {
-                    'train: real, HP: varying': data_list[0],
+                    'train: real': data_list[0],
 
-                    'train: synth., HP: varying': data_list[1],
+                    'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HP: fixed': data_list[2],
+                    'train: synth., HPs: fixed': data_list[2],
                     }
 
         df = pd.DataFrame(data=data_dict)
@@ -169,9 +169,9 @@ if __name__ == "__main__":
                 "type": ["steps", "episodes",
                          "steps", "episodes",
                          "steps", "episodes"],
-                "method": ["train: real\nHP: varying", "train: real\nHP: varying",
-                           "train: synth.\nHP: varying", "train: synth.\nHP: varying",
-                           "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"],
+                "method": ["train: real", "train: real",
+                           "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
+                           "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"],
                 "means": [mean_train_steps[0], episode_num_needed_means[0],
                           mean_train_steps[1], episode_num_needed_means[1],
                           mean_train_steps[2], episode_num_needed_means[2]],
@@ -181,13 +181,13 @@ if __name__ == "__main__":
                 }
 
         if show_5_best_jointly_with_other and i == 2:
-            barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
-                                          "train: synth.\nHP: varying\n(5 best)", "train: synth.\nHP: varying\n(5 best)",
-                                          "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
+            barplot_data_dct["method"] = ["train: real", "train: real",
+                                          "train: synth.\nHPs: varied\n(5 best)", "train: synth.\nHPs: varied\n(5 best)",
+                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
         else:
-            barplot_data_dct["method"] = ["train: real\nHP: varying", "train: real\nHP: varying",
-                                          "train: synth.\nHP: varying", "train: synth.\nHP: varying",
-                                          "train: synth.\nHP: fixed", "train: synth.\nHP: fixed"]
+            barplot_data_dct["method"] = ["train: real", "train: real",
+                                          "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
+                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
 
         barplot_df = pd.DataFrame(barplot_data_dct)
 

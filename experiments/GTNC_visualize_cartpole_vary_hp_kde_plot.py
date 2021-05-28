@@ -7,8 +7,6 @@ import pandas as pd
 import seaborn as sns
 import torch
 
-from utils import barplot_err
-
 FILE_DIRS = []
 FILE_LISTS = []
 PLOT_NAMES = []
@@ -17,16 +15,16 @@ MEAN_TRAIN_STEPS = []
 STD_TRAIN_STEPS = []
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
-TITLES.append("DDQN on DDQN-trained SE")
+TITLES.append("DDQN on DDQN-trained SEs")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
-TITLES.append("Transfer DDQN -> Dueling DDQN")
+TITLES.append("Transfer: Dueling DDQN on DDQN-trained SEs")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
                  '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4')
-TITLES.append("Transfer DDQN -> TD3")
+TITLES.append("Transfer: TD3 on DDQN-trained SEs")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
 ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
@@ -45,28 +43,34 @@ STD_TRAIN_STEPS.append(dueling_ddqn_std_train_steps)
 td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
 td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
+############ PARAMETERS ############
 show_5_best_jointly_with_other = True
+show_zoom = False
 
 if show_5_best_jointly_with_other:
     # mode 2, 5 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py for which one), 4k evals (80(agents_num)*5(models)*10(
     # evals per model))
     td3_mean_train_steps[1] = 6287.5
     td3_std_train_steps[1] = 1970.6455160682756
-    TITLES[2] = "Transfer DDQN -> TD3"
+    TITLES[2] = "Transfer: TD3 on DDQN-trained SEs"
     FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
 
-plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_barplot.pdf'
+if show_zoom:
+    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde_zoom.pdf'
+else:
+    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde.pdf'
 
 key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
 STD_TRAIN_STEPS.append(td3_std_train_steps)
 
 if __name__ == "__main__":
+
     nrows = 1
     gridspec_kw = {}
-    figsize = (15, 2.3)
+    figsize = (15, 3)
 
-    fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex=False, sharey="row", gridspec_kw=gridspec_kw)
+    fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex="row", sharey="row", gridspec_kw=gridspec_kw)
 
     for i, data in enumerate(zip(FILE_DIRS, FILE_LISTS, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
         FILE_DIR, FILE_LIST, title, mean_train_steps, std_train_steps = data
@@ -145,7 +149,7 @@ if __name__ == "__main__":
                 "axes.labelsize": 11,
                 "legend.fontsize": 11,
                 "xtick.labelsize": 11,
-                "ytick.labelsize": 9
+                "ytick.labelsize": 9,
                 })
 
         if i == 0:
@@ -158,87 +162,114 @@ if __name__ == "__main__":
         else:
             palette = ["C0", "C1", "C2"]
 
-        barplot_data_dct = {
-                "type": ["steps", "episodes",
-                         "steps", "episodes",
-                         "steps", "episodes"],
-                "method": ["train: real", "train: real",
-                           "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                           "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"],
-                "means": [mean_train_steps[0], episode_num_needed_means[0],
-                          mean_train_steps[1], episode_num_needed_means[1],
-                          mean_train_steps[2], episode_num_needed_means[2]],
-                "std dev": [std_train_steps[0], episode_num_needed_stds[0],
-                            std_train_steps[1], episode_num_needed_stds[1],
-                            std_train_steps[2], episode_num_needed_stds[2]]
-                }
+        ax = axes[i]
 
-        if show_5_best_jointly_with_other and i == 2:
-            barplot_data_dct["method"] = ["train: real", "train: real",
-                                          "train: synth.\nHPs: varied (5 best)", "train: synth.\nHPs: varied (5 best)",
-                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
-        else:
-            barplot_data_dct["method"] = ["train: real", "train: real",
-                                          "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
+        # def upper_rugplot(data, ax=None, i=None, color=None, **kwargs):
+        #     from matplotlib.collections import LineCollection
+        #     ax = ax or plt.gca()
+        #     heights = [[0.0, 0.03], [0.05, 0.08], [0.1, 0.13]]
+        #
+        #     height = heights[i]
+        #     kwargs.setdefault("linewidth", 0.2)
+        #     segs = np.stack((np.c_[data, data],
+        #                      np.c_[np.ones_like(data) - height[0], np.ones_like(data) - height[1]]),
+        #                     axis=-1)
+        #     lc = LineCollection(segs, transform=ax.get_xaxis_transform(), color=color, **kwargs)
+        #     ax.add_collection(lc)
+        #
+        # l_colors = ['C0', 'C1', 'C2']
+        # for k, typ in enumerate(["train: real", "train: synth., HPs: varied", "train: synth., HPs: fixed"]):
+        #     data = df[df['type'].str.contains(typ)]['cumulative rewards']
+        #     if i == 2 and k == 1:
+        #         data = df[df['type'].str.contains("5 best")]['cumulative rewards']
+        #         color = 'black'
+        #     else:
+        #         color = l_colors[k]
+        #     upper_rugplot(data=data, ax=ax, i=k, color=color)
 
-        barplot_df = pd.DataFrame(barplot_data_dct)
+        # need to set label for accesss to handles later on
+        g = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax, palette=palette, label=data_dict.keys())
 
-        scale = 100
-        barplot_df['means'] = np.where(barplot_df['type'] == 'episodes', barplot_df['means'] * scale, barplot_df['means'])
-        barplot_df['std dev'] = np.where(barplot_df['type'] == 'episodes', barplot_df['std dev'] * scale, barplot_df['std dev'])
-
-        p = barplot_err(x="method", y="means", yerr="std dev", hue="type", errwidth=1., capsize=.05, data=barplot_df, ax=axes[i],
-                        palette=sns.color_palette("Paired"))
-
-        axis_left = axes[i]
-        # axis_right = axis_left.twinx()
-        # axis_right.set_ylim(axis_left.get_ylim())
-        # axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
+        g.set_title(title)
+        ax.xaxis.set_tick_params(labelsize=11)
+        ax.yaxis.set_tick_params(labelsize=11)
 
         if i == 0:
-            p.axes.get_legend().set_title("")
-            axis_left_after = axes[i]
-            # axis_left_after.set_ylim((-10000, 100000))
-            # axis_left_after.set_ylim((-5000, axis_left_after.get_ylim()[1]))
-            axis_right_after = axis_left.twinx()
-            axis_left_after.set_ylabel("mean train steps", fontsize=11)
-            axis_right_after.set_ylabel("mean train episodes", rotation=-90, fontsize=11, labelpad=12)
-            axis_left.get_xaxis().get_label().set_visible(False)
-            p.xaxis.set_tick_params(labelsize=11)
-
+            # remove legend title with hue-kdeplot
+            g.axes.get_legend().set_title("")
+            ax.set_xlabel('cumulative rewards')
+            ax.set_ylabel('Density')
             if show_5_best_jointly_with_other:
-                axes[i].tick_params(labelbottom=True)
+                g.axes.get_legend().set_visible(False)
+
+            if show_zoom:
+                ax2 = plt.axes([0.11, .65, .08, .1], facecolor='w')
+                l1 = g.get_lines()[0]
+                l2 = g.get_lines()[1]
+                l3 = g.get_lines()[2]
+                ax2.plot(l1.get_data()[0], l1.get_data()[1], color=l1.get_color())
+                ax2.plot(l2.get_data()[0], l2.get_data()[1], color=l2.get_color())
+                ax2.plot(l3.get_data()[0], l3.get_data()[1], color=l3.get_color())
+                ax2.set_title('zoom')
+                ax2.get_xaxis().get_label().set_visible(False)
+                ax2.get_yaxis().get_label().set_visible(False)
+                ax2.set_yticks([0.0, 0.0005])
+                ax2.set_xlim([50, 100])
+                ax2.set_xticks([50, 75, 100])
+                # ax2.set_ylim(g.get_ylim())
+                ax2.set_ylim([0.0, 0.0005])
+
+        elif i == 2 and show_5_best_jointly_with_other:
+            g.axes.get_legend().set_title("")
+            ax.get_xaxis().get_label().set_visible(False)
+            ax.get_yaxis().get_label().set_visible(False)
+
+            if show_zoom:
+                g.axes.get_legend().set_visible(False)
+                leg = plt.legend(reversed(g.axes.get_legend_handles_labels()[0]), data_dict.keys(), bbox_to_anchor=(-2.8, -6.5, 8, 1),
+                                 mode="expand", ncol=4, frameon=False)
+
+                for legobj in leg.legendHandles:
+                    legobj.set_linewidth(2.0)
+
+
+                ax4 = plt.axes([0.755, .65, .08, .1], facecolor='w')
+                l1 = g.get_lines()[0]
+                l2 = g.get_lines()[1]
+                l3 = g.get_lines()[2]
+                l4 = g.get_lines()[3]
+                ax4.plot(l1.get_data()[0], l1.get_data()[1], color=l1.get_color())
+                ax4.plot(l2.get_data()[0], l2.get_data()[1], color=l2.get_color())
+                ax4.plot(l3.get_data()[0], l3.get_data()[1], color=l3.get_color())
+                ax4.plot(l4.get_data()[0], l4.get_data()[1], color=l4.get_color())
+                # ax4.set_title('zoom')
+                ax4.get_xaxis().get_label().set_visible(False)
+                ax4.get_yaxis().get_label().set_visible(False)
+                ax4.set_yticks([0.0, 0.001])
+                ax4.set_xlim([50, 100])
+                ax4.set_xticks([50, 75, 100])
+                ax4.set_ylim([0.0, 0.001])
 
         else:
-            p.axes.get_xaxis().get_label().set_visible(False)
-            p.axes.get_legend().set_visible(False)
+            g.axes.get_legend().set_visible(False)
+            ax.get_xaxis().get_label().set_visible(False)
+            ax.get_yaxis().get_label().set_visible(False)
 
-            axis_left = axes[i]
-            # axis_left.set_ylim((-10000, 100000))
-            # axis_left.set_ylim((-5000, axis_left.get_ylim()[1]))
-            axis_right = axis_left.twinx()
-            axis_right.set_ylim(axis_left.get_ylim())
-            axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
-
-            # remove tick labels from 2nd and 3rd plot but keep it in first while sharedx is active
-            axes[i].tick_params(labelbottom=False)
-
-            axis_left.get_yaxis().get_label().set_visible(False)
-            axis_left.get_xaxis().get_label().set_visible(False)
-            axis_right.get_yaxis().get_label().set_visible(False)
-            axis_right.get_yaxis().set_ticklabels([])
-            axes[i].get_xaxis().get_label().set_visible(False)
-            p.xaxis.set_tick_params(labelsize=11)
-
-            if show_5_best_jointly_with_other:
-                axes[i].tick_params(labelbottom=True)
-
-        for x, y, mean in zip([0, 1, 2], [220, 220, 220], mean_list):
-            plt.text(x, y, mean, ha='center', va='top', fontsize=12)
-
-        axis_right_after.set_ylim(axis_left_after.get_ylim())
-        axis_right_after.set_yticklabels(np.round(axis_left_after.get_yticks() / scale, 1).astype(int))
+            if show_zoom:
+                ax3 = plt.axes([0.435, .65, .08, .1], facecolor='w')
+                l1 = g.get_lines()[0]
+                l2 = g.get_lines()[1]
+                l3 = g.get_lines()[2]
+                ax3.plot(l1.get_data()[0], l1.get_data()[1], color=l1.get_color())
+                ax3.plot(l2.get_data()[0], l2.get_data()[1], color=l2.get_color())
+                ax3.plot(l3.get_data()[0], l3.get_data()[1], color=l3.get_color())
+                # ax3.set_title('zoom')
+                ax3.get_xaxis().get_label().set_visible(False)
+                ax3.get_yaxis().get_label().set_visible(False)
+                ax3.set_yticks([0.0, 0.0005])
+                ax3.set_xlim([50, 100])
+                ax3.set_xticks([50, 75, 100])
+                ax3.set_ylim([0.0, 0.0005])
 
     plt.tight_layout()
     plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name))

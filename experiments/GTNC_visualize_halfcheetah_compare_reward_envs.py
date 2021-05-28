@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+AUC = True
 
 if AUC:
     LOG_FILES = [

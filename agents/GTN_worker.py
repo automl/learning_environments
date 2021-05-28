@@ -202,8 +202,11 @@ class GTN_Worker(GTN_Base):
             #     print(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
             #     reward_list_train = reward_list_train[:len(episode_length_train)]
 
-            print("AUC: ", np.dot(reward_list_train, episode_length_train))
-            return np.dot(reward_list_train, episode_length_train)
+            print("AVG REWARD: ", avg_reward_test)
+            return avg_reward_test
+
+            # print("AUC: ", np.dot(reward_list_train, episode_length_train))
+            # return np.dot(reward_list_train, episode_length_train)
 
             # if not real_env.can_be_solved():
             #     return avg_reward_test
