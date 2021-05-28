@@ -35,7 +35,7 @@ class ExperimentWrapper():
         global reward_env_type
         config["envs"]['Cliff']['reward_env_type'] = reward_env_type
         # config["envs"]['Cliff']['solved_reward'] = sys.maxsize  # AUC
-        config['agents']['GTN']['max_iterations'] = 200
+        config['agents']['gtn']['max_iterations'] = 200
         return config
 
 
