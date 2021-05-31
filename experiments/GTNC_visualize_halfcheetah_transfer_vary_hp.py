@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+AUC = True
 
 if AUC:
     LOG_FILES = [
@@ -23,8 +23,8 @@ if AUC:
                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
 
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+                 # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+                 # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
                  ]
 else:
     LOG_FILES = [

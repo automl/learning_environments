@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+AUC = True
 
 if AUC:
     # 0.001 ent_coeff, 0.1 action_std
@@ -178,8 +178,8 @@ def plot_data(proc_data, savefig_name):
     plt.title('HalfCheetah-v3 Transfer')
     plt.xlabel('steps')
     plt.xlim(0, MIN_STEPS)
-    plt.ylim(-1000, 6000)
-    # plt.ylim(-1000, 3000)
+    # plt.ylim(-1000, 6000)
+    plt.ylim(-1000, 3000)
     plt.ylabel('cumulative reward')
     base_dir = os.path.dirname(LOG_FILES[0])
     plt.savefig(os.path.join(base_dir, savefig_name))

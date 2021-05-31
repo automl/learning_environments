@@ -9,7 +9,7 @@ from envs.env_factory import EnvFactory
 
 # SAVE_DIR = '/home/nierhoff/master_thesis/learning_environments/results/cliff_compare_reward_envs'
 # SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/cliff_compare_reward_envs'
-SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/cliff_compare_reward_envs'
+SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/4_rn_reward/cliff_compare_reward_envs'
 
 LOG_DICT = {}
 # LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_1'
@@ -17,16 +17,20 @@ LOG_DICT = {}
 # LOG_DICT['5'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
 # LOG_DICT['6'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
-LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_1'
-LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_2'
-LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_5'
-LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_6'
+# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_1'
+# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cliff_2021-02-09-21_6'
 
 # AUC objective
-# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_1'
-# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-19_2'
-# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-18-10_5'
-# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_auc_cliff_2021-05-14-20_6'
+# LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/GTNC_evaluate_auc_cliff_2021-05-18-10_1'
+# LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/GTNC_evaluate_auc_cliff_2021-05-14-19_2'
+# LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/GTNC_evaluate_auc_cliff_2021-05-18-10_5'
+# LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/GTNC_evaluate_auc_cliff_2021-05-14-20_6'
+
+# reward objective
+LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-05-29-05_1'
+LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-05-30-10_2'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
