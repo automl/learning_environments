@@ -31,6 +31,8 @@ LOG_DICT = {}
 # reward objective
 LOG_DICT['1'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-05-29-05_1'
 LOG_DICT['2'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-05-30-10_2'
+LOG_DICT['5'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-05-31-10_5'
+LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_evaluate_reward_cliff_2021-06-01-18_6'
 
 MODEL_NUM = 10
 MODEL_AGENTS = 10
