@@ -4,20 +4,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+case_name = "reward_maximization"
 
-if AUC:
-    LOG_FILES = [
+
+def auc():
+    return [
             '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
             '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
             '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
             '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
             ]
-else:
-    LOG_FILES = [
+
+
+def normal():
+    return [
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
@@ -26,6 +28,24 @@ else:
             # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
             '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
             ]
+
+
+def reward_maximization():
+    return [
+            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
+            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt',
+            ]
+
+case = {
+        "normal": normal,
+        "auc": auc,
+        "reward_maximization": reward_maximization,
+        }
+
 
 
 LEGEND = [
@@ -40,6 +60,7 @@ LEGEND = [
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 5000
+LOG_FILES = case[case_name]()
 
 
 def get_data():
@@ -123,9 +144,6 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    if AUC:
-        # plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_auc_transfer_vary_hp.png')
-    else:
-        # plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'gridworld_transfer_vary_hp.png')
+
+    # plot_data(proc_data=proc_data, savefig_name=f'gridworld_{case_name}_transfer_vary_hp.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'gridworld_{case_name}_transfer_vary_hp.png')
