@@ -1,5 +1,5 @@
 env_name: !!str HalfCheetah-v3
-device: !!str cuda                          # torch device (cuda:0 or cpu)
+device: !!str cpu                          # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
@@ -43,7 +43,7 @@ agents:
     action_std: !!float 0.1                 # action noise standard deviation
     policy_std: !!float 0.2                 # policy noise standard deviation
     policy_std_clip: !!float 0.5            # policy noise standard deviation
-    print_rate: 1                           # update rate of avg meters
+    print_rate: 10                           # update rate of avg meters
     early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 2e-2    # performance difference for an early out for virtual envs
 

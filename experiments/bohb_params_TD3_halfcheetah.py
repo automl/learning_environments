@@ -28,6 +28,7 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
@@ -47,6 +48,7 @@ class ExperimentWrapper():
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
+        config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
         config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
@@ -82,15 +84,18 @@ class ExperimentWrapper():
         env_fac = EnvFactory(config)
         real_env = env_fac.generate_real_env()
 
-        score = 0
+        # score = 0
+        rewards_list = []
         for i in range(NUM_EVALS):
             td3 = TD3(env=real_env,
                       max_action=real_env.get_max_action(),
                       config=config)
             rewards, _, _ = td3.train(real_env)
-            score += len(rewards)
+            rewards_list.append(sum(rewards))
+            # score += len(rewards)
 
-        score = score/NUM_EVALS
+        # score = score/NUM_EVALS
+        score = -np.mean(rewards_list)
 
         info['config'] = str(config)
 
@@ -107,7 +112,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'halfcheetah_td3_params_bohb_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'halfcheetah_td3_bohb_params_se_prep_' + x.strftime("%Y-%m-%d-%H")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
