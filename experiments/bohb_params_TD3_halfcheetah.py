@@ -11,7 +11,7 @@ from agents.TD3 import TD3
 from envs.env_factory import EnvFactory
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
-NUM_EVALS = 3
+NUM_EVALS = 5
 
 class ExperimentWrapper():
     def get_bohb_parameters(self):
@@ -28,19 +28,20 @@ class ExperimentWrapper():
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=50, log=True, default_value=10))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=32, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=1, upper=3, log=False, default_value=2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-5, upper=5e-3, log=True, default_value=1e-3))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.001, upper=0.05, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=1, upper=5, log=False, default_value=2))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=192, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.2, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-2, upper=1e-1, log=True, default_value=3e-2))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=3, log=False, default_value=2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.01, upper=1.0, log=True, default_value=0.1))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.01, upper=1.0, log=True, default_value=0.2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.01, upper=1, log=True, default_value=0.5))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-3, upper=1e-1, log=True,
+                                                             default_value=3e-2))
 
         return cs
 
