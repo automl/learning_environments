@@ -136,7 +136,7 @@ class TD3(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_halfcheetah.yaml", "r") as stream:
+    with open("../default_config_halfcheetah_td3_se_opt.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     # print(config)
     # generate environment

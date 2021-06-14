@@ -4,20 +4,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-AUC = False
+case_name = "reward_maximization"
 
-if AUC:
-    LOG_FILES = [
-                 '../results/3_rn_auc/cartpole_compare_reward_envs/best1.pt',
-                 '../results/3_rn_auc/cartpole_compare_reward_envs/best2.pt',
-                 '../results/3_rn_auc/cartpole_compare_reward_envs/best5.pt',
-                 '../results/3_rn_auc/cartpole_compare_reward_envs/best6.pt',
-                 '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
-                 # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
-                 '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
-                 ]
-else:
-    LOG_FILES = [
+
+def auc():
+    return [
+            '../results/3_rn_auc/cartpole_compare_reward_envs/best1.pt',
+            '../results/3_rn_auc/cartpole_compare_reward_envs/best2.pt',
+            '../results/3_rn_auc/cartpole_compare_reward_envs/best5.pt',
+            '../results/3_rn_auc/cartpole_compare_reward_envs/best6.pt',
+            '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
+            # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
+            '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
+            ]
+
+
+def normal():
+    return [
             '../results/0_before_auc/cartpole_compare_reward_envs/best1.pt',
             '../results/0_before_auc/cartpole_compare_reward_envs/best2.pt',
             '../results/0_before_auc/cartpole_compare_reward_envs/best5.pt',
@@ -26,6 +29,25 @@ else:
             # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
             '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
             ]
+
+
+def reward_maximization():
+    return [
+            '../results/4_rn_reward/cartpole_compare_reward_envs/best1.pt',
+            '../results/4_rn_reward/cartpole_compare_reward_envs/best2.pt',
+            '../results/4_rn_reward/cartpole_compare_reward_envs/best5.pt',
+            '../results/4_rn_reward/cartpole_compare_reward_envs/best6.pt',
+            '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
+            # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
+            '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
+            ]
+
+
+case = {
+        "normal": normal,
+        "auc": auc,
+        "reward_maximization": reward_maximization,
+        }
 
 LEGEND = [
         'DDQN + exc. pot. RN',
@@ -39,6 +61,7 @@ LEGEND = [
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 50000
+LOG_FILES = case[case_name]()
 
 
 def get_data():
@@ -120,9 +143,7 @@ def plot_data(proc_data, savefig_name):
 
 if __name__ == "__main__":
     proc_data = get_data()
-    if AUC:
-        # plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_auc_compare_reward_env.png')
-    else:
-        # plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env.pdf')
-        plot_data(proc_data=proc_data, savefig_name=f'cartpole_compare_reward_env.png')
+
+    # plot_data(proc_data=proc_data, savefig_name=f'cartpole_{case_name}_compare_reward_env.pdf')
+    plot_data(proc_data=proc_data, savefig_name=f'cartpole_{case_name}_compare_reward_env.png')
+

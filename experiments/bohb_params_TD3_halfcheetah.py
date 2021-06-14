@@ -92,11 +92,11 @@ class ExperimentWrapper():
                       max_action=real_env.get_max_action(),
                       config=config)
             rewards, _, _ = td3.train(real_env)
-            rewards_list.append(sum(rewards))
+            rewards_list.append(np.mean(rewards))
             # score += len(rewards)
 
         # score = score/NUM_EVALS
-        score = -np.mean(rewards_list)
+        score = -np.median(rewards_list)
 
         info['config'] = str(config)
 

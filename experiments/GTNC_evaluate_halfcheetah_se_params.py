@@ -33,21 +33,23 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_step_size', lower=0.1, upper=1, log=True, default_value=0.5))
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.001, upper=1, log=True, default_value=0.01))
+        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=[True, False], default_value=False))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_num_grad_evals', lower=1, upper=5, log=False, default_value=1))
 
         #cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=1, upper=3, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=192, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.2, log=True, default_value=0.1))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-2, upper=1e-1, log=True, default_value=3e-2))
-
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_tau', lower=0.005, upper=0.05, log=True, default_value=0.01))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_policy_delay', lower=1, upper=3, log=False, default_value=2))
+        # cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=192, log=True, default_value=128))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.2, log=True, default_value=0.1))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
+        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-2, upper=1e-1, log=True, default_value=3e-2))
+        #
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='halfcheetah_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='leakyrelu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_size', lower=48, upper=192, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_layer', lower=1, upper=2, log=False, default_value=1))
@@ -62,28 +64,28 @@ class ExperimentWrapper():
         config["agents"]['gtn']['step_size'] = cso["gtn_step_size"]
         config["agents"]['gtn']['mirrored_sampling'] = cso["gtn_mirrored_sampling"]
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
+        config["agents"]['gtn']['nes_step_size'] = cso["gtn_nes_step_size"]
+        config["agents"]['gtn']['num_grad_evals'] = cso["gtn_num_grad_evals"]
+
+        config["agents"]['gtn']['synthetic_env_type'] = 0
 
         #config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
-        config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
-        config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
-        config["agents"]['td3']['lr'] = cso["td3_lr"]
-        config["agents"]['td3']['tau'] = cso["td3_tau"]
-        config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
-        config["agents"]['td3']['activation_fn'] = cso["td3_activation_fn"]
-        config["agents"]['td3']['hidden_size'] = cso["td3_hidden_size"]
-        config["agents"]['td3']['hidden_layer'] = cso["td3_hidden_layer"]
-        config["agents"]['td3']['action_std'] = cso["td3_action_std"]
-        config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
-        config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
-        config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
+        # config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
+        # config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
+        # config["agents"]['td3']['lr'] = cso["td3_lr"]
+        # config["agents"]['td3']['tau'] = cso["td3_tau"]
+        # config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
+        # config["agents"]['td3']['activation_fn'] = cso["td3_activation_fn"]
+        # config["agents"]['td3']['hidden_size'] = cso["td3_hidden_size"]
+        # config["agents"]['td3']['hidden_layer'] = cso["td3_hidden_layer"]
+        # config["agents"]['td3']['action_std'] = cso["td3_action_std"]
+        # config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
+        # config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
+        # config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
 
         config["envs"]['HalfCheetah-v3']['activation_fn'] = cso["halfcheetah_activation_fn"]
         config["envs"]['HalfCheetah-v3']['hidden_size'] = cso["halfcheetah_hidden_size"]
         config["envs"]['HalfCheetah-v3']['hidden_layer'] = cso["halfcheetah_hidden_layer"]
-
-        global reward_env_type
-        config["agents"]['gtn']['synthetic_env_type'] = 1
-        config["envs"]['HalfCheetah-v3']['reward_env_type'] = reward_env_type
 
         return config
 
@@ -138,9 +140,7 @@ if __name__ == "__main__":
     id = int(sys.argv[1])
     bohb_workers = int(sys.argv[2])
 
-    global reward_env_type
-    reward_env_type = int(sys.argv[3])
-    run_id = 'GTNC_evaluate_halfcheetah_params_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
+    run_id = 'SE_halfcheetah_params_' + x.strftime("%Y-%m-%d-%H")
 
     seed = id+int(time.time())
     random.seed(seed)

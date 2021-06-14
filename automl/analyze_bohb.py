@@ -279,6 +279,13 @@ def plot_parallel_scatter(result):
                 if data[k][0] == values[i]:
                     ep = data[k][1]
                     acc = map_to_zero_one_range(data[k][2], loss_m, loss_M)
+
+                    # test:
+                    # loss_b = -1233125.5410615604
+                    # loss_a = -5233125.5410615604 #(we minimize the negative reward)
+                    # print(loss_b, "->", map_to_zero_one_range(loss_b, loss_m, loss_M))
+                    # print(loss_a, "->", map_to_zero_one_range(loss_a, loss_m, loss_M))
+
                     rads[k] = linear_interpolation(np.log(ep), np.log(ep_m), np.log(ep_M), r_min, r_max) ** 2
                     colors[k, :] = get_color(acc)
 
@@ -357,6 +364,7 @@ def plot_parallel_scatter(result):
     plt.subplots_adjust(bottom=0.25)
 
 
+
 def linear_interpolation(x, x0, x1, y0, y1):
     # linearly interpolate between two x/y values for a given x value
     return y0 + (y1 - y0) * (x - x0) / (x1 - x0 + 1e-9)
@@ -381,13 +389,18 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
 
 
 def get_color(acc):
+    print("acc: ", acc)
     if acc <= 0:
+        print("color: ", np.array([[1, 0, 0]]))
         return np.array([[1, 0, 0]])
     elif acc <= 0.5:
+        print("color: ", np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]]))
         return np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]])
     elif acc <= 1:
+        print("color: ", np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]]))
         return np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]])
     else:
+        print("color: ", np.array([[0, 1, 0]]))
         return np.array([[0, 1, 0]])
 
 
@@ -412,8 +425,8 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_DDQN_ICM_cartpole_2021-03-06-10'
     # title = "DDQN ICM on CartPole"
 
-    log_dir = '../results/bohb_params_td3_icm_hc_2021-03-08-20'
-    title = "TD3 ICM on HC"
+    # log_dir = '../results/bohb_params_td3_icm_hc_2021-03-08-20'
+    # title = "TD3 ICM on HC"
 
     # log_dir = '../results/bohb_params_td3_icm_cmc_2021-03-08-22'
     # title = "TD3 ICM on CMC"
@@ -436,7 +449,10 @@ if __name__ == '__main__':
     # log_dir = '../results/bohb_params_ppo_hc_icm_1e-3_ent_coef_1e-1_action_std_2021-03-19-20'
     # title = "PPO ICM on HC max. reward"
 
-    log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-10-15'
+    # log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-11-11'
+    # title = "TD3 HC max. reward"
+
+    log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-13-17'
     title = "TD3 HC max. reward"
 
     analyze_bohb(log_dir, title=title)
