@@ -5,8 +5,8 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 100               # maximum number of GTN iterations
-    num_threads_per_worker: !!int 1         # how many pytorch/OMP threads per worker
+    max_iterations: !!int 50               # maximum number of GTN iterations
+    num_threads_per_worker: !!int 2         # how many pytorch/OMP threads per worker
     num_workers: !!int 128                  # size of the population
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
@@ -26,8 +26,8 @@ agents:
     agent_name: !!str td3_vary              # which RL agent to use for meta-training
 
   td3:
-    train_episodes: !!int 100               # maximum number of episodes to optimize
-    test_episodes: !!int 10                 # maximum number of episodes to evaluate
+    train_episodes: !!int 50               # maximum number of episodes to optimize
+    test_episodes: !!int 2                  # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                   # batch size when running a policy update step
     gamma: !!float 0.995                    # discount factor
