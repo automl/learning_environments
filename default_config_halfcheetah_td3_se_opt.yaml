@@ -16,7 +16,7 @@ agents:
     grad_eval_type: !!str mean              # mean or minmax
     weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
-    time_max: !!float 360000                # maximum allocated time for first iteration
+    time_max: !!float 3600                # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 7           # 0-7
@@ -26,8 +26,8 @@ agents:
     agent_name: !!str td3_vary              # which RL agent to use for meta-training
 
   td3:
-    train_episodes: !!int 50               # maximum number of episodes to optimize
-    test_episodes: !!int 2                  # maximum number of episodes to evaluate
+    train_episodes: !!int 50                # maximum number of episodes to optimize
+    test_episodes: !!int 1                  # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
     batch_size: !!int 128                   # batch size when running a policy update step
     gamma: !!float 0.995                    # discount factor
@@ -53,7 +53,7 @@ agents:
 envs:
   HalfCheetah-v3:
     solved_reward: !!float 3000             # used for early out in RL agent training
-    max_steps: !!int 1000                   # maximum number of steps per episode
+    max_steps: !!int 1500                   # maximum number of steps per episode
     activation_fn: !!str relu               # activation function of the virtual environment
     hidden_size: 171                        # size of the hidden layer of the virtual environment
     hidden_layer: !!int 1                   # number of hidden layers of the virtual environment

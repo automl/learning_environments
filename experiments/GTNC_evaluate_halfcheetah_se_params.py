@@ -48,11 +48,12 @@ class ExperimentWrapper():
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.2, log=True, default_value=0.1))
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.4, log=True, default_value=0.2))
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
-        # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-2, upper=1e-1, log=True, default_value=3e-2))
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_early_out_virtual_diff', lower=1e-2, upper=1e-1, log=True, default_value=3e-2))
         #
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='halfcheetah_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='leakyrelu'))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_size', lower=48, upper=192, log=True, default_value=128))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_layer', lower=1, upper=2, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_size', lower=32, upper=256, log=True, default_value=128))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='halfcheetah_hidden_layer', lower=1, upper=4, log=False,
+                                                               default_value=2))
 
         return cs
 
@@ -81,7 +82,7 @@ class ExperimentWrapper():
         # config["agents"]['td3']['action_std'] = cso["td3_action_std"]
         # config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         # config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
-        # config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
+        config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
 
         config["envs"]['HalfCheetah-v3']['activation_fn'] = cso["halfcheetah_activation_fn"]
         config["envs"]['HalfCheetah-v3']['hidden_size'] = cso["halfcheetah_hidden_size"]
