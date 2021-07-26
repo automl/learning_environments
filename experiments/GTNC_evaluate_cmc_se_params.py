@@ -139,7 +139,7 @@ if __name__ == "__main__":
     id = int(sys.argv[1])
     bohb_workers = int(sys.argv[2])
 
-    run_id = 'GTNC_evaluate_cmc_se_params_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'SE_evaluate_cmc_se_params_' + x.strftime("%Y-%m-%d-%H")
 
     seed = id+int(time.time())
     random.seed(seed)
