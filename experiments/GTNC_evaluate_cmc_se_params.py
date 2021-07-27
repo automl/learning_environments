@@ -2,6 +2,7 @@ import datetime
 import time
 import sys
 import traceback
+import math
 import yaml
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -34,7 +35,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.001, upper=1, log=True, default_value=0.01))
 
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=100, log=True, default_value=10))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=100, log=True, default_value=20))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=32, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-5, upper=5e-2, log=True, default_value=1e-3))
@@ -43,7 +44,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=192, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_same_action_num', lower=1, upper=3, log=False, default_value=1))
+        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_same_action_num', lower=1, upper=3, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.6, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.6, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
@@ -106,6 +107,8 @@ class ExperimentWrapper():
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
             _, score_list, model_name = gtn.run()
             score = -sorted(score_list)[-1]
+            if math.isnan(score):
+                score = float('-Inf')
             error = ""
         except:
             score = float('-Inf')

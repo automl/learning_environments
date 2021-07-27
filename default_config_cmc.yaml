@@ -5,7 +5,7 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 50                # maximum number of GTN iterations
+    max_iterations: !!int 30                # maximum number of GTN iterations
     num_threads_per_worker: !!int 2         # how many pytorch/OMP threads per worker
     num_workers: !!int 128                  # size of the population
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
@@ -16,7 +16,7 @@ agents:
     grad_eval_type: !!str mean              # mean or minmax
     weight_decay: !!float 0.0               # weight decay
     time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
-    time_max: !!float 1200                  # maximum allocated time for first iteration
+    time_max: !!float 1500                  # maximum allocated time for first iteration
     time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
     time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
     score_transform_type: !!int 7           # 0-7
@@ -26,7 +26,7 @@ agents:
     agent_name: !!str td3                   # which RL agent to use for meta-training
 
   td3:
-    train_episodes: !!int 1000               # maximum number of episodes to optimize
+    train_episodes: !!int 500               # maximum number of episodes to optimize
     test_episodes: !!int 1                 # maximum number of episodes to evaluate
     init_episodes: !!int 50                 # number of episodes to fill the replay buffer
     batch_size: !!int  256                  # batch size when running a policy update step
