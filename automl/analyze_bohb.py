@@ -389,18 +389,18 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
 
 
 def get_color(acc):
-    print("acc: ", acc)
+    # print("acc: ", acc)
     if acc <= 0:
-        print("color: ", np.array([[1, 0, 0]]))
+        # print("color: ", np.array([[1, 0, 0]]))
         return np.array([[1, 0, 0]])
     elif acc <= 0.5:
-        print("color: ", np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]]))
+        # print("color: ", np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]]))
         return np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]])
     elif acc <= 1:
-        print("color: ", np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]]))
+        # print("color: ", np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]]))
         return np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]])
     else:
-        print("color: ", np.array([[0, 1, 0]]))
+        # print("color: ", np.array([[0, 1, 0]]))
         return np.array([[0, 1, 0]])
 
 
@@ -454,5 +454,9 @@ if __name__ == '__main__':
 
     log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-13-17'
     title = "TD3 HC max. reward"
+
+    log_dir = '../results/SE_evaluate_cmc_se_params_2021-07-27-11'
+    title = "SE CMC HPO"
+    
 
     analyze_bohb(log_dir, title=title)

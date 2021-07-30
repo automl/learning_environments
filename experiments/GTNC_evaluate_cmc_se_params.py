@@ -44,7 +44,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='td3_activation_fn', choices=['tanh', 'relu', 'leakyrelu', 'prelu'], default_value='relu'))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_size', lower=48, upper=192, log=True, default_value=128))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_hidden_layer', lower=1, upper=2, log=False, default_value=2))
-        cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_same_action_num', lower=1, upper=3, log=False, default_value=2))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_same_action_num', lower=2, upper=3, log=False, default_value=2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_action_std', lower=0.05, upper=0.6, log=True, default_value=0.1))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std', lower=0.1, upper=0.6, log=True, default_value=0.2))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_policy_std_clip', lower=0.25, upper=1, log=True, default_value=0.5))
@@ -74,7 +74,7 @@ class ExperimentWrapper():
         config["agents"]['td3']['activation_fn'] = cso["td3_activation_fn"]
         config["agents"]['td3']['hidden_size'] = cso["td3_hidden_size"]
         config["agents"]['td3']['hidden_layer'] = cso["td3_hidden_layer"]
-        config["agents"]['td3']['same_action_num'] = cso["td3_same_action_num"]
+        # config["agents"]['td3']['same_action_num'] = cso["td3_same_action_num"]
         config["agents"]['td3']['action_std'] = cso["td3_action_std"]
         config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
@@ -108,10 +108,10 @@ class ExperimentWrapper():
             _, score_list, model_name = gtn.run()
             score = -sorted(score_list)[-1]
             if math.isnan(score):
-                score = float('-Inf')
+                score = float('Inf')
             error = ""
         except:
-            score = float('-Inf')
+            score = float('Inf')
             score_list = []
             model_name = None
             error = traceback.format_exc()
