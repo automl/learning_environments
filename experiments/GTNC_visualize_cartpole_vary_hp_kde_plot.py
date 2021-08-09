@@ -14,6 +14,13 @@ TITLES = []
 MEAN_TRAIN_STEPS = []
 STD_TRAIN_STEPS = []
 
+"""
+0.pt -> rewards train: real
+2.pt -> rewards train: synth., HPs: varied
+1.pt -> rewards train: synth., HPs: fixed
+NEW: 3.pt -> rewards from MBRL baseline
+"""
+
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
 TITLES.append("DDQN on DDQN-trained SEs")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
