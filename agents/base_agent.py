@@ -89,7 +89,6 @@ class BaseAgent(nn.Module):
 
         # training loop
         for episode in range(self.train_episodes):
-            episode_trajectory = []
             # early out if timeout
             if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                avg_meter_episode_length=avg_meter_episode_length,
@@ -119,8 +118,6 @@ class BaseAgent(nn.Module):
                 else:
                     next_state, reward, done = env.step(action=action)
                 replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
-                
-                episode_trajectory.append([state, action, next_state, reward])
 
                 state = next_state
                 episode_reward += reward
@@ -132,8 +129,6 @@ class BaseAgent(nn.Module):
 
                 if done > 0.5:
                     break
-
-            self.trajectories.append(episode_trajectory)
 
             # logging
             avg_meter_episode_length.update(episode_length, print_rate=1e9)
@@ -185,6 +180,7 @@ class BaseAgent(nn.Module):
 
             # training loop
             for episode in range(self.test_episodes):
+                episode_trajectory = []
                 # early out if timeout
                 if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                    avg_meter_episode_length=avg_meter_episode_length,
@@ -212,12 +208,16 @@ class BaseAgent(nn.Module):
                         next_state, reward, done = env.step(action=action)
                     replay_buffer.add(state=state, action=action, next_state=next_state, reward=reward, done=done)
 
+                    episode_trajectory.append([state, action, next_state, reward])
+
                     state = next_state
                     episode_reward += reward
                     episode_length += 1
 
                     if done > 0.5:
                         break
+
+                self.trajectories.append(episode_trajectory)
 
                 # logging
                 avg_meter_episode_length.update(episode_length, print_rate=1e9)
