@@ -3,7 +3,10 @@ import torch.nn as nn
 import os
 import time
 import statistics
+import copy
 import numpy as np
+import gzip
+import pickle
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
@@ -23,6 +26,7 @@ class GTN_Worker(GTN_Base):
 
         # for identifying the different workers
         self.id = id
+        self.train_counter = 0
 
         # flag to stop worker
         self.quit_flag = False
@@ -34,7 +38,10 @@ class GTN_Worker(GTN_Base):
                      self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
             if os.path.isfile(file):
                 os.remove(file)
-
+        
+        save_dir = "mbrl_baseline"
+        self.save_dir = os.mkdir(f"../{save_dir}")
+        
         print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
 
@@ -190,6 +197,15 @@ class GTN_Worker(GTN_Base):
         real_env = self.env_factory.generate_real_env()
 
         reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining-(time.time()-time_start))
+        
+        trajectories = copy.deepcopy(agent.trajectories)
+        
+        GTN_Worker.store_data(trajectories, datasets_dir=self.save_dir, id=self.id, train_counter=self.train_counter)
+        
+        self.train_counter += 1
+        agent.trajectories.clear()
+        assert len(agent.trajectories) == 0
+        
         reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining-(time.time()-time_start))
         avg_reward_test = statistics.mean(reward_list_test)
 
@@ -239,3 +255,23 @@ class GTN_Worker(GTN_Base):
 
         return score_best
 
+    @staticmethod
+    def store_data(data, datasets_dir, id, train_counter):
+        # save data
+        if not os.path.exists(datasets_dir):
+            os.mkdir(datasets_dir)
+        data_file = os.path.join(datasets_dir, 'data{}_{}.pkl.gzip'.format(id, train_counter))
+        f = gzip.open(data_file, 'wb')
+        pickle.dump(data, f)
+
+    @staticmethod
+    def get_saved_data(mypath):
+        f_names = []
+        gzip_files = []
+        for (dirpath, dirnames, filename) in os.walk(mypath):
+            f_names.extend(filename)
+            break
+        for name in f_names:
+            if name[-4:] == "gzip":
+                gzip_files.append(name)
+        return gzip_files
