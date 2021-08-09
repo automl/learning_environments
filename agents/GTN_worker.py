@@ -40,7 +40,9 @@ class GTN_Worker(GTN_Base):
                 os.remove(file)
         
         save_dir = "mbrl_baseline"
-        self.save_dir = os.mkdir(f"../{save_dir}")
+        self.save_path = f"../{save_dir}"
+        if not os.path.exists(self.save_path):
+            os.mkdir(self.save_path)
         
         print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
@@ -200,7 +202,7 @@ class GTN_Worker(GTN_Base):
         
         trajectories = copy.deepcopy(agent.trajectories)
         
-        GTN_Worker.store_data(trajectories, datasets_dir=self.save_dir, id=self.id, train_counter=self.train_counter)
+        GTN_Worker.store_data(trajectories, datasets_dir=self.save_path, id=self.id, train_counter=self.train_counter)
         
         self.train_counter += 1
         agent.trajectories.clear()
@@ -263,6 +265,7 @@ class GTN_Worker(GTN_Base):
         data_file = os.path.join(datasets_dir, 'data{}_{}.pkl.gzip'.format(id, train_counter))
         f = gzip.open(data_file, 'wb')
         pickle.dump(data, f)
+        print(f"dumped {data_file}")
 
     @staticmethod
     def get_saved_data(mypath):
