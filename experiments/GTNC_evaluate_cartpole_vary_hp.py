@@ -27,26 +27,18 @@ class ExperimentWrapper():
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
-
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='ddqn_vary_vary_hp', choices=[False, True], default_value=False))
-
         return cs
 
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
-
-        env_name = config["env_name"]
-
-        config["render_env"] = False
-
-        config["agents"]['ddqn_vary']['vary_hp'] = cso["ddqn_vary_vary_hp"]
+        config["agents"]['ddqn_vary']['vary_hp'] = True
 
         return config
 
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
-        with open("default_config_cartpole.yaml", 'r') as stream:
+        with open("default_config_cartpole_syn_env.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(cso, default_config, budget)
@@ -59,7 +51,7 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
-            gtn = GTN_Master(config, bohb_id=bohb_id)
+            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
             _, score_list = gtn.run()
             score = len(score_list)
             error = ""
@@ -88,7 +80,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_cartpole_vary_hp_' + x.strftime("%Y-%m-%d-%H")
+    run_id = 'GTNC_evaluate_cartpole_vary_hp_' + x.strftime("%Y-%m-%d-%H") + "_mbrl_baseline"
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:

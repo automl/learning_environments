@@ -129,6 +129,7 @@ def fit_mbrl_baseline(mbrl_baseline, dataloader, n_epochs=50, lr=0.0001):
     return mbrl_baseline, loss_over_epochs
 
 def load_baseline(file_name, config):
+    print(f"Loading baseline model {file_name}")
     save_dict = torch.load(file_name)
     env_factory = EnvFactory(config=config)
     mbrl_baseline = env_factory.generate_virtual_env()
@@ -136,13 +137,14 @@ def load_baseline(file_name, config):
     return mbrl_baseline
 
 
-def  evaluate_mbrl_baseline(mbrl_baseline_models_paths, real_env, config, pool, experiment_name, agent_name, agents_num, device):
+def evaluate_mbrl_baseline(mbrl_baseline_models_paths, real_env, config, pool, experiment_name, agent_name, agents_num, device):
     env_reward_overview = {}
     reward_list = []
     train_steps_needed = []
     episode_length_needed = []
 
     config["device"] = device
+    print(f"Agent: {agent_name}")
     
     model_num = len(mbrl_baseline_models_paths)
     
@@ -264,9 +266,10 @@ def train_supervised_model(bohb_number, data_raw, n_epochs):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
+    # parser.add_argument("--agent_name", type=str, help="must be in [ddqn_vary, duelingddqn_vary, td3_discrete_vary]", default="ddqn_vary")
     parser.add_argument("--agent_name", type=str, help="must be in [ddqn_vary, duelingddqn_vary, td3_discrete_vary]", default="ddqn_vary")
     parser.add_argument('--pool_size', type=int, help='size of the multiprocessing pool', default=5)
-    parser.add_argument('--agents_num', type=int, help='number of agents evaluated', default=20)
+    parser.add_argument('--agents_num', type=int, help='number of agents evaluated', default=80)
     parser.add_argument('--n_epochs', type=int, help='number of epochs trained', default=100)
     parser.add_argument('--device', type=str, help='device to be used (cuda or cpu)', default='gpu')
     args = parser.parse_args()
@@ -280,48 +283,61 @@ if __name__ == "__main__":
     plot = True
     
     experiment_name = f"mbrl_baseline_model_{agent_name}_transfer_agents_num_{agents_num}_models_num_{len(MBRL_PATHS)}"
-
+    print("agents_num:", agents_num, "pool size:", pool_size, "device:", device)
+    env_name = "CartPole"
+    
     mbrl_baseline_models_paths = []
     
-    for i, MBRL_PATH in enumerate(MBRL_PATHS):
-        print(f"processing train data from {MBRL_PATH}")
-        print("agents_num:", agents_num, "pool size:", pool_size, "device:", device)
-        
-        env_name = "CartPole"
-        
-        # load recorded data
-        data_names_list = get_saved_data(mypath=MBRL_PATH)
-        bohb_run_names = get_data_for_each_bohb_run(data_filename_list=data_names_list)
-        
-        data_raw = get_raw_data(bohb_run_names=bohb_run_names)
-        number_of_bohb_runs = len(data_raw)  # list of lists: each inner list is one bohb run
-        
-        # call
-        mbrl_baseline, real_env, loss_over_epochs, config = train_supervised_model(bohb_number=0, data_raw=data_raw, n_epochs=n_epochs)
-        
-        save_dict = {}
-        save_dict['model'] = mbrl_baseline.state_dict()
-        save_dict['config'] = config
-        save_dict['loss_over_epochs'] = loss_over_epochs
-        save_path = os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}.pt")
-        print('save model: ' + str(save_path))
-        torch.save(save_dict, save_path)
-        mbrl_baseline_models_paths.append(save_path)
-        
-        if plot:
-            losses = np.concatenate(loss_over_epochs)[:5000]
-            plt.plot(losses)
-            plt.xlabel("iteration")
-            plt.ylabel("MSE")
-            plt.title(f"CartPole supervised learning baseline {os.path.basename(MBRL_PATH)}")
-            plt.show()
-            plt.savefig(os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}_loss.png"))
+    # for i, MBRL_PATH in enumerate(MBRL_PATHS):
+    #     print(f"processing train data from {MBRL_PATH}")
+    #
+    #
+    #     # load recorded data
+    #     data_names_list = get_saved_data(mypath=MBRL_PATH)
+    #     bohb_run_names = get_data_for_each_bohb_run(data_filename_list=data_names_list)
+    #
+    #     data_raw = get_raw_data(bohb_run_names=bohb_run_names)
+    #     number_of_bohb_runs = len(data_raw)  # list of lists: each inner list is one bohb run
+    #
+    #     # call
+    #     mbrl_baseline, real_env, loss_over_epochs, config = train_supervised_model(bohb_number=0, data_raw=data_raw, n_epochs=n_epochs)
+    #
+    #     save_dict = {}
+    #     save_dict['model'] = mbrl_baseline.state_dict()
+    #     save_dict['config'] = config
+    #     save_dict['loss_over_epochs'] = loss_over_epochs
+    #     save_path = os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}.pt")
+    #     print('save model: ' + str(save_path))
+    #     torch.save(save_dict, save_path)
+    #     mbrl_baseline_models_paths.append(save_path)
+    #
+    #     if plot:
+    #         losses = np.concatenate(loss_over_epochs)[:10000]
+    #         plt.figure()
+    #         plt.plot(losses)
+    #         plt.xlabel("iteration")
+    #         plt.ylabel("MSE")
+    #         plt.title(f"CartPole supervised learning baseline {os.path.basename(MBRL_PATH)}")
+    #         plt.show()
+    #         plt.savefig(os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}_loss.png"))
     
     if pool_size > 1:
         mp.set_start_method('spawn')  # due to cuda
         pool = mp.Pool(pool_size)
     else:
         pool = None
+        
+    with open("../default_config_cartpole.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
 
-    device = "cpu"
+    _, real_env = load_env_wrapped(config)
+
+    mbrl_baseline_models_paths = [os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{0}.pt"),
+                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{1}.pt"),
+                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{2}.pt"),
+                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{3}.pt"),
+                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{4}.pt")
+                                  ]
+
+    device = "cuda:0"
     evaluate_mbrl_baseline(mbrl_baseline_models_paths, real_env, config, pool, experiment_name, agent_name, agents_num, device)

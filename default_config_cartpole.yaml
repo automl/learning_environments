@@ -1,5 +1,5 @@
 env_name: !!str CartPole-v0
-device: !!str cpu                           # torch device (cuda:0 or cpu)
+device: !!str cuda:0                           # torch device (cuda:0 or cpu)
 render_env: !!bool False                    # render environment
 
 agents:
