@@ -17,10 +17,11 @@ from utils import save_lists
 
 import matplotlib.pyplot as plt
 
-MBRL_BASELINE_MODELS_PATH = "../mbrl_baseline_models"
-# MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1"]
-MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1", "../mbrl_baseline_2", "../mbrl_baseline_3", "../mbrl_baseline_4"]
+# MBRL_BASELINE_MODELS_PATH = "../mbrl_baseline_models"
+# MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1", "../mbrl_baseline_2", "../mbrl_baseline_3", "../mbrl_baseline_4"]
 
+MBRL_BASELINE_MODELS_PATH = "../mbrl_baseline_vary_models"
+MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1", "../mbrl_baseline_2", "../mbrl_baseline_3", "../mbrl_baseline_4"]
 
 def get_saved_data(mypath):
     f_names = []
@@ -332,6 +333,13 @@ if __name__ == "__main__":
 
     _, real_env = load_env_wrapped(config)
 
+    # mbrl_baseline_models_paths = [os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{0}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{1}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{2}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{3}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{4}.pt")
+    #                               ]
+    
     mbrl_baseline_models_paths = [os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{0}.pt"),
                                   os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{1}.pt"),
                                   os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{2}.pt"),

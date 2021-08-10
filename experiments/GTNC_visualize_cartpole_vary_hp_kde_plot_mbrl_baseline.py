@@ -27,12 +27,12 @@ FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/tran
 TITLES.append("Transfer: TD3 on DDQN-trained SEs")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_dtd3.pt'])
 
-FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/mbrl_baseline_models')
-TITLES.append("Transfer: TD3 on DDQN-trained SEs")
-FILE_LISTS.append(['ddqn.pt', 'duelingddqn.pt', 'dtd3.pt'])
+# FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/mbrl_baseline_models')
+# TITLES.append("Transfer: TD3 on DDQN-trained SEs")
+# FILE_LISTS.append(['ddqn.pt', 'duelingddqn.pt', 'dtd3.pt'])
 
-ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075, 6225.0]
-ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706, 1115.515575]
+ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075, 0]
+ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706, 0]
 
 MEAN_TRAIN_STEPS.append(ddqn_mean_train_steps)
 STD_TRAIN_STEPS.append(ddqn_std_train_steps)
@@ -58,12 +58,12 @@ if show_5_best_jointly_with_other:
     td3_mean_train_steps[1] = 6287.5
     td3_std_train_steps[1] = 1970.6455160682756
     TITLES[2] = "Transfer: TD3 on DDQN-trained SEs"
-    FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
+    FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt', 'mbrl_baseline_dtd3.pt']
 
 if show_zoom:
     plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde_zoom.pdf'
 else:
-    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde.pdf'
+    plot_name = 'CP_vary_hp_mbrl_baseline_kde_plot.png'
 
 key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
@@ -177,9 +177,10 @@ if __name__ == "__main__":
         color_p = sns.color_palette()
 
         if i == 2 and show_5_best_jointly_with_other:
-            palette = ["C0", "C1", "C2", "k"]
+            palette = ["C0", "C1", "C2", "C4", "k"]
         else:
-            palette = ["C0", "C1", "C2"]
+            # palette = ["C0", "C1", "C2"]
+            palette = ["C0", "C1", "C2", "C4"]
 
         ax = axes[i]
 

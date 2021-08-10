@@ -39,7 +39,7 @@ class GTN_Worker(GTN_Base):
             if os.path.isfile(file):
                 os.remove(file)
         
-        save_dir = "mbrl_baseline_vary"
+        save_dir = "mbrl_baseline_vary_4"
         self.save_path = f"./{save_dir}"
         if not os.path.exists(self.save_path):
             os.mkdir(self.save_path)

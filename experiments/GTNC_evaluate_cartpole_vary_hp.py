@@ -80,7 +80,7 @@ class ExperimentWrapper():
 
 if __name__ == "__main__":
     x = datetime.datetime.now()
-    run_id = 'GTNC_evaluate_cartpole_vary_hp_' + x.strftime("%Y-%m-%d-%H") + "_mbrl_baseline"
+    run_id = 'GTNC_evaluate_cartpole_vary_hp_' + x.strftime("%Y-%m-%d-%H") + "_mbrl_baseline_4"
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
