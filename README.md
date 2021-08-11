@@ -2,6 +2,20 @@
 ![Overview](https://raw.githubusercontent.com/automl/learning_environments/master/overview.png)
 We explore meta-learning agent-agnostic neural Synthetic Environments (SEs) and Reward Networks (RNs) for efﬁciently training Reinforcement Learning (RL) agents. While an SE acts as a full proxy to a target environment by learning about its state dynamics and rewards, an RN resembles a partial proxy that learns to augment or replace rewards. We use bi-level optimization to evolve SEs and RNs: the inner loop trains the RL agent, and the outer loop trains the parameters of the SE / RN via an evolution strategy. We evaluate these methods on a broad range of RL algorithms (Q-Learning, SARSA, DDQN, Dueling DDQN, TD3, PPO) and environments (CartPole and Acrobot for SEs, as well as Cliff Walking, CartPole, MountaincarContinuous and HalfCheetah for RNs). Additionally, we learn several variants of potential-based reward shaping functions. The learned proxies allow us to train agents signiﬁcantly faster than when directly training them on the target environment while maintaining the original task performance. Our empirical results suggest that they achieve this by learning informed representations that bias the agents towards relevant states, making the learned representation surprisingly interpretable. Moreover, we ﬁnd that these proxies are robust against hyperparameter variation and can also transfer to unseen agents.
 
+# Supervised Learning / MBRL Baseline Experiment Results
+5 models
+![KDE plot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_kde_plot_varied.png)
+![barplot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_barplot_varied.png)
+
+2 best models
+![KDE plot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_kde_plot_varied_2_best_models.png)
+![barplot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_barplot_varied_2_best.png)
+
+Exemplary loss curve:
+
+![Loss plot (1 model)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/loss_example_model_number_0.png)
+
+
 Paper link: tba
 
 
