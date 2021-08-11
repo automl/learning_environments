@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt
 # MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1", "../mbrl_baseline_2", "../mbrl_baseline_3", "../mbrl_baseline_4"]
 
 MBRL_BASELINE_MODELS_PATH = "../mbrl_baseline_vary_models"
-MBRL_PATHS = ["../mbrl_baseline", "../mbrl_baseline_1", "../mbrl_baseline_2", "../mbrl_baseline_3", "../mbrl_baseline_4"]
+MBRL_PATHS = ["../mbrl_baseline_vary", "../mbrl_baseline_vary_1", "../mbrl_baseline_vary_2", "../mbrl_baseline_vary_3",
+              "../mbrl_baseline_vary_4"]
 
 def get_saved_data(mypath):
     f_names = []
@@ -289,38 +290,38 @@ if __name__ == "__main__":
     
     mbrl_baseline_models_paths = []
     
-    # for i, MBRL_PATH in enumerate(MBRL_PATHS):
-    #     print(f"processing train data from {MBRL_PATH}")
-    #
-    #
-    #     # load recorded data
-    #     data_names_list = get_saved_data(mypath=MBRL_PATH)
-    #     bohb_run_names = get_data_for_each_bohb_run(data_filename_list=data_names_list)
-    #
-    #     data_raw = get_raw_data(bohb_run_names=bohb_run_names)
-    #     number_of_bohb_runs = len(data_raw)  # list of lists: each inner list is one bohb run
-    #
-    #     # call
-    #     mbrl_baseline, real_env, loss_over_epochs, config = train_supervised_model(bohb_number=0, data_raw=data_raw, n_epochs=n_epochs)
-    #
-    #     save_dict = {}
-    #     save_dict['model'] = mbrl_baseline.state_dict()
-    #     save_dict['config'] = config
-    #     save_dict['loss_over_epochs'] = loss_over_epochs
-    #     save_path = os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}.pt")
-    #     print('save model: ' + str(save_path))
-    #     torch.save(save_dict, save_path)
-    #     mbrl_baseline_models_paths.append(save_path)
-    #
-    #     if plot:
-    #         losses = np.concatenate(loss_over_epochs)[:10000]
-    #         plt.figure()
-    #         plt.plot(losses)
-    #         plt.xlabel("iteration")
-    #         plt.ylabel("MSE")
-    #         plt.title(f"CartPole supervised learning baseline {os.path.basename(MBRL_PATH)}")
-    #         plt.show()
-    #         plt.savefig(os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}_loss.png"))
+    for i, MBRL_PATH in enumerate(MBRL_PATHS):
+        print(f"processing train data from {MBRL_PATH}")
+
+
+        # load recorded data
+        data_names_list = get_saved_data(mypath=MBRL_PATH)
+        bohb_run_names = get_data_for_each_bohb_run(data_filename_list=data_names_list)
+
+        data_raw = get_raw_data(bohb_run_names=bohb_run_names)
+        number_of_bohb_runs = len(data_raw)  # list of lists: each inner list is one bohb run
+
+        # call
+        mbrl_baseline, real_env, loss_over_epochs, config = train_supervised_model(bohb_number=0, data_raw=data_raw, n_epochs=n_epochs)
+
+        save_dict = {}
+        save_dict['model'] = mbrl_baseline.state_dict()
+        save_dict['config'] = config
+        save_dict['loss_over_epochs'] = loss_over_epochs
+        save_path = os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}.pt")
+        print('save model: ' + str(save_path))
+        torch.save(save_dict, save_path)
+        mbrl_baseline_models_paths.append(save_path)
+
+        if plot:
+            losses = np.concatenate(loss_over_epochs)[:10000]
+            plt.figure()
+            plt.plot(losses)
+            plt.xlabel("iteration")
+            plt.ylabel("MSE")
+            plt.title(f"CartPole supervised learning baseline {os.path.basename(MBRL_PATH)}")
+            plt.show()
+            plt.savefig(os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{i}_loss.png"))
     
     if pool_size > 1:
         mp.set_start_method('spawn')  # due to cuda
@@ -340,12 +341,12 @@ if __name__ == "__main__":
     #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{4}.pt")
     #                               ]
     
-    mbrl_baseline_models_paths = [os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{0}.pt"),
-                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{1}.pt"),
-                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{2}.pt"),
-                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{3}.pt"),
-                                  os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{4}.pt")
-                                  ]
+    # mbrl_baseline_models_paths = [os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{0}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{1}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{2}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{3}.pt"),
+    #                               os.path.join(MBRL_BASELINE_MODELS_PATH, f"mbrl_baseline_model_number_{4}.pt")
+    #                               ]
 
-    device = "cuda:0"
-    evaluate_mbrl_baseline(mbrl_baseline_models_paths, real_env, config, pool, experiment_name, agent_name, agents_num, device)
+    # device = "cuda:0"
+    # evaluate_mbrl_baseline(mbrl_baseline_models_paths, real_env, config, pool, experiment_name, agent_name, agents_num, device)
