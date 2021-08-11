@@ -17,15 +17,21 @@ STD_TRAIN_STEPS = []
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
 TITLES.append("DDQN on DDQN-trained SEs")
-FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_ddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_ddqn.pt'])
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_ddqn_varied.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_ddqn_varied_2_best.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
 TITLES.append("Transfer: Dueling DDQN on DDQN-trained SEs")
-FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_duelingddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_duelingddqn.pt'])
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_duelingddqn_varied.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_duelingddqn_varied_2_best.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4')
 TITLES.append("Transfer: TD3 on DDQN-trained SEs")
-FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_dtd3.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_dtd3.pt'])
+FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_dtd3_varied.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', '1.pt', 'mbrl_baseline_dtd3_varied_2_best.pt'])
 
 # FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/mbrl_baseline_models')
 # TITLES.append("Transfer: TD3 on DDQN-trained SEs")
@@ -63,7 +69,7 @@ if show_5_best_jointly_with_other:
 if show_zoom:
     plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde_zoom.pdf'
 else:
-    plot_name = 'CP_vary_hp_mbrl_baseline_kde_plot.png'
+    plot_name = 'CP_vary_hp_mbrl_baseline_kde_plot_varied.png'
 
 key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
@@ -135,7 +141,7 @@ if __name__ == "__main__":
 
                     'train: synth., HPs: fixed': data_list[3],
     
-                    'train: mbrl, HPs: fixed': data_list[4],
+                    'train: mbrl, HPs: varied': data_list[4],
 
                     'train: synth., HPs: varied (5 best)': data_list[2],
                     }
@@ -147,7 +153,7 @@ if __name__ == "__main__":
 
                     'train: synth., HPs: fixed': data_list[2],
 
-                    'train: mbrl, HPs: fixed': data_list[3],
+                    'train: mbrl, HPs: varied': data_list[3],
                     }
             
         else:

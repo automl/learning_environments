@@ -18,16 +18,22 @@ STD_TRAIN_STEPS = []
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
 TITLES.append("DDQN on DDQN-trained SE")
-FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_ddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_ddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_ddqn_varied.pt'])
+FILE_LISTS.append(['0.pt', '2.pt','mbrl_baseline_ddqn_varied_2_best.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
 TITLES.append("Transfer DDQN -> Dueling DDQN")
-FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_duelingddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_duelingddqn.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_duelingddqn_varied.pt'])
+FILE_LISTS.append(['0.pt', '2.pt','mbrl_baseline_duelingddqn_varied_2_best.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole' \
                  '/ddqn_to_td3_discrete_vary_td3HPs_variation_experiments/learned_temp_init_1_tanh_hard_True_lr_5e-4')
 TITLES.append("Transfer DDQN -> TD3")
-FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_dtd3.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_dtd3.pt'])
+# FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_dtd3_varied.pt'])
+FILE_LISTS.append(['0.pt', '2.pt', 'mbrl_baseline_dtd3_varied_2_best.pt'])
 
 ddqn_mean_train_steps = [16887.6925, 6818.57, 6392.0]
 ddqn_std_train_steps = [24925.0562208, 2339.505055, 1278.880760665356]
@@ -55,7 +61,7 @@ if show_5_best_jointly_with_other:
     TITLES[2] = "Transfer DDQN -> TD3"
     FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', 'mbrl_baseline_dtd3.pt']
 
-plot_name = 'CP_vary_hp_mbrl_baseline_barplot.png'
+plot_name = 'CP_vary_hp_mbrl_baseline_barplot_varied_2_best.png'
 
 # key = "2_5_best_filtered_models"  # don't comment this line
 key = "mbrl_baseline"
@@ -134,7 +140,7 @@ if __name__ == "__main__":
 
                     'train: synth., HPs: varied': data_list[1],
 
-                    'train: mbrl., HPs: fixed': data_list[2],
+                    'train: mbrl., HPs: varied (2 best)': data_list[2],
                     }
 
         df = pd.DataFrame(data=data_dict)
@@ -165,7 +171,7 @@ if __name__ == "__main__":
                          "steps", "episodes"],
                 "method": ["train: real", "train: real",
                            "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                           "train: mbrl\nHPs: fixed", "train: mbrl\nHPs: fixed"],
+                           "train: mbrl\nHPs: varied (2 best)", "train: mbrl\nHPs: varied (2 best)"],
                 "means": [mean_train_steps[0], episode_num_needed_means[0],
                           mean_train_steps[1], episode_num_needed_means[1],
                           mean_train_steps[2], episode_num_needed_means[2]],
@@ -177,11 +183,11 @@ if __name__ == "__main__":
         if show_5_best_jointly_with_other and i == 2:
             barplot_data_dct["method"] = ["train: real", "train: real",
                                           "train: synth.\nHPs: varied (5 best)", "train: synth.\nHPs: varied (5 best)",
-                                          "train: mbrl\nHPs: fixed", "train: mbrl\nHPs: fixed"]
+                                          "train: mbrl\nHPs: varied (2 best)", "train: mbrl\nHPs: varied (2 best)"]
         else:
             barplot_data_dct["method"] = ["train: real", "train: real",
                                           "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                                          "train: mbrl\nHPs: fixed", "train: mbrl\nHPs: fixed"]
+                                          "train: mbrl\nHPs: varied (2 best)", "train: mbrl\nHPs: varied (2 best)"]
 
         barplot_df = pd.DataFrame(barplot_data_dct)
 
