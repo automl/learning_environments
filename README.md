@@ -20,6 +20,7 @@ Comparing the needed number of test steps and test episodes to achieve above cum
 Exemplary loss curve:
 
 ![Loss plot (1 model)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/loss_example_model_number_0.png)
+
 Across models, the MSE drops to ~5e-07 in the end.
 
 Paper link: tba
