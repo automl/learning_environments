@@ -2,6 +2,27 @@
 ![Overview](https://raw.githubusercontent.com/automl/learning_environments/master/overview.png)
 We explore meta-learning agent-agnostic neural Synthetic Environments (SEs) and Reward Networks (RNs) for efﬁciently training Reinforcement Learning (RL) agents. While an SE acts as a full proxy to a target environment by learning about its state dynamics and rewards, an RN resembles a partial proxy that learns to augment or replace rewards. We use bi-level optimization to evolve SEs and RNs: the inner loop trains the RL agent, and the outer loop trains the parameters of the SE / RN via an evolution strategy. We evaluate these methods on a broad range of RL algorithms (Q-Learning, SARSA, DDQN, Dueling DDQN, TD3, PPO) and environments (CartPole and Acrobot for SEs, as well as Cliff Walking, CartPole, MountaincarContinuous and HalfCheetah for RNs). Additionally, we learn several variants of potential-based reward shaping functions. The learned proxies allow us to train agents signiﬁcantly faster than when directly training them on the target environment while maintaining the original task performance. Our empirical results suggest that they achieve this by learning informed representations that bias the agents towards relevant states, making the learned representation surprisingly interpretable. Moreover, we ﬁnd that these proxies are robust against hyperparameter variation and can also transfer to unseen agents.
 
+# Supervised Learning / MBRL Baseline Experiment Results
+## Evaluation / results on five supervised models:
+![KDE plot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_kde_plot_varied.png)
+Comparing the cumulative test reward densities of agents trained on SEs (green and orange), supervised baseline (purple), and baseline on real environment (blue). Agents trained on the supervised model underperform the SE models and the real baseline.
+
+![barplot (5 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_barplot_varied.png)
+Comparing the needed number of test steps and test episodes to achieve above cumulative rewards. Left: real baseline, center: SEs, right: supervised (mbrl) baseline
+
+## Evaluation / results on two of the best supervised models:
+![KDE plot (2 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_kde_plot_varied_2_best_models.png)
+Comparing the cumulative test reward densities of agents trained on SEs (green and orange), supervised baseline (purple), and baseline on real environment (blue) using all five supervised models. Agents trained on the supervised model underperform the SE models and the real baseline and using only the best two supervised models does not seem to change this.
+
+![barplot (2 models)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/CP_vary_hp_mbrl_baseline_barplot_varied_2_best.png)
+Comparing the needed number of test steps and test episodes to achieve above cumulative rewards only using the best two of the five models. Left: real baseline, center: SEs, right: supervised (mbrl) baseline
+
+Exemplary loss curve:
+
+![Loss plot (1 model)](https://raw.githubusercontent.com/automl/learning_environments/master/mbrl_baseline_experiment_data/loss_example_model_number_0.png)
+
+Across models, the MSE drops to ~5e-07 in the end.
+
 Paper link: tba
 
 
