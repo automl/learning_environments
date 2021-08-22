@@ -39,10 +39,10 @@ class GTN_Worker(GTN_Base):
             if os.path.isfile(file):
                 os.remove(file)
         
-        save_dir = "mbrl_baseline"
-        self.save_path = f"./{save_dir}"
-        if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)
+        # save_dir = "mbrl_baseline"
+        # self.save_path = f"./{save_dir}"
+        # if not os.path.exists(self.save_path):
+        #     os.mkdir(self.save_path)
         
         print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
@@ -129,7 +129,7 @@ class GTN_Worker(GTN_Base):
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
         self.config = data['config']
-        self.bohb_next_run_counter = data['bohb_next_run_counter']
+        # self.bohb_next_run_counter = data['bohb_next_run_counter']
 
         self.late_init(self.config)
 
@@ -201,19 +201,19 @@ class GTN_Worker(GTN_Base):
 
         reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining-(time.time()-time_start))
         
-        if len(agent.trajectories) != 0:
-            print("trajectories should have been cleared")
-            agent.trajectories.clear()
+        # if len(agent.trajectories) != 0:
+        #     print("trajectories should have been cleared")
+        #     agent.trajectories.clear()
         
         reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining-(time.time()-time_start))
         
-        trajectories = copy.deepcopy(agent.trajectories)
-        GTN_Worker.store_data(trajectories, datasets_dir=self.save_path, id=self.id, test_counter=self.test_counter,
-                              bohb_next_run_counter=self.bohb_next_run_counter)
+        # trajectories = copy.deepcopy(agent.trajectories)
+        # GTN_Worker.store_data(trajectories, datasets_dir=self.save_path, id=self.id, test_counter=self.test_counter,
+        #                       bohb_next_run_counter=self.bohb_next_run_counter)
         
-        self.test_counter += 1
-        agent.trajectories.clear()
-        assert len(agent.trajectories) == 0
+        # self.test_counter += 1
+        # agent.trajectories.clear()
+        # assert len(agent.trajectories) == 0
         
         avg_reward_test = statistics.mean(reward_list_test)
 
@@ -263,24 +263,24 @@ class GTN_Worker(GTN_Base):
 
         return score_best
 
-    @staticmethod
-    def store_data(data, datasets_dir, id, test_counter, bohb_next_run_counter):
-        # save data
-        if not os.path.exists(datasets_dir):
-            os.mkdir(datasets_dir)
-        data_file = os.path.join(datasets_dir, 'data_bohb_counter_{}_id_{}_test_counter_{}.pkl.gzip'.format(bohb_next_run_counter, id, test_counter))
-        f = gzip.open(data_file, 'wb')
-        pickle.dump(data, f)
-        print(f"dumped {data_file}")
-
-    @staticmethod
-    def get_saved_data(mypath):
-        f_names = []
-        gzip_files = []
-        for (dirpath, dirnames, filename) in os.walk(mypath):
-            f_names.extend(filename)
-            break
-        for name in f_names:
-            if name[-4:] == "gzip":
-                gzip_files.append(name)
-        return gzip_files
+    # @staticmethod
+    # def store_data(data, datasets_dir, id, test_counter, bohb_next_run_counter):
+    #     # save data
+    #     if not os.path.exists(datasets_dir):
+    #         os.mkdir(datasets_dir)
+    #     data_file = os.path.join(datasets_dir, 'data_bohb_counter_{}_id_{}_test_counter_{}.pkl.gzip'.format(bohb_next_run_counter, id, test_counter))
+    #     f = gzip.open(data_file, 'wb')
+    #     pickle.dump(data, f)
+    #     print(f"dumped {data_file}")
+    #
+    # @staticmethod
+    # def get_saved_data(mypath):
+    #     f_names = []
+    #     gzip_files = []
+    #     for (dirpath, dirnames, filename) in os.walk(mypath):
+    #         f_names.extend(filename)
+    #         break
+    #     for name in f_names:
+    #         if name[-4:] == "gzip":
+    #             gzip_files.append(name)
+    #     return gzip_files

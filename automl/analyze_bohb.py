@@ -452,10 +452,13 @@ if __name__ == '__main__':
     # log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-11-11'
     # title = "TD3 HC max. reward"
 
-    log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-13-17'
-    title = "TD3 HC max. reward"
-
-    log_dir = '../results/SE_evaluate_cmc_se_params_2021-07-27-11'
+    # log_dir = '../results/halfcheetah_td3_bohb_params_se_prep_2021-06-13-17'
+    # title = "TD3 HC max. reward"
+    #
+    # log_dir = '../results/SE_evaluate_cmc_se_params_2021-07-27-11'
+    # title = "SE CMC HPO"
+    
+    log_dir = "/home/ferreira/Projects/learning_environments/results/SE_evaluate_cmc_se_params_2021-07-30-10"
     title = "SE CMC HPO"
     
 

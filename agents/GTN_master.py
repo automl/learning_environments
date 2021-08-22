@@ -73,7 +73,7 @@ class GTN_Master(GTN_Base):
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
         
-        self.bohb_next_run_counter = 0
+        # self.bohb_next_run_counter = 0
 
 
     def get_model_file_name(self, file_name):
@@ -97,7 +97,7 @@ class GTN_Master(GTN_Base):
 
             if solved_flag and self.quit_when_solved:
                 print('ENV SOLVED')
-                self.bohb_next_run_counter += 1
+                # self.bohb_next_run_counter += 1
                 break
 
             print('-- Master: rank transform' + ' ' + str(time.time()-t1))
@@ -176,7 +176,7 @@ class GTN_Master(GTN_Base):
             data['quit_flag'] = quit_flag
             data['config'] = self.config
             data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
-            data['bohb_next_run_counter'] = self.bohb_next_run_counter
+            # data['bohb_next_run_counter'] = self.bohb_next_run_counter
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)

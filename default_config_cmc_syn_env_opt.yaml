@@ -1,0 +1,85 @@
+env_name: !!str MountainCarContinuous-v0
+device: !!str cpu                           # torch device (cuda:0 or cpu)
+render_env: !!bool False                    # render environment
+
+agents:
+  gtn:
+    mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
+    max_iterations: !!int 30                # maximum number of GTN iterations
+    num_threads_per_worker: !!int 2         # how many pytorch/OMP threads per worker
+    num_workers: !!int 128                  # size of the population
+    noise_std: !!float 1e-1                 # standard deviation of the noise vector
+    step_size: !!float 1                    # reptile step size
+    nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
+    mirrored_sampling: !!bool False          # use normal or mirrored sampling
+    num_grad_evals: !!int 1                 # how often to evaluate each gradient
+    grad_eval_type: !!str mean              # mean or minmax
+    weight_decay: !!float 0.0               # weight decay
+    time_mult: !!float 3                    # maximum allocated time as multiplicative of avg. time
+    time_max: !!float 1500                  # maximum allocated time for first iteration
+    time_sleep_master: !!float 0.2          # cycle sleeping time when waiting for data
+    time_sleep_worker: !!float 2            # cycle sleeping time when waiting for data
+    score_transform_type: !!int 7           # 0-7
+    quit_when_solved: !!bool False           # continue training once the environment has been solved?
+    synthetic_env_type: !!int 0             # 0: virtual env / 1: reward env
+    unsolved_weight: !!float 1              # penalty weight for all solvable environments if they haven't been solved yet
+    agent_name: !!str td3                   # which RL agent to use for meta-training
+
+  td3:
+    train_episodes: !!int 1000               # maximum number of episodes to optimize
+    test_episodes: !!int 1                 # maximum number of episodes to evaluate
+    init_episodes: !!int 25                 # number of episodes to fill the replay buffer
+    batch_size: !!int  256                  # batch size when running a policy update step
+    gamma: !!float 0.99                     # discount factor
+    lr: !!float 3e-4                        # learning rate
+    tau: !!float 0.005                      # target network update rate
+    policy_delay: !!int 2                   # frequency of delayed policy updates
+    rb_size: !!int 1000000                  # size of the replay buffer
+    same_action_num: !!int 2                # how often to perform the same action subsequently
+    activation_fn: !!str leakyrelu          # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    hidden_size: !!int 64                  # size of the actor/critic hidden layer
+    hidden_layer: !!int 1                   # number of hidden layers
+    action_std: !!float 0.1                 # action noise standard deviation
+    policy_std: !!float 0.2                 # policy noise standard deviation
+    policy_std_clip: !!float 0.5            # policy noise standard deviation
+    print_rate: 10                          # update rate of avg meters
+    early_out_num: !!int 5                  # based on how many training episodes shall an early out happen
+    early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
+
+  icm:
+    lr: !!float 1e-4                        # learning rate
+    beta: !!float 0.2                       # weight used to trade off action vs state prediction in the ICM loss function
+    eta: !!float 0.5                        # weight used to compute intrinsic reward from loss value
+    feature_dim: !!int 64                   # feature dimension of features model
+    hidden_size: !!int 128                  # size of all ICM sub-network layers
+
+  ppo:
+    train_episodes: !!int 10000             # maximum number of episodes to optimize
+    test_episodes: !!int 10                 # maximum number of episodes to evaluate
+    init_episodes: !!int 0                  # number of episodes to fill the replay buffer
+    update_episodes: !!float 20             # update policy every x episodes (can be float)
+    ppo_epochs: !!int 100                   # update policy for x epochs
+    gamma: !!float 0.99                     # discount factor
+    lr: !!float 5e-4                        # learning rate
+    vf_coef: !!float 0.5                    # value function coefficient (see PPO paper)
+    ent_coef: !!float 0.01                  # entropy coefficient (see PPO paper)
+    eps_clip: !!float 0.2                   # trust region size (see PPO paper)
+    rb_size: !!int 1000000                  # size of the replay buffer
+    same_action_num: !!int 2                # how often to perform the same action subsequently
+    activation_fn: !!str relu               # activation function for actor/critic ('tanh', 'relu', 'leakyrelu' or 'prelu')
+    hidden_size: !!int 128                  # size of the actor/critic hidden layer
+    hidden_layer: !!int 1                   # number of hidden layers
+    action_std: !!float 0.5                 # action noise standard deviation
+    print_rate: 100                         # update rate of avg meters
+    early_out_num: !!int 50                 # based on how many training episodes shall an early out happen
+    early_out_virtual_diff: !!float 1e-1    # performance difference for an early out for virtual envs
+
+envs:
+  MountainCarContinuous-v0:
+    solved_reward: !!float 90               # used for early out in RL agent training
+    max_steps: !!int 999                    # maximum number of steps per episode REMOVE
+    activation_fn: !!str relu             # activation function of the virtual environment
+    hidden_size: 128                         # size of the hidden layer of the virtual environment
+    hidden_layer: !!int 3                   # number of hidden layers of the virtual environment
+    info_dim: !!int 0                       # additional information dimension from step function
+    reward_env_type: !!int 0                # type of reward shaping function
