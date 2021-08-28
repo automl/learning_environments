@@ -114,16 +114,16 @@ def get_working_dir(run_id):
 def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
     # get bohb params
     bohb_params = experiment_wrapper.get_bohb_parameters()
-
+    print("run_bohb_parallel -> bohb_params: ", bohb_params, "\n")
     # get suitable interface (eth0 or lo)
     bohb_interface = get_bohb_interface()
-
+    print("run_bohb_parallel -> bohb_interface: ", bohb_interface, "\n")
     # get BOHB log directory
     working_dir = get_working_dir(run_id)
-
+    print("run_bohb_parallel -> working_dir: ", working_dir, "\n")
     # every process has to lookup the hostname
     host = hpns.nic_name_to_host(bohb_interface)
-
+    print("run_bohb_parallel -> host: ", host, "\n")
     os.makedirs(working_dir, exist_ok=True)
 
     if int(id) % 1000 != 0:
@@ -144,6 +144,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
                          port=0,
                          working_directory=working_dir)
     ns_host, ns_port = ns.start()
+    print("run_bohb_parallel -> ns_host, ns_port: ", ns_host, ns_port, "\n")
 
     w = BohbWorker(host=host,
                    nameserver=ns_host,
@@ -152,10 +153,10 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
                    run_id=run_id,
                    working_dir=working_dir,
                    experiment_wrapper = experiment_wrapper)
+
     w.run(background=True)
 
-    result_logger = hpres.json_result_logger(directory=working_dir,
-                                             overwrite=True)
+    result_logger = hpres.json_result_logger(directory=working_dir, overwrite=True)
 
     bohb = BohbWrapper(
         configspace=experiment_wrapper.get_configspace(),
@@ -170,8 +171,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         result_logger=result_logger)
 
     #res = bohb.run(n_iterations=bohb_params['iterations'])
-    res = bohb.run(n_iterations=bohb_params['iterations'],
-                   min_n_workers=int(bohb_workers))
+    res = bohb.run(n_iterations=bohb_params['iterations'], min_n_workers=int(bohb_workers)) #
 
     bohb.shutdown(shutdown_workers=True)
     ns.shutdown()

@@ -1,0 +1,22 @@
+name: nemo_SE_CPU
+
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+
+dependencies:
+  - python==3.8.3
+  - pip
+  - pytorch==1.5.0
+  - matplotlib==3.1.3
+
+  - pip:
+    - numpy==1.18.4
+    - seaborn==0.11.0
+    - ConfigSpace
+    - hpbandster
+    - gym
+    - mujoco-py
+    - psutil
+    - pyyaml

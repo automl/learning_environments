@@ -5,9 +5,9 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 50               # maximum number of GTN iterations
+    max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 2         # how many pytorch/OMP threads per worker
-    num_workers: !!int 128                  # size of the population
+    num_workers: !!int 256                  # size of the population
     noise_std: !!float 1e-1                 # standard deviation of the noise vector
     step_size: !!float 1                    # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
