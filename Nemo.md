@@ -15,8 +15,15 @@
 11. Change paths in `cheetah_se_nemo_WORKER_FABIO.sh`
 
 
+<br><br>
 
 Now you can start experiments by this order:
 
 1. `msub cheetah_se_nemo_MASTER_FABIO.sh`
 2. `msub cheetah_se_nemo_WORKER_FABIO.sh`
+
+<br>
+
+__ATTENTION__: For multiple runs change the `bhob_id` values in: 
+- `cheetah_se_nemo_WORKER_FABIO.sh` and 
+- `cheetah_se_nemo_MASTER_FABIO.sh`
