@@ -19,7 +19,7 @@ dependencies:
     - ConfigSpace
     - hpbandster
     - gym
-    - mujoco-py=2.0.2.7
+    - mujoco-py==2.0.2.7
     - psutil
     - pyyaml
     - matplotlib
