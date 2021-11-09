@@ -9,57 +9,58 @@ case_name = "reward_maximization"
 
 def auc():
     return [
-            '../results/3_rn_auc/cliff_compare_reward_envs/best1.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best2.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best5.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
-            ]
+        '../results/3_rn_auc/cliff_compare_reward_envs/best1.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best2.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best5.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
+    ]
 
 
 def normal():
     return [
-            '../results/0_before_auc/cliff_compare_reward_envs/best1.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best2.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best5.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
-            # '../results/0_before_auc/cliff_compare_reward_envs/best-1.pt'
-            ]
+        '../results/0_before_auc/cliff_compare_reward_envs/best1.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best2.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best5.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
+        # '../results/0_before_auc/cliff_compare_reward_envs/best-1.pt'
+    ]
 
 
 def reward_maximization():
     return [
-            '../results/4_rn_reward/cliff_compare_reward_envs/best1.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best2.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best5.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
-            ]
+        '../results/4_rn_reward/cliff_compare_reward_envs/best1.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best2.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best5.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best0.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best-1_opt.pt',
+    ]
+
 
 case = {
-        "normal": normal,
-        "auc": auc,
-        "reward_maximization": reward_maximization,
-        }
-
+    "normal": normal,
+    "auc": auc,
+    "reward_maximization": reward_maximization,
+}
 
 LEGEND = [
-        'QL + exc. pot. RN',
-        'QL + add. pot. RN',
-        'QL + exc. non-pot. RN',
-        'QL + add. non-pot. RN',
-        'QL',
-        'QL + count-based expl.',
-        # 'QL + count-based expl. (tuned)'
-        ]
+    'QL + exc. pot. RN',
+    'QL + add. pot. RN',
+    'QL + exc. non-pot. RN',
+    'QL + add. non-pot. RN',
+    'QL',
+    'QL + count-based expl.',
+    # 'QL + count-based expl. (tuned)'
+]
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 5000
 LOG_FILES = case[case_name]()
+
 
 def get_data():
     list_data = []

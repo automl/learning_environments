@@ -5,6 +5,7 @@ from envs.virtual_env import VirtualEnv
 from gym.spaces import Discrete
 from utils import to_one_hot_encoding, from_one_hot_encoding
 
+
 class EnvWrapper(nn.Module):
     # wraps a gym/virtual/reward environment for easier handling
     def __init__(self, env):
@@ -164,6 +165,3 @@ class EnvWrapper(nn.Module):
         self.same_action_num = same_action_num
         if hasattr(self.env, "set_agent_params"):
             self.env.set_agent_params(gamma=gamma)
-
-
-

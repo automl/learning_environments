@@ -37,21 +37,21 @@ class ReplayBuffer:
 
     def _sample_idx(self, idx):
         return (
-                self.state[idx].to(self.device).detach(),
-                self.action[idx].to(self.device).detach(),
-                self.next_state[idx].to(self.device).detach(),
-                self.reward[idx].to(self.device).detach(),
-                self.done[idx].to(self.device).detach(),
-                )
+            self.state[idx].to(self.device).detach(),
+            self.action[idx].to(self.device).detach(),
+            self.next_state[idx].to(self.device).detach(),
+            self.reward[idx].to(self.device).detach(),
+            self.done[idx].to(self.device).detach(),
+        )
 
     def get_all(self):
         return (
-                self.state[:self.size].to(self.device).detach(),
-                self.action[:self.size].to(self.device).detach(),
-                self.next_state[:self.size].to(self.device).detach(),
-                self.reward[:self.size].to(self.device).detach(),
-                self.done[:self.size].to(self.device).detach(),
-                )
+            self.state[:self.size].to(self.device).detach(),
+            self.action[:self.size].to(self.device).detach(),
+            self.next_state[:self.size].to(self.device).detach(),
+            self.reward[:self.size].to(self.device).detach(),
+            self.done[:self.size].to(self.device).detach(),
+        )
 
     def merge_buffer(self, other_replay_buffer):
         states, actions, next_states, rewards, dones = other_replay_buffer.get_all()
@@ -70,6 +70,7 @@ class ReplayBuffer:
 
     def make_one_hot_buffer(self, dim=1):
         self.action = torch.argmax(self.action, dim=dim)
+
 
 class AverageMeter:
     def __init__(self, print_str):

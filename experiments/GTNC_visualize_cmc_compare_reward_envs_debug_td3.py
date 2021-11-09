@@ -22,6 +22,7 @@ MIN_STEPS = 100000
 IMPORTANT_KEYS = ["action_std", "activation_fn", "batch_size", "gamma", "lr", "policy_delay", "policy_std", "policy_std_clip", "tau",
                   "same_action_num", "rb_size"]
 
+
 # IMPORTANT_KEYS = ["activation_fn", "lr", "policy_delay", "policy_std_clip", "tau",
 #                   "same_action_num", "rb_size"]
 
@@ -40,7 +41,6 @@ def get_data():
 
         list_hyperparameters.append(file_name_hyperparameters)
 
-
     min_steps = float('Inf')
     # get minimum number of evaluations
     for reward_list, episode_length_list in list_data:
@@ -53,7 +53,7 @@ def get_data():
     proc_data = []
 
     for reward_list, episode_length_list in list_data:
-        np_data = np.zeros([model_num*model_agents,min_steps])
+        np_data = np.zeros([model_num * model_agents, min_steps])
 
         for it, data in enumerate(zip(reward_list, episode_length_list)):
             rewards, episode_lengths = data
@@ -62,17 +62,17 @@ def get_data():
             rewards = rewards
 
             for i in range(len(episode_lengths)):
-                concat_list += [rewards[i]]*episode_lengths[i]
+                concat_list += [rewards[i]] * episode_lengths[i]
 
             while len(concat_list) < min_steps:
                 concat_list.append(concat_list[-1])
 
             np_data[it] = np.array(concat_list[:min_steps])
 
-        mean = np.mean(np_data,axis=0)
-        std = np.std(np_data,axis=0)
+        mean = np.mean(np_data, axis=0)
+        std = np.std(np_data, axis=0)
 
-        proc_data.append((mean,std))
+        proc_data.append((mean, std))
 
     return proc_data, list_hyperparameters
 
@@ -98,22 +98,20 @@ def plot_data(proc_data, savefig_name, list_hyperparameters):
     # plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
     # plt.subplots_adjust(right=0.7)
     # plt.legend(('TD3'), fontsize=7)
-    #plt.xlim(0,99)
+    # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)
     plt.title('MountainCarContinuous-v0')
     plt.xlabel('steps')
-    plt.xlim(0,100000)
+    plt.xlim(0, 100000)
     # plt.xlim(0, 60000)
-    plt.ylim(-75,100)
+    plt.ylim(-75, 100)
     plt.ylabel('cumulative reward')
     plt.savefig(savefig_name)
     plt.show()
+
 
 if __name__ == "__main__":
     proc_data, list_hyperparameters = get_data()
     time = datetime.now().strftime("%Y_%m_%d_%I_%M_%S")
     file_name = "../results/debug_cmc_td3/" + time + "_cmc_compare_reward_env.png"
     plot_data(proc_data=proc_data, savefig_name=file_name, list_hyperparameters=list_hyperparameters)
-
-
-

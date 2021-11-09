@@ -130,34 +130,34 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[3],
+                'train: synth., HPs: fixed': data_list[3],
 
-                    'train: synth., HPs: varied (5 best)': data_list[2],
-                    }
+                'train: synth., HPs: varied (5 best)': data_list[2],
+            }
         else:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[2],
-                    }
+                'train: synth., HPs: fixed': data_list[2],
+            }
 
         df = pd.DataFrame(data=data_dict)
         df = df.melt(value_name="cumulative rewards", var_name="type")
 
         sns.set_context(rc={
-                "font.size": 13,
-                "axes.titlesize": 13,
-                "axes.labelsize": 11,
-                "legend.fontsize": 11,
-                "xtick.labelsize": 11,
-                "ytick.labelsize": 9,
-                })
+            "font.size": 13,
+            "axes.titlesize": 13,
+            "axes.labelsize": 11,
+            "legend.fontsize": 11,
+            "xtick.labelsize": 11,
+            "ytick.labelsize": 9,
+        })
 
         if i == 0:
             title += " (CartPole-v0)"
@@ -238,7 +238,6 @@ if __name__ == "__main__":
 
                 for legobj in leg.legendHandles:
                     legobj.set_linewidth(2.0)
-
 
                 ax4 = plt.axes([0.755, .65, .08, .1], facecolor='w')
                 l1 = g.get_lines()[0]

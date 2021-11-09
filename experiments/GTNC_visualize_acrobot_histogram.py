@@ -13,6 +13,7 @@ from utils import ReplayBuffer
 
 BIN_WIDTH = 0.02
 
+
 def load_envs_and_config(dir, file_name):
     file_path = os.path.join(dir, file_name)
     save_dict = torch.load(file_path)
@@ -29,15 +30,15 @@ def load_envs_and_config(dir, file_name):
 
 def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None, agentname="none"):
     plt.figure(dpi=600, figsize=(3.5, 3))
-    plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
+    plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1) - min(h1)) / BIN_WIDTH)))
 
     if max(h2) == min(h2):  # if we had only a single bin
-        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
+        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h1) - min(h1)) / BIN_WIDTH)))
     else:
-        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h2)-min(h2)) / BIN_WIDTH)))
+        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h2) - min(h2)) / BIN_WIDTH)))
 
     if h3 is not None:
-        plt.hist(h3, alpha=0.4, bins=max(1, int((max(h3)-min(h3)) / BIN_WIDTH)))
+        plt.hist(h3, alpha=0.4, bins=max(1, int((max(h3) - min(h3)) / BIN_WIDTH)))
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('occurrence', fontsize=12)
     plt.yscale('log')
@@ -69,14 +70,14 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
         virt_rewards[i] = reward_virtual
         virt_dones[i] = done_virtual
 
-        _, reward_virtual_incorrect, _ = virtual_env.step(action=1-action, state=state)
+        _, reward_virtual_incorrect, _ = virtual_env.step(action=1 - action, state=state)
         virt_rewards_incorrect[i] = reward_virtual_incorrect
 
     for i in range(len(next_states_test[0])):
         trains = next_states_train[:, i].squeeze().detach().numpy()
         tests = next_states_test[:, i].squeeze().detach().numpy()
         virts = virt_next_states[:, i].squeeze().detach().numpy()
-        #diffs = diff_next_states[:,i].squeeze().detach().numpy()
+        # diffs = diff_next_states[:,i].squeeze().detach().numpy()
 
         # The state consists of the sin() and cos() of the two rotational joint
         # angles and the joint angular velocities :
@@ -121,8 +122,8 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
     # file_path = os.path.join(path, f"acrobot_histogram_{agentname}_'223R5W'_{i+1}.png")
     # plt.savefig(file_path, bbox_inches='tight', transparent=True)
     # plt.show()
-    #plot_diff(reals=dones.squeeze().detach().numpy(), virts=virt_dones.squeeze().detach().numpy(), diffs=diff_dones, plot_name='done')
-    #plot_diff(reals=dones.squeeze().detach().numpy(), virts = virt_dones.squeeze().detach().numpy(), plot_name = 'done')
+    # plot_diff(reals=dones.squeeze().detach().numpy(), virts=virt_dones.squeeze().detach().numpy(), diffs=diff_dones, plot_name='done')
+    # plot_diff(reals=dones.squeeze().detach().numpy(), virts = virt_dones.squeeze().detach().numpy(), plot_name = 'done')
 
 
 if __name__ == "__main__":
@@ -143,6 +144,7 @@ if __name__ == "__main__":
     replay_buffer_test_all = ReplayBuffer(state_dim=6, action_dim=1, device='cpu')
 
     import yaml
+
     with open("default_config_acrobot.yaml", "r") as stream:
         config2 = yaml.safe_load(stream)
     if 'td3' in agentname:

@@ -9,7 +9,6 @@ from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 from utils import ReplayBuffer, print_abs_param_sum
 
-
 # from gridworld.py
 G_RIGHT = 0
 G_LEFT = 1
@@ -54,9 +53,9 @@ def map_intensity_to_color(intensity):
     base_g = int(COLOR_G, 16)
     base_b = int(COLOR_B, 16)
 
-    inter_r = hex(int(255.0 + (base_r-255.0)*intensity))[2:]
-    inter_g = hex(int(255.0 + (base_g-255.0)*intensity))[2:]
-    inter_b = hex(int(255.0 + (base_b-255.0)*intensity))[2:]
+    inter_r = hex(int(255.0 + (base_r - 255.0) * intensity))[2:]
+    inter_g = hex(int(255.0 + (base_g - 255.0) * intensity))[2:]
+    inter_b = hex(int(255.0 + (base_b - 255.0) * intensity))[2:]
 
     return '#' + inter_r + inter_g + inter_b
 
@@ -64,22 +63,22 @@ def map_intensity_to_color(intensity):
 def plot_tiles(length, n_tot):
     for idx in range(n_tot):
         center = idx_to_xy(idx)
-        x1 = center[0]-length/2
-        x2 = center[0]+length/2
-        y1 = center[1]-length/2
-        y2 = center[1]+length/2
-        plt.plot([x1,x1, x2, x2, x1], [y1, y2, y2, y1, y1], color=COLOR, linewidth=1)
+        x1 = center[0] - length / 2
+        x2 = center[0] + length / 2
+        y1 = center[1] - length / 2
+        y2 = center[1] + length / 2
+        plt.plot([x1, x1, x2, x2, x1], [y1, y2, y2, y1, y1], color=COLOR, linewidth=1)
 
 
 def plot_filled_rectangle(center, length, intensity):
-    x = center[0] - length/2
-    y = center[1] - length/2
+    x = center[0] - length / 2
+    y = center[1] - length / 2
     rect = plt.Rectangle((x, y), length, length, facecolor=map_intensity_to_color(intensity), fill=True)
     plt.gca().add_patch(rect)
 
 
 def plot_filled_circle(center, diameter, intensity):
-    rect = plt.Circle(center, diameter/2, edgecolor='k', linewidth=0.2, facecolor=map_intensity_to_color(intensity), fill=True)
+    rect = plt.Circle(center, diameter / 2, edgecolor='k', linewidth=0.2, facecolor=map_intensity_to_color(intensity), fill=True)
     plt.gca().add_patch(rect)
 
 
@@ -88,8 +87,8 @@ def plot_tile_numbers(n_tot):
         center = idx_to_xy(idx)
         text = str(idx)
         if idx == 0:
-            text = str(idx)+'(S)'
-        elif idx == n_tot-1:
+            text = str(idx) + '(S)'
+        elif idx == n_tot - 1:
             text = str(idx) + '(G)'
         plt.gca().text(center[0], center[1], text, fontsize=FONTSIZE_LARGE, fontweight='bold', ha='center', va='center')
 
@@ -203,33 +202,33 @@ def plot_agent_behaviour(rb_dict, q_table, real_env):
             avg_rewards = action_dict['avg_rewards']
 
             n = len(next_states_prob)
-            offset = [NS_DIFF*(elem-(n-1)/2) for elem in range(n)]
-            #print('{} {} {}'.format(state, action, next_states_prob))
+            offset = [NS_DIFF * (elem - (n - 1) / 2) for elem in range(n)]
+            # print('{} {} {}'.format(state, action, next_states_prob))
 
             for i, next_state in enumerate(sorted(next_states_prob)):
                 x_pos = x_state + x_offset + (y_offset != 0) * offset[i]
                 y_pos = y_state + y_offset + (y_offset == 0) * (-offset[i])
 
-                mapped_reward = (avg_rewards[next_state]-min_reward)/(max_reward-min_reward)
+                mapped_reward = (avg_rewards[next_state] - min_reward) / (max_reward - min_reward)
                 mapped_q = (q_table[state][action] - min_q) / (max_q - min_q)
                 # print('----')
                 # print(mapped_reward)
                 # print(next_states_prob[next_state])
-                plot_filled_circle((x_pos,y_pos), RADIUS_NEXT_STATE_PERC, intensity=next_states_prob[next_state]*INTENSITY_FACTOR)
-                plot_filled_circle((x_pos, y_pos), RADIUS_REWARD, intensity=mapped_reward*INTENSITY_FACTOR)
-                plot_filled_circle((x_pos, y_pos), RADIUS_Q, intensity=mapped_q*INTENSITY_FACTOR)
+                plot_filled_circle((x_pos, y_pos), RADIUS_NEXT_STATE_PERC, intensity=next_states_prob[next_state] * INTENSITY_FACTOR)
+                plot_filled_circle((x_pos, y_pos), RADIUS_REWARD, intensity=mapped_reward * INTENSITY_FACTOR)
+                plot_filled_circle((x_pos, y_pos), RADIUS_Q, intensity=mapped_q * INTENSITY_FACTOR)
                 if is_correct_transition(real_env=real_env, state=state, action=action, next_state=next_state):
-                    text_color='r'
+                    text_color = 'r'
                 else:
-                    text_color='k'
-                plt.gca().text(x_pos, y_pos-0.008, next_state, color=text_color, fontsize=FONTSIZE_SMALL, ha='center', va='center')
+                    text_color = 'k'
+                plt.gca().text(x_pos, y_pos - 0.008, next_state, color=text_color, fontsize=FONTSIZE_SMALL, ha='center', va='center')
             # print(next_states_prob)
             # print(avg_rewards)
 
 
 def merge_q_tables(q_tables):
     n = len(q_tables)
-    q_table = [[0]*len(q_tables[0][0]) for _ in range(len(q_tables[0]))]
+    q_table = [[0] * len(q_tables[0][0]) for _ in range(len(q_tables[0]))]
     for table in q_tables:
         print(table)
         for i in range(len(table)):
@@ -240,7 +239,6 @@ def merge_q_tables(q_tables):
             q_table[i][k] /= n
 
     return q_table
-
 
 
 if __name__ == "__main__":
@@ -271,8 +269,8 @@ if __name__ == "__main__":
     rb_dict_test = convert_replay_buffer(replay_buffer_test_all)
 
     fig, ax = plt.subplots(dpi=600)
-    plot_tiles(length=0.9, n_tot=M*N)
-    plot_tile_numbers(n_tot=M*N)
+    plot_tiles(length=0.9, n_tot=M * N)
+    plot_tile_numbers(n_tot=M * N)
     plot_agent_behaviour(rb_dict=rb_dict_train, q_table=q_table, real_env=real_env)
     # plot_filled_rectangle((0,1), 0.2, 0.2)
     # plot_filled_rectangle((0,1), 0.1, 0)
@@ -281,8 +279,8 @@ if __name__ == "__main__":
     plt.savefig('gridworld_train.svg')
 
     fig, ax = plt.subplots(dpi=600)
-    plot_tiles(length=0.9, n_tot=M*N)
-    plot_tile_numbers(n_tot=M*N)
+    plot_tiles(length=0.9, n_tot=M * N)
+    plot_tile_numbers(n_tot=M * N)
     plot_agent_behaviour(rb_dict=rb_dict_test, q_table=q_table, real_env=real_env)
     # plot_filled_rectangle((0,1), 0.2, 0.2)
     # plot_filled_rectangle((0,1), 0.1, 0)

@@ -24,18 +24,15 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
         return cs
-
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
         global reward_env_type
         config["envs"]['Pendulum-v0']['reward_env_type'] = reward_env_type
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_pendulum_reward_env.yaml", 'r') as stream:
@@ -68,7 +65,6 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('SCORE LIST:  ' + str(score_list))
@@ -91,7 +87,7 @@ if __name__ == "__main__":
     reward_env_type = int(sys.argv[3])
     run_id = 'GTNC_evaluate_pendulum_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
-    seed = id+int(time.time())
+    seed = id + int(time.time())
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

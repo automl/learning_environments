@@ -2,7 +2,7 @@ import os
 import sys
 
 # go to parent directory
-script_dir = os.path.dirname(os.path.abspath( __file__ ))
+script_dir = os.path.dirname(os.path.abspath(__file__))
 par_dir = os.path.join(script_dir, os.pardir)
 sys.path.append(par_dir)
 os.chdir(par_dir)
@@ -133,7 +133,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
                        id=id,
                        run_id=run_id,
                        working_dir=working_dir,
-                       experiment_wrapper = experiment_wrapper)
+                       experiment_wrapper=experiment_wrapper)
         w.load_nameserver_credentials(working_directory=working_dir)
         w.run(background=False)
         exit(0)
@@ -151,7 +151,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
                    id=id,
                    run_id=run_id,
                    working_dir=working_dir,
-                   experiment_wrapper = experiment_wrapper)
+                   experiment_wrapper=experiment_wrapper)
     w.run(background=True)
 
     result_logger = hpres.json_result_logger(directory=working_dir,
@@ -169,7 +169,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         random_fraction=bohb_params['random_fraction'],
         result_logger=result_logger)
 
-    #res = bohb.run(n_iterations=bohb_params['iterations'])
+    # res = bohb.run(n_iterations=bohb_params['iterations'])
     res = bohb.run(n_iterations=bohb_params['iterations'],
                    min_n_workers=int(bohb_workers))
 
@@ -197,7 +197,7 @@ def run_bohb_serial(run_id, experiment_wrapper):
                    run_id=run_id,
                    nameserver_port=port,
                    working_dir=working_dir,
-                   experiment_wrapper = experiment_wrapper)
+                   experiment_wrapper=experiment_wrapper)
     w.run(background=True)
 
     result_logger = hpres.json_result_logger(directory=working_dir,
@@ -219,6 +219,3 @@ def run_bohb_serial(run_id, experiment_wrapper):
     ns.shutdown()
 
     return res
-
-
-

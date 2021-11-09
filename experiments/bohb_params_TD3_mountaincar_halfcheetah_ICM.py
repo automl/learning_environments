@@ -92,9 +92,9 @@ class ExperimentWrapper():
         print('----------------------------')
 
         return {
-                "loss": score,
-                "info": info
-                }
+            "loss": score,
+            "info": info
+        }
 
 
 if __name__ == "__main__":

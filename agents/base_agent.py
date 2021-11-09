@@ -24,7 +24,7 @@ class BaseAgent(nn.Module):
 
         self.render_env = config["render_env"]
         self.device = config["device"]
-        
+
         # self.trajectories = []
 
     def time_is_up(self, avg_meter_reward, avg_meter_episode_length, max_episodes, time_elapsed, time_remaining):
@@ -46,7 +46,6 @@ class BaseAgent(nn.Module):
         else:
             return False
 
-
     def env_solved(self, env, avg_meter_reward, episode):
         avg_reward = avg_meter_reward.get_mean(num=self.early_out_num)
         avg_reward_last = avg_meter_reward.get_mean_last(num=self.early_out_num)
@@ -61,7 +60,6 @@ class BaseAgent(nn.Module):
                 return True
 
         return False
-
 
     def train(self, env, test_env=None, time_remaining=1e9):
         time_start = time.time()

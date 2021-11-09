@@ -8,6 +8,7 @@ RESULT_FILE = '/home/dingsda/master_thesis/learning_environments/results/cliff_c
 M = 4
 N = 12
 
+
 def idx_to_xy(idx, n):
     x = idx // n
     y = idx % n
@@ -42,11 +43,10 @@ def plot_models():
         color = np.array([1, 1, 1]) - intensity * np.array([0, 1, 1])
         plt.fill(xs, ys, facecolor=color)
 
-
     for i in range(5):
-        plt.plot([-0.5, 11.5], [-i+0.5, -i+0.5], linewidth=0.5, color='black')
+        plt.plot([-0.5, 11.5], [-i + 0.5, -i + 0.5], linewidth=0.5, color='black')
     for i in range(13):
-        plt.plot([i-0.5, i-0.5], [0.5, -3.5], linewidth=0.5, color='black')
+        plt.plot([i - 0.5, i - 0.5], [0.5, -3.5], linewidth=0.5, color='black')
 
     # plot additional information
     x_water = [0.5, 10.5, 10.5, 0.5, 0.5]
@@ -81,6 +81,3 @@ def plot_models():
 
 if __name__ == "__main__":
     plot_models()
-
-
-

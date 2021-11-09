@@ -13,7 +13,6 @@ from models.actor_critic import Critic_DQN
 from envs.env_factory import EnvFactory
 from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
 
-
 STD_MULT = 0.2
 
 
@@ -103,9 +102,9 @@ class DDQN_noise(BaseAgent):
         if noise_type == None or noise_value == None:
             return next_state, reward
         elif noise_type < len(next_state):
-            next_state[noise_type] += torch.randn(1).item()*noise_value
+            next_state[noise_type] += torch.randn(1).item() * noise_value
         else:
-            reward += torch.randn(1).item()*noise_value
+            reward += torch.randn(1).item() * noise_value
 
         return next_state, reward
 
@@ -149,7 +148,7 @@ class DDQN_noise(BaseAgent):
             if env.has_discrete_state_space():
                 state = to_one_hot_encoding(state, self.state_dim)
             qvals = self.model(state.to(self.device))
-            return  torch.argmax(qvals).unsqueeze(0).detach()
+            return torch.argmax(qvals).unsqueeze(0).detach()
 
     def select_test_action(self, state, env):
         if env.has_discrete_state_space():
@@ -168,7 +167,6 @@ class DDQN_noise(BaseAgent):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
 
-
 def load_envs_and_config(dir, model_file_name):
     file_path = os.path.join(dir, model_file_name)
     save_dict = torch.load(file_path)
@@ -184,7 +182,7 @@ def load_envs_and_config(dir, model_file_name):
 
 
 def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_type):
-    reward_list = [[] for i in range(5)]    # stupid....
+    reward_list = [[] for i in range(5)]  # stupid....
 
     for noise_value in np.logspace(-2, 1.5, num=50):
         reward_sum = []
@@ -208,7 +206,6 @@ def calc_noisy_reward(virtual_env, real_env, config, reward_file_name, noise_typ
 
 
 def calc_reference_deviation(virtual_env, real_env, config):
-
     state_reward_concat = None
 
     for i in range(10):
@@ -230,10 +227,9 @@ def calc_reference_deviation(virtual_env, real_env, config):
 
 
 def plot_threshold(std_dev, reward_file_names):
-    plt.figure(dpi=600, figsize=(6,3))
+    plt.figure(dpi=600, figsize=(6, 3))
 
     for i, reward_file_name in enumerate(reward_file_names):
-
 
         data = torch.load(reward_file_name)
         reward_list = data['reward_list']
@@ -242,7 +238,7 @@ def plot_threshold(std_dev, reward_file_names):
                 reward_list = reward_list[k]
                 break
 
-        x = [elem[0]/std_dev[i] for elem in reward_list]
+        x = [elem[0] / std_dev[i] for elem in reward_list]
         mean = [statistics.mean(elem[1]) for elem in reward_list]
         std = [statistics.stdev(elem[1]) for elem in reward_list]
         mean = np.array(mean)
@@ -251,7 +247,6 @@ def plot_threshold(std_dev, reward_file_names):
         plt.subplots_adjust(bottom=0.15)
         plt.plot(x, mean)
         plt.fill_between(x=x, y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
-
 
     plt.legend(['cart position', 'cart velocity', 'pole angle', 'pole ang. vel.', 'reward'])
     plt.xscale('log')
@@ -263,7 +258,7 @@ def plot_threshold(std_dev, reward_file_names):
 
 if __name__ == "__main__":
     dir = '/home/dingsda/master_thesis/learning_environments/results/GTN_models_CartPole-v0'
-    #dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
+    # dir = '/home/nierhoff/master_thesis/learning_environments/results/GTN_models_CartPole-v0_old'
     model_file_name = 'CartPole-v0_24_I8EZDI.pt'
 
     reward_file_names = []
@@ -276,14 +271,9 @@ if __name__ == "__main__":
     config['agents']['ddqn']['test_episodes'] = 10
     config['agents']['ddqn']['train_episodes'] = 100
 
-    #noise_type = int(sys.argv[1])
-    #reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
-    #calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
-    #std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
+    # noise_type = int(sys.argv[1])
+    # reward_file_name = 'GTNC_visualize_cartpole_threshold_rewards_100_' + str(noise_type) + '.pt'
+    # calc_noisy_reward(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name, noise_type=noise_type)
+    # std_dev = calc_reference_deviation(virtual_env=virtual_env, real_env=real_env, config=config, reward_file_name=reward_file_name)
     std_dev = [0.0361, 0.0653, 0.0722, 0.0465, 0.0976]
     plot_threshold(std_dev, reward_file_names)
-
-
-
-
-

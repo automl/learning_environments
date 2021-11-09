@@ -11,6 +11,7 @@ import numpy as np
 
 NUM_EVALS = 3
 
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -21,7 +22,6 @@ class ExperimentWrapper():
         params['random_fraction'] = 0.3
 
         return params
-
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
@@ -42,13 +42,12 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         config["agents"]["ppo"]["update_episodes"] = cso["update_episodes"]
         config["agents"]["ppo"]["ppo_epochs"] = cso["ppo_epochs"]
-        config["agents"]["ppo"]["gamma"] = 1-cso["gamma"]
+        config["agents"]["ppo"]["gamma"] = 1 - cso["gamma"]
         config["agents"]["ppo"]["lr"] = cso["lr"]
         config["agents"]["ppo"]["vf_coef"] = cso["vf_coef"]
         config["agents"]["ppo"]["ent_coef"] = cso["ent_coef"]
@@ -60,7 +59,6 @@ class ExperimentWrapper():
         config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_halfcheetah.yaml", 'r') as stream:

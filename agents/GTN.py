@@ -10,6 +10,7 @@ from agents.GTN_worker import GTN_Worker
 script to run GTN master & slave locally
 """
 
+
 def run_gtn_on_single_pc(config):
     def run_gtn_worker(id):
         gtn = GTN_Worker(id)
@@ -73,4 +74,3 @@ if __name__ == "__main__":
 
         id = int(sys.argv[1])
         run_gtn_on_multiple_pcs(config, id)
-

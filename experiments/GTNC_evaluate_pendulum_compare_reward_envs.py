@@ -16,6 +16,7 @@ LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC
 MODEL_NUM = 5
 MODEL_AGENTS = 3
 
+
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
@@ -36,7 +37,7 @@ def get_best_models_from_log(log_dir):
             continue
 
     best_models.sort(key=lambda x: x[0])
-    #best_models.sort(key=lambda x: x[0], reverse=True)
+    # best_models.sort(key=lambda x: x[0], reverse=True)
     best_models = best_models[:MODEL_NUM]
 
     return best_models
@@ -78,7 +79,6 @@ def train_test_agents(mode, env, real_env, config):
 
 
 def save_list(mode, config, reward_list):
-
     os.makedirs(SAVE_DIR, exist_ok=True)
     file_name = os.path.join(SAVE_DIR, 'best' + str(MODEL_NUM) + '_' + str(mode) + '.pt')
     save_dict = {}
@@ -135,4 +135,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

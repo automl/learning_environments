@@ -39,10 +39,10 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.time_elapsed_list = [None] * self.num_workers # for debugging
-        self.score_list = [None]*self.num_workers
-        self.score_orig_list = [None]*self.num_workers # for debugging
-        self.score_transform_list = [None]*self.num_workers
+        self.time_elapsed_list = [None] * self.num_workers  # for debugging
+        self.score_list = [None] * self.num_workers
+        self.score_orig_list = [None] * self.num_workers  # for debugging
+        self.score_transform_list = [None] * self.num_workers
 
         # to keep track of the reference virtual env
         self.env_factory = EnvFactory(config)
@@ -66,29 +66,27 @@ class GTN_Master(GTN_Base):
             self.model_dir = str(os.path.join(bohb_working_dir, 'GTN_models_' + self.env_name))
         else:
             self.model_dir = str(os.path.join(os.getcwd(), "results", 'GTN_models_' + self.env_name))
-        self.model_name = self.get_model_file_name(self.env_name + '_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6)) + '.pt')
+        self.model_name = self.get_model_file_name(self.env_name + '_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + '.pt')
         self.best_score = -float('Inf')
 
         os.makedirs(self.model_dir, exist_ok=True)
 
         print('Starting GTN Master with bohb_id {}'.format(bohb_id))
-        
-        # self.bohb_next_run_counter = 0
 
+        # self.bohb_next_run_counter = 0
 
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
-
 
     def run(self):
         mean_score_orig_list = []
 
         for it in range(self.max_iterations):
             t1 = time.time()
-            print('-- Master: Iteration ' + str(it) + ' ' + str(time.time()-t1))
-            print('-- Master: write worker inputs' + ' ' + str(time.time()-t1))
+            print('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
+            print('-- Master: write worker inputs' + ' ' + str(time.time() - t1))
             self.write_worker_inputs(it)
-            print('-- Master: read worker results' + ' ' + str(time.time()-t1))
+            print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
 
             mean_score = np.mean(self.score_orig_list)
@@ -100,12 +98,12 @@ class GTN_Master(GTN_Base):
                 # self.bohb_next_run_counter += 1
                 break
 
-            print('-- Master: rank transform' + ' ' + str(time.time()-t1))
+            print('-- Master: rank transform' + ' ' + str(time.time() - t1))
             self.score_transform()
-            print('-- Master: update env' + ' ' + str(time.time()-t1))
+            print('-- Master: update env' + ' ' + str(time.time() - t1))
             self.update_env()
-            print('-- Master: print statistics' + ' ' + str(time.time()-t1))
-            self.print_statistics(it=it, time_elapsed=time.time()-t1)
+            print('-- Master: print statistics' + ' ' + str(time.time() - t1))
+            self.print_statistics(it=it, time_elapsed=time.time() - t1)
 
         print('Master quitting')
 
@@ -116,7 +114,6 @@ class GTN_Master(GTN_Base):
             return np.mean(self.score_orig_list), mean_score_orig_list, self.model_name
         else:
             return 1e9, mean_score_orig_list, self.model_name
-
 
     def save_good_model(self, mean_score):
         if self.synthetic_env_orig.is_virtual_env():
@@ -133,7 +130,6 @@ class GTN_Master(GTN_Base):
 
         return False
 
-
     def save_model(self):
         save_dict = {}
         save_dict['model'] = self.synthetic_env_orig.state_dict()
@@ -142,13 +138,11 @@ class GTN_Master(GTN_Base):
         print('save model: ' + str(save_path))
         torch.save(save_dict, save_path)
 
-
     def calc_worker_timeout(self):
         if self.time_elapsed_list[0] is None:
             return self.time_max
         else:
             return statistics.mean(self.time_elapsed_list) * self.time_mult
-
 
     def write_worker_inputs(self, it):
         timeout = self.calc_worker_timeout()
@@ -167,7 +161,7 @@ class GTN_Master(GTN_Base):
 
             # if we are not using bohb, shut everything down after last iteration
             if self.bohb_id < 0:
-                quit_flag = it == self.max_iterations-1
+                quit_flag = it == self.max_iterations - 1
             else:
                 quit_flag = False
 
@@ -180,7 +174,6 @@ class GTN_Master(GTN_Base):
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
-
 
     def read_worker_results(self):
         for id in range(self.num_workers):
@@ -196,11 +189,10 @@ class GTN_Master(GTN_Base):
             self.score_list[id] = data['score']
             self.eps_list[id].load_state_dict(data['eps'])
             self.score_orig_list[id] = data['score_orig']
-            self.synthetic_env_list[id].load_state_dict(data['synthetic_env']) # for debugging
+            self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
 
             os.remove(check_file_name)
             os.remove(file_name)
-
 
     def score_transform(self):
         scores = np.asarray(self.score_list)
@@ -208,14 +200,14 @@ class GTN_Master(GTN_Base):
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
-            scores = (scores - min(scores)) / (max(scores)-min(scores)+1e-9)
+            scores = (scores - min(scores)) / (max(scores) - min(scores) + 1e-9)
 
         elif self.score_transform_type == 1:
             # convert [1, 0, 5] to [0.5, 0, 1]
             s = np.argsort(scores)
             n = len(scores)
             for i in range(n):
-                scores[s[i]] = i / (n-1)
+                scores[s[i]] = i / (n - 1)
 
         elif self.score_transform_type == 2 or self.score_transform_type == 3:
             # fitness shaping from "Natural Evolution Strategies" (Wierstra 2014) paper, either with zero mean (2) or without (3)
@@ -244,7 +236,7 @@ class GTN_Master(GTN_Base):
             # consider single best eps that is better than the average
             avg_score_orig = np.mean(scores_orig)
 
-            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+            scores_idx = np.where(scores > avg_score_orig + 1e-6, 1, 0)  # 1e-6 to counter numerical errors
             if sum(scores_idx) > 0:
                 scores_tmp = np.zeros(scores.size)
                 scores_tmp[np.argmax(scores)] = 1
@@ -256,10 +248,10 @@ class GTN_Master(GTN_Base):
             # consider all eps that are better than the average, normalize weight sum to 1
             avg_score_orig = np.mean(scores_orig)
 
-            scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+            scores_idx = np.where(scores > avg_score_orig + 1e-6, 1, 0)  # 1e-6 to counter numerical errors
             if sum(scores_idx) > 0:
-            #if sum(scores_idx) > 0:
-                scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
+                # if sum(scores_idx) > 0:
+                scores = scores_idx * (scores - avg_score_orig) / (max(scores) - avg_score_orig + 1e-9)
                 if self.score_transform_type == 6:
                     scores /= max(scores)
                 else:
@@ -271,7 +263,6 @@ class GTN_Master(GTN_Base):
             raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
 
         self.score_transform_list = scores.tolist()
-
 
     def update_env(self):
         ss = self.step_size
@@ -306,7 +297,6 @@ class GTN_Master(GTN_Base):
 
         print('weights after update: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
-
     def print_statistics(self, it, time_elapsed):
         orig_score = statistics.mean(self.score_orig_list)
         mean_time_elapsed = statistics.mean(self.time_elapsed_list)
@@ -316,4 +306,3 @@ class GTN_Master(GTN_Base):
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
         print('GTN avg eval score:   ' + str(orig_score))
         print('--------------')
-

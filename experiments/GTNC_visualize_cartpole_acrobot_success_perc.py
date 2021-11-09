@@ -10,6 +10,7 @@ LOG_DIRS = ['../results/2_thomas_results/GTNC_evaluate_cartpole_2020-12-04-12',
 MAX_VALS = 40
 STD_MULT = 1
 
+
 def get_data():
     list_data = []
     for log_dir in LOG_DIRS:
@@ -36,7 +37,7 @@ def get_data():
 
         for run in all_runs:
             avg_rewards = ast.literal_eval(run['info']['score_list'])
-            #print(avg_rewards)
+            # print(avg_rewards)
 
             config_id = run['config_id']
 
@@ -44,8 +45,8 @@ def get_data():
             if avg_rewards[0] < -1e5 and avg_rewards[1] > -1e5:
                 avg_rewards[0] = avg_rewards[1]
             for k in range(1, len(avg_rewards)):
-                if avg_rewards[k] < -1e5 and avg_rewards[k-1] > -1e5:
-                    avg_rewards[k] = avg_rewards[k-1]
+                if avg_rewards[k] < -1e5 and avg_rewards[k - 1] > -1e5:
+                    avg_rewards[k] = avg_rewards[k - 1]
 
             data.append(avg_rewards)
         list_data.append(data)
@@ -55,7 +56,7 @@ def get_data():
 
     n = len(list_data[0][0])
     for data in list_data:
-        np_data = np.zeros([MAX_VALS,n])
+        np_data = np.zeros([MAX_VALS, n])
 
         for i in range(len(np_data)):
             np_data[i] = np.array(data[i])
@@ -63,13 +64,13 @@ def get_data():
         mean = np.mean(np_data, axis=0)
         std = np.std(np_data, axis=0)
 
-        proc_data.append((mean,std))
+        proc_data.append((mean, std))
 
     return proc_data, list_data
 
 
 def plot_data(proc_data, list_data, savefig_name):
-    fig, ax = plt.subplots(dpi=600, figsize=(7,5))
+    fig, ax = plt.subplots(dpi=600, figsize=(7, 5))
     colors = ['#1F77B4', '#FF7F0E']
     #
     # for mean, _ in data_w:
@@ -77,9 +78,9 @@ def plot_data(proc_data, list_data, savefig_name):
     #     colors.append(plt.gca().lines[-1].get_color())
 
     thresh_data = [
-            ([0, 200], [195, 195], '--', colors[0], 2),
-            ([0, 200], [-100, -100], '--', colors[1], 2)
-            ]
+        ([0, 200], [195, 195], '--', colors[0], 2),
+        ([0, 200], [-100, -100], '--', colors[1], 2)
+    ]
 
     for (mean, std), thresh in zip(proc_data, thresh_data):
         plt.plot(thresh[0], thresh[1], thresh[2], color=thresh[3], linewidth=thresh[4])
@@ -89,7 +90,7 @@ def plot_data(proc_data, list_data, savefig_name):
     # plt.plot([0, 200], [-100, -100], '--', color=colors[1], linewidth=2)
 
     for mean, std in proc_data:
-        plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.2)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.2)
 
     for i, dat in enumerate(list_data):
         print(len(dat))
@@ -105,8 +106,7 @@ def plot_data(proc_data, list_data, savefig_name):
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.show()
 
+
 if __name__ == "__main__":
     proc_data, list_data = get_data()
     plot_data(proc_data=proc_data, list_data=list_data, savefig_name='cartpole_acrobot_success.png')
-
-

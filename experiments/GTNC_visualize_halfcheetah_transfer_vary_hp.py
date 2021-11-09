@@ -8,67 +8,68 @@ AUC = True
 
 if AUC:
     LOG_FILES = [
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
-                 '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
 
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
-                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
-                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
 
-                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
-                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
-                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
-                '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+        '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
 
-                 # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
-                 # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
-                 ]
+        # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+        # '../results/3_rn_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+    ]
 else:
     LOG_FILES = [
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp6.pt',
 
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
-                 '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
-                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
-                # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt',
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp-1_bohb_max_reward_run.pt',
 
-                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
-                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
-                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
-                '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp3.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp4.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp7.pt',
+        '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp8.pt',
 
-                 # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
-                 # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
-                 ]
-
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp101.pt',
+        # '../results/0_before_auc/halfcheetah_compare_reward_envs/best_transfer_vary_hp102.pt'
+    ]
 
 LEGEND = [
-        'TD3 + exc. pot. RN',
-        'TD3 + add. pot. RN',
-        'TD3 + exc. non-pot. RN',
-        'TD3 + add. non-pot. RN',
+    'TD3 + exc. pot. RN',
+    'TD3 + add. pot. RN',
+    'TD3 + exc. non-pot. RN',
+    'TD3 + add. non-pot. RN',
 
-        'TD3',
-        'TD3 + ICM',
-        # 'TD3 + ICM (tuned)',
+    'TD3',
+    'TD3 + ICM',
+    # 'TD3 + ICM (tuned)',
 
-        'TD3 + exc. pot. RN + augm.',
-        'TD3 + add. pot. RN + augm.',
-        'TD3 + exc. non-pot. RN + augm.',
-        'TD3 + add. non-pot. RN + augm.',
+    'TD3 + exc. pot. RN + augm.',
+    'TD3 + add. pot. RN + augm.',
+    'TD3 + exc. non-pot. RN + augm.',
+    'TD3 + add. non-pot. RN + augm.',
 
-        # 'TD3 + exc. ER',
-        # 'TD3 + add. ER',
-        ]
+    # 'TD3 + exc. ER',
+    # 'TD3 + add. ER',
+]
 
 STD_MULT = .2
 MIN_STEPS = 500000
+
+
 # MIN_STEPS = 300000
 # MIN_STEPS = 100000
 

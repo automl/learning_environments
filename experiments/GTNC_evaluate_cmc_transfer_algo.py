@@ -25,6 +25,7 @@ LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_eval
 MODEL_NUM = 10
 MODEL_AGENTS = 10
 
+
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
@@ -198,4 +199,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

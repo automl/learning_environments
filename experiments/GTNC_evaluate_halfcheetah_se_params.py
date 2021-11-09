@@ -25,7 +25,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -36,7 +35,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_nes_step_size', choices=[True, False], default_value=False))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='gtn_num_grad_evals', lower=1, upper=5, log=False, default_value=1))
 
-        #cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
         # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         # cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
@@ -57,7 +56,6 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
@@ -70,7 +68,7 @@ class ExperimentWrapper():
 
         config["agents"]['gtn']['synthetic_env_type'] = 0
 
-        #config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
+        # config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         # config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
         # config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
         # config["agents"]['td3']['lr'] = cso["td3_lr"]
@@ -89,7 +87,6 @@ class ExperimentWrapper():
         config["envs"]['HalfCheetah-v3']['hidden_layer'] = cso["halfcheetah_hidden_layer"]
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_halfcheetah_td3_se_opt.yaml", 'r') as stream:
@@ -122,7 +119,6 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('SCORE LIST:  ' + str(score_list))
@@ -143,7 +139,7 @@ if __name__ == "__main__":
 
     run_id = 'SE_halfcheetah_params_' + x.strftime("%Y-%m-%d-%H")
 
-    seed = id+int(time.time())
+    seed = id + int(time.time())
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

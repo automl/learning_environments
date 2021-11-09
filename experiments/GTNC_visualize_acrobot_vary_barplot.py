@@ -126,34 +126,34 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[3],
+                'train: synth., HPs: fixed': data_list[3],
 
-                    'train: synth., HPs: varied (5 best)': data_list[2],
-                    }
+                'train: synth., HPs: varied (5 best)': data_list[2],
+            }
         else:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[2],
-                    }
+                'train: synth., HPs: fixed': data_list[2],
+            }
 
         df = pd.DataFrame(data=data_dict)
         df = df.melt(value_name="cumulative rewards", var_name="type")
 
         sns.set_context(rc={
-                "font.size": 13,
-                "axes.titlesize": 13,
-                "axes.labelsize": 11,
-                "legend.fontsize": 11,
-                "xtick.labelsize": 11,
-                "ytick.labelsize": 9
-                })
+            "font.size": 13,
+            "axes.titlesize": 13,
+            "axes.labelsize": 11,
+            "legend.fontsize": 11,
+            "xtick.labelsize": 11,
+            "ytick.labelsize": 9
+        })
 
         if i == 0:
             title += " (Acrobot-v1)"
@@ -166,19 +166,19 @@ if __name__ == "__main__":
             palette = ["C0", "C1", "C2"]
 
         barplot_data_dct = {
-                "type": ["steps", "episodes",
-                         "steps", "episodes",
-                         "steps", "episodes"],
-                "method": ["train: real", "train: real",
-                           "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                           "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"],
-                "means": [mean_train_steps[0], episode_num_needed_means[0],
-                          mean_train_steps[1], episode_num_needed_means[1],
-                          mean_train_steps[2], episode_num_needed_means[2]],
-                "std dev": [std_train_steps[0], episode_num_needed_stds[0],
-                            std_train_steps[1], episode_num_needed_stds[1],
-                            std_train_steps[2], episode_num_needed_stds[2]]
-                }
+            "type": ["steps", "episodes",
+                     "steps", "episodes",
+                     "steps", "episodes"],
+            "method": ["train: real", "train: real",
+                       "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
+                       "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"],
+            "means": [mean_train_steps[0], episode_num_needed_means[0],
+                      mean_train_steps[1], episode_num_needed_means[1],
+                      mean_train_steps[2], episode_num_needed_means[2]],
+            "std dev": [std_train_steps[0], episode_num_needed_stds[0],
+                        std_train_steps[1], episode_num_needed_stds[1],
+                        std_train_steps[2], episode_num_needed_stds[2]]
+        }
 
         if show_5_best_jointly_with_other and i == 2:
             barplot_data_dct["method"] = ["train: real", "train: real",
