@@ -75,21 +75,3 @@ def start_communication_thread(args):
     t_c = threading.Thread(target=my_worker_thread, args=(server_data, worker_data))
     t_c.start()
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--bohb_id", type=int)
-    parser.add_argument("--id", type=int)
-    parser.add_argument("--moab_id", type=str)
-    args = parser.parse_args()
-
-    # Get IP and PORT OF Server from FILE
-    server_data = get_server_file()
-    print("server_data : ", server_data)
-    worker_data = vars(args)
-    print("worker_data: ", worker_data)
-
-    # STRAT Thread for Communication
-    t_c = threading.Thread(target=my_worker_thread, args=(server_data, worker_data))
-    t_c.start()
-    t_c.join()  # TODO: remove later -> only waiting for thread in this test case

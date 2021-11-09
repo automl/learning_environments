@@ -141,23 +141,3 @@ def start_communication_thread(args):
     t_c = threading.Thread(target=main_communcication, args=(number_of_parallel_connections, ip, args.port))
     t_c.start()
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--bohb_id", type=int)
-    parser.add_argument("--id", type=int)
-    parser.add_argument("--moab_id", type=str)
-    parser.add_argument("--port", type=int, default=10000)
-    parser.add_argument("--min_workers", type=int, default=1, help="Minimum number of workers that have to be active, before we otherwise abort")
-    parser.add_argument("--number_workers", type=int, default=10000, help="Total number of workers for this experiment")
-    args = parser.parse_args()
-
-    ip = get_ip_by_socket_module()
-    port = args.port
-
-    write_server_file(ip=ip, port=port)
-
-    number_of_parallel_connections = args.number_workers + 1  # just to be sure plus one
-    t_c = threading.Thread(target=main_communcication, args=(number_of_parallel_connections, ip, port))
-    t_c.start()
-    t_c.join()  # TODO: remove later -> only waiting for thread in this test case
