@@ -96,7 +96,7 @@ class GTN_Master(GTN_Base):
 
         # For Communication Purposes
         self.started_at_time = datetime.now()
-        self.minutes_till_reading = 10
+        self.minutes_till_reading = 30
         self.available_ids = None
 
     def get_model_file_name(self, file_name):
@@ -181,7 +181,11 @@ class GTN_Master(GTN_Base):
         timeout = self.calc_worker_timeout()
         print('timeout: ' + str(timeout))
 
-        id_list = get_ids(self.available_ids)
+        if it == 0:
+            id_list = [i for i in range(self.num_workers)]
+        else:
+            id_list = get_ids(self.available_ids)
+
         print(f"Iteration: {it}, wrinting files for ids: {id_list}")
         for id in id_list:
 
