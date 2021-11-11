@@ -96,7 +96,7 @@ class GTN_Master(GTN_Base):
 
         # For Communication Purposes
         self.started_at_time = datetime.now()
-        self.minutes_till_reading = 1
+        self.minutes_till_reading = 10
         self.available_ids = None
 
     def get_model_file_name(self, file_name):
@@ -217,8 +217,11 @@ class GTN_Master(GTN_Base):
                 self.available_ids.pop(k)
 
     def read_worker_results(self):
+        counter = 1
         while len(self.available_ids) > 0:
             self.update_ids_to_check()
+            print(f"reading: counter={counter} | len(self.available_ids) = {len(self.available_ids)}")
+            counter += 1
             for id in get_ids(self.available_ids):
                 file_name = self.get_result_file_name(id)
                 check_file_name = self.get_result_check_file_name(id)
