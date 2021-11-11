@@ -117,6 +117,7 @@ class GTN_Master(GTN_Base):
 
             # X minutes passsed -> we make a list of available workers:
             self.available_ids = copy.deepcopy(connections_for_later)
+            print("self.available_ids: ", self.available_ids)
 
             print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
