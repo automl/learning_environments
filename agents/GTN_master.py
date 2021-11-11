@@ -219,11 +219,9 @@ class GTN_Master(GTN_Base):
                 self.available_ids.pop(k)
 
     def read_worker_results(self):
-        counter = 1
         checked_this_iteration = []
         while len(self.available_ids) > 0:
             self.update_ids_to_check()
-            counter += 1
             for id in get_ids(self.available_ids):
                 if id in checked_this_iteration:
                     continue
