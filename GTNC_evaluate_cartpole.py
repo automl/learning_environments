@@ -10,6 +10,7 @@ from agents.GTN import GTN_Master
 from communicate.tcp_master_selector import start_communication_thread
 import argparse
 from automl.bohb_optim import get_working_dir
+import os
 
 
 def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
@@ -32,14 +33,16 @@ def seed_experiment(number):
     torch.cuda.manual_seed_all(number + int(time.time()))
 
 
-def compute(self, working_dir, bohb_id):
+def compute(w_dir, bohb_id):
+    os.makedirs(w_dir, exist_ok=True)
+
     with open("default_config_cartpole_syn_env.yaml", 'r') as stream:
         default_config = yaml.safe_load(stream)
 
     config = deepcopy(default_config)
 
     try:
-        gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
+        gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=w_dir)
         _, score_list = gtn.run()
         score = len(score_list)
         error = ""
@@ -57,10 +60,7 @@ def compute(self, working_dir, bohb_id):
     print("END BOHB ITERATION")
     print('----------------------------')
 
-    return {
-        "loss": score,
-        "info": info
-    }
+    return {"loss": score, "info": info}
 
 
 if __name__ == "__main__":
