@@ -106,6 +106,7 @@ class GTN_Master(GTN_Base):
         mean_score_orig_list = []
 
         for it in range(self.max_iterations):
+            self.available_ids = copy.deepcopy(connections_for_later)
             t1 = time.time()
             print('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
             print('-- Master: write worker inputs' + ' ' + str(time.time() - t1))
