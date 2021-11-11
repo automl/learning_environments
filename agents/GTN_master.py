@@ -213,10 +213,10 @@ class GTN_Master(GTN_Base):
         self.available_ids.pop(key_to_delete)
 
     def update_ids_to_check(self):
-        print("popping")
         for k,v in lost_connections:
             if k in self.available_ids:
                 self.available_ids.pop(k)
+                print("self.available_ids: ", self.available_ids)
 
     def read_worker_results(self):
         checked_this_iteration = []
