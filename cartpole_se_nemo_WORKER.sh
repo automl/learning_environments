@@ -43,7 +43,7 @@ PYTHON_SCRIPT="GTN_Worker.py"
 echo 'calling ' $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 # CALL
-/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT $BOHB_ID $ID
+/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 ### OLD: /home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments-master/GTN_Worker.py $bohb_id $id
 
 echo "Finished at $(date)";
