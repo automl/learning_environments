@@ -11,9 +11,18 @@ import torch
 from copy import deepcopy
 from agents.GTN import GTN_Master
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
+from communicate.tcp_master_selector import start_communication_thread
+
+
+def seed_experiment(number):
+    random.seed(number + int(time.time()))
+    np.random.seed(number + int(time.time()))
+    torch.manual_seed(number + int(time.time()))
+    torch.cuda.manual_seed_all(number + int(time.time()))
 
 
 class ExperimentWrapper():
+
     def get_bohb_parameters(self):
         params = {}
         params['min_budget'] = 1
@@ -47,6 +56,7 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
+            start_communication_thread(self.args)
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
             _, score_list = gtn.run()
             score = len(score_list)
@@ -77,21 +87,20 @@ if __name__ == "__main__":
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1:  # eg 5000 1
+        print("if len(sys.argv) > 1:")
+
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1]) + int(time.time()))
-        np.random.seed(int(sys.argv[1]) + int(time.time()))
-        torch.manual_seed(int(sys.argv[1]) + int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1]) + int(time.time()))
+
+        seed_experiment(number=int(sys.argv[1]))
         res = run_bohb_parallel(id=int(sys.argv[1]),
-                                bohb_workers=int(sys.argv[2]),
+                                bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
                                 run_id=run_id,
                                 experiment_wrapper=ExperimentWrapper())
     else:
-        random.seed(int(time.time()))
-        np.random.seed(int(time.time()))
-        torch.manual_seed(int(time.time()))
-        torch.cuda.manual_seed_all(int(time.time()))
+        print("else CASE")
+
+        seed_experiment(number=int(sys.argv[1]))
         res = run_bohb_serial(run_id=run_id,
                               experiment_wrapper=ExperimentWrapper())
