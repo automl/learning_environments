@@ -45,16 +45,16 @@ def my_worker_thread(server_data, worker_data):
         for key, mask in mysel.select(timeout=1):
             connection = key.fileobj
             client_address = connection.getpeername()
-            print('client({})'.format(client_address))
+            #print('client({})'.format(client_address))
 
             if mask & selectors.EVENT_READ:
                 pass
 
             if mask & selectors.EVENT_WRITE:
-                print('  ready to write')
+                #print('  ready to write')
                 # Send the next message.
                 next_msg = pickle.dumps(worker_data, -1)
-                print('  sending {!r}'.format(next_msg))
+                #print('  sending {!r}'.format(next_msg))
                 sock.sendall(next_msg)
         time.sleep(30)  # in seconds -> 5 minutes
 
