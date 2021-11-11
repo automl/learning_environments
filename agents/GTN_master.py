@@ -181,7 +181,9 @@ class GTN_Master(GTN_Base):
         timeout = self.calc_worker_timeout()
         print('timeout: ' + str(timeout))
 
-        for id in get_ids(self.available_ids):
+        id_list = get_ids(self.available_ids)
+        print(f"Iteration: {it}, wrinting files for ids: {id_list}")
+        for id in id_list:
 
             file_name = self.get_input_file_name(id=id)
             check_file_name = self.get_input_check_file_name(id=id)
@@ -213,7 +215,7 @@ class GTN_Master(GTN_Base):
         self.available_ids.pop(key_to_delete)
 
     def update_ids_to_check(self):
-        for k,v in lost_connections:
+        for k,v in lost_connections.items():
             if k in self.available_ids:
                 self.available_ids.pop(k)
                 print("self.available_ids: ", self.available_ids)
