@@ -7,10 +7,15 @@ import numpy as np
 import random
 import string
 import statistics
+from datetime import datetime
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from utils import calc_abs_param_sum
+from communicate.helpers_communication import time_diff, x_minutes_passed
 
+
+def make_list_of_all_workers_available():
+    raise NotImplementedError
 
 class GTN_Master(GTN_Base):
     def __init__(self, config, bohb_id=-1, bohb_working_dir=None):
@@ -75,6 +80,10 @@ class GTN_Master(GTN_Base):
 
         # self.bohb_next_run_counter = 0
 
+        # For Communication Purposes
+        self.started_at_time = datetime.now()
+        self.minutes_till_reading = 1
+
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
 
@@ -86,6 +95,11 @@ class GTN_Master(GTN_Base):
             print('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
             print('-- Master: write worker inputs' + ' ' + str(time.time() - t1))
             self.write_worker_inputs(it)
+
+            while not x_minutes_passed(start=self.started_at_time, end=datetime.now(), minutes_passed=self.minutes_till_reading):
+                time.sleep(self.time_sleep_master)
+
+
             print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
 
