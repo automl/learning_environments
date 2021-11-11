@@ -27,6 +27,6 @@ if __name__ == "__main__":
 
     bohb_id = args.bohb_id
     id = args.id
-    start_communication_thread(args=args)
+    start_communication_thread(args=vars(args))
     worker = GTN_Worker(bohb_id=bohb_id, id=id)
     worker.run()
