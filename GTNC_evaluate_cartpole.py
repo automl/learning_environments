@@ -68,7 +68,6 @@ class ExperimentWrapper():
         print('----------------------------')
 
         try:
-            start_communication_thread(self.args)
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
             _, score_list = gtn.run()
             score = len(score_list)
