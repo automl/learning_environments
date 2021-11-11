@@ -76,5 +76,5 @@ if __name__ == "__main__":
     # get BOHB log directory
     working_dir = get_working_dir(run_id)
 
-    res = compute(working_dir=working_dir, bohb_id=args.bohb_id)
+    res = compute(w_dir=working_dir, bohb_id=args.bohb_id)
     print("FINAL: ", res)
