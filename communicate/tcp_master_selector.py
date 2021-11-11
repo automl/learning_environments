@@ -1,14 +1,9 @@
-import os
-import time
-import argparse
 import selectors
 import socket
 import threading
 import gzip
 import os
 import pickle
-from datetime import datetime, time as datetime_time, timedelta
-from copy import deepcopy
 
 my_selector = selectors.DefaultSelector()
 keep_running = True
@@ -16,18 +11,6 @@ keep_running = True
 connections_for_later = {}
 lost_connections = {}
 connections_response_time = {}
-
-
-def time_diff(start, end):
-    if isinstance(start, datetime_time):  # convert to datetime
-        assert isinstance(end, datetime_time)
-        start, end = [datetime.combine(datetime.min, t) for t in [start, end]]
-    if start <= end:  # e.g., 10:33:26-11:15:49
-        return end - start
-    else:  # end < start e.g., 23:55:00-00:25:00
-        end += timedelta(1)  # +day
-        assert end > start
-        return end - start
 
 
 def work_with_sent_data(data, ip, port):
