@@ -2,7 +2,7 @@
 #MSUB -N workerSE
 #MOAB -t 1-16 # specifies array job indices
 #MSUB -l nodes=1:ppn=1
-#MSUB -l walltime=00:01:00:00
+#MSUB -l walltime=00:02:00:00
 #MSUB -l pmem=6gb
 #MSUB -d /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/
 #MSUB -o /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/out_std_${MOAB_JOBID}.out
