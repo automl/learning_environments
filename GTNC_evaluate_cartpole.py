@@ -1,17 +1,29 @@
 import datetime
 import time
-import sys
 import traceback
 import yaml
 import ConfigSpace as CS
-import ConfigSpace.hyperparameters as CSH
 import random
 import numpy as np
 import torch
 from copy import deepcopy
 from agents.GTN import GTN_Master
-from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
+from automl.bohb_optim import run_bohb_parallel
 from communicate.tcp_master_selector import start_communication_thread
+import argparse
+
+
+def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--bohb_id", type=int, default=5000)
+    parser.add_argument("--id", type=int)
+    parser.add_argument("--moab_id", type=str)
+    parser.add_argument("--port", type=int, default=10000)
+    parser.add_argument("--min_workers", type=int, default=2, help="Minimum number of workers that have to be active, before we otherwise abort")
+    parser.add_argument("--number_workers", type=int, default=10000, help="Total number of workers for this experiment")
+    parser.add_argument("--mode", type=str, choices=["worker", "master"], default="worker", help="either it is a worker or the one master")
+    args = parser.parse_args()
+    return args
 
 
 def seed_experiment(number):
@@ -87,20 +99,13 @@ if __name__ == "__main__":
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
-    if len(sys.argv) > 1:  # eg 5000 1
-        print("if len(sys.argv) > 1:")
+    args = my_parse()
 
-        for arg in sys.argv[1:]:
-            print(arg)
+    start_communication_thread(args=args)
 
-        seed_experiment(number=int(sys.argv[1]))
-        res = run_bohb_parallel(id=int(sys.argv[1]),
-                                bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
-                                run_id=run_id,
-                                experiment_wrapper=ExperimentWrapper())
-    else:
-        print("else CASE")
+    seed_experiment(number=args.bohb_id)
 
-        seed_experiment(number=int(sys.argv[1]))
-        res = run_bohb_serial(run_id=run_id,
-                              experiment_wrapper=ExperimentWrapper())
+    res = run_bohb_parallel(id=args.bohb_id,
+                            bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
+                            run_id=run_id,
+                            experiment_wrapper=ExperimentWrapper())

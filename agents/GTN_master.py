@@ -1,3 +1,5 @@
+import copy
+
 import torch
 import torch.nn as nn
 import os
@@ -12,10 +14,22 @@ from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from utils import calc_abs_param_sum
 from communicate.helpers_communication import time_diff, x_minutes_passed
+from communicate.tcp_master_selector import connections_for_later, lost_connections
 
 
-def make_list_of_all_workers_available():
-    raise NotImplementedError
+def make_list_of_all_workers_available(ids_in_master: dict):
+    for key in lost_connections.keys():
+        ids_in_master.pop(key)
+
+
+def populate_ids():
+    return copy.deepcopy(connections_for_later)
+
+
+def get_ids(id_dict: dict):
+    list = [val["id"] for k, val in id_dict.items()]
+    return list
+
 
 class GTN_Master(GTN_Base):
     def __init__(self, config, bohb_id=-1, bohb_working_dir=None):
@@ -83,6 +97,7 @@ class GTN_Master(GTN_Base):
         # For Communication Purposes
         self.started_at_time = datetime.now()
         self.minutes_till_reading = 1
+        self.available_ids = None
 
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
@@ -99,6 +114,8 @@ class GTN_Master(GTN_Base):
             while not x_minutes_passed(start=self.started_at_time, end=datetime.now(), minutes_passed=self.minutes_till_reading):
                 time.sleep(self.time_sleep_master)
 
+            # X minutes passsed -> we make a list of available workers:
+            self.available_ids = copy.deepcopy(connections_for_later)
 
             print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
@@ -162,14 +179,10 @@ class GTN_Master(GTN_Base):
         timeout = self.calc_worker_timeout()
         print('timeout: ' + str(timeout))
 
-        for id in range(self.num_workers):
+        for id in get_ids(self.available_ids):
 
             file_name = self.get_input_file_name(id=id)
             check_file_name = self.get_input_check_file_name(id=id)
-
-            # wait until worker has deleted the file (i.e. acknowledged the previous input)
-            while os.path.isfile(file_name):
-                time.sleep(self.time_sleep_master)
 
             time.sleep(self.time_sleep_master)
 
@@ -189,24 +202,41 @@ class GTN_Master(GTN_Base):
             torch.save(data, file_name)
             torch.save({}, check_file_name)
 
+    def remove_id(self, id):
+        key_to_delete = None
+        for k,v in self.available_ids.items():
+            if v["id"] == id:
+                key_to_delete = k
+        assert key_to_delete is not None, "key_to_delete was None"
+        self.available_ids.pop(key_to_delete)
+
+    def update_ids_to_check(self):
+        for k,v in lost_connections:
+            if k in self.available_ids:
+                self.available_ids.pop(k)
+
     def read_worker_results(self):
-        for id in range(self.num_workers):
-            file_name = self.get_result_file_name(id)
-            check_file_name = self.get_result_check_file_name(id)
+        while len(self.available_ids) > 0:
+            self.update_ids_to_check()
+            for id in get_ids(self.available_ids):
+                file_name = self.get_result_file_name(id)
+                check_file_name = self.get_result_check_file_name(id)
 
-            # wait until worker has finished calculations
-            while not os.path.isfile(check_file_name):
-                time.sleep(self.time_sleep_master)
+                # wait until worker has finished calculations
+                if not os.path.isfile(check_file_name):
+                    continue
+                else:
+                    self.remove_id(id)
 
-            data = torch.load(file_name)
-            self.time_elapsed_list[id] = data['time_elapsed']
-            self.score_list[id] = data['score']
-            self.eps_list[id].load_state_dict(data['eps'])
-            self.score_orig_list[id] = data['score_orig']
-            self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
+                data = torch.load(file_name)
+                self.time_elapsed_list[id] = data['time_elapsed']
+                self.score_list[id] = data['score']
+                self.eps_list[id].load_state_dict(data['eps'])
+                self.score_orig_list[id] = data['score_orig']
+                self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
 
-            os.remove(check_file_name)
-            os.remove(file_name)
+                os.remove(check_file_name)
+                os.remove(file_name)
 
     def score_transform(self):
         scores = np.asarray(self.score_list)
