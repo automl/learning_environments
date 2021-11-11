@@ -218,11 +218,14 @@ class GTN_Master(GTN_Base):
 
     def read_worker_results(self):
         counter = 1
+        checked_this_iteration = []
         while len(self.available_ids) > 0:
             self.update_ids_to_check()
             print(f"reading: counter={counter} | len(self.available_ids) = {len(self.available_ids)}")
             counter += 1
             for id in get_ids(self.available_ids):
+                if id in checked_this_iteration:
+                    continue
                 file_name = self.get_result_file_name(id)
                 check_file_name = self.get_result_check_file_name(id)
 
@@ -231,6 +234,7 @@ class GTN_Master(GTN_Base):
                     continue
                 else:
                     self.remove_id(id)
+                    checked_this_iteration.append(id)
 
                 data = torch.load(file_name)
                 self.time_elapsed_list[id] = data['time_elapsed']
