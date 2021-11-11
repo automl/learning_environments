@@ -212,6 +212,7 @@ class GTN_Master(GTN_Base):
         self.available_ids.pop(key_to_delete)
 
     def update_ids_to_check(self):
+        print("popping")
         for k,v in lost_connections:
             if k in self.available_ids:
                 self.available_ids.pop(k)
@@ -221,7 +222,6 @@ class GTN_Master(GTN_Base):
         checked_this_iteration = []
         while len(self.available_ids) > 0:
             self.update_ids_to_check()
-            print(f"reading: counter={counter} | len(self.available_ids) = {len(self.available_ids)}")
             counter += 1
             for id in get_ids(self.available_ids):
                 if id in checked_this_iteration:
@@ -233,6 +233,7 @@ class GTN_Master(GTN_Base):
                 if not os.path.isfile(check_file_name):
                     continue
                 else:
+                    print(f"found: {check_file_name}")
                     self.remove_id(id)
                     checked_this_iteration.append(id)
 
