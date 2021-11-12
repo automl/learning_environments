@@ -130,34 +130,34 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[3],
+                'train: synth., HPs: fixed': data_list[3],
 
-                    'train: synth., HPs: varied (5 best)': data_list[2],
-                    }
+                'train: synth., HPs: varied (5 best)': data_list[2],
+            }
         else:
             data_dict = {
-                    'train: real': data_list[0],
+                'train: real': data_list[0],
 
-                    'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied': data_list[1],
 
-                    'train: synth., HPs: fixed': data_list[2],
-                    }
+                'train: synth., HPs: fixed': data_list[2],
+            }
 
         df = pd.DataFrame(data=data_dict)
         df = df.melt(value_name="cumulative rewards", var_name="type")
 
         sns.set_context(rc={
-                "font.size": 13,
-                "axes.titlesize": 13,
-                "axes.labelsize": 11,
-                "legend.fontsize": 11,
-                "xtick.labelsize": 11,
-                "ytick.labelsize": 9
-                })
+            "font.size": 13,
+            "axes.titlesize": 13,
+            "axes.labelsize": 11,
+            "legend.fontsize": 11,
+            "xtick.labelsize": 11,
+            "ytick.labelsize": 9
+        })
 
         if i == 0:
             title += " (Acrobot-v1)"
@@ -168,7 +168,6 @@ if __name__ == "__main__":
             palette = ["C0", "C1", "C2", "k"]
         else:
             palette = ["C0", "C1", "C2"]
-
 
         ax = axes[i]
 

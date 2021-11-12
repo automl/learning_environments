@@ -90,18 +90,18 @@ if __name__ == "__main__":
         print('train on real env')
         _, _, _, step_times_real_env = agent.train(env=real_env, time_remaining=time_remaining_real)
         step_times_per_episode_real_env[real_env.env.env_name + "_" + str(i)] = {
-                "step_times_per_episode_real_env": step_times_real_env,
-                "step_times_mean": np.mean(np.concatenate(step_times_real_env)),
-                "step_times_std": np.std(np.concatenate(step_times_real_env))
-                }
+            "step_times_per_episode_real_env": step_times_real_env,
+            "step_times_mean": np.mean(np.concatenate(step_times_real_env)),
+            "step_times_std": np.std(np.concatenate(step_times_real_env))
+        }
 
         print('train on syn env')
         _, _, _, step_times_syn_env = agent.train(env=syn_env, time_remaining=time_remaining_syn)
         step_times_per_episode_syn_env[file_name] = {
-                "step_times_per_episode_syn_env": step_times_syn_env,
-                "step_times_mean": np.mean(np.concatenate(step_times_syn_env)),
-                "step_times_std": np.std(np.concatenate(step_times_syn_env))
-                }
+            "step_times_per_episode_syn_env": step_times_syn_env,
+            "step_times_mean": np.mean(np.concatenate(step_times_syn_env)),
+            "step_times_std": np.std(np.concatenate(step_times_syn_env))
+        }
 
     file_name = os.path.join(os.getcwd(), experiment_name + '.pt')
     save_dict = {}

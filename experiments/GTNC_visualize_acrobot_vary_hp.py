@@ -53,21 +53,21 @@ if __name__ == "__main__":
         episode_num_needed_stds.append(std_episode_num)
 
     data_dict = {
-            'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[0], episode_num_needed_stds[0]): data_list[0],
-            'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[1], episode_num_needed_stds[1]): data_list[1],
-            'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
-            }
+        'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[0], episode_num_needed_stds[0]): data_list[0],
+        'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[1], episode_num_needed_stds[1]): data_list[1],
+        'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[2], episode_num_needed_stds[2]): data_list[2]
+    }
 
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
-            "font.size": 8.5,
-            "axes.titlesize": 8,
-            "axes.labelsize": 8
-            })
+        "font.size": 8.5,
+        "axes.titlesize": 8,
+        "axes.labelsize": 8
+    })
     ax = sns.violinplot(data=df, cut=0, inner=None)
     # ax = sns.violinplot(data=df, cut=0, inner=None).set_title(title, y=1.05)
     plt.ylabel(title + '\ncumulative reward')

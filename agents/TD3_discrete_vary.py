@@ -126,14 +126,14 @@ class TD3_discrete_vary(BaseAgent):
         cs = CS.ConfigurationSpace()
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=lr / 3, upper=lr * 3, log=True, default_value=lr))
         cs.add_hyperparameter(
-                CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(batch_size / 3), upper=int(batch_size * 3), log=True,
-                                                 default_value=batch_size))
+            CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(batch_size / 3), upper=int(batch_size * 3), log=True,
+                                             default_value=batch_size))
         cs.add_hyperparameter(
-                CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,
-                                                 default_value=hidden_size))
+            CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,
+                                             default_value=hidden_size))
         cs.add_hyperparameter(
-                CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=hidden_layer - 1, upper=hidden_layer + 1, log=False,
-                                                 default_value=hidden_layer))
+            CSH.UniformIntegerHyperparameter(name='hidden_layer', lower=hidden_layer - 1, upper=hidden_layer + 1, log=False,
+                                             default_value=hidden_layer))
 
         config = cs.sample_configuration()
 

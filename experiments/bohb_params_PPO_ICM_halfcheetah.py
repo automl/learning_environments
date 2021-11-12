@@ -11,6 +11,7 @@ import numpy as np
 
 NUM_EVALS = 3
 
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -22,7 +23,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -33,7 +33,6 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='hidden_size', lower=16, upper=256, log=True, default_value=128))
 
         return cs
-
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
@@ -64,7 +63,6 @@ class ExperimentWrapper():
         config['agents']['ppo']['early_out_num'] = 50
         config['agents']['ppo']['early_out_virtual_diff'] = 0.02
 
-
         config["agents"]["icm"]["lr"] = cso["lr"]
         config["agents"]["icm"]["beta"] = cso["beta"]
         config["agents"]["icm"]["eta"] = cso["eta"]
@@ -73,7 +71,6 @@ class ExperimentWrapper():
         config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_halfcheetah.yaml", 'r') as stream:

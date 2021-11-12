@@ -9,54 +9,53 @@ case_name = "reward_maximization"
 
 def auc():
     return [
-            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
-            '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            ]
+        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/3_rn_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
+    ]
 
 
 def normal():
     return [
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-            # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
-            ]
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
+        # '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt'
+    ]
 
 
 def reward_maximization():
     return [
-            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
-            '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
-            '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt',
-            ]
+        '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/4_rn_reward/cliff_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/cliff_compare_reward_envs/best_transfer_vary_hp-1_opt.pt',
+    ]
+
 
 case = {
-        "normal": normal,
-        "auc": auc,
-        "reward_maximization": reward_maximization,
-        }
-
-
+    "normal": normal,
+    "auc": auc,
+    "reward_maximization": reward_maximization,
+}
 
 LEGEND = [
-        'QL + exc. pot. RN',
-        'QL + add. pot. RN',
-        'QL + exc. non-pot. RN',
-        'QL + add. non-pot. RN',
-        'QL',
-        'QL + count-based expl.',
-        # 'QL + count-based expl. (tuned)'
-        ]
+    'QL + exc. pot. RN',
+    'QL + add. pot. RN',
+    'QL + exc. non-pot. RN',
+    'QL + add. non-pot. RN',
+    'QL',
+    'QL + count-based expl.',
+    # 'QL + count-based expl. (tuned)'
+]
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 5000
@@ -128,7 +127,6 @@ def plot_data(proc_data, savefig_name):
 
     for legobj in leg.legendHandles:
         legobj.set_linewidth(2.0)
-
 
     # plt.xlim(0,99)
     plt.subplots_adjust(bottom=0.15, left=0.15)

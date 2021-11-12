@@ -24,7 +24,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -52,7 +51,6 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
@@ -63,12 +61,12 @@ class ExperimentWrapper():
 
         config["agents"]['ddqn']['init_episodes'] = cso["ddqn_init_episodes"]
         config["agents"]['ddqn']['batch_size'] = cso["ddqn_batch_size"]
-        config["agents"]['ddqn']['gamma'] = 1-cso["ddqn_gamma"]
+        config["agents"]['ddqn']['gamma'] = 1 - cso["ddqn_gamma"]
         config["agents"]['ddqn']['lr'] = cso["ddqn_lr"]
         config["agents"]['ddqn']['tau'] = cso["ddqn_tau"]
         config["agents"]['ddqn']['eps_init'] = cso["ddqn_eps_init"]
         config["agents"]['ddqn']['eps_min'] = cso["ddqn_eps_min"]
-        config["agents"]['ddqn']['eps_decay'] = 1-cso["ddqn_eps_decay"]
+        config["agents"]['ddqn']['eps_decay'] = 1 - cso["ddqn_eps_decay"]
         config["agents"]['ddqn']['same_action_num'] = cso["ddqn_same_action_num"]
         config["agents"]['ddqn']['activation_fn'] = cso["ddqn_activation_fn"]
         config["agents"]['ddqn']['hidden_size'] = cso["ddqn_hidden_size"]
@@ -79,7 +77,6 @@ class ExperimentWrapper():
         config["envs"]['MountainCar-v0']['hidden_layer'] = cso["mountaincar_hidden_layer"]
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_mountaincar.yaml", 'r') as stream:
@@ -131,10 +128,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1])+int(time.time()))
-        np.random.seed(int(sys.argv[1])+int(time.time()))
-        torch.manual_seed(int(sys.argv[1])+int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
+        random.seed(int(sys.argv[1]) + int(time.time()))
+        np.random.seed(int(sys.argv[1]) + int(time.time()))
+        torch.manual_seed(int(sys.argv[1]) + int(time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1]) + int(time.time()))
         res = run_bohb_parallel(id=int(sys.argv[1]),
                                 bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,

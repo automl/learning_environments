@@ -13,6 +13,7 @@ from experiments.syn_env_run_vary_hp import run_vary_hp
 filter_models_list = ["Acrobot-v1_223R5W.pt", "Acrobot-v1_2XMO40.pt", "Acrobot-v1_7DQP5Z.pt",
                       "Acrobot-v1_8MYN67.pt", "Acrobot-v1_9MA9G8.pt"]
 
+
 # filter_models_list = None
 
 def load_envs_and_config(file_name, model_dir, device):

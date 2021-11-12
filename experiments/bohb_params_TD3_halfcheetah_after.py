@@ -18,15 +18,15 @@ MODE = int(sys.argv[3])
 if MODE == 2:
     SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
     CONFIG_FILE = 'default_config_halfcheetah_td3_opt_2.yaml'
-    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
+    # SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-26-19_2/GTN_models_HalfCheetah-v3/HalfCheetah-v3_ZW3ZIL.pt'
 elif MODE == 4:
     SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
     CONFIG_FILE = 'default_config_halfcheetah_td3_opt_4.yaml'
-    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
+    # SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-31-13_4/GTN_models_HalfCheetah-v3/HalfCheetah-v3_96MQNQ.pt'
 elif MODE == 102:
     SAVE_FILE = '/home/fr/fr_fr/fr_tn87/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
     CONFIG_FILE = 'default_config_halfcheetah_td3_opt_102.yaml'
-    #SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
+    # SAVE_FILE = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_params_2020-12-29-19_102/GTN_models_HalfCheetah-v3/HalfCheetah-v3_XB6ARP.pt'
 
 
 class ExperimentWrapper():
@@ -39,7 +39,6 @@ class ExperimentWrapper():
         params['random_fraction'] = 0.3
 
         return params
-
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
@@ -60,12 +59,11 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
-        config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
+        config["agents"]['td3']['gamma'] = 1 - cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
         config["agents"]['td3']['tau'] = cso["td3_tau"]
         config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
@@ -77,10 +75,9 @@ class ExperimentWrapper():
         config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
         config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
-        #config["device"] = 'cuda'
+        # config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open(CONFIG_FILE, 'r') as stream:
@@ -102,7 +99,7 @@ class ExperimentWrapper():
         real_env = env_fac.generate_real_env()
         reward_env = env_fac.generate_reward_env()
         save_dict = torch.load(SAVE_FILE)
-        #config = save_dict['config']
+        # config = save_dict['config']
         reward_env.load_state_dict(save_dict['model'])
 
         score = 0
@@ -115,9 +112,9 @@ class ExperimentWrapper():
             avg_reward_test = statistics.mean(reward_list_test)
 
             unsolved_weight = config["agents"]["gtn"]["unsolved_weight"]
-            score += len(reward_list_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*unsolved_weight
+            score += len(reward_list_train) + max(0, (real_env.get_solved_reward() - avg_reward_test)) * unsolved_weight
 
-        score = score/NUM_EVALS
+        score = score / NUM_EVALS
 
         info['config'] = str(config)
 

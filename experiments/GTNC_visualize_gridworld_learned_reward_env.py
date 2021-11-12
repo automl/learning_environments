@@ -6,7 +6,6 @@ import hpbandster.core.result as hpres
 from envs.env_factory import EnvFactory
 import matplotlib.pyplot as plt
 
-
 # from gridworld.py
 G_RIGHT = 0
 G_LEFT = 1
@@ -16,6 +15,7 @@ G_UP = 3
 LOG_DIR = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cliff_2021-02-09-21_5'
 MODEL_NUM = 50
 SIMPLIFY = False
+
 
 def idx_to_xy(idx, n):
     x = idx // n
@@ -85,7 +85,6 @@ def eval_models(log_dir):
                     else:
                         reward_dict[(state, action)].append(reward.item())
 
-
     return reward_dict, info_dict
 
 
@@ -101,20 +100,20 @@ def map_intensity_to_color(intensity):
 
 
 def draw_filled_polygon(state, action, n, intensity):
-    x,y = idx_to_xy(state, n)
+    x, y = idx_to_xy(state, n)
 
     if action == G_RIGHT:
-        xs = [x+0.5, x+0.5, x]
-        ys = [y-0.5, y+0.5, y]
+        xs = [x + 0.5, x + 0.5, x]
+        ys = [y - 0.5, y + 0.5, y]
     elif action == G_LEFT:
-        xs = [x-0.5, x-0.5, x]
-        ys = [y-0.5, y+0.5, y]
+        xs = [x - 0.5, x - 0.5, x]
+        ys = [y - 0.5, y + 0.5, y]
     elif action == G_DOWN:
-        xs = [x-0.5, x+0.5, x]
-        ys = [y-0.5, y-0.5, y]
+        xs = [x - 0.5, x + 0.5, x]
+        ys = [y - 0.5, y - 0.5, y]
     elif action == G_UP:
-        xs = [x-0.5, x+0.5, x]
-        ys = [y+0.5, y+0.5, y]
+        xs = [x - 0.5, x + 0.5, x]
+        ys = [y + 0.5, y + 0.5, y]
 
     plt.fill(xs, ys, facecolor=map_intensity_to_color(intensity))
 
@@ -138,16 +137,15 @@ def plot_models(reward_dict, info_dict):
     fig, ax = plt.subplots(dpi=600, figsize=(7, 2.5))
 
     for key, value in reward_avg_dict.items():
-        intensity = (value-min_val) / (max_val-min_val)
+        intensity = (value - min_val) / (max_val - min_val)
         state = key[0]
         action = key[1]
         draw_filled_polygon(state, action, n, intensity)
 
-
     for i in range(5):
-        plt.plot([-0.5, 11.5], [-i+0.5, -i+0.5], linewidth=0.5, color='black')
+        plt.plot([-0.5, 11.5], [-i + 0.5, -i + 0.5], linewidth=0.5, color='black')
     for i in range(13):
-        plt.plot([i-0.5, i-0.5], [0.5, -3.5], linewidth=0.5, color='black')
+        plt.plot([i - 0.5, i - 0.5], [0.5, -3.5], linewidth=0.5, color='black')
 
     # plot additional information
     x_water = [0.5, 10.5, 10.5, 0.5, 0.5]
@@ -157,15 +155,14 @@ def plot_models(reward_dict, info_dict):
     plt.text(0, -3, '(S)', size=12, ha='center', va='center')
     plt.text(11, -3, '(G)', size=12, ha='center', va='center')
 
-
     if SIMPLIFY:
         if mode == '1':
             plt.title('exclusive potential reward network (only rewards > -50)')
-        elif mode =='2':
+        elif mode == '2':
             plt.title('additive potential reward network (only rewards > -50)')
-        elif mode =='5':
+        elif mode == '5':
             plt.title('exclusive non-potential reward network (only rewards > -50)')
-        elif mode =='6':
+        elif mode == '6':
             plt.title('additive non-potential reward network (only rewards > -50)')
     else:
         if mode == '1':
@@ -187,11 +184,12 @@ def plot_models(reward_dict, info_dict):
 
     plt.show()
 
+
 def load_envs_and_config(model_file):
     save_dict = torch.load(model_file)
 
     config = save_dict['config']
-    #config['device'] = 'cuda'
+    # config['device'] = 'cuda'
     config['envs']['Cliff']['solved_reward'] = 100000  # something big enough to prevent early out triggering
 
     env_factory = EnvFactory(config=config)
@@ -205,6 +203,3 @@ def load_envs_and_config(model_file):
 if __name__ == "__main__":
     reward_dict, info_dict = eval_models(log_dir=LOG_DIR)
     plot_models(reward_dict=reward_dict, info_dict=info_dict)
-
-
-

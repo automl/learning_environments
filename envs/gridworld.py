@@ -4,7 +4,6 @@ import random
 from gym import spaces
 from gym.utils import seeding
 
-
 # 'S': start
 # 'G': goal
 # ' ': empty cell
@@ -15,6 +14,7 @@ G_RIGHT = 0
 G_LEFT = 1
 G_DOWN = 2
 G_UP = 3
+
 
 # G_LEFT = 0
 # G_UP = 1
@@ -28,7 +28,7 @@ class GridworldEnv(gym.Env):
         self.grid = grid
         self.state = None
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Discrete(m*n)
+        self.observation_space = spaces.Discrete(m * n)
         self._seed()
 
     def _seed(self, seed=None):
@@ -52,7 +52,7 @@ class GridworldEnv(gym.Env):
         for x in range(m):
             for y in range(n):
                 if self.grid[x][y] == 'S':
-                    self.state = (x,y)
+                    self.state = (x, y)
                     return self._state_to_obs(self.state)
 
         raise ValueError("No start state found")
@@ -71,19 +71,19 @@ class GridworldEnv(gym.Env):
 
         # calculate movement direction
         if action == G_LEFT:
-            x_n, y_n = x, y-1
+            x_n, y_n = x, y - 1
         elif action == G_UP:
-            x_n, y_n = x-1, y
+            x_n, y_n = x - 1, y
         elif action == G_RIGHT:
-            x_n, y_n = x, y+1
+            x_n, y_n = x, y + 1
         elif action == G_DOWN:
-            x_n, y_n = x+1, y
+            x_n, y_n = x + 1, y
         else:
             raise ValueError('Unknown action: ' + str(action))
 
         # movement limited by map boundaries
-        x_n = min(max(x_n, 0), m-1)
-        y_n = min(max(y_n, 0), n-1)
+        x_n = min(max(x_n, 0), m - 1)
+        y_n = min(max(y_n, 0), n - 1)
 
         # movement limited by wall boundaries
         if self.grid[x_n][y_n] == '#':
@@ -114,13 +114,13 @@ class GridworldEnv(gym.Env):
         n = len(self.grid[0])
         x = obs // n
         y = obs % n
-        return x,y
+        return x, y
 
     # convert from internal state representation (x,y) to observation (int)
     def _state_to_obs(self, state):
         n = len(self.grid[0])
-        x,y = state
-        obs = x*n + y
+        x, y = state
+        obs = x * n + y
         return obs
 
 
@@ -142,6 +142,7 @@ class EmptyRoom23(GridworldEnv):
         grid = [['S', ' ', ' '],
                 [' ', ' ', 'G']]
         GridworldEnv.__init__(self, grid=grid)
+
 
 class EmptyRoom33(GridworldEnv):
     def __init__(self):
@@ -209,6 +210,7 @@ class HoleRoomLarge(GridworldEnv):
 
         GridworldEnv.__init__(self, grid=grid)
 
+
 class HoleRoomLargeShifted(GridworldEnv):
     def __init__(self):
         self.step_cost = -0.01
@@ -222,6 +224,7 @@ class HoleRoomLargeShifted(GridworldEnv):
 
         GridworldEnv.__init__(self, grid=grid)
 
+
 class Cliff(GridworldEnv):
     def __init__(self):
         self.step_cost = -1
@@ -234,10 +237,11 @@ class Cliff(GridworldEnv):
 
         GridworldEnv.__init__(self, grid=grid)
 
+
 if __name__ == "__main__":
     r = Cliff()
 
     for i in range(25):
-        x,y=r._obs_to_state(i)
-        print('{} {} {} {}'.format(i,r._state_to_obs((x,y)), x, y))
-        #print(r.grid[x][y])
+        x, y = r._obs_to_state(i)
+        print('{} {} {} {}'.format(i, r._state_to_obs((x, y)), x, y))
+        # print(r.grid[x][y])

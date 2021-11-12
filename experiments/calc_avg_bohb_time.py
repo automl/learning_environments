@@ -1,8 +1,6 @@
 import statistics
 import hpbandster.core.result as hpres
 
-
-
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
@@ -31,7 +29,7 @@ if __name__ == '__main__':
         for time_stamp in dat.time_stamps.values():
             ts = time_stamp['started']
             te = time_stamp['finished']
-            if te-ts > 60:
-                t_arr.append(te-ts)
+            if te - ts > 60:
+                t_arr.append(te - ts)
 
     print(statistics.mean(t_arr))

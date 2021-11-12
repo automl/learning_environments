@@ -24,11 +24,9 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
         return cs
-
 
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
@@ -36,7 +34,6 @@ class ExperimentWrapper():
         config["envs"]['MountainCarContinuous-v0']['reward_env_type'] = reward_env_type
         config["envs"]['MountainCarContinuous-v0']['solved_reward'] = sys.maxsize  # AUC
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_cmc_reward_env.yaml", 'r') as stream:
@@ -69,7 +66,6 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('SCORE LIST:  ' + str(score_list))
@@ -92,7 +88,7 @@ if __name__ == "__main__":
     reward_env_type = int(sys.argv[3])
     run_id = 'GTNC_evaluate_auc_cmc_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
-    seed = id+int(time.time())
+    seed = id + int(time.time())
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

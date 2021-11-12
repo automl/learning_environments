@@ -20,6 +20,7 @@ mediocre = ["CartPole-v0_9_CM4I44.pt", "CartPole-v0_37_5N1W77.pt", "CartPole-v0_
 
 filter_models_list += mediocre
 
+
 def load_envs_and_config(file_name, model_dir, device):
     file_path = os.path.join(model_dir, file_name)
     save_dict = torch.load(file_path)

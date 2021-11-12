@@ -1,10 +1,8 @@
 ConfigSpace
 hpbandster
-gym[all]
+gym
 matplotlib
-mujoco-py
 numpy
 psutil
 pyyaml
 seaborn
-torch

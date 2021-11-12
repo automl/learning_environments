@@ -3,6 +3,7 @@ import torch.nn as nn
 from models.model_utils import build_nn_from_config
 from utils import from_one_hot_encoding, to_one_hot_encoding
 
+
 class RewardEnv(nn.Module):
     def __init__(self, real_env, kwargs):
         super().__init__()
@@ -25,7 +26,6 @@ class RewardEnv(nn.Module):
         self.reward_net = self.build_reward_net(kwargs)
         self.state = self.reset()
 
-
     def build_reward_net(self, kwargs):
         # 0: original reward
         # 1: potential function (exclusive)
@@ -41,7 +41,7 @@ class RewardEnv(nn.Module):
 
         if self.reward_env_type < 100:
             if self.reward_env_type == 0:
-                input_dim = 1   # dummy dimension
+                input_dim = 1  # dummy dimension
             elif self.reward_env_type == 1 or self.reward_env_type == 2 or self.reward_env_type == 5 or self.reward_env_type == 6:
                 input_dim = self.state_dim
             elif self.reward_env_type == 3 or self.reward_env_type == 4 or self.reward_env_type == 7 or self.reward_env_type == 8:
@@ -58,7 +58,6 @@ class RewardEnv(nn.Module):
             else:
                 raise NotImplementedError('Unknown reward_env_type: ' + str(self.reward_env_type))
 
-
     def step(self, action):
         next_state, reward, done, info = self.real_env.step(action)
 
@@ -66,9 +65,8 @@ class RewardEnv(nn.Module):
         self.state = next_state
         return next_state, reward_res, done, {}
 
-
     def _calc_reward(self, state, next_state, reward, info):
-        if 'TimeLimit.truncated' in info:   # remove additional information from wrapper
+        if 'TimeLimit.truncated' in info:  # remove additional information from wrapper
             info.pop('TimeLimit.truncated')
 
         reward_torch = torch.tensor(reward, device=self.device, dtype=torch.float32)
@@ -84,10 +82,10 @@ class RewardEnv(nn.Module):
             reward_res = reward_torch
 
         elif self.reward_env_type == 1:
-            reward_res = self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
+            reward_res = self.gamma * self.reward_net(next_state_torch) - self.reward_net(state_torch)
 
         elif self.reward_env_type == 2:
-            reward_res = reward_torch + self.gamma*self.reward_net(next_state_torch) - self.reward_net(state_torch)
+            reward_res = reward_torch + self.gamma * self.reward_net(next_state_torch) - self.reward_net(state_torch)
 
         elif self.reward_env_type == 3 or self.reward_env_type == 4:
             if not info:
@@ -134,24 +132,18 @@ class RewardEnv(nn.Module):
 
         return reward_res.item()
 
-
     def seed(self, seed):
         return self.real_env.seed(seed)
 
-
     def render(self):
         return self.real_env.render()
-
 
     def reset(self):
         self.state = self.real_env.reset()
         return self.state
 
-
     def close(self):
         return self.real_env.close()
 
-
     def set_agent_params(self, gamma):
         self.gamma = gamma
-

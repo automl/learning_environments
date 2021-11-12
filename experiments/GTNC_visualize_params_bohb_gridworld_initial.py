@@ -12,7 +12,6 @@ import numpy as np
 from scipy.stats import ttest_ind
 import matplotlib.pyplot as plt
 
-
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
@@ -21,8 +20,9 @@ OUTLIER_PERC_WORST = 0.0
 OUTLIER_PERC_BEST = 0.0
 MIN_SUCCESS_REWARD = 0.8
 
+
 def str2bool(v):
-  return v.lower() in ("yes", "true", "t", "1")
+    return v.lower() in ("yes", "true", "t", "1")
 
 
 def analyze_bohb(log_dir):
@@ -30,7 +30,7 @@ def analyze_bohb(log_dir):
     result = hpres.logged_results_to_HBS_result(log_dir)
 
     result = transform_result(result, min_success_reward=MIN_SUCCESS_REWARD)
-    #result = remove_outliers(result)
+    # result = remove_outliers(result)
 
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=False)
     plot_parallel_scatter(result, with_mirrored_sampling=False, with_nes_step_size=True)
@@ -64,9 +64,9 @@ def remove_outliers(result):
     worst_loss = sorted(filtered_lut, reverse=REVERSE_LOSS)[0][0]
 
     if REVERSE_LOSS:
-        worst_loss += 0.01*abs(worst_loss)
+        worst_loss += 0.01 * abs(worst_loss)
     else:
-        worst_loss -= 0.01*abs(worst_loss)
+        worst_loss -= 0.01 * abs(worst_loss)
 
     # remove NaN's
     for i in range(len(lut)):
@@ -74,11 +74,11 @@ def remove_outliers(result):
             lut[i][0] = worst_loss
             for key in result.data[lut[i][1]].results.keys():
                 result.data[lut[i][1]].results[key]['loss'] = worst_loss
-            #result.data.pop(elem[1], None)
+            # result.data.pop(elem[1], None)
 
-    lut.sort(key = lambda x: x[0], reverse=REVERSE_LOSS)
-    n_remove_worst = math.ceil(len(lut)*OUTLIER_PERC_WORST)
-    n_remove_best = math.ceil(len(lut)*OUTLIER_PERC_BEST)
+    lut.sort(key=lambda x: x[0], reverse=REVERSE_LOSS)
+    n_remove_worst = math.ceil(len(lut) * OUTLIER_PERC_WORST)
+    n_remove_best = math.ceil(len(lut) * OUTLIER_PERC_BEST)
 
     # remove percentage of worst values
     for i in range(n_remove_worst):
@@ -111,7 +111,7 @@ def filter_values(result):
 
 
 def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
-    plt.subplots(dpi=300, figsize=(4,4))
+    plt.subplots(dpi=300, figsize=(4, 4))
 
     min_step_size = 1e9
     max_step_size = -1e9
@@ -156,13 +156,13 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         if max_step_size / min_step_size > 10:
             for k in range(len(values[i])):
                 step_size, loss = values[i][k]
-                xs[k] = i+1 + np.random.uniform(-x_dev, x_dev)
+                xs[k] = i + 1 + np.random.uniform(-x_dev, x_dev)
                 ys[k] = linear_interpolation(np.log(step_size), np.log(min_step_size), np.log(max_step_size), 0, 1)
         # linear scale
         else:
             for k in range(len(values[i])):
                 step_size, loss = values[i][k]
-                xs[k] = i+1 + np.random.uniform(-x_dev, x_dev)
+                xs[k] = i + 1 + np.random.uniform(-x_dev, x_dev)
                 ys[k] = linear_interpolation(step_size, min_step_size, max_step_size, 0, 1)
 
         for k in range(len(values[i])):
@@ -173,10 +173,9 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
         plt.scatter(xs, ys, s=rad, c=colors, alpha=alpha, edgecolors='none')
 
     if max_step_size / min_step_size > 10:
-        val050 = np.exp((np.log(min_step_size)+np.log(max_step_size))/2)
+        val050 = np.exp((np.log(min_step_size) + np.log(max_step_size)) / 2)
     else:
         val050 = linear_interpolation(0.50, 0, 1, min_step_size, max_step_size)
-
 
     if with_nes_step_size:
         nes_string = 'w/ NES step size'
@@ -190,7 +189,7 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
 
     plt.title(mir_string + ', ' + nes_string)
     plt.yticks([0, 0.5, 1], [str(f"{Decimal(min_step_size):.1E}"), str(f"{Decimal(val050):.1E}"), str(f"{Decimal(max_step_size):.1E}")])
-    plt.xticks(np.arange(8)+1, ('linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'single better', 'all better 1', 'all better 2'), rotation=90)
+    plt.xticks(np.arange(8) + 1, ('linear transf.', 'rank transf.', 'NES', 'NES unnorm.', 'single best', 'single better', 'all better 1', 'all better 2'), rotation=90)
 
     plt.show()
 
@@ -198,6 +197,7 @@ def plot_parallel_scatter(result, with_mirrored_sampling, with_nes_step_size):
 def linear_interpolation(x, x0, x1, y0, y1):
     # linearly interpolate between two x/y values for a given x value
     return y0 + (y1 - y0) * (x - x0) / (x1 - x0 + 1e-9)
+
 
 def map_to_zero_one_range(loss, loss_m, loss_M):
     if loss_M < 1 and loss_m > 0 and REVERSE_LOSS == False:
@@ -208,13 +208,14 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
         acc = -loss
     else:
         # normalize loss to the 0 (bad) - 1(good) range
-        acc = (loss-loss_m) / (loss_M - loss_m)
+        acc = (loss - loss_m) / (loss_M - loss_m)
         if REVERSE_LOSS:
-            acc = 1-acc
+            acc = 1 - acc
 
     acc = acc ** EXP_LOSS
 
     return acc
+
 
 def get_color(acc):
     if acc <= 0:
@@ -226,15 +227,14 @@ def get_color(acc):
     else:
         return np.array([[0, 1, 0]])
 
+
 def get_bright_random_color():
     h, s, l = random.random(), 1, 0.5
     return colorsys.hls_to_rgb(h, l, s)
 
+
 if __name__ == '__main__':
-    #log_dir = '../results/TD3_params_bohb_2020-07-07-12'
-    #log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
+    # log_dir = '../results/TD3_params_bohb_2020-07-07-12'
+    # log_dir = '../results/GTN_params_reduced_bohb_2020-07-18-06-pen-latest-greatest2'
     log_dir = '../results/GTNC_params_bohb_gridworld_initial_2020-11-10-12'
     analyze_bohb(log_dir)
-
-
-

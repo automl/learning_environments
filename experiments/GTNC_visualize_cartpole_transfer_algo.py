@@ -9,55 +9,55 @@ case_name = "reward_maximization"
 
 def auc():
     return [
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo1.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo2.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
-            # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
-            ]
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo1.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
+        # '../results/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
+    ]
 
 
 def normal():
     return [
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo2.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
-            # '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
-            ]
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
+        # '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
+    ]
 
 
 def reward_maximization():
     return [
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo1.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo2.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo5.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
-            # '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
-            ]
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo1.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo0.pt',
+        # '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best_transfer_algo-1_icm_opt.pt',  # optimizing ICM HPs did not help
+    ]
 
 
 case = {
-        "normal": normal,
-        "auc": auc,
-        "reward_maximization": reward_maximization,
-        }
+    "normal": normal,
+    "auc": auc,
+    "reward_maximization": reward_maximization,
+}
 
 LEGEND = [
-        'Duel.-DDQN + exc. pot. RN',
-        'Duel.-DDQN + add. pot. RN',
-        'Duel.-DDQN + exc. non-pot. RN',
-        'Duel.-DDQN + add. non-pot. RN',
-        'Duel.-DDQN',
-        'Duel.-DDQN + ICM',
-        # 'Duel.-DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
-        ]
+    'Duel.-DDQN + exc. pot. RN',
+    'Duel.-DDQN + add. pot. RN',
+    'Duel.-DDQN + exc. non-pot. RN',
+    'Duel.-DDQN + add. non-pot. RN',
+    'Duel.-DDQN',
+    'Duel.-DDQN + ICM',
+    # 'Duel.-DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
+]
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 50000

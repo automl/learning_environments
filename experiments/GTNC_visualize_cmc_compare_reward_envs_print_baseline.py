@@ -4,6 +4,7 @@ import numpy as np
 
 LOG_FILE = '../results/cmc_compare_reward_envs/best0.pt'
 
+
 def get_data():
     data = torch.load(LOG_FILE)
     reward_list = data['reward_list']
@@ -19,6 +20,3 @@ def get_data():
 
 if __name__ == "__main__":
     proc_data = get_data()
-
-
-

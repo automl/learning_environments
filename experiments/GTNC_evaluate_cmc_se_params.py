@@ -26,7 +26,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -56,7 +55,6 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
@@ -67,7 +65,7 @@ class ExperimentWrapper():
 
         config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
-        config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
+        config["agents"]['td3']['gamma'] = 1 - cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
         config["agents"]['td3']['tau'] = cso["td3_tau"]
         config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
@@ -88,7 +86,6 @@ class ExperimentWrapper():
         config["agents"]['gtn']['synthetic_env_type'] = 0
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_cmc.yaml", 'r') as stream:
@@ -123,7 +120,6 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('SCORE LIST:  ' + str(score_list))
@@ -144,7 +140,7 @@ if __name__ == "__main__":
 
     run_id = 'SE_evaluate_cmc_se_params_' + x.strftime("%Y-%m-%d-%H")
 
-    seed = id+int(time.time())
+    seed = id + int(time.time())
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

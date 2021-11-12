@@ -10,6 +10,7 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 NUM_EVALS = 1
 
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -20,7 +21,6 @@ class ExperimentWrapper():
         params['random_fraction'] = 0.3
 
         return params
-
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
@@ -33,22 +33,20 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
-        config["agents"]['ql']['alpha'] = 1-cso["ql_alpha"]
-        config["agents"]['ql']['gamma'] = 1-cso["ql_gamma"]
+        config["agents"]['ql']['alpha'] = 1 - cso["ql_alpha"]
+        config["agents"]['ql']['gamma'] = 1 - cso["ql_gamma"]
         config["agents"]['ql']['eps_init'] = cso["ql_eps_init"]
         config["agents"]['ql']['eps_min'] = cso["ql_eps_min"]
-        config["agents"]['ql']['eps_decay'] = 1-cso["ql_eps_decay"]
+        config["agents"]['ql']['eps_decay'] = 1 - cso["ql_eps_decay"]
 
         config["agents"]['ql']['test_episodes'] = 1
 
         config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_gridworld.yaml", 'r') as stream:
@@ -74,7 +72,7 @@ class ExperimentWrapper():
             rewards, _, _ = ql.train(env=real_env, test_env=real_env)
             score += len(rewards)
 
-        score = score/NUM_EVALS
+        score = score / NUM_EVALS
 
         info['config'] = str(config)
 

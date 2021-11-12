@@ -11,6 +11,7 @@ MAX_VALS = 100
 STD_MULT = 0.5
 SOLVED_REWARD = 0.8
 
+
 def get_data(finish_after_solved):
     list_data = []
     for log_dir in LOG_DIRS:
@@ -27,9 +28,9 @@ def get_data(finish_after_solved):
             config = id2conf[config_id]['config']
 
             if finish_after_solved:
-                for k in range(1,len(avg_rewards)):
-                    if avg_rewards[k-1] > SOLVED_REWARD:
-                        avg_rewards[k] = avg_rewards[k-1]
+                for k in range(1, len(avg_rewards)):
+                    if avg_rewards[k - 1] > SOLVED_REWARD:
+                        avg_rewards[k] = avg_rewards[k - 1]
 
             data.append(avg_rewards)
         list_data.append(data)
@@ -39,21 +40,21 @@ def get_data(finish_after_solved):
 
     n = len(list_data[0][0])
     for data in list_data:
-        np_data = np.zeros([MAX_VALS,n])
+        np_data = np.zeros([MAX_VALS, n])
 
         for i in range(len(np_data)):
             np_data[i] = np.array(data[i])
 
-        mean = np.mean(np_data,axis=0)
-        std = np.std(np_data,axis=0)
+        mean = np.mean(np_data, axis=0)
+        std = np.std(np_data, axis=0)
 
-        proc_data.append((mean,std))
+        proc_data.append((mean, std))
 
     return proc_data
 
 
 def plot_data(data, savefig_name):
-    fig, ax = plt.subplots(dpi=600, figsize=(5,4))
+    fig, ax = plt.subplots(dpi=600, figsize=(5, 4))
     colors = []
     #
     # for mean, _ in data_w:
@@ -63,15 +64,16 @@ def plot_data(data, savefig_name):
     for i, data in enumerate(data):
         mean, std = data
         plt.plot(mean)
-        plt.fill_between(x=range(len(mean)), y1=mean-std*STD_MULT, y2=mean+std*STD_MULT, alpha=0.1)
+        plt.fill_between(x=range(len(mean)), y1=mean - std * STD_MULT, y2=mean + std * STD_MULT, alpha=0.1)
 
     plt.legend(('2x2 grid world', '2x3 grid world', '3x3 grid world'))
-    plt.xlim(0,49)
+    plt.xlim(0, 49)
     plt.ylim(-0.2, 1)
     plt.xlabel('ES iteration')
     plt.ylabel('average reward')
     plt.savefig(savefig_name)
     plt.show()
+
 
 if __name__ == "__main__":
     data = get_data(finish_after_solved=False)
@@ -79,5 +81,3 @@ if __name__ == "__main__":
 
     data = get_data(finish_after_solved=True)
     plot_data(data, savefig_name='gridworld_success_finish.png')
-
-

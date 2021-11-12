@@ -15,25 +15,25 @@ class ICMModel(nn.Module):
         self.has_discrete_actions = has_discrete_actions
 
         nn_features_config = {
-                'hidden_size': hidden_size,
-                'hidden_layer': 2,
-                'activation_fn': "leakyrelu"
-                }
+            'hidden_size': hidden_size,
+            'hidden_layer': 2,
+            'activation_fn': "leakyrelu"
+        }
         nn_inverse_config = {
-                'hidden_size': hidden_size,
-                'hidden_layer': 2,
-                'activation_fn': "relu"
-                }
+            'hidden_size': hidden_size,
+            'hidden_layer': 2,
+            'activation_fn': "relu"
+        }
         nn_forward_pre_config = {
-                'hidden_size': hidden_size,
-                'hidden_layer': 2,
-                'activation_fn': "leakyrelu"
-                }
+            'hidden_size': hidden_size,
+            'hidden_layer': 2,
+            'activation_fn': "leakyrelu"
+        }
         nn_forward_post_config = {
-                'hidden_size': hidden_size,
-                'hidden_layer': 1,
-                'activation_fn': "leakyrelu"
-                }
+            'hidden_size': hidden_size,
+            'hidden_layer': 1,
+            'activation_fn': "leakyrelu"
+        }
 
         if self.has_discrete_actions and self.action_dim == 2:
             action_dim = 1
@@ -54,12 +54,12 @@ class ICMModel(nn.Module):
             def __init__(self, input_dim, output_dim):
                 super().__init__()
                 self.fc1 = nn.Sequential(
-                        nn.Linear(input_dim, output_dim),
-                        nn.LeakyReLU(inplace=True),
-                        )
+                    nn.Linear(input_dim, output_dim),
+                    nn.LeakyReLU(inplace=True),
+                )
                 self.fc2 = nn.Sequential(
-                        nn.Linear(input_dim, output_dim)
-                        )
+                    nn.Linear(input_dim, output_dim)
+                )
 
             def forward(self, feature, action):
                 x = feature

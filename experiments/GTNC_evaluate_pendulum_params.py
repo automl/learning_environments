@@ -25,7 +25,6 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
@@ -34,7 +33,7 @@ class ExperimentWrapper():
         cs.add_hyperparameter(CSH.CategoricalHyperparameter(name='gtn_mirrored_sampling', choices=[False, True], default_value=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='gtn_noise_std', lower=0.001, upper=1, log=True, default_value=0.01))
 
-        #cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
+        # cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_init_episodes', lower=1, upper=20, log=True, default_value=10))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter(name='td3_batch_size', lower=64, upper=256, log=False, default_value=128))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_gamma', lower=0.001, upper=0.1, log=True, default_value=0.01))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='td3_lr', lower=1e-4, upper=5e-3, log=True, default_value=1e-3))
@@ -54,7 +53,6 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
@@ -63,9 +61,9 @@ class ExperimentWrapper():
         config["agents"]['gtn']['mirrored_sampling'] = cso["gtn_mirrored_sampling"]
         config["agents"]['gtn']['noise_std'] = cso["gtn_noise_std"]
 
-        #config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
+        # config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
-        config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
+        config["agents"]['td3']['gamma'] = 1 - cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
         config["agents"]['td3']['tau'] = cso["td3_tau"]
         config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
@@ -86,7 +84,6 @@ class ExperimentWrapper():
         config["envs"]['Pendulum-v0']['reward_env_type'] = reward_env_type
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_pendulum.yaml", 'r') as stream:
@@ -119,7 +116,6 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-
         print('----------------------------')
         print('FINAL SCORE: ' + str(score))
         print('SCORE LIST:  ' + str(score_list))
@@ -142,7 +138,7 @@ if __name__ == "__main__":
     reward_env_type = int(sys.argv[3])
     run_id = 'GTNC_evaluate_pendulum_params_' + x.strftime("%Y-%m-%d-%H") + '_' + str(reward_env_type)
 
-    seed = id+int(time.time())
+    seed = id + int(time.time())
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

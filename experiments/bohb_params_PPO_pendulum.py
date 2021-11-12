@@ -10,6 +10,7 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 NUM_EVALS = 3
 
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -20,7 +21,6 @@ class ExperimentWrapper():
         params['random_fraction'] = 0.3
 
         return params
-
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
@@ -40,13 +40,12 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         config["agents"]["ppo"]["update_episodes"] = cso["ppo_update_episodes"]
         config["agents"]["ppo"]["ppo_epochs"] = cso["ppo_ppo_epochs"]
-        config["agents"]["ppo"]["gamma"] = 1-cso["ppo_gamma"]
+        config["agents"]["ppo"]["gamma"] = 1 - cso["ppo_gamma"]
         config["agents"]["ppo"]["lr"] = cso["ppo_lr"]
         config["agents"]["ppo"]["vf_coef"] = cso["ppo_vf_coef"]
         config["agents"]["ppo"]["ent_coef"] = cso["ppo_ent_coef"]
@@ -59,7 +58,6 @@ class ExperimentWrapper():
         config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_pendulum.yaml", 'r') as stream:
@@ -88,7 +86,7 @@ class ExperimentWrapper():
             rewards, _, _ = ppo.train(real_env)
             score += len(rewards)
 
-        score = score/NUM_EVALS
+        score = score / NUM_EVALS
 
         info['config'] = str(config)
 

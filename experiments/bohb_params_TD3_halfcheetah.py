@@ -13,6 +13,7 @@ from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 
 NUM_EVALS = 5
 
+
 class ExperimentWrapper():
     def get_bohb_parameters(self):
         params = {}
@@ -23,7 +24,6 @@ class ExperimentWrapper():
         params['random_fraction'] = 0.3
 
         return params
-
 
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
@@ -45,13 +45,12 @@ class ExperimentWrapper():
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         config["agents"]['td3']['init_episodes'] = cso["td3_init_episodes"]
         config["agents"]['td3']['batch_size'] = cso["td3_batch_size"]
-        config["agents"]['td3']['gamma'] = 1-cso["td3_gamma"]
+        config["agents"]['td3']['gamma'] = 1 - cso["td3_gamma"]
         config["agents"]['td3']['lr'] = cso["td3_lr"]
         config["agents"]['td3']['tau'] = cso["td3_tau"]
         config["agents"]['td3']['policy_delay'] = cso["td3_policy_delay"]
@@ -62,10 +61,9 @@ class ExperimentWrapper():
         config["agents"]['td3']['policy_std'] = cso["td3_policy_std"]
         config["agents"]['td3']['policy_std_clip'] = cso["td3_policy_std_clip"]
         config["agents"]['td3']['early_out_virtual_diff'] = cso["td3_early_out_virtual_diff"]
-        #config["device"] = 'cuda'
+        # config["device"] = 'cuda'
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_halfcheetah.yaml", 'r') as stream:

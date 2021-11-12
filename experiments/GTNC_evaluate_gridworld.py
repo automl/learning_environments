@@ -24,18 +24,15 @@ class ExperimentWrapper():
 
         return params
 
-
     def get_configspace(self):
         cs = CS.ConfigurationSpace()
 
         return cs
 
-
     def get_specific_config(self, cso, default_config, budget):
         config = deepcopy(default_config)
 
         return config
-
 
     def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
         with open("default_config_gridworld.yaml", 'r') as stream:
@@ -84,10 +81,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             print(arg)
-        random.seed(int(sys.argv[1])+int(time.time()))
-        np.random.seed(int(sys.argv[1])+int(time.time()))
-        torch.manual_seed(int(sys.argv[1])+int(time.time()))
-        torch.cuda.manual_seed_all(int(sys.argv[1])+int(time.time()))
+        random.seed(int(sys.argv[1]) + int(time.time()))
+        np.random.seed(int(sys.argv[1]) + int(time.time()))
+        torch.manual_seed(int(sys.argv[1]) + int(time.time()))
+        torch.cuda.manual_seed_all(int(sys.argv[1]) + int(time.time()))
         res = run_bohb_parallel(id=int(sys.argv[1]),
                                 bohb_workers=int(sys.argv[2]),
                                 run_id=run_id,

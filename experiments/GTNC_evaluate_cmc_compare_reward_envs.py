@@ -25,6 +25,7 @@ LOG_DICT['6'] = '/home/ferreira/Projects/learning_environments/results/GTNC_eval
 MODEL_NUM = 10
 MODEL_AGENTS = 10
 
+
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')
@@ -115,7 +116,6 @@ def train_test_agents(mode, env, real_env, config):
     # config['agents']['icm']['hidden_size'] = 128
     # config['agents']['icm']['lr'] = 1e-4
 
-
     for i in range(MODEL_AGENTS):
         if mode == '-1':
             agent = select_agent(config=config, agent_name='td3_icm')
@@ -130,7 +130,7 @@ def train_test_agents(mode, env, real_env, config):
 
 def save_list(mode, config, reward_list, episode_length_list):
     os.makedirs(SAVE_DIR, exist_ok=True)
-    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')   # fine-tuned by bohb
+    file_name = os.path.join(SAVE_DIR, 'best' + str(mode) + '.pt')  # fine-tuned by bohb
     save_dict = {}
     save_dict['config'] = config
     save_dict['model_num'] = MODEL_NUM
@@ -199,4 +199,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

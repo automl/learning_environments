@@ -40,7 +40,6 @@ class SAC(BaseAgent):
 
         self.reset_optimizer()
 
-
     def learn(self, replay_buffer, env, episode):
         states, actions, next_states, rewards, dones = replay_buffer.sample(self.batch_size)
         rewards = rewards.squeeze()
@@ -93,7 +92,6 @@ class SAC(BaseAgent):
         for param, target_param in zip(self.critic_2.parameters(), self.critic_target_2.parameters()):
             target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-
     def select_train_action(self, state, env, episode):
         if episode < self.init_episodes:
             return env.get_random_action()
@@ -101,11 +99,9 @@ class SAC(BaseAgent):
             _, action, _ = self.actor(state.to(self.device))
             return action.cpu()
 
-
     def select_test_action(self, state, env):
         action, _, _ = self.actor(state.to(self.device))
         return action.cpu()
-
 
     def reset_optimizer(self):
         actor_params = list(self.actor.parameters())
@@ -114,22 +110,21 @@ class SAC(BaseAgent):
         self.critic_optimizer = torch.optim.Adam(critic_params, lr=self.lr)
 
 
-
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # generate environment
     env_fac = EnvFactory(config)
-    #virt_env = env_fac.generate_virtual_env()
-    real_env= env_fac.generate_real_env()
-    #reward_env = env_fac.generate_reward_env()
+    # virt_env = env_fac.generate_virtual_env()
+    real_env = env_fac.generate_real_env()
+    # reward_env = env_fac.generate_reward_env()
     td3 = SAC(env=real_env,
               max_action=real_env.get_max_action(),
               config=config)
     t1 = time.time()
     td3.train(env=real_env, time_remaining=1200)
-    print(time.time()-t1)
+    print(time.time() - t1)
     td3.test(env=real_env, time_remaining=1200)
-    print(time.time()-t1)
-    #td3.train(env=virt_env, time_remaining=5)
+    print(time.time() - t1)
+    # td3.train(env=virt_env, time_remaining=5)

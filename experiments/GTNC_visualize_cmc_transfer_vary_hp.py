@@ -8,40 +8,40 @@ AUC = False
 
 if AUC:
     LOG_FILES = [
-            '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
-            '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
-            '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
-            '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance, probably overfitted and can't cope with changing HPs
-            ]
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        # '../results/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance, probably overfitted and can't cope with changing HPs
+    ]
 else:
     LOG_FILES = [
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
-            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance,
-            # probably overfitted and can't cope with changing HPs
-            ]
-
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp1.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp2.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp5.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp0.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1.pt',
+        # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_vary_hp-1_icm_opt.pt' # inferior performance,
+        # probably overfitted and can't cope with changing HPs
+    ]
 
 LEGEND = [
-        'TD3 + exc. pot. RN',
-        'TD3 + add. pot. RN',
-        'TD3 + exc. non-pot. RN',
-        'TD3 + add. non-pot. RN',
-        'TD3',
-        'TD3 + ICM',
-        # 'TD3 + ICM (tuned)',
-        ]
+    'TD3 + exc. pot. RN',
+    'TD3 + add. pot. RN',
+    'TD3 + exc. non-pot. RN',
+    'TD3 + add. non-pot. RN',
+    'TD3',
+    'TD3 + ICM',
+    # 'TD3 + ICM (tuned)',
+]
 
 STD_MULT = 0.1  # standard error of the mean
 # MIN_STEPS = 100000
 MIN_STEPS = 250000
+
 
 def get_data():
     list_data = []

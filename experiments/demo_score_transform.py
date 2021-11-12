@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib
+
 matplotlib.rcParams['text.usetex'] = True
 import matplotlib.pyplot as plt
 import random
+
 
 def score_transform(score_list, score_orig_list, score_transform_type, nes_step_size):
     scores = np.asarray(score_list)
@@ -10,14 +12,14 @@ def score_transform(score_list, score_orig_list, score_transform_type, nes_step_
 
     if score_transform_type == 0:
         # convert [1, 0, 5] to [0.2, 0, 1]
-        scores = (scores - min(scores)) / (max(scores)-min(scores)+1e-9)
+        scores = (scores - min(scores)) / (max(scores) - min(scores) + 1e-9)
 
     elif score_transform_type == 1:
         # convert [1, 0, 5] to [0.5, 0, 1]
         s = np.argsort(scores)
         n = len(scores)
         for i in range(n):
-            scores[s[i]] = i / (n-1)
+            scores[s[i]] = i / (n - 1)
 
     elif score_transform_type == 2 or score_transform_type == 3:
         # fitness shaping from "Natural Evolution Strategies" (Wierstra 2014) paper, either with zero mean (2) or without (3)
@@ -46,7 +48,7 @@ def score_transform(score_list, score_orig_list, score_transform_type, nes_step_
         # consider single best eps that is better than the average
         avg_score_orig = np.mean(scores_orig)
 
-        scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+        scores_idx = np.where(scores > avg_score_orig + 1e-6, 1, 0)  # 1e-6 to counter numerical errors
         if sum(scores_idx) > 0:
             scores_tmp = np.zeros(scores.size)
             scores_tmp[np.argmax(scores)] = 1
@@ -58,10 +60,10 @@ def score_transform(score_list, score_orig_list, score_transform_type, nes_step_
         # consider all eps that are better than the average, normalize weight sum to 1
         avg_score_orig = np.mean(scores_orig)
 
-        scores_idx = np.where(scores > avg_score_orig + 1e-6,1,0)   # 1e-6 to counter numerical errors
+        scores_idx = np.where(scores > avg_score_orig + 1e-6, 1, 0)  # 1e-6 to counter numerical errors
         if sum(scores_idx) > 0:
-        #if sum(scores_idx) > 0:
-            scores = scores_idx * (scores-avg_score_orig) / (max(scores)-avg_score_orig+1e-9)
+            # if sum(scores_idx) > 0:
+            scores = scores_idx * (scores - avg_score_orig) / (max(scores) - avg_score_orig + 1e-9)
             if score_transform_type == 6:
                 scores /= max(scores)
             else:
@@ -90,23 +92,21 @@ def plot_score_transform_lists(score_list, score_orig_list, score_transform_list
         axes[i].plot(score_list, linestyle='', marker='o')
         axes[i].plot([0, len(score_list)], [np.mean(score_orig_list), np.mean(score_orig_list)], color='r')
         axes[i].bar(range(len(score_transform_list)), score_transform_list, color='#78B0D7')
-        #axes[i].bar(range(len(score_transform_list_nes)), score_transform_list_nes, color='#25587D')
+        # axes[i].bar(range(len(score_transform_list_nes)), score_transform_list_nes, color='#25587D')
         axes[i].set_ylim(-0.45, 1.05)
         axes[i].set_title(titles[i])
-
 
         if i == 0:
             axes[i].set_xlabel('i (population member)')
             axes[i].set_ylabel('expected cumulative reward / fitness value')
-            #axes[i].legend([r'$K_i$', r'$K_G$', r'$F_i$', r'$F^\ast_i$'], loc='lower left')
+            # axes[i].legend([r'$K_i$', r'$K_G$', r'$F_i$', r'$F^\ast_i$'], loc='lower left')
             axes[i].legend([r'$K_i$', r'$K_G$', r'$F_i$'], loc='lower left')
         else:
             axes[i].set_yticks([])
 
-    #plt.show()
+    # plt.show()
     plt.subplots_adjust(bottom=0.15)
     plt.savefig('demo_score_transform.svg', bbox_inches='tight')
-
 
     # fig = plt.figure(dpi=200, figsize=(5, 4))
     # plt.plot(score_list, linestyle='', marker='o')
@@ -118,15 +118,12 @@ def plot_score_transform_lists(score_list, score_orig_list, score_transform_list
     # plt.show()
 
 
-
-
 if __name__ == "__main__":
-    score_list = sorted([random.random()*0.5+0.5 for _ in range(10)])
-    score_orig_list = [0.85]*10
+    score_list = sorted([random.random() * 0.5 + 0.5 for _ in range(10)])
+    score_orig_list = [0.85] * 10
 
     score_transform_lists = []
     score_transform_lists_nes = []
-
 
     for score_transform_type in range(8):
         score_transform_list = score_transform(score_list=score_list,
@@ -140,9 +137,7 @@ if __name__ == "__main__":
         score_transform_lists.append(score_transform_list)
         score_transform_lists_nes.append(score_transform_list_nes)
 
-
     plot_score_transform_lists(score_list=score_list,
                                score_orig_list=score_orig_list,
                                score_transform_lists=score_transform_lists,
                                score_transform_lists_nes=score_transform_lists_nes)
-

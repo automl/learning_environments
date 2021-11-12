@@ -11,6 +11,7 @@ from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
 from utils import print_abs_param_sum
 
+
 def select_agent(config, agent_name):
     env_factory = EnvFactory(config)
     dummy_env = env_factory.generate_real_env(print_str='Select Agent: ')

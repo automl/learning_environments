@@ -15,8 +15,8 @@ import pandas as pd
 
 FILE_DIR = "consistency_experiments/acrobot"
 FILE_LIST = [
-             '2_ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2_100_agents_num_40_model_num.pt',
-             ]
+    '2_ddqn_to_td3_discrete_vary_transfer_acrobot_reward_overview_2_100_agents_num_40_model_num.pt',
+]
 
 if __name__ == "__main__":
     env_reward_overviews = []
@@ -31,9 +31,9 @@ if __name__ == "__main__":
             for values in v.values():
                 rewards.append(values)
             new_dct[k] = {
-                    "name": k,
-                    "rewards": rewards
-                    }
+                "name": k,
+                "rewards": rewards
+            }
 
         df = pd.DataFrame.from_dict(data=new_dct, columns=["name", "rewards"], orient="index").explode("rewards").reset_index(drop=True)
         df["rewards"] = pd.to_numeric(df["rewards"])

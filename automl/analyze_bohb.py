@@ -364,7 +364,6 @@ def plot_parallel_scatter(result):
     plt.subplots_adjust(bottom=0.25)
 
 
-
 def linear_interpolation(x, x0, x1, y0, y1):
     # linearly interpolate between two x/y values for a given x value
     return y0 + (y1 - y0) * (x - x0) / (x1 - x0 + 1e-9)
@@ -457,9 +456,8 @@ if __name__ == '__main__':
     #
     # log_dir = '../results/SE_evaluate_cmc_se_params_2021-07-27-11'
     # title = "SE CMC HPO"
-    
+
     log_dir = "/home/ferreira/Projects/learning_environments/results/SE_evaluate_cmc_se_params_2021-07-30-10"
     title = "SE CMC HPO"
-    
 
     analyze_bohb(log_dir, title=title)

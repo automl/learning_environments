@@ -8,38 +8,39 @@ AUC = True
 
 if AUC:
     LOG_FILES = [
-            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
-            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
-            ]
+        '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
+        # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
+    ]
 else:
     LOG_FILES = [
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
-            # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
-            ]
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo1.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo2.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo5.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo0.pt',
+        # '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best_transfer_algo-1_icm_opt.pt'  # optimizing ICM HPs did not help
+    ]
 
 LEGEND = [
-        'PPO + exc. pot. RN',
-        'PPO + add. pot. RN',
-        'PPO + exc. non-pot. RN',
-        'PPO + add. non-pot. RN',
-        'PPO',
-        'PPO + ICM',
-        # 'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
-        ]
+    'PPO + exc. pot. RN',
+    'PPO + add. pot. RN',
+    'PPO + exc. non-pot. RN',
+    'PPO + add. non-pot. RN',
+    'PPO',
+    'PPO + ICM',
+    # 'PPO + ICM (tuned)',  # optimizing ICM HPs did not help
+]
 
 STD_MULT = .1  # standard error of the mean
 # STD_MULT = 1.
 MIN_STEPS = 250000
+
 
 def get_data():
     list_data = []
@@ -135,4 +136,3 @@ if __name__ == "__main__":
     else:
         # plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.pdf')
         plot_data(proc_data=proc_data, savefig_name=f'cmc_transfer_algo.png')
-

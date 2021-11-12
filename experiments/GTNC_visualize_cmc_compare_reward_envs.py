@@ -9,39 +9,40 @@ AUC = True
 if AUC:
 
     LOG_FILES = [
-            '../results/3_rn_auc/cmc_compare_reward_envs/best1.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best2.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best5.pt',
-            '../results/3_rn_auc/cmc_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best0.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best-1.pt',
-            # '../results/0_before_auc/cmc_compare_reward_envs/best-1_icm_opt.pt'
-            ]
+        '../results/3_rn_auc/cmc_compare_reward_envs/best1.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best2.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best5.pt',
+        '../results/3_rn_auc/cmc_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best0.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best-1.pt',
+        # '../results/0_before_auc/cmc_compare_reward_envs/best-1_icm_opt.pt'
+    ]
 else:
     LOG_FILES = [
-            '../results/0_before_auc/cmc_compare_reward_envs/best1.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best2.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best5.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best0.pt',
-            '../results/0_before_auc/cmc_compare_reward_envs/best-1.pt',
-            # '../results/0_before_auc/cmc_compare_reward_envs/best-1_icm_opt.pt'
-            ]
-
+        '../results/0_before_auc/cmc_compare_reward_envs/best1.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best2.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best5.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best0.pt',
+        '../results/0_before_auc/cmc_compare_reward_envs/best-1.pt',
+        # '../results/0_before_auc/cmc_compare_reward_envs/best-1_icm_opt.pt'
+    ]
 
 LEGEND = [
-        'TD3 + exc. pot. RN',
-        'TD3 + add. pot. RN',
-        'TD3 + exc. non-pot. RN',
-        'TD3 + add. non-pot. RN',
-        'TD3',
-        'TD3 + ICM',
-        # 'TD3 + ICM (tuned)',
-        ]
+    'TD3 + exc. pot. RN',
+    'TD3 + add. pot. RN',
+    'TD3 + exc. non-pot. RN',
+    'TD3 + add. non-pot. RN',
+    'TD3',
+    'TD3 + ICM',
+    # 'TD3 + ICM (tuned)',
+]
 
 STD_MULT = 0.1  # standard error of the mean
 # STD_MULT = 1.
 MIN_STEPS = 250000
+
+
 # MIN_STEPS = 150000
 
 def get_data():
@@ -137,4 +138,3 @@ if __name__ == "__main__":
     else:
         # plot_data(proc_data=proc_data, savefig_name=f'cmc_compare_reward_env.pdf')
         plot_data(proc_data=proc_data, savefig_name=f'cmc_compare_reward_env.png')
-

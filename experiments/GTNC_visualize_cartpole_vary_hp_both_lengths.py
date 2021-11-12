@@ -91,28 +91,28 @@ if __name__ == "__main__":
         episode_num_needed_stds.append(std_episode_num)
 
     data_dict = {
-            'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[0], episode_num_needed_stds[0],
-                    mean_train_steps[0], std_train_steps[0]): data_list[0],
+        'train: real  / HP: varying\n(mean num episodes: {:.2f}$\pm${:.2f})\n(mean train steps: {:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[0], episode_num_needed_stds[0],
+            mean_train_steps[0], std_train_steps[0]): data_list[0],
 
-            'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[1], episode_num_needed_stds[1],
-                    mean_train_steps[1], std_train_steps[1]): data_list[1],
+        'train: synth. / HP: varying\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[1], episode_num_needed_stds[1],
+            mean_train_steps[1], std_train_steps[1]): data_list[1],
 
-            'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
-                    episode_num_needed_means[2], episode_num_needed_stds[2],
-                    mean_train_steps[2], std_train_steps[2]): data_list[2]
-            }
+        'train: synth. / HP: fixed\n({:.2f}$\pm${:.2f})\n({:.2f}$\pm${:.2f})'.format(
+            episode_num_needed_means[2], episode_num_needed_stds[2],
+            mean_train_steps[2], std_train_steps[2]): data_list[2]
+    }
 
     data_dict = dict([(k, pd.Series(v)) for k, v in data_dict.items()])
 
     df = pd.DataFrame(data=data_dict)
     plt.figure(dpi=600, figsize=(7.5, 3))
     sns.set_context(rc={
-            "font.size": 8.5,
-            "axes.titlesize": 8,
-            "axes.labelsize": 8
-            })
+        "font.size": 8.5,
+        "axes.titlesize": 8,
+        "axes.labelsize": 8
+    })
     ax = sns.violinplot(data=df, cut=0, inner=None)
     plt.ylabel(title + '\ncumulative reward')
 

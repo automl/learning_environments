@@ -14,4 +14,3 @@ if __name__ == "__main__":
     id = int(sys.argv[2])
     worker = GTN_Worker(bohb_id=bohb_id, id=id)
     worker.run()
-

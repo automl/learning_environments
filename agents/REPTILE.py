@@ -46,11 +46,11 @@ def reptile_update_state_dict_parallel(agent, old_state_dict, new_state_dicts, s
 
     for new_state_dict in new_state_dicts:
         for key, value in new_state_dict.items():
-            agent_state_dict[key] += (new_state_dict[key] - old_state_dict[key]) * step_size/n
+            agent_state_dict[key] += (new_state_dict[key] - old_state_dict[key]) * step_size / n
 
     sum_diff = 0
     for key, value in new_state_dict.items():
-        sum_diff += torch.sum(torch.abs(agent_state_dict[key]-old_state_dict[key]))
+        sum_diff += torch.sum(torch.abs(agent_state_dict[key] - old_state_dict[key]))
 
     print(sum_diff)
 
@@ -87,6 +87,7 @@ class REPTILE(nn.Module):
                 for env in self.envs:
                     reptile_update_agent_serial(agent=self.agent, env=env, step_size=self.step_size)
 
+
 if __name__ == "__main__":
     with open("../default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
@@ -98,4 +99,3 @@ if __name__ == "__main__":
                   config=reptile.config,
                   num_envs=10)
     print(result)
-

@@ -10,7 +10,6 @@ from envs.env_factory import EnvFactory
 # SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/halfcheetah_compare_reward_envs_5k_episodes_1e-3_ent_coeff_1e-1_action_std'
 SAVE_DIR = '/home/ferreira/Projects/learning_environments/results/3_rn_auc/halfcheetah_compare_reward_envs'
 
-
 LOG_DICT = {}
 # LOG_DICT['1'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-13_1'
 # LOG_DICT['2'] = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_halfcheetah_2021-01-22-17_2'
@@ -36,6 +35,7 @@ LOG_DICT['102'] = '/home/ferreira/Projects/learning_environments/results/GTNC_ev
 
 MODEL_NUM = 5
 MODEL_AGENTS = 5
+
 
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
@@ -212,4 +212,3 @@ if __name__ == "__main__":
         eval_base(mode=mode, log_dir=LOG_DICT['2'])
     else:
         eval_models(mode=mode, log_dir=LOG_DICT[mode])
-

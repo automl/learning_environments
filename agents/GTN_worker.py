@@ -21,8 +21,8 @@ class GTN_Worker(GTN_Base):
         """
         super().__init__(bohb_id)
 
-        torch.manual_seed(id+bohb_id*id*1000+int(time.time()))
-        torch.cuda.manual_seed_all(id+bohb_id*id*1000+int(time.time()))
+        torch.manual_seed(id + bohb_id * id * 1000 + int(time.time()))
+        torch.cuda.manual_seed_all(id + bohb_id * id * 1000 + int(time.time()))
 
         # for identifying the different workers
         self.id = id
@@ -38,14 +38,13 @@ class GTN_Worker(GTN_Base):
                      self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
             if os.path.isfile(file):
                 os.remove(file)
-        
+
         # save_dir = "mbrl_baseline"
         # self.save_path = f"./{save_dir}"
         # if not os.path.exists(self.save_path):
         #     os.mkdir(self.save_path)
-        
-        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
+        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
     def late_init(self, config):
         gtn_config = config["agents"]["gtn"]
@@ -74,7 +73,6 @@ class GTN_Worker(GTN_Base):
         self.synthetic_env = generate_synthetic_env_fn(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = generate_synthetic_env_fn('GTN_Worker' + str(id) + ': ')
 
-
     def run(self):
         # read data from master
         while not self.quit_flag:
@@ -83,7 +81,7 @@ class GTN_Worker(GTN_Base):
             time_start = time.time()
 
             # get score for network of the last outer loop iteration
-            score_orig = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout-(time.time()-time_start))
+            score_orig = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout - (time.time() - time_start))
 
             self.get_random_noise()
 
@@ -107,14 +105,13 @@ class GTN_Worker(GTN_Base):
 
             self.write_worker_result(score=score_best,
                                      score_orig=score_orig,
-                                     time_elapsed = time.time()-time_start)
+                                     time_elapsed=time.time() - time_start)
 
             if self.quit_flag:
                 print('QUIT FLAG')
                 break
 
         print('Worker ' + str(self.id) + ' quitting')
-
 
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
@@ -139,7 +136,6 @@ class GTN_Worker(GTN_Base):
         os.remove(check_file_name)
         os.remove(file_name)
 
-
     def write_worker_result(self, score, score_orig, time_elapsed):
         file_name = self.get_result_file_name(id=self.id)
         check_file_name = self.get_result_check_file_name(id=self.id)
@@ -157,7 +153,6 @@ class GTN_Worker(GTN_Base):
         torch.save(data, file_name)
         torch.save({}, check_file_name)
 
-
     def get_random_noise(self):
         for l_virt, l_eps in zip(self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
@@ -167,23 +162,20 @@ class GTN_Worker(GTN_Base):
                     l_eps.bias = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.bias),
                                                                  std=torch.ones_like(l_virt.bias)) * self.noise_std)
 
-
     def add_noise_to_synthetic_env(self, add=True):
         for l_orig, l_virt, l_eps in zip(self.synthetic_env_orig.modules(), self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
-                if add: # add eps
+                if add:  # add eps
                     l_virt.weight = torch.nn.Parameter(l_orig.weight + l_eps.weight)
                     if l_virt.bias != None:
                         l_virt.bias = torch.nn.Parameter(l_orig.bias + l_eps.bias)
-                else:   # subtract eps
+                else:  # subtract eps
                     l_virt.weight = torch.nn.Parameter(l_orig.weight - l_eps.weight)
                     if l_virt.bias != None:
                         l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
 
-
     def subtract_noise_from_synthetic_env(self):
         self.add_noise_to_synthetic_env(add=False)
-
 
     def invert_eps(self):
         for l_eps in self.eps.modules():
@@ -192,29 +184,28 @@ class GTN_Worker(GTN_Base):
                 if l_eps.bias != None:
                     l_eps.bias = torch.nn.Parameter(-l_eps.bias)
 
-
     def calc_score(self, env, time_remaining):
         time_start = time.time()
 
         agent = select_agent(config=self.config, agent_name=self.agent_name)
         real_env = self.env_factory.generate_real_env()
 
-        reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining-(time.time()-time_start))
-        
+        reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining - (time.time() - time_start))
+
         # if len(agent.trajectories) != 0:
         #     print("trajectories should have been cleared")
         #     agent.trajectories.clear()
-        
-        reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining-(time.time()-time_start))
-        
+
+        reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining - (time.time() - time_start))
+
         # trajectories = copy.deepcopy(agent.trajectories)
         # GTN_Worker.store_data(trajectories, datasets_dir=self.save_path, id=self.id, test_counter=self.test_counter,
         #                       bohb_next_run_counter=self.bohb_next_run_counter)
-        
+
         # self.test_counter += 1
         # agent.trajectories.clear()
         # assert len(agent.trajectories) == 0
-        
+
         avg_reward_test = statistics.mean(reward_list_test)
 
         if env.is_virtual_env():
@@ -239,7 +230,6 @@ class GTN_Worker(GTN_Base):
             #     # we maximize the objective
             #     # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
             #     return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
-
 
     def calc_best_score(self, score_sub, score_add):
         if self.grad_eval_type == 'mean':

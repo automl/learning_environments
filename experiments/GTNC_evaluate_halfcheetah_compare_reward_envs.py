@@ -38,6 +38,7 @@ LOG_DICT['102'] = '/home/ferreira/Projects/learning_environments/results/GTNC_ev
 MODEL_NUM = 5
 MODEL_AGENTS = 5
 
+
 def get_best_models_from_log(log_dir):
     if not os.path.isdir(log_dir):
         log_dir = log_dir.replace('nierhoff', 'dingsda')

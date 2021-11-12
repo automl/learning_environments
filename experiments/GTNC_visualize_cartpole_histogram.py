@@ -13,6 +13,7 @@ from utils import ReplayBuffer
 
 BIN_WIDTH = 0.02
 
+
 def load_envs_and_config(dir, file_name):
     file_path = os.path.join(dir, file_name)
     save_dict = torch.load(file_path)
@@ -29,15 +30,15 @@ def load_envs_and_config(dir, file_name):
 
 def plot_hist(h1, h2, h1l, h2l, h3=None, h3l=None, xlabel=None, save_idx=None, agentname="none"):
     plt.figure(dpi=600, figsize=(3.5, 3))
-    plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
+    plt.hist(h1, alpha=0.8, bins=max(1, int((max(h1) - min(h1)) / BIN_WIDTH)))
 
     if max(h2) == min(h2):  # if we had only a single bin
-        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h1)-min(h1)) / BIN_WIDTH)))
+        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h1) - min(h1)) / BIN_WIDTH)))
     else:
-        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h2)-min(h2)) / BIN_WIDTH)))
+        plt.hist(h2, alpha=0.6, bins=max(1, int((max(h2) - min(h2)) / BIN_WIDTH)))
 
     if h3 is not None:
-        plt.hist(h3, alpha=0.4, bins=max(1, int((max(h3)-min(h3)) / BIN_WIDTH)))
+        plt.hist(h3, alpha=0.4, bins=max(1, int((max(h3) - min(h3)) / BIN_WIDTH)))
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('occurrence', fontsize=12)
     plt.yscale('log')
@@ -69,14 +70,14 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
         virt_rewards[i] = reward_virtual
         virt_dones[i] = done_virtual
 
-        _, reward_virtual_incorrect, _ = virtual_env.step(action=1-action, state=state)
+        _, reward_virtual_incorrect, _ = virtual_env.step(action=1 - action, state=state)
         virt_rewards_incorrect[i] = reward_virtual_incorrect
 
     for i in range(len(next_states_test[0])):
         trains = next_states_train[:, i].squeeze().detach().numpy()
         tests = next_states_test[:, i].squeeze().detach().numpy()
         virts = virt_next_states[:, i].squeeze().detach().numpy()
-        #diffs = diff_next_states[:,i].squeeze().detach().numpy()
+        # diffs = diff_next_states[:,i].squeeze().detach().numpy()
 
         if i == 0:
             plot_name = 'cart position (next state) [m]'
@@ -94,7 +95,7 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
                   h2l='real env. (test)',
                   h3l='synth. env. on real env. data',
                   xlabel=plot_name,
-                  save_idx=i+1,
+                  save_idx=i + 1,
                   agentname=agentname)
 
     plot_hist(h1=rewards_train.squeeze().detach().numpy(),
@@ -104,7 +105,7 @@ def compare_env_output(virtual_env, replay_buffer_train_all, replay_buffer_test_
               h2l='real env. (test)',
               h3l='synth. env. on real env. data',
               xlabel='reward',
-              save_idx=len(next_states_test[0])+1,
+              save_idx=len(next_states_test[0]) + 1,
               agentname=agentname)
 
 
@@ -122,11 +123,12 @@ if __name__ == "__main__":
 
     virtual_env, real_env, config = load_envs_and_config(dir=dir, file_name=file_name)
     print(config)
-    #config['device'] = 'cuda'
-    #config['agents'][agentname]['print_rate'] = 1
-    #config['agents'][agentname]['test_episodes'] = 10
+    # config['device'] = 'cuda'
+    # config['agents'][agentname]['print_rate'] = 1
+    # config['agents'][agentname]['test_episodes'] = 10
 
     import yaml
+
     with open("default_config_cartpole.yaml", "r") as stream:
         config2 = yaml.safe_load(stream)
     if 'td3' in agentname:
@@ -148,7 +150,7 @@ if __name__ == "__main__":
         random.seed(int(time.time()))
         torch.manual_seed(int(time.time()))
         torch.cuda.manual_seed_all(int(time.time()))
-        
+
         agent = select_agent(config=config, agent_name=agentname)
         print(agent)
         _, _, replay_buffer_train = agent.train(env=virtual_env)

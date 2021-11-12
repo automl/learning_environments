@@ -9,55 +9,55 @@ case_name = "reward_maximization"
 
 def auc():
     return [
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best1.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best2.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best5.pt',
-            '../results/3_rn_auc/cartpole_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
-            # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
-            ]
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best1.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best2.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best5.pt',
+        '../results/3_rn_auc/cartpole_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
+        # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
+    ]
 
 
 def normal():
     return [
-            '../results/0_before_auc/cartpole_compare_reward_envs/best1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best2.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best5.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
-            # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
-            ]
+        '../results/0_before_auc/cartpole_compare_reward_envs/best1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best2.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best5.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
+        # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
+    ]
 
 
 def reward_maximization():
     return [
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best1.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best2.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best5.pt',
-            '../results/4_rn_reward/cartpole_compare_reward_envs/best6.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
-            # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
-            '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
-            ]
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best1.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best2.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best5.pt',
+        '../results/4_rn_reward/cartpole_compare_reward_envs/best6.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best0.pt',
+        # '../results/0_before_auc/cartpole_compare_reward_envs/best-1.pt',
+        '../results/0_before_auc/cartpole_compare_reward_envs/best-1_icm_opt.pt'  # optimizing ICM HPs did not help
+    ]
 
 
 case = {
-        "normal": normal,
-        "auc": auc,
-        "reward_maximization": reward_maximization,
-        }
+    "normal": normal,
+    "auc": auc,
+    "reward_maximization": reward_maximization,
+}
 
 LEGEND = [
-        'DDQN + exc. pot. RN',
-        'DDQN + add. pot. RN',
-        'DDQN + exc. non-pot. RN',
-        'DDQN + add. non-pot. RN',
-        'DDQN',
-        'DDQN + ICM',
-        # 'DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
-        ]
+    'DDQN + exc. pot. RN',
+    'DDQN + add. pot. RN',
+    'DDQN + exc. non-pot. RN',
+    'DDQN + add. non-pot. RN',
+    'DDQN',
+    'DDQN + ICM',
+    # 'DDQN + ICM (tuned)',  # optimizing ICM HPs did not help
+]
 
 STD_MULT = 0.1  # standard error of the mean
 MIN_STEPS = 50000
@@ -146,4 +146,3 @@ if __name__ == "__main__":
 
     # plot_data(proc_data=proc_data, savefig_name=f'cartpole_{case_name}_compare_reward_env.pdf')
     plot_data(proc_data=proc_data, savefig_name=f'cartpole_{case_name}_compare_reward_env.png')
-
