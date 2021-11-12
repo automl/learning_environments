@@ -98,7 +98,7 @@ def plot_data(proc_data, list_data, savefig_name):
                 continue
             plt.plot(avg_rewards, linewidth=0.3, color=colors[i])
 
-    plt.legend(['CartPole-v0', 'CartPole-v0 solved threshold', 'Acrobot-v1', 'Acrobot-v1 solved threshold'], loc='lower right')
+    plt.legend(['CartPole-v0 solved threshold', 'CartPole-v0', 'Acrobot-v1 solved threshold', 'Acrobot-v1'], loc='lower right')
     plt.xlim(0, 199)
     plt.xlabel('ES outer loop iteration')
     plt.ylabel('cumulative reward')

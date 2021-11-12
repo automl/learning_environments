@@ -18,6 +18,8 @@ class DDQN_vary(DDQN):
             config_mod = self.vary_hyperparameters(config_mod)
         else:
             config_mod = config
+            
+        print("full config: ", config_mod['agents'][self.agent_name])
 
         super().__init__(env=env, config=config_mod, icm=icm)
 
@@ -53,8 +55,6 @@ class DDQN_vary(DDQN):
         config_mod['agents'][self.agent_name]['batch_size'] = config['batch_size']
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
-
-        print("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 
