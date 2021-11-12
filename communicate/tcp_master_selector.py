@@ -11,13 +11,19 @@ keep_running = True
 connections_for_later = {}
 lost_connections = {}
 connections_response_time = {}
+finished_for_iteration = []
 
 
 def work_with_sent_data(data, ip, port):
     key_for_connection = f"{ip}_{port}"
-    connections_for_later[key_for_connection]["bohb_id"] = data["bohb_id"]
-    connections_for_later[key_for_connection]["id"] = data["id"]
-    connections_for_later[key_for_connection]["moab_id"] = data["moab_id"]
+
+    if data == "finished_iteration":
+        key_for_connection = f"{ip}_{port}"
+        finished_for_iteration.append(connections_for_later[key_for_connection]["id"])
+    else:
+        connections_for_later[key_for_connection]["bohb_id"] = data["bohb_id"]
+        connections_for_later[key_for_connection]["id"] = data["id"]
+        connections_for_later[key_for_connection]["moab_id"] = data["moab_id"]
 
 
 def read(connection, mask):
@@ -31,7 +37,7 @@ def read(connection, mask):
         # A readable client socket has data
         data_loaded = pickle.loads(data)
         work_with_sent_data(data=data_loaded, ip=client_address[0], port=client_address[1])
-        #print('read({})  sent: {!r}'.format(client_address, data_loaded))
+        # print('read({})  sent: {!r}'.format(client_address, data_loaded))
     else:
         # Interpret empty result as closed connection
         print('  closing for {}'.format(client_address))
@@ -41,8 +47,8 @@ def read(connection, mask):
         key_lost_connection = f"{client_address[0]}_{client_address[1]}"
         lost_con = connections_for_later.pop(key_lost_connection)
         lost_connections[key_lost_connection] = lost_con
-        #print("lost_connections : ", lost_connections)
-        #print("connections_for_later : ", connections_for_later)
+        # print("lost_connections : ", lost_connections)
+        # print("connections_for_later : ", connections_for_later)
 
 
 def accept(sock, mask):
@@ -123,4 +129,3 @@ def start_communication_thread(args):
     number_of_parallel_connections = number_of_workers + 1  # just to be sure plus one
     t_c = threading.Thread(target=main_communcication, args=(number_of_parallel_connections, ip, args.port))
     t_c.start()
-

@@ -14,7 +14,7 @@ from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from utils import calc_abs_param_sum
 from communicate.helpers_communication import time_diff, x_minutes_passed
-from communicate.tcp_master_selector import connections_for_later, lost_connections
+from communicate.tcp_master_selector import connections_for_later, lost_connections, finished_for_iteration
 
 
 def make_list_of_all_workers_available(ids_in_master: dict):
@@ -58,10 +58,10 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.time_elapsed_list = [None] * self.num_workers  # for debugging
-        self.score_list = [None] * self.num_workers
-        self.score_orig_list = [None] * self.num_workers  # for debugging
-        self.score_transform_list = [None] * self.num_workers
+        self.time_elapsed_list = [0] * self.num_workers  # for debugging
+        self.score_list = [0] * self.num_workers
+        self.score_orig_list = [0] * self.num_workers  # for debugging
+        self.score_transform_list = [0] * self.num_workers
 
         # to keep track of the reference virtual env
         self.env_factory = EnvFactory(config)
@@ -96,8 +96,8 @@ class GTN_Master(GTN_Base):
 
         # For Communication Purposes
         self.started_at_time = datetime.now()
-        self.minutes_till_reading = 30
-        self.available_ids = None
+        self.minutes_till_reading = 10
+        self.available_workers = None
 
     def get_model_file_name(self, file_name):
         return os.path.join(self.model_dir, file_name)
@@ -106,7 +106,7 @@ class GTN_Master(GTN_Base):
         mean_score_orig_list = []
 
         for it in range(self.max_iterations):
-            self.available_ids = copy.deepcopy(connections_for_later)
+            self.available_workers = copy.deepcopy(connections_for_later)
             t1 = time.time()
             print('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
             print('-- Master: write worker inputs' + ' ' + str(time.time() - t1))
@@ -116,8 +116,8 @@ class GTN_Master(GTN_Base):
                 time.sleep(self.time_sleep_master)
 
             # X minutes passsed -> we make a list of available workers:
-            self.available_ids = copy.deepcopy(connections_for_later)
-            print("self.available_ids: ", self.available_ids)
+            self.available_workers = copy.deepcopy(connections_for_later)
+            print("self.available_ids: ", self.available_workers)
 
             print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
@@ -182,9 +182,9 @@ class GTN_Master(GTN_Base):
         print('timeout: ' + str(timeout))
 
         if it == 0:
-            id_list = [i for i in range(self.num_workers)]
+            id_list = [i + 1 for i in range(self.num_workers)]
         else:
-            id_list = get_ids(self.available_ids)
+            id_list = get_ids(self.available_workers)
 
         print(f"Iteration: {it}, wrinting files for ids: {id_list}")
         for id in id_list:
@@ -212,23 +212,25 @@ class GTN_Master(GTN_Base):
 
     def remove_id(self, id):
         key_to_delete = None
-        for k,v in self.available_ids.items():
+        for k, v in self.available_workers.items():
             if v["id"] == id:
                 key_to_delete = k
         assert key_to_delete is not None, "key_to_delete was None"
-        self.available_ids.pop(key_to_delete)
+        self.available_workers.pop(key_to_delete)
 
     def update_ids_to_check(self):
-        for k,v in lost_connections.items():
-            if k in self.available_ids:
-                self.available_ids.pop(k)
-                print("self.available_ids: ", self.available_ids)
+        for k, v in lost_connections.items():
+            if k in self.available_workers:
+                self.available_workers.pop(k)
+                print("self.available_ids: ", self.available_workers)
 
     def read_worker_results(self):
+        debug_mode = False
         checked_this_iteration = []
-        while len(self.available_ids) > 0:
-            self.update_ids_to_check()
-            for id in get_ids(self.available_ids):
+        delete_these_files = []
+        while len(self.available_workers) > 0:
+            self.update_ids_to_check()  # check if a worker aborted since last check and adapt lists
+            for id in get_ids(self.available_workers):
                 if id in checked_this_iteration:
                     continue
                 file_name = self.get_result_file_name(id)
@@ -241,16 +243,19 @@ class GTN_Master(GTN_Base):
                     print(f"found: {check_file_name}")
                     self.remove_id(id)
                     checked_this_iteration.append(id)
+                    delete_these_files.append(check_file_name)
+                    delete_these_files.append(file_name)
+                if not debug_mode:
+                    data = torch.load(file_name)
+                    self.time_elapsed_list[id - 1] = data['time_elapsed']
+                    self.score_list[id - 1] = data['score']
+                    self.eps_list[id - 1].load_state_dict(data['eps'])
+                    self.score_orig_list[id - 1] = data['score_orig']
+                    self.synthetic_env_list[id - 1].load_state_dict(data['synthetic_env'])  # for debugging
 
-                data = torch.load(file_name)
-                self.time_elapsed_list[id] = data['time_elapsed']
-                self.score_list[id] = data['score']
-                self.eps_list[id].load_state_dict(data['eps'])
-                self.score_orig_list[id] = data['score_orig']
-                self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
-
-                os.remove(check_file_name)
-                os.remove(file_name)
+        for file_name in delete_these_files:
+            os.remove(file_name)
+            print(f"deleting: {file_name}")
 
     def score_transform(self):
         scores = np.asarray(self.score_list)

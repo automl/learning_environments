@@ -10,6 +10,7 @@ import pickle
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
+from communicate.tcp_worker_selector import communication_list
 
 
 class GTN_Worker(GTN_Base):
@@ -21,8 +22,8 @@ class GTN_Worker(GTN_Base):
         """
         super().__init__(bohb_id)
 
-        torch.manual_seed(id + bohb_id * id * 1000 + int(time.time()))
-        torch.cuda.manual_seed_all(id + bohb_id * id * 1000 + int(time.time()))
+        #        torch.manual_seed(id + bohb_id * id * 1000)
+        #        torch.cuda.manual_seed_all(id + bohb_id * id * 1000)
 
         # for identifying the different workers
         self.id = id
@@ -34,10 +35,13 @@ class GTN_Worker(GTN_Base):
         self.timeout = None
 
         # delete corresponding sync files if existent
-        for file in [self.get_input_file_name(self.id), self.get_input_check_file_name(self.id),
+        # TODO: What the f***??????? -> Deleting files -> so worker always has to be first ????
+        """
+                for file in [self.get_input_file_name(self.id), self.get_input_check_file_name(self.id),
                      self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
             if os.path.isfile(file):
                 os.remove(file)
+        """
 
         # save_dir = "mbrl_baseline"
         # self.save_path = f"./{save_dir}"
@@ -106,7 +110,7 @@ class GTN_Worker(GTN_Base):
             self.write_worker_result(score=score_best,
                                      score_orig=score_orig,
                                      time_elapsed=time.time() - time_start)
-
+            communication_list.append("finished_iteration")
             if self.quit_flag:
                 print('QUIT FLAG')
                 break

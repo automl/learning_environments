@@ -11,12 +11,13 @@ from agents.GTN import GTN_Master
 from automl.bohb_optim import run_bohb_parallel
 from communicate.tcp_master_selector import start_communication_thread
 import argparse
+import os
 
 
 def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bohb_id", type=int, default=5000)
-    parser.add_argument("--id", type=int)
+    parser.add_argument("--bohb_id", type=int, default=50000)
+    parser.add_argument("--id", type=int, default=1)
     parser.add_argument("--moab_id", type=str)
     parser.add_argument("--port", type=int, default=10000)
     parser.add_argument("--min_workers", type=int, default=2, help="Minimum number of workers that have to be active, before we otherwise abort")
@@ -50,22 +51,15 @@ class ExperimentWrapper():
 
         return cs
 
-    def get_specific_config(self, cso, default_config, budget):
+    def get_specific_config(self, default_config):
         config = deepcopy(default_config)
         return config
 
-    def compute(self, working_dir, bohb_id, config_id, cso, budget, *args, **kwargs):
+    def compute(self, working_dir, bohb_id):
         with open("default_config_cartpole_syn_env.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
-        config = self.get_specific_config(cso, default_config, budget)
-
-        print('----------------------------')
-        print("START BOHB ITERATION")
-        print('CONFIG: ' + str(config))
-        print('CSO:    ' + str(cso))
-        print('BUDGET: ' + str(budget))
-        print('----------------------------')
+        config = self.get_specific_config(default_config)
 
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
@@ -94,6 +88,10 @@ class ExperimentWrapper():
         }
 
 
+def get_working_dir(run_id):
+    return str(os.path.join(os.getcwd(), "results", run_id))
+
+
 if __name__ == "__main__":
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
@@ -104,7 +102,15 @@ if __name__ == "__main__":
 
     seed_experiment(number=args.bohb_id)
 
+    """
     res = run_bohb_parallel(id=args.bohb_id,
                             bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
                             run_id=run_id,
-                            experiment_wrapper=ExperimentWrapper())
+                            experiment_wrapper=ExperimentWrapper())    
+    """
+
+    exp = ExperimentWrapper()
+
+    w_dir = get_working_dir(run_id)
+
+    exp.compute(working_dir=w_dir, bohb_id=args.bohb_id)
