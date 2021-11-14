@@ -150,6 +150,8 @@ class GTN_Master(GTN_Base):
 
     def save_good_model(self, mean_score):
         if self.synthetic_env_orig.is_virtual_env():
+            # TODO: CHECK ->    why do all SE have to have a better score than the threshold?
+            #                   |-> would it not suffice to have just one and save that?
             if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
