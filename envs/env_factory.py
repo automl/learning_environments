@@ -96,7 +96,7 @@ class EnvFactory:
 if __name__ == "__main__":
     import yaml
 
-    with open("../default_config.yaml", "r") as stream:
+    with open("../configurations/default_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
         gen = EnvFactory(config)
         a = gen.generate_real_env()

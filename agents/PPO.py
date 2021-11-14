@@ -189,7 +189,7 @@ class PPO(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_halfcheetah.yaml", 'r') as stream:
+    with open("../configurations/default_config_halfcheetah.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
 
     config['envs']['HalfCheetah-v3']['solved_reward'] = 10000

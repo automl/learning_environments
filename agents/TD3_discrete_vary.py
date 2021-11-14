@@ -174,7 +174,7 @@ class TD3_discrete_vary(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cartpole.yaml", "r") as stream:
+    with open("../configurations/default_config_cartpole.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     # print("turning off config sampling")

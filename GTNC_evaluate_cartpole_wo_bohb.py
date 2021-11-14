@@ -56,7 +56,7 @@ class ExperimentWrapper():
         return config
 
     def compute(self, working_dir, bohb_id):
-        with open("default_config_cartpole_syn_env.yaml", 'r') as stream:
+        with open("configurations/default_config_cartpole_syn_env.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(default_config)

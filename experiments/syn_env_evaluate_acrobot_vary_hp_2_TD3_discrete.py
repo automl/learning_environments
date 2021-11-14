@@ -27,7 +27,7 @@ def load_envs_and_config(file_name, model_dir, device):
     real_env = env_factory.generate_real_env()
 
     # load additional agent configs
-    with open("../default_config_acrobot.yaml", "r") as stream:
+    with open("../configurations/default_config_acrobot.yaml", "r") as stream:
         config_new = yaml.safe_load(stream)["agents"]
 
     config["agents"]["td3_discrete_vary"] = config_new["td3_discrete_vary_layer_norm_2"]

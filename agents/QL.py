@@ -106,7 +106,7 @@ class QL(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_gridworld.yaml", "r") as stream:
+    with open("../configurations/default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
     print(config)
     torch.set_num_threads(1)

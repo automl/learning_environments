@@ -119,7 +119,7 @@ class DuelingDDQN(BaseAgent):
 
 
 if __name__ == "__main__":
-    with open("../default_config_cartpole.yaml", "r") as stream:
+    with open("../configurations/default_config_cartpole.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
     torch.set_num_threads(1)
