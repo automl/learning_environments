@@ -103,16 +103,16 @@ if __name__ == "__main__":
     seed_experiment(number=args.bohb_id)
 
     # This is the call with BOHB:
+    """
     res = run_bohb_parallel(id=args.bohb_id,
                             bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
                             run_id=run_id,
-                            experiment_wrapper=ExperimentWrapper())
+                            experiment_wrapper=ExperimentWrapper())    
+    """
 
     # This is the call without any BOHB:
-    """
     exp = ExperimentWrapper()
 
     w_dir = get_working_dir(run_id)
 
     exp.compute(working_dir=w_dir, bohb_id=args.bohb_id)
-    """
