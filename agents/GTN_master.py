@@ -205,7 +205,7 @@ class GTN_Master(GTN_Base):
             data['quit_flag'] = quit_flag
             data['config'] = self.config
             data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
-            # data['bohb_next_run_counter'] = self.bohb_next_run_counter
+            data['bohb_next_run_counter'] = self.bohb_next_run_counter
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
