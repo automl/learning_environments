@@ -1,15 +1,12 @@
 import os
 import torch
-import statistics
 import time
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import random
 import numpy as np
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from utils import ReplayBuffer
+from agents.utils import ReplayBuffer
 
 BIN_WIDTH = 0.02
 

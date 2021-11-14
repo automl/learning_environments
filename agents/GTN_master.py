@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import os
 import time
-import uuid
 import numpy as np
 import random
 import string
@@ -12,9 +11,9 @@ import statistics
 from datetime import datetime
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
-from utils import calc_abs_param_sum
-from communicate.helpers_communication import time_diff, x_minutes_passed
-from communicate.tcp_master_selector import connections_for_later, lost_connections, finished_for_iteration
+from agents.utils import calc_abs_param_sum
+from communicate.helpers_communication import x_minutes_passed
+from communicate.tcp_master_selector import connections_for_later, lost_connections
 
 
 def make_list_of_all_workers_available(ids_in_master: dict):

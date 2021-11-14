@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 import torch
 
-from utils import barplot_err
+from agents.utils import barplot_err
 
 FILE_DIRS = []
 FILE_LISTS = []

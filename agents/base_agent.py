@@ -2,7 +2,7 @@ import statistics
 import time
 import torch
 import torch.nn as nn
-from utils import AverageMeter, ReplayBuffer
+from agents.utils import AverageMeter, ReplayBuffer
 
 
 class BaseAgent(nn.Module):

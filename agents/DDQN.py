@@ -8,7 +8,7 @@ from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 from models.actor_critic import Critic_DQN
 from models.icm_baseline import ICM
-from utils import to_one_hot_encoding
+from agents.utils import to_one_hot_encoding
 
 
 class DDQN(BaseAgent):

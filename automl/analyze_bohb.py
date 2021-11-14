@@ -75,7 +75,7 @@ def analyze_bohb(log_dir, title):
     plt.title(title)
     plt.show()
     file_name = str(title).strip().replace(' ', '_').lower()
-    plt.savefig(os.path.join("../experiments/automl_plots/", file_name + ".png"))
+    plt.savefig(os.path.join("../plots_and_data/automl_plots/", file_name + ".png"))
 
 
 def print_configs_sorted_by_loss(result):

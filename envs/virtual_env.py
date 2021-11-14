@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from models.model_utils import build_nn_from_config
-from utils import from_one_hot_encoding, to_one_hot_encoding
+from agents.utils import from_one_hot_encoding, to_one_hot_encoding
 
 
 class VirtualEnv(nn.Module):

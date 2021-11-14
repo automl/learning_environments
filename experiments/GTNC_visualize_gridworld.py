@@ -1,13 +1,11 @@
 import os
 import torch
-import time
-import statistics
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from utils import ReplayBuffer, print_abs_param_sum
+from agents.utils import ReplayBuffer
 
 # from gridworld.py
 G_RIGHT = 0

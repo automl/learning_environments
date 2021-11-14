@@ -9,7 +9,7 @@ from agents.TD3_discrete_vary import TD3_discrete_vary
 from agents.QL import QL
 from agents.SARSA import SARSA
 from envs.env_factory import EnvFactory
-from utils import print_abs_param_sum
+from agents.utils import print_abs_param_sum
 
 
 def select_agent(config, agent_name):

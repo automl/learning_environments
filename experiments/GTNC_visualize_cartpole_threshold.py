@@ -1,5 +1,4 @@
 import os
-import sys
 import torch
 import time
 import random
@@ -11,7 +10,7 @@ from agents.DDQN import DDQN
 from agents.base_agent import BaseAgent
 from models.actor_critic import Critic_DQN
 from envs.env_factory import EnvFactory
-from utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
+from agents.utils import ReplayBuffer, AverageMeter, to_one_hot_encoding
 
 STD_MULT = 0.2
 

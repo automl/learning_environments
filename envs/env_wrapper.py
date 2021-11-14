@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from envs.virtual_env import VirtualEnv
 from gym.spaces import Discrete
-from utils import to_one_hot_encoding, from_one_hot_encoding
+from agents.utils import to_one_hot_encoding, from_one_hot_encoding
 
 
 class EnvWrapper(nn.Module):
