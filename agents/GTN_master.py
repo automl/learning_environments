@@ -57,10 +57,10 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.time_elapsed_list = [0] * self.num_workers  # for debugging
-        self.score_list = [0] * self.num_workers
-        self.score_orig_list = [0] * self.num_workers  # for debugging
-        self.score_transform_list = [0] * self.num_workers
+        self.all_time_elapsed_list = [0] * self.num_workers  # for debugging
+        self.all_score_list = [0] * self.num_workers
+        self.all_score_orig_list = [0] * self.num_workers  # for debugging
+        self.all_score_transform_list = [0] * self.num_workers
 
         # to keep track of the reference virtual env
         self.env_factory = EnvFactory(config)
@@ -97,6 +97,7 @@ class GTN_Master(GTN_Base):
         self.started_at_time = datetime.now()
         self.minutes_till_reading = 10
         self.available_workers = None
+        self.active_ids = []
 
     def run(self):
         mean_score_orig_list = []
@@ -118,7 +119,8 @@ class GTN_Master(GTN_Base):
             print('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
 
-            mean_score = np.mean(self.score_orig_list)
+            active_scores_array = np.array(self.all_score_list)[self.active_ids[-1]]  # only calculate the mean score for workers that were active
+            mean_score = np.mean(active_scores_array)
             mean_score_orig_list.append(mean_score)
             solved_flag = self.save_good_model(mean_score)
 
@@ -205,14 +207,14 @@ class GTN_Master(GTN_Base):
                     self.score_orig_list[id - 1] = data['score_orig']
                     self.synthetic_env_list[id - 1].load_state_dict(data['synthetic_env'])  # for debugging
 
+        self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
+
         for file_name in delete_these_files:
             os.remove(file_name)
             print(f"deleting: {file_name}")
 
     def save_good_model(self, mean_score):
         if self.synthetic_env_orig.is_virtual_env():
-            # TODO: CHECK ->    why do all SE have to have a better score than the threshold?
-            #                   |-> would it not suffice to have just one and save that?
             if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
@@ -258,8 +260,8 @@ class GTN_Master(GTN_Base):
             return statistics.mean(self.time_elapsed_list) * self.time_mult
 
     def score_transform(self):
-        scores = np.asarray(self.score_list)
-        scores_orig = np.asarray(self.score_orig_list)
+        scores = np.asarray(self.all_score_list)[self.active_ids[-1]]  # only select scores from workers that were active
+        scores_orig = np.asarray(self.all_score_orig_list)[self.active_ids[-1]]  # only select scores from workers that were active
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
@@ -325,7 +327,13 @@ class GTN_Master(GTN_Base):
         else:
             raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
 
-        self.score_transform_list = scores.tolist()
+        # copy values (for active workers) over into list
+        act_idxs = self.active_ids[-1]
+        new_score_array = np.copy(self.all_score_transform_list)
+        for i, id in enumerate(act_idxs):
+            new_score_array[id] = scores[i]
+
+        self.all_score_transform_list = new_score_array.tolist()
 
     def update_env(self):
         ss = self.step_size
@@ -334,9 +342,9 @@ class GTN_Master(GTN_Base):
             ss = ss / self.num_workers
 
         # print('-- update env --')
-        print('score_orig_list      ' + str(self.score_orig_list))
-        print('score_list           ' + str(self.score_list))
-        print('score_transform_list ' + str(self.score_transform_list))
+        print('score_orig_list      ' + str(self.all_score_orig_list))
+        print('score_list           ' + str(self.all_score_list))
+        print('score_transform_list ' + str(self.all_score_transform_list))
         print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.synthetic_env_list]))
 
         print('weights before: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
@@ -351,7 +359,12 @@ class GTN_Master(GTN_Base):
         print('weights after weight decay: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
         # weight update
-        for eps, score_transform in zip(self.eps_list, self.score_transform_list):
+        active_eps = np.array(self.eps_list)[self.active_ids[-1]]
+        active_eps_list = list(active_eps)
+        active_scores = np.array(self.all_score_transform_list)[self.active_ids[-1]]
+        active_scores_list = list(active_scores)
+        modules = self.synthetic_env_orig.modules()
+        for eps, score_transform in zip(active_eps_list,active_scores_list):
             for l_orig, l_eps in zip(self.synthetic_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
@@ -361,8 +374,8 @@ class GTN_Master(GTN_Base):
         print('weights after update: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
     def print_statistics(self, it, time_elapsed):
-        orig_score = statistics.mean(self.score_orig_list)
-        mean_time_elapsed = statistics.mean(self.time_elapsed_list)
+        orig_score = statistics.mean(self.all_score_orig_list)
+        mean_time_elapsed = statistics.mean(self.all_time_elapsed_list)
         print('--------------')
         print('GTN iteration:    ' + str(it))
         print('GTN mstr t_elaps: ' + str(time_elapsed))
