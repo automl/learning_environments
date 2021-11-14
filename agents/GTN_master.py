@@ -178,7 +178,6 @@ class GTN_Master(GTN_Base):
             torch.save({}, check_file_name)
 
     def read_worker_results(self):
-        debug_mode = False
         checked_this_iteration = []
         delete_these_files = []
         while len(self.available_workers) > 0:
@@ -198,7 +197,7 @@ class GTN_Master(GTN_Base):
                     checked_this_iteration.append(id)
                     delete_these_files.append(check_file_name)
                     delete_these_files.append(file_name)
-                if not debug_mode:
+
                     data = torch.load(file_name)
                     self.time_elapsed_list[id - 1] = data['time_elapsed']
                     self.score_list[id - 1] = data['score']
