@@ -358,13 +358,12 @@ class GTN_Master(GTN_Base):
 
         print('weights after weight decay: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
+        # Only use active workers:
+        active_eps = list(np.array(self.eps_list)[self.active_ids[-1]])
+        active_scores = list(np.array(self.all_score_transform_list)[self.active_ids[-1]])
+
         # weight update
-        active_eps = np.array(self.eps_list)[self.active_ids[-1]]
-        active_eps_list = list(active_eps)
-        active_scores = np.array(self.all_score_transform_list)[self.active_ids[-1]]
-        active_scores_list = list(active_scores)
-        modules = self.synthetic_env_orig.modules()
-        for eps, score_transform in zip(active_eps_list,active_scores_list):
+        for eps, score_transform in zip(active_eps, active_scores):
             for l_orig, l_eps in zip(self.synthetic_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
