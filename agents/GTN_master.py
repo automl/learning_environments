@@ -99,9 +99,6 @@ class GTN_Master(GTN_Base):
         self.minutes_till_reading = 10
         self.available_workers = None
 
-    def get_model_file_name(self, file_name):
-        return os.path.join(self.model_dir, file_name)
-
     def run(self):
         mean_score_orig_list = []
 
@@ -148,37 +145,6 @@ class GTN_Master(GTN_Base):
         else:
             return 1e9, mean_score_orig_list, self.model_name
 
-    def save_good_model(self, mean_score):
-        if self.synthetic_env_orig.is_virtual_env():
-            # TODO: CHECK ->    why do all SE have to have a better score than the threshold?
-            #                   |-> would it not suffice to have just one and save that?
-            if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
-                self.save_model()
-                self.best_score = mean_score
-                return True
-        else:
-            # we save all models and select the best from the log
-            # whether we can solve an environment is irrelevant for reward_env since we optimize for speed here
-            if mean_score > self.best_score:
-                self.save_model()
-                self.best_score = mean_score
-
-        return False
-
-    def save_model(self):
-        save_dict = {}
-        save_dict['model'] = self.synthetic_env_orig.state_dict()
-        save_dict['config'] = self.config
-        save_path = os.path.join(self.model_dir, self.model_name)
-        print('save model: ' + str(save_path))
-        torch.save(save_dict, save_path)
-
-    def calc_worker_timeout(self):
-        if self.time_elapsed_list[0] is None:
-            return self.time_max
-        else:
-            return statistics.mean(self.time_elapsed_list) * self.time_mult
-
     def write_worker_inputs(self, it):
         timeout = self.calc_worker_timeout()
         print('timeout: ' + str(timeout))
@@ -212,20 +178,6 @@ class GTN_Master(GTN_Base):
             torch.save(data, file_name)
             torch.save({}, check_file_name)
 
-    def remove_id(self, id):
-        key_to_delete = None
-        for k, v in self.available_workers.items():
-            if v["id"] == id:
-                key_to_delete = k
-        assert key_to_delete is not None, "key_to_delete was None"
-        self.available_workers.pop(key_to_delete)
-
-    def update_ids_to_check(self):
-        for k, v in lost_connections.items():
-            if k in self.available_workers:
-                self.available_workers.pop(k)
-                print("self.available_ids: ", self.available_workers)
-
     def read_worker_results(self):
         debug_mode = False
         checked_this_iteration = []
@@ -258,6 +210,54 @@ class GTN_Master(GTN_Base):
         for file_name in delete_these_files:
             os.remove(file_name)
             print(f"deleting: {file_name}")
+
+    def save_good_model(self, mean_score):
+        if self.synthetic_env_orig.is_virtual_env():
+            # TODO: CHECK ->    why do all SE have to have a better score than the threshold?
+            #                   |-> would it not suffice to have just one and save that?
+            if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
+                self.save_model()
+                self.best_score = mean_score
+                return True
+        else:
+            # we save all models and select the best from the log
+            # whether we can solve an environment is irrelevant for reward_env since we optimize for speed here
+            if mean_score > self.best_score:
+                self.save_model()
+                self.best_score = mean_score
+
+        return False
+
+    def save_model(self):
+        save_dict = {}
+        save_dict['model'] = self.synthetic_env_orig.state_dict()
+        save_dict['config'] = self.config
+        save_path = os.path.join(self.model_dir, self.model_name)
+        print('save model: ' + str(save_path))
+        torch.save(save_dict, save_path)
+
+    def get_model_file_name(self, file_name):
+        return os.path.join(self.model_dir, file_name)
+
+    def remove_id(self, id):
+        key_to_delete = None
+        for k, v in self.available_workers.items():
+            if v["id"] == id:
+                key_to_delete = k
+        assert key_to_delete is not None, "key_to_delete was None"
+        self.available_workers.pop(key_to_delete)
+
+    def update_ids_to_check(self):
+        for k, v in lost_connections.items():
+            if k in self.available_workers:
+                self.available_workers.pop(k)
+                print("self.available_ids: ", self.available_workers)
+
+    def calc_worker_timeout(self):
+        if self.time_elapsed_list[0] is None:
+            return self.time_max
+        else:
+            return statistics.mean(self.time_elapsed_list) * self.time_mult
 
     def score_transform(self):
         scores = np.asarray(self.score_list)
