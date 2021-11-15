@@ -57,7 +57,7 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.all_time_elapsed_list = [None] * self.num_workers  # for debugging
+        self.all_time_elapsed_list = [self.time_max] * self.num_workers  # for debugging
         self.all_score_list = [0] * self.num_workers
         self.all_score_orig_list = [0] * self.num_workers  # for debugging
         self.all_score_transform_list = [0] * self.num_workers
@@ -116,7 +116,7 @@ class GTN_Master(GTN_Base):
             self.available_workers = copy.deepcopy(connections_for_later)
             print("self.available_ids: ", self.available_workers)
 
-            print('-- Master: read worker results' + ' ' + str(time.time() - t1))
+            print('-- Master: read worker results (tying)' + ' at elapsed time:' + str(time.time() - t1))
             self.read_worker_results()
 
             active_scores_array = np.array(self.all_score_list)[self.active_ids[-1]]  # only calculate the mean score for workers that were active
