@@ -1,6 +1,6 @@
 #!/bin/bash
 #MSUB -N workerSE
-#MOAB -t 1-16 # specifies array job indices
+#MOAB -t 1-512 # specifies array job indices
 #MSUB -l nodes=1:ppn=1
 #MSUB -l walltime=00:04:00:00
 #MSUB -l pmem=6gb
