@@ -2,15 +2,15 @@
 #MSUB -N workerSE
 #MOAB -t 1-512 # specifies array job indices
 #MSUB -l nodes=1:ppn=1
-#MSUB -l walltime=00:04:00:00
+#MSUB -l walltime=03:00:00:00
 #MSUB -l pmem=6gb
-#MSUB -d /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/                            #TODO: PATH
-#MSUB -o /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/out_std_${MOAB_JOBID}.out   #TODO: PATH
-#MSUB -e /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/error_std_${MOAB_JOBID}.err #TODO: PATH
+#MSUB -d /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments
+#MSUB -o /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/out_std_${MOAB_JOBID}.out
+#MSUB -e /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/error_std_${MOAB_JOBID}.err
 
 # =============== SOURCING / LINUX ENV ================== #
 echo "source bashrc"
-source /home/fr/fr_fr/fr_as1464/.bashrc       #TODO: PATH
+source /home/fr/fr_fr/fr_ff1042/.profile
 
 echo "conda activate"
 conda activate nemo_SE_CPU
@@ -43,6 +43,6 @@ PYTHON_SCRIPT="GTN_Worker.py"
 echo 'calling ' $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 # CALL
-/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE     #TODO: PATH
+/home/fr/fr_fr/fr_ff1042/miniconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 echo "Finished at $(date)";
