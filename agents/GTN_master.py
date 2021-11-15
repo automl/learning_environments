@@ -241,9 +241,12 @@ class GTN_Master(GTN_Base):
             if mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
+
         save_dict = {}
         save_dict['model'] = self.synthetic_env_orig.state_dict()
         save_dict['config'] = self.config
+        scores = np.asarray(self.all_score_list)[self.active_ids[-1]]
+        save_dict['scores'] = list(scores)
         save_path = os.path.join(self.model_dir, f"iter_{self.iteration_counter}.pt")
         print('saving not solved model: ' + str(save_path))
         torch.save(save_dict, save_path)
