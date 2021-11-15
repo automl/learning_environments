@@ -106,6 +106,7 @@ class GTN_Master(GTN_Base):
             self.minutes_till_reading = 1
         self.available_workers = None
         self.active_ids = []
+        self.iteration_counter = 0
 
     def run(self):
         mean_score_orig_list = []
@@ -146,6 +147,8 @@ class GTN_Master(GTN_Base):
             self.update_env()
             print('-- Master: print statistics' + ' ' + str(time.time() - t1))
             self.print_statistics(it=it, time_elapsed=time.time() - t1)
+
+            self.iteration_counter += 1
 
         print('Master quitting')
 
@@ -227,6 +230,7 @@ class GTN_Master(GTN_Base):
 
     def save_good_model(self, mean_score):
         if self.synthetic_env_orig.is_virtual_env():
+            print("DEBUG IF")
             if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
@@ -237,6 +241,12 @@ class GTN_Master(GTN_Base):
             if mean_score > self.best_score:
                 self.save_model()
                 self.best_score = mean_score
+        save_dict = {}
+        save_dict['model'] = self.synthetic_env_orig.state_dict()
+        save_dict['config'] = self.config
+        save_path = os.path.join(self.model_dir, f"iter_{self.iteration_counter}.pt")
+        print('saving not solved model: ' + str(save_path))
+        torch.save(save_dict, save_path)
 
         return False
 
