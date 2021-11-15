@@ -31,8 +31,9 @@ def get_ids(id_dict: dict):
 
 
 class GTN_Master(GTN_Base):
-    def __init__(self, config, bohb_id=-1, bohb_working_dir=None):
+    def __init__(self, config, bohb_id=-1, bohb_working_dir=None, additional_arguments=None):
         super().__init__(bohb_id)
+        self.debug = False
         self.config = config
         self.device = config["device"]
         self.env_name = config['env_name']
@@ -47,6 +48,9 @@ class GTN_Master(GTN_Base):
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
         self.time_max = gtn_config["time_max"]  # default is roughly 30 minutes
+        self.time_max = self.time_max
+        if self.debug:
+            self.time_max = self.time_max / 5
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
@@ -93,9 +97,13 @@ class GTN_Master(GTN_Base):
 
         # self.bohb_next_run_counter = 0
 
+        self.additional_arguments = additional_arguments  # Currently not used, added for later
+
         # For Communication Purposes
         self.started_at_time = datetime.now()
-        self.minutes_till_reading = 1
+        self.minutes_till_reading = 30
+        if self.debug:
+            self.minutes_till_reading = 1
         self.available_workers = None
         self.active_ids = []
 
@@ -110,10 +118,13 @@ class GTN_Master(GTN_Base):
             self.write_worker_inputs(it)
 
             while not x_minutes_passed(start=self.started_at_time, end=datetime.now(), minutes_passed=self.minutes_till_reading):
+                # wait for some minutes till wokers to come up, or all workers are up -> start reading
                 time.sleep(self.time_sleep_master)
+                if len(connections_for_later) == self.num_workers:
+                    break
 
             # X minutes passsed -> we make a list of available workers:
-            self.available_workers = copy.deepcopy(connections_for_later)
+            self.available_workers = copy.deepcopy(connections_for_later)  # copy dict over to not have a thread read/write problem (connections_for_later is used in this main as well as the communication thread)
             print("self.available_ids: ", self.available_workers)
 
             print('-- Master: read worker results (tying)' + ' at elapsed time:' + str(time.time() - t1))
@@ -147,7 +158,8 @@ class GTN_Master(GTN_Base):
             return 1e9, mean_score_orig_list, self.model_name
 
     def write_worker_inputs(self, it):
-        timeout = self.calc_worker_timeout()
+        # timeout = self.calc_worker_timeout() # old. lead to sometimes no execution in worker
+        timeout = self.time_max  # new
         print('timeout: ' + str(timeout))
 
         if it == 0:
@@ -342,9 +354,9 @@ class GTN_Master(GTN_Base):
             ss = ss / self.num_workers
 
         # print('-- update env --')
-        print('score_orig_list      ' + str(self.all_score_orig_list))
-        print('score_list           ' + str(self.all_score_list))
-        print('score_transform_list ' + str(self.all_score_transform_list))
+        print('score_orig_list      ' + str(np.array(self.all_score_orig_list)[self.active_ids[-1]]))
+        print('score_list           ' + str(np.array(self.all_score_list)[self.active_ids[-1]]))
+        print('score_transform_list ' + str(np.array(self.all_score_transform_list)[self.active_ids[-1]]))
         print('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.synthetic_env_list]))
 
         print('weights before: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
@@ -377,6 +389,7 @@ class GTN_Master(GTN_Base):
         mean_time_elapsed = statistics.mean(self.all_time_elapsed_list)
         print('--------------')
         print('GTN iteration:    ' + str(it))
+        print('GTN available workers:    ' + str(len(self.active_ids)) + ' : ' + str(self.active_ids[-1]))
         print('GTN mstr t_elaps: ' + str(time_elapsed))
         print('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
         print('GTN avg eval score:   ' + str(orig_score))
