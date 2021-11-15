@@ -5,11 +5,11 @@ render_env: !!bool False                    # render environment
 agents:
   gtn:
     mode: !!str 'multi'                     # 'single': run on single PC / 'multi': run on multiple PCs
-    max_iterations: !!int 50               # maximum number of GTN iterations
+    max_iterations: !!int 50                # maximum number of GTN iterations
     num_threads_per_worker: !!int 2         # how many pytorch/OMP threads per worker
-    num_workers: !!int 128                  # size of the population
-    noise_std: !!float 1e-1                 # standard deviation of the noise vector
-    step_size: !!float 1                    # reptile step size
+    num_workers: !!int 512                  # size of the population
+    noise_std: !!float 1e-2                 # standard deviation of the noise vector
+    step_size: !!float 0.1                  # reptile step size
     nes_step_size: !!bool False             # when set to true, divide step size by the number of workers
     mirrored_sampling: !!bool True          # use normal or mirrored sampling
     num_grad_evals: !!int 1                 # how often to evaluate each gradient
@@ -26,10 +26,10 @@ agents:
     agent_name: !!str td3_vary              # which RL agent to use for meta-training
 
   td3:
-    train_episodes: !!int 50                # maximum number of episodes to optimize
-    test_episodes: !!int 1                  # maximum number of episodes to evaluate
+    train_episodes: !!int 100               # maximum number of episodes to optimize
+    test_episodes: !!int 5                  # maximum number of episodes to evaluate
     init_episodes: !!int 10                 # number of episodes to fill the replay buffer
-    batch_size: !!int 128                   # batch size when running a policy update step
+    batch_size: !!int 256                   # batch size when running a policy update step
     gamma: !!float 0.995                    # discount factor
     lr: !!float 0.00243                     # learning rate
     tau: !!float 0.0086                     # target network update rate
@@ -40,8 +40,8 @@ agents:
     hidden_size: !!int 67                   # size of the actor/critic hidden layer
     hidden_layer: !!int 2                   # number of hidden layers
     action_std: !!float 0.062               # action noise standard deviation
-    policy_std: !!float 0.032               # policy noise standard deviation
-    policy_std_clip: !!float 0.014          # policy noise standard deviation
+    policy_std: !!float 0.132               # policy noise standard deviation
+    policy_std_clip: !!float 0.1            # policy noise standard deviation
     print_rate: 10                           # update rate of avg meters
     early_out_num: !!int 5                  # based on how many training episodes shall an early out happen
     early_out_virtual_diff: !!float 0.0058  # performance difference for an early out for virtual envs
