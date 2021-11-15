@@ -139,3 +139,5 @@ dmypy.json
 # log files
 *.json
 /results/
+
+*.gzip
