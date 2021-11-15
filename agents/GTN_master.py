@@ -46,7 +46,7 @@ class GTN_Master(GTN_Base):
         self.weight_decay = gtn_config["weight_decay"]
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
-        self.time_max = gtn_config["time_max"]
+        self.time_max = gtn_config["time_max"]  # default is roughly 30 minutes
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
@@ -174,7 +174,7 @@ class GTN_Master(GTN_Base):
             data['quit_flag'] = quit_flag
             data['config'] = self.config
             data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
-            #data['bohb_next_run_counter'] = self.bohb_next_run_counter
+            # data['bohb_next_run_counter'] = self.bohb_next_run_counter
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
