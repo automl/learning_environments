@@ -7,10 +7,11 @@
 #MSUB -d /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments
 #MSUB -o /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/out_std_${MOAB_JOBID}.out
 #MSUB -e /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/error_std_${MOAB_JOBID}.err
+#MSUB -M blabla@uni.de
 
 # =============== SOURCING / LINUX ENV ================== #
 echo "source bashrc"
-source /home/fr/fr_fr/fr_ff1042/.profile
+source /home/fr/fr_fr/fr_ff1042/.bashrc
 
 echo "conda activate"
 conda activate nemo_SE_CPU

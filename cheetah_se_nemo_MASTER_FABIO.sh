@@ -9,7 +9,7 @@
 
 # =============== SOURCING / LINUX ENV ================== #
 echo "source bashrc"
-source /home/fr/fr_fr/fr_ff1042/.profile
+source /home/fr/fr_fr/fr_ff1042/.bashrc
 
 echo "conda activate"
 conda activate nemo_SE_CPU
@@ -30,7 +30,7 @@ echo "Starting/Calling at $(date)";
 # EXPERIMENTS HYPERPARAMETERS
 BOHB_ID=$((60000))
 ID=$((0))
-PORT=$((10000))
+PORT=$((10001))
 MIN_WORKER=$((2))
 NUMBER_OF_WORKERS=$((16))
 RUN_MODE="master"
