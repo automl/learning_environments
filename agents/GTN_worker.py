@@ -193,7 +193,7 @@ class GTN_Worker(GTN_Base):
 
         agent = select_agent(config=self.config, agent_name=self.agent_name)
         real_env = self.env_factory.generate_real_env()
-
+        print(f"DEBUG: time_remaining: {time_remaining} - (time.time(): {time.time()} - time_start: {time_start})")
         reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining - (time.time() - time_start))
 
         # if len(agent.trajectories) != 0:

@@ -57,7 +57,7 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.all_time_elapsed_list = [0] * self.num_workers  # for debugging
+        self.all_time_elapsed_list = [None] * self.num_workers  # for debugging
         self.all_score_list = [0] * self.num_workers
         self.all_score_orig_list = [0] * self.num_workers  # for debugging
         self.all_score_transform_list = [0] * self.num_workers
@@ -95,7 +95,7 @@ class GTN_Master(GTN_Base):
 
         # For Communication Purposes
         self.started_at_time = datetime.now()
-        self.minutes_till_reading = 10
+        self.minutes_till_reading = 1
         self.available_workers = None
         self.active_ids = []
 
@@ -174,7 +174,7 @@ class GTN_Master(GTN_Base):
             data['quit_flag'] = quit_flag
             data['config'] = self.config
             data['synthetic_env_orig'] = self.synthetic_env_orig.state_dict()
-            data['bohb_next_run_counter'] = self.bohb_next_run_counter
+            #data['bohb_next_run_counter'] = self.bohb_next_run_counter
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
@@ -201,10 +201,10 @@ class GTN_Master(GTN_Base):
                     delete_these_files.append(file_name)
 
                     data = torch.load(file_name)
-                    self.time_elapsed_list[id - 1] = data['time_elapsed']
-                    self.score_list[id - 1] = data['score']
+                    self.all_time_elapsed_list[id - 1] = data['time_elapsed']
+                    self.all_score_list[id - 1] = data['score']
                     self.eps_list[id - 1].load_state_dict(data['eps'])
-                    self.score_orig_list[id - 1] = data['score_orig']
+                    self.all_score_orig_list[id - 1] = data['score_orig']
                     self.synthetic_env_list[id - 1].load_state_dict(data['synthetic_env'])  # for debugging
 
         self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
@@ -254,10 +254,10 @@ class GTN_Master(GTN_Base):
                 print("self.available_ids: ", self.available_workers)
 
     def calc_worker_timeout(self):
-        if self.time_elapsed_list[0] is None:
+        if self.all_time_elapsed_list[0] is None:
             return self.time_max
         else:
-            return statistics.mean(self.time_elapsed_list) * self.time_mult
+            return statistics.mean(self.all_time_elapsed_list) * self.time_mult
 
     def score_transform(self):
         scores = np.asarray(self.all_score_list)[self.active_ids[-1]]  # only select scores from workers that were active
