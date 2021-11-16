@@ -21,9 +21,9 @@ STD_TRAIN_STEPS = []
 NEW: 3.pt -> rewards from MBRL baseline
 """
 
-FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
+FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/generalization_gap')
 TITLES.append("DDQN on DDQN-trained SEs")
-FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
+FILE_LISTS.append(['0_generalization.pt', '2_generalization.pt', '1_generalization.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
 TITLES.append("Transfer: Dueling DDQN on DDQN-trained SEs")
@@ -65,7 +65,7 @@ if show_5_best_jointly_with_other:
 if show_zoom:
     plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde_zoom.pdf'
 else:
-    plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_only_kde.pdf'
+    plot_name = 'CP_fixed_hps_only_kde_generalization_gap.pdf'
 
 key = "2_5_best_filtered_models"  # don't comment this line
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
@@ -75,11 +75,13 @@ if __name__ == "__main__":
 
     nrows = 1
     gridspec_kw = {}
-    figsize = (15, 3)
+    figsize = (5, 3)
 
-    fig, axes = plt.subplots(figsize=figsize, ncols=3, nrows=nrows, sharex="row", sharey="row", gridspec_kw=gridspec_kw)
+    fig, axes = plt.subplots(figsize=figsize, ncols=1, nrows=nrows, sharex="row", sharey="row", gridspec_kw=gridspec_kw)
 
     for i, data in enumerate(zip(FILE_DIRS, FILE_LISTS, TITLES, MEAN_TRAIN_STEPS, STD_TRAIN_STEPS)):
+        if i > 0:
+            break
         FILE_DIR, FILE_LIST, title, mean_train_steps, std_train_steps = data
 
         data_list = []
@@ -130,21 +132,21 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                'train: real': data_list[0],
+                'train: real\n(fixed HPs eval.)': data_list[0],
 
-                'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied\n(fixed HPs eval.)': data_list[1],
 
-                'train: synth., HPs: fixed': data_list[3],
+                'train: synth., HPs: fixed\n(fixed HPs eval.)': data_list[3],
 
                 'train: synth., HPs: varied (5 best)': data_list[2],
             }
         else:
             data_dict = {
-                'train: real': data_list[0],
+                'train: real\n(fixed HPs eval.)': data_list[0],
 
-                'train: synth., HPs: varied': data_list[1],
+                'train: synth., HPs: varied\n(fixed HPs eval.)': data_list[1],
 
-                'train: synth., HPs: fixed': data_list[2],
+                'train: synth., HPs: fixed\n(fixed HPs eval.)': data_list[2],
             }
 
         df = pd.DataFrame(data=data_dict)
@@ -169,30 +171,7 @@ if __name__ == "__main__":
         else:
             palette = ["C0", "C1", "C2"]
 
-        ax = axes[i]
-
-        # def upper_rugplot(data, ax=None, i=None, color=None, **kwargs):
-        #     from matplotlib.collections import LineCollection
-        #     ax = ax or plt.gca()
-        #     heights = [[0.0, 0.03], [0.05, 0.08], [0.1, 0.13]]
-        #
-        #     height = heights[i]
-        #     kwargs.setdefault("linewidth", 0.2)
-        #     segs = np.stack((np.c_[data, data],
-        #                      np.c_[np.ones_like(data) - height[0], np.ones_like(data) - height[1]]),
-        #                     axis=-1)
-        #     lc = LineCollection(segs, transform=ax.get_xaxis_transform(), color=color, **kwargs)
-        #     ax.add_collection(lc)
-        #
-        # l_colors = ['C0', 'C1', 'C2']
-        # for k, typ in enumerate(["train: real", "train: synth., HPs: varied", "train: synth., HPs: fixed"]):
-        #     data = df[df['type'].str.contains(typ)]['cumulative rewards']
-        #     if i == 2 and k == 1:
-        #         data = df[df['type'].str.contains("5 best")]['cumulative rewards']
-        #         color = 'black'
-        #     else:
-        #         color = l_colors[k]
-        #     upper_rugplot(data=data, ax=ax, i=k, color=color)
+        ax = axes
 
         # need to set label for accesss to handles later on
         g = sns.kdeplot(x="cumulative rewards", hue="type", data=df, ax=ax, palette=palette, label=data_dict.keys())
@@ -206,8 +185,8 @@ if __name__ == "__main__":
             g.axes.get_legend().set_title("")
             ax.set_xlabel('cumulative rewards')
             ax.set_ylabel('Density')
-            if show_5_best_jointly_with_other:
-                g.axes.get_legend().set_visible(False)
+            # if show_5_best_jointly_with_other:
+                # g.axes.get_legend().set_visible(False)
 
             if show_zoom:
                 ax2 = plt.axes([0.11, .65, .08, .1], facecolor='w')
@@ -278,5 +257,5 @@ if __name__ == "__main__":
                 ax3.set_ylim([0.0, 0.0005])
 
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name))
+    plt.savefig(os.path.join(os.getcwd(), "generalization_gap", plot_name))
     plt.show()

@@ -16,9 +16,9 @@ TITLES = []
 MEAN_TRAIN_STEPS = []
 STD_TRAIN_STEPS = []
 
-FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_vary_trained_on')
+FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/generalization_gap')
 TITLES.append("DDQN on DDQN-trained SE")
-FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
+FILE_LISTS.append(['0_generalization.pt', '2_generalization.pt', '1_generalization.pt'])
 
 FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/transfer_experiments/cartpole/ddqn_to_duelingddqn_vary')
 TITLES.append("Transfer DDQN -> Dueling DDQN")
@@ -29,8 +29,9 @@ FILE_DIRS.append('/home/ferreira/Projects/learning_environments/experiments/tran
 TITLES.append("Transfer DDQN -> TD3")
 FILE_LISTS.append(['0.pt', '2.pt', '1.pt'])
 
-ddqn_mean_train_steps = [16887.6925, 6818.57, 6379.5075]
-ddqn_std_train_steps = [24925.0562208, 2339.505055, 3162.9542706]
+# from generalization gap files:
+ddqn_mean_train_steps = [11526.1775, 7494.815, 7845.305]
+ddqn_std_train_steps = [7869.8305401, 4249.35711, 4766.50916]
 
 MEAN_TRAIN_STEPS.append(ddqn_mean_train_steps)
 STD_TRAIN_STEPS.append(ddqn_std_train_steps)
@@ -55,9 +56,10 @@ if show_5_best_jointly_with_other:
     TITLES[2] = "Transfer DDQN -> TD3"
     FILE_LISTS[2] = ['0.pt', '2_5_best_filtered_models.pt', '1.pt']
 
-plot_name = 'CP_vary_hp_merged_plots_best_5_dtd3_barplot.pdf'
+plot_name = 'CP_fixed_HPs_evaluated_barplot_generalization_gap.pdf'
 
 key = "2_5_best_filtered_models"  # don't comment this line
+key2 = "generalization"
 MEAN_TRAIN_STEPS.append(td3_mean_train_steps)
 STD_TRAIN_STEPS.append(td3_std_train_steps)
 
@@ -81,7 +83,7 @@ if __name__ == "__main__":
             save_dict = torch.load(file_path)
             reward_list = save_dict['reward_list']
 
-            if key in file:
+            if key in file or key2 in file:
                 # keys got falsely named in the beginning of experiment:
                 # train_steps were named num_episodes
                 # new models are now correctly using keys --> mapping needed
@@ -119,7 +121,7 @@ if __name__ == "__main__":
 
         if len(data_list) == 4:
             data_dict = {
-                'train: real': data_list[0],
+                'train: real\n(fixed HPs evaluated)': data_list[0],
 
                 'train: synth., HPs: varied': data_list[1],
 
@@ -129,7 +131,7 @@ if __name__ == "__main__":
             }
         else:
             data_dict = {
-                'train: real': data_list[0],
+                'train: real\n(fixed HPs evaluated)': data_list[0],
 
                 'train: synth., HPs: varied': data_list[1],
 
@@ -162,9 +164,9 @@ if __name__ == "__main__":
             "type": ["steps", "episodes",
                      "steps", "episodes",
                      "steps", "episodes"],
-            "method": ["train: real", "train: real",
-                       "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                       "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"],
+            "method": ["train: real\n(fixed HPs eval.)", "train: real\n(fixed HPs eval.)",
+                       "train: synth.\nHPs: varied\n(fixed HPs eval.)", "train: synth.\nHPs: varied\n(fixed HPs eval.)",
+                       "train: synth.\nHPs: fixed\n(fixed HPs eval.)", "train: synth.\nHPs: fixed\n(fixed HPs eval.)"],
             "means": [mean_train_steps[0], episode_num_needed_means[0],
                       mean_train_steps[1], episode_num_needed_means[1],
                       mean_train_steps[2], episode_num_needed_means[2]],
@@ -174,13 +176,13 @@ if __name__ == "__main__":
         }
 
         if show_5_best_jointly_with_other and i == 2:
-            barplot_data_dct["method"] = ["train: real", "train: real",
+            barplot_data_dct["method"] = ["train: real\n(fixed HPs eval.)", "train: real\n(fixed HPs eval.)",
                                           "train: synth.\nHPs: varied (5 best)", "train: synth.\nHPs: varied (5 best)",
-                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
+                                          "train: synth.\nHPs: fixed\n(fixed HPs eval.)", "train: synth.\nHPs: fixed\n(fixed HPs eval.)"]
         else:
-            barplot_data_dct["method"] = ["train: real", "train: real",
-                                          "train: synth.\nHPs: varied", "train: synth.\nHPs: varied",
-                                          "train: synth.\nHPs: fixed", "train: synth.\nHPs: fixed"]
+            barplot_data_dct["method"] = ["train: real\n(fixed HPs eval.)", "train: real\n(fixed HPs eval.)",
+                                          "train: synth.\nHPs: varied\n(fixed HPs eval.)", "train: synth.\nHPs: varied\n(fixed HPs eval.)",
+                                          "train: synth.\nHPs: fixed\n(fixed HPs eval.)", "train: synth.\nHPs: fixed\n(fixed HPs eval.)"]
 
         barplot_df = pd.DataFrame(barplot_data_dct)
 
@@ -217,6 +219,8 @@ if __name__ == "__main__":
             axis_left = axes[i]
             # axis_left.set_ylim((-10000, 100000))
             # axis_left.set_ylim((-5000, axis_left.get_ylim()[1]))
+            # axis_left_after.set_ylim((-40000, axis_left_after.get_ylim()[1]))
+            axis_left.set_ylim((-5498.65300, 39274.038002086))
             axis_right = axis_left.twinx()
             axis_right.set_ylim(axis_left.get_ylim())
             axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
@@ -241,5 +245,5 @@ if __name__ == "__main__":
         axis_right_after.set_yticklabels(np.round(axis_left_after.get_yticks() / scale, 1).astype(int))
 
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), "transfer_experiments/cartpole", plot_name))
+    plt.savefig(os.path.join(os.getcwd(), "generalization_gap", plot_name))
     plt.show()

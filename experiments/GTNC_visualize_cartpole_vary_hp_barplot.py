@@ -45,7 +45,7 @@ STD_TRAIN_STEPS.append(dueling_ddqn_std_train_steps)
 td3_mean_train_steps = [17874.925, 5832.0975, 5371.035]
 td3_std_train_steps = [17834.68171216899, 1576.944465729136, 2414.505099140401]
 
-show_5_best_jointly_with_other = True
+show_5_best_jointly_with_other = False
 
 if show_5_best_jointly_with_other:
     # mode 2, 5 best models (see syn_env_evaluate_cartpole_vary_hp_2_TD3_discrete.py for which one), 4k evals (80(agents_num)*5(models)*10(
@@ -217,6 +217,7 @@ if __name__ == "__main__":
             axis_left = axes[i]
             # axis_left.set_ylim((-10000, 100000))
             # axis_left.set_ylim((-5000, axis_left.get_ylim()[1]))
+            print(axis_left.get_ylim())
             axis_right = axis_left.twinx()
             axis_right.set_ylim(axis_left.get_ylim())
             axis_right.set_yticklabels(np.round(axis_left.get_yticks() / scale, 1).astype(int))
