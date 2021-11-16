@@ -3,13 +3,13 @@
 #MSUB -l nodes=1:ppn=4
 #MSUB -l walltime=03:00:00:00
 #MSUB -l pmem=6gb
-#MSUB -d /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/
-#MSUB -o /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/out_std_${MOAB_JOBID}.out
-#MSUB -e /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/error_std_${MOAB_JOBID}.err
+#MSUB -d /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments
+#MSUB -o /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/out_std_${MOAB_JOBID}.out
+#MSUB -e /work/ws/nemo/fr_ff1042-ws_se-0/learning_environments/error_std_${MOAB_JOBID}.err
 
 # =============== SOURCING / LINUX ENV ================== #
 echo "source bashrc"
-source /home/fr/fr_fr/fr_as1464/.bashrc
+source /home/fr/fr_fr/fr_ff1042/.bashrc
 
 echo "conda activate"
 conda activate nemo_SE_CPU
@@ -28,9 +28,9 @@ echo "Started at $(date)";
 echo "Starting/Calling at $(date)";
 
 # EXPERIMENTS HYPERPARAMETERS
-BOHB_ID=$((50000))
+BOHB_ID=$((60000))
 ID=$((0))
-PORT=$((10000))
+PORT=$((10001))
 MIN_WORKER=$((2))
 NUMBER_OF_WORKERS=$((16))
 RUN_MODE="master"
@@ -40,6 +40,6 @@ PYTHON_SCRIPT="syn_env_learn_halfcheetah.py"
 echo 'calling ' $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 # CALL
-/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
+/home/fr/fr_fr/fr_ff1042/miniconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 echo "Finished at $(date)";
