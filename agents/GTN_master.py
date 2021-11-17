@@ -41,7 +41,7 @@ class GTN_Master(GTN_Base):
         gtn_config = config["agents"]["gtn"]
         self.max_iterations = gtn_config["max_iterations"]
         self.agent_name = gtn_config["agent_name"]
-        self.num_workers = gtn_config["num_workers"]
+        self.num_workers = gtn_config["num_workers"] + 1
         self.step_size = gtn_config["step_size"]
         self.nes_step_size = gtn_config["nes_step_size"]
         self.weight_decay = gtn_config["weight_decay"]
