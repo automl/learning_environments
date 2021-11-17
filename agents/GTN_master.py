@@ -216,11 +216,11 @@ class GTN_Master(GTN_Base):
                     delete_these_files.append(file_name)
 
                     data = torch.load(file_name)
-                    self.all_time_elapsed_list[id - 1] = data['time_elapsed']
-                    self.all_score_list[id - 1] = data['score']
-                    self.eps_list[id - 1].load_state_dict(data['eps'])
-                    self.all_score_orig_list[id - 1] = data['score_orig']
-                    self.synthetic_env_list[id - 1].load_state_dict(data['synthetic_env'])  # for debugging
+                    self.all_time_elapsed_list[id ] = data['time_elapsed']
+                    self.all_score_list[id ] = data['score']
+                    self.eps_list[id ].load_state_dict(data['eps'])
+                    self.all_score_orig_list[id ] = data['score_orig']
+                    self.synthetic_env_list[id ].load_state_dict(data['synthetic_env'])  # for debugging
 
         self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
 

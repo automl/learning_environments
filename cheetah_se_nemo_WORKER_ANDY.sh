@@ -32,7 +32,7 @@ echo "Starting/Calling at $(date)";
 
 # EXPERIMENTS HYPERPARAMETERS
 BOHB_ID=$((50000))
-ID=$(($MOAB_JOBARRAYINDEX))
+ID=$((MOAB_JOBARRAYINDEX-1))
 PORT=$((10000))
 MIN_WORKER=$((200))
 NUMBER_OF_WORKERS=$((256))
@@ -43,6 +43,6 @@ PYTHON_SCRIPT="GTN_Worker.py"
 echo 'calling ' $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 # CALL
-/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
+#/home/fr/fr_fr/fr_as1464/anaconda3/envs/nemo_SE_CPU/bin/python -u $PWD/$PYTHON_SCRIPT --bohb_id $BOHB_ID --id $ID --moab_id $MOAB_JOBID --port $PORT --min_workers $MIN_WORKER --number_workers $NUMBER_OF_WORKERS --mode $RUN_MODE
 
 echo "Finished at $(date)";
