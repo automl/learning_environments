@@ -170,7 +170,7 @@ class GTN_Master(GTN_Base):
         else:
             id_list = get_ids(self.available_workers)
 
-        print(f"Iteration: {it}, wrinting files for ids: {id_list}")
+        print(f"Iteration: {it}, writing files for ids: {id_list}")
         for id in id_list:
 
             file_name = self.get_input_file_name(id=id)
@@ -222,6 +222,7 @@ class GTN_Master(GTN_Base):
                     self.all_score_orig_list[id ] = data['score_orig']
                     self.synthetic_env_list[id ].load_state_dict(data['synthetic_env'])  # for debugging
 
+        print("--DEBUG jumped out of while loop")
         self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
 
         for file_name in delete_these_files:
