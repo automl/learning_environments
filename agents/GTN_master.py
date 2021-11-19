@@ -208,10 +208,10 @@ class GTN_Master(GTN_Base):
                 
                 # wait until worker has finished calculations
                 if not os.path.isfile(check_file_name):
-                    print(f"# available workers: {len(self.available_workers)}")
+                    # print(f"# available workers: {len(self.available_workers)}")
                     continue
                 else:
-                    print(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
+                    # print(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
                     self.remove_id(id)
                     checked_this_iteration.append(id)
                     delete_these_files.append(check_file_name)
