@@ -83,8 +83,7 @@ def train_test_agents(train_env, test_env, config, agents_num):
 
 
 if __name__ == "__main__":
-    model_dir = '/home/nierhoff/master_thesis/learning_environments/results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10' \
-                '/GTN_models_CartPole-v0'
+    model_dir = '/home/ferreira/Projects/learning_environments/results/2_thomas_results/GTNC_evaluate_cartpole_vary_hp_2020-11-17-10/GTN_models_CartPole-v0'
     
     parser = argparse.ArgumentParser()
     # parser.add_argument('--mode', type=int, help='mode 0: real env, mode 1: syn. env. (no vary), mode 2: syn. env. (vary)')
