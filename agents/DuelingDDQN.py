@@ -18,6 +18,7 @@ class DuelingDDQN(BaseAgent):
         super().__init__(agent_name=self.agent_name, env=env, config=config)
 
         ddqn_config = config["agents"][self.agent_name]
+        self.full_config = config
 
         self.batch_size = ddqn_config["batch_size"]
         self.rb_size = ddqn_config["rb_size"]

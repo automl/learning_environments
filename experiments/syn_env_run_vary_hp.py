@@ -62,7 +62,7 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 episode_length_needed += episode_length_needed_i
                 
                 if correlation_exp:
-                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = None
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = {}
                 else:
                     env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_i)
         else:
@@ -77,7 +77,7 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 train_steps_needed += train_steps_needed_tpl[i]
                 episode_length_needed += episode_length_needed_tpl[i]
                 if correlation_exp:
-                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = None
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = {}
                 else:
                     env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_tpl[i])
     else:
@@ -99,7 +99,7 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 train_steps_needed += train_steps_needed_i
                 episode_length_needed += episode_length_needed_i
                 if correlation_exp:
-                    env_reward_overview[file_name] = None
+                    env_reward_overview[file_name] = {}
                 else:
                     env_reward_overview[file_name] = np.hstack(reward_list_i)
         else:
@@ -120,7 +120,7 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 episode_length_needed += episode_length_needed_tpl[i]
                 
                 if correlation_exp:
-                    env_reward_overview[file_name] = None
+                    env_reward_overview[file_name] = {}
                 else:
                     env_reward_overview[file_name] = np.hstack(reward_list_tpl[i])
 
