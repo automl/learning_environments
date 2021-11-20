@@ -30,7 +30,7 @@ def get_all_files(with_vary_hp, model_num, model_dir, custom_load_envs_and_confi
 
 
 def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_load_envs_and_config,
-                custom_train_test_agents, env_name, pool=None, device="cuda", filter_models_list=None):
+                custom_train_test_agents, env_name, pool=None, device="cuda", filter_models_list=None, correlation_exp=False):
     if mode == 0:
         train_on_venv = False
     elif mode == 1:
@@ -60,7 +60,11 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 reward_list += reward_list_i
                 train_steps_needed += train_steps_needed_i
                 episode_length_needed += episode_length_needed_i
-                env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_i)
+                
+                if correlation_exp:
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = None
+                else:
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_i)
         else:
             reward_list_tpl, train_steps_needed_tpl, episode_length_needed_tpl = zip(*pool.starmap(custom_train_test_agents,
                                                                                                    [(real_env, real_env, config,
@@ -72,7 +76,10 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 reward_list += reward_list_tpl[i]
                 train_steps_needed += train_steps_needed_tpl[i]
                 episode_length_needed += episode_length_needed_tpl[i]
-                env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_tpl[i])
+                if correlation_exp:
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = None
+                else:
+                    env_reward_overview[real_env.env.env_name + "_" + str(i)] = np.hstack(reward_list_tpl[i])
     else:
         file_list = get_all_files(with_vary_hp=with_vary_hp, model_num=model_num, model_dir=model_dir,
                                   custom_load_envs_and_config=custom_load_envs_and_config, env_name=env_name, device=device,
@@ -91,7 +98,10 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 reward_list += reward_list_i
                 train_steps_needed += train_steps_needed_i
                 episode_length_needed += episode_length_needed_i
-                env_reward_overview[file_name] = np.hstack(reward_list_i)
+                if correlation_exp:
+                    env_reward_overview[file_name] = None
+                else:
+                    env_reward_overview[file_name] = np.hstack(reward_list_i)
         else:
             _, _, config = custom_load_envs_and_config(file_name=file_list[0], model_dir=model_dir, device=device)
 
@@ -108,7 +118,11 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                 reward_list += reward_list_tpl[i]
                 train_steps_needed += train_steps_needed_tpl[i]
                 episode_length_needed += episode_length_needed_tpl[i]
-                env_reward_overview[file_name] = np.hstack(reward_list_tpl[i])
+                
+                if correlation_exp:
+                    env_reward_overview[file_name] = None
+                else:
+                    env_reward_overview[file_name] = np.hstack(reward_list_tpl[i])
 
     save_lists(mode=mode,
                config=config,

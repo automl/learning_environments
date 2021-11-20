@@ -33,7 +33,7 @@ class DDQN_vary(DDQN):
         cs = CS.ConfigurationSpace()
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter(name='lr', lower=lr / 3, upper=lr * 3, log=True, default_value=lr))
         cs.add_hyperparameter(
-            CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,
+            CSH.UniformIntegerHyperparameter(name='batch_size', lower=int(batch_size / 3), upper=int(batch_size * 3), log=True,
                                              default_value=batch_size))
         cs.add_hyperparameter(
             CSH.UniformIntegerHyperparameter(name='hidden_size', lower=int(hidden_size / 3), upper=int(hidden_size * 3), log=True,

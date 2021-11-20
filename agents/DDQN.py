@@ -19,6 +19,8 @@ class DDQN(BaseAgent):
 
         ddqn_config = config["agents"][self.agent_name]
 
+        self.full_config = config
+
         self.batch_size = ddqn_config["batch_size"]
         self.rb_size = ddqn_config["rb_size"]
         self.gamma = ddqn_config["gamma"]
