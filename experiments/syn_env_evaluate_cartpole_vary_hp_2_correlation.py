@@ -45,6 +45,7 @@ def train_test_agents(train_env, test_env, config, agents_num):
         # synthetic
         agent = select_agent(config=config, agent_name='DDQN_vary')
         config_varied = agent.full_config
+        print(f"training on syn env with config: {agent.full_config}")
         reward_train, episode_length, _ = agent.train(env=train_env)
         reward, _, _ = agent.test(env=test_env)
         print('reward when trained on synth. env: ' + str(reward))
@@ -54,6 +55,7 @@ def train_test_agents(train_env, test_env, config, agents_num):
         
         # real
         agent = select_agent(config=config_varied, agent_name='DDQN')
+        print(f"training on real env with config: {agent.full_config}")
         reward_train, episode_length, _ = agent.train(env=test_env)
         reward, _, _ = agent.test(env=test_env)
         print('reward when trained on real env: ' + str(reward))
