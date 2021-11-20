@@ -94,6 +94,7 @@ if __name__ == "__main__":
     parser.add_argument('--device', type=str, help='device to be used (cuda or cpu)', default='cuda')
     args = parser.parse_args()
     
+    args.mode = 2
     model_num = args.model_num
     agents_num = args.agents_num
     device = args.device
@@ -112,14 +113,14 @@ if __name__ == "__main__":
     
     if args.mode is not None:
         run_vary_hp(
-            mode=2, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
+            mode=args.mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
             model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
             custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, correlation_exp=True,
             )
     else:
         for mode in range(3):
             run_vary_hp(
-                mode=2, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
+                mode=mode, experiment_name=experiment_name, model_num=model_num, agents_num=agents_num,
                 model_dir=model_dir, custom_load_envs_and_config=load_envs_and_config,
                 custom_train_test_agents=train_test_agents, env_name=env_name, pool=pool, device=device, correlation_exp=True,
                 )
