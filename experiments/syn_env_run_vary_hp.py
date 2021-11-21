@@ -115,7 +115,7 @@ def run_vary_hp(mode, experiment_name, model_num, agents_num, model_dir, custom_
                                                                                      )
             if correlation_exp:
                 for i, file_name in enumerate(file_list):
-                    reward_list.apennd(reward_list_tpl[i])
+                    reward_list.append(reward_list_tpl[i])
                     train_steps_needed.append(train_steps_needed_tpl[i])
                     episode_length_needed.append(episode_length_needed_tpl[i])
                     env_reward_overview[file_name] = {}
