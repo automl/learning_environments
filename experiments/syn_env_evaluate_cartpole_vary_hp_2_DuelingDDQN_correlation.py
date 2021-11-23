@@ -48,6 +48,7 @@ def train_test_agents(train_env, test_env, config, agents_num):
     config['agents']['duelingddqn']['init_episodes'] = 10
     config['agents']['duelingddqn']['test_episodes'] = 100
     config['agents']['duelingddqn']['early_out_virtual_diff'] = 0.01
+    config['agents']['duelingddqn']['early_out_num'] = 1000  # todo: remove eventually (new)
     
     for i in range(agents_num):
         # synthetic
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     
     print("model_num:", model_num, "agents_num:", agents_num, "pool size:", args.pool, "device:", device)
     
-    experiment_name = "duelingddqn_vary_correlation_syn_real_" + str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
+    experiment_name = "duelingddqn_vary_correlation_syn_real_early_out_1000_" + str(agents_num) + "_agents_num_" + str(model_num) + "_model_num"
     
     env_name = "CartPole"
     

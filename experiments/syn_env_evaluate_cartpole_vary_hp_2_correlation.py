@@ -40,7 +40,7 @@ def train_test_agents(train_env, test_env, config, agents_num):
     config['agents']['ddqn']['init_episodes'] = 10
     config['agents']['ddqn']['test_episodes'] = 100
     config['agents']['ddqn']['early_out_virtual_diff'] = 0.01
-    config['agents']['ddqn']['early_out_num'] = 1000
+    config['agents']['ddqn']['early_out_num'] = 1000  # todo: remove eventually (new)
     
     for i in range(agents_num):
         # synthetic
