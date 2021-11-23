@@ -1,8 +1,6 @@
 import numpy as np
 import torch
-import seaborn as sns
 from scipy import stats
-import matplotlib.pyplot as plt
 
 file_path_ddqn = "/home/ferreira/Projects/learning_environments/experiments/correlation_hps_se_real/2_ddqn_vary_correlation_syn_real_10_agents_num_40_model_num.pt"
 file_path_duelingddqn = "/home/ferreira/Projects/learning_environments/experiments/correlation_hps_se_real/2_duelingddqn_vary_correlation_syn_real_10_agents_num_40_model_num.pt"
@@ -29,7 +27,6 @@ for i, r in enumerate(rewards_ddqn['reward_list']):
             # rewards_ddqn_synth.append(flat_list_syn)
             rewards_ddqn_synth.append(np.mean(flat_list_syn))
 
-
 for i, r in enumerate(rewards_duelingddqn['reward_list']):
     # if i > 5:
     #     break
@@ -50,15 +47,22 @@ for i, r in enumerate(rewards_duelingddqn['reward_list']):
 # sns.heatmap(rho, annot=True)
 # plt.show()
 
+# DDQN
 rho, pval = stats.spearmanr(np.asarray(rewards_ddqn_real).flatten(), np.asarray(rewards_ddqn_synth).flatten())
-print(f"DDQN spearman rank corr.; rho: {rho}, pval: {pval}")
+print(f"DDQN Spearman rank corr.; rho: {rho}, pval: {pval}")
+
+rho, pval = stats.kendalltau(np.asarray(rewards_ddqn_real).flatten(), np.asarray(rewards_ddqn_synth).flatten())
+print(f"DDQN Kendalltau corr.; rho: {rho}, pval: {pval}")
 
 rho, pval = stats.pearsonr(np.asarray(rewards_ddqn_real).flatten(), np.asarray(rewards_ddqn_synth).flatten())
-print(f"DDQN pearson corr.; rho: {rho}, pval: {pval}")
+print(f"DDQN Pearson corr.; rho: {rho}, pval: {pval}")
 
-
+# Dueling DDQN
 rho, pval = stats.spearmanr(np.asarray(rewards_duel_ddqn_real).flatten(), np.asarray(rewards_duel_ddqn_synth).flatten())
-print(f"DuelingDDQN spearman rank corr.; rho: {rho}, pval: {pval}")
+print(f"DuelingDDQN Spearman rank corr.; rho: {rho}, pval: {pval}")
+
+rho, pval = stats.kendalltau(np.asarray(rewards_duel_ddqn_real).flatten(), np.asarray(rewards_duel_ddqn_synth).flatten())
+print(f"DuelingDDQN Kendalltau corr.; rho: {rho}, pval: {pval}")
 
 rho, pval = stats.pearsonr(np.asarray(rewards_duel_ddqn_real).flatten(), np.asarray(rewards_duel_ddqn_synth).flatten())
-print(f"DuelingDDQN pearson corr.; rho: {rho}, pval: {pval}")
+print(f"DuelingDDQN Pearson corr.; rho: {rho}, pval: {pval}")
