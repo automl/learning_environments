@@ -8,6 +8,9 @@ import yaml
 from agents.DDQN import DDQN
 from envs.env_factory import EnvFactory
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DDQN_vary(DDQN):
     def __init__(self, env, config, icm=False):
@@ -42,7 +45,7 @@ class DDQN_vary(DDQN):
 
         config = cs.sample_configuration()
 
-        print(f"sampled part of config: "
+        logger.info(f"sampled part of config: "
               f"lr: {config['lr']}, "
               f"batch_size: {config['batch_size']}, "
               f"hidden_size: {config['hidden_size']}, "
@@ -54,7 +57,7 @@ class DDQN_vary(DDQN):
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 
-        print("full config: ", config_mod['agents'][self.agent_name])
+        logger.info("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 
@@ -74,8 +77,8 @@ if __name__ == "__main__":
     for i in range(10):
         ddqn = DDQN_vary(env=real_env, config=config, icm=True)
         # ddqn.train(env=virt_env, time_remaining=50)
-        print('TRAIN')
+        logger.info('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
-        # print('TEST')
+        # logger.info('TEST')
         # ddqn.test(env=real_env, time_remaining=500)
-    print('avg. ' + str(sum(timing) / len(timing)))
+    logger.info('avg. ' + str(sum(timing) / len(timing)))

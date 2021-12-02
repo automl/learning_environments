@@ -1,6 +1,6 @@
 #!/bin/bash
 #MSUB -N workerSE
-#MOAB -t 1-512 # specifies array job indices
+#MOAB -t 1-16 # specifies array job indices
 #MSUB -l nodes=1:ppn=1
 #MSUB -l walltime=03:00:00:00
 #MSUB -l pmem=6gb
@@ -34,8 +34,8 @@ echo "Starting/Calling at $(date)";
 BOHB_ID=$((50000))
 ID=$((MOAB_JOBARRAYINDEX-1))
 PORT=$((10000))
-MIN_WORKER=$((200))
-NUMBER_OF_WORKERS=$((256))
+MIN_WORKER=$((8))
+NUMBER_OF_WORKERS=$((16))
 RUN_MODE="worker"
 
 PYTHON_SCRIPT="GTN_Worker.py"

@@ -8,6 +8,9 @@ import math
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class QL(BaseAgent):
     def __init__(self, env, config, count_based=False):
@@ -29,7 +32,7 @@ class QL(BaseAgent):
 
         if self.count_based:
             self.beta = ql_config["beta"]
-            print("beta: ", self.beta)
+            logger.info("beta: ", self.beta)
             self.visitation_table = np.zeros((self.state_dim, self.action_dim))  # n(s,a)
             # self.visitation_table_triple = np.zeros((self.state_dim, self.action_dim, self.state_dim))  # n(s,a,s')
             # self.r_hat = np.zeros((self.state_dim, self.action_dim))
@@ -78,12 +81,12 @@ class QL(BaseAgent):
         m = 3
         n = 4
 
-        print('----')
+        logger.info('----')
         for i in range(m):
             strng = ''
             for k in range(n):
                 strng += ' {:3f}'.format(max(self.q_table[i * n + k]))
-            print(strng)
+            logger.info(strng)
 
     def select_train_action(self, state, env, episode):
         if random.random() < self.eps:
@@ -108,7 +111,7 @@ class QL(BaseAgent):
 if __name__ == "__main__":
     with open("../configurations/default_config_gridworld.yaml", "r") as stream:
         config = yaml.safe_load(stream)
-    print(config)
+    logger.info(config)
     torch.set_num_threads(1)
 
     # generate environment
@@ -125,9 +128,9 @@ if __name__ == "__main__":
         reward_list_train, episode_length_list_train, _ = ql.train(env=real_env, test_env=real_env, time_remaining=5000)
         reward_list_test, episode_length_list_test, _ = ql.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
-        print(len(reward_list_train))
-        print(sum(episode_length_list_train))
+        logger.info(len(reward_list_train))
+        logger.info(sum(episode_length_list_train))
 
     import statistics
 
-    print(statistics.mean(reward_list_len))
+    logger.info(statistics.mean(reward_list_len))

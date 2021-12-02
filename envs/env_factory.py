@@ -6,6 +6,9 @@ from envs.reward_env import RewardEnv
 from envs.env_wrapper import EnvWrapper
 from gym.wrappers import TimeLimit
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EnvFactory:
     def __init__(self, config):
@@ -23,21 +26,21 @@ class EnvFactory:
     def generate_real_env(self, print_str=''):
         # generate a real environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=False)
-        # print(print_str + 'Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        # logger.info(print_str + 'Generating default real environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         return EnvWrapper(env=env)
 
     def generate_virtual_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        # print(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        # logger.info(print_str + 'Generating virtual environment "{}" with parameters {}'.format(self.env_name, kwargs))
         env = VirtualEnv(kwargs)
         return EnvWrapper(env=env).to(self.device)
 
     def generate_reward_env(self, print_str=''):
         # generate a virtual environment with default parameters
         kwargs = self._get_default_parameters(virtual_env=True)
-        # print(print_str + 'Generating reward environment "{}" with parameters {}'.format(self.env_name, kwargs))
+        # logger.info(print_str + 'Generating reward environment "{}" with parameters {}'.format(self.env_name, kwargs))
         real_env = self._generate_real_env_with_kwargs(kwargs=kwargs, env_name=self.env_name)
         reward_env = RewardEnv(real_env=real_env, kwargs=kwargs)
         return EnvWrapper(env=reward_env).to(self.device)

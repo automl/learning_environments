@@ -6,6 +6,9 @@ from agents.agent_utils import test, print_stats
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def reptile_update_agent_serial(agent, env, step_size):
     old_state_dict = copy.deepcopy(agent.state_dict())
@@ -52,7 +55,7 @@ def reptile_update_state_dict_parallel(agent, old_state_dict, new_state_dicts, s
     for key, value in new_state_dict.items():
         sum_diff += torch.sum(torch.abs(agent_state_dict[key] - old_state_dict[key]))
 
-    print(sum_diff)
+    logger.info(sum_diff)
 
 
 # todo fabio: refactor
@@ -79,7 +82,7 @@ class REPTILE(nn.Module):
     def train(self):
         self.train()
         for it in range(self.max_iterations):
-            print('-- REPTILE iteration {} --'.format(it))
+            logger.info('-- REPTILE iteration {} --'.format(it))
             print_stats(self.agent)
             if self.parallel_update:
                 reptile_update_agent_parallel(agent=self.agent, envs=self.envs, step_size=self.step_size)
@@ -98,4 +101,4 @@ if __name__ == "__main__":
                   env_factory=reptile.env_factory,
                   config=reptile.config,
                   num_envs=10)
-    print(result)
+    logger.info(result)

@@ -5,6 +5,9 @@ import pandas as pd
 import seaborn as sns
 import torch
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ReplayBuffer:
     def __init__(self, state_dim, action_dim, device, max_size=int(1e6)):
@@ -89,7 +92,7 @@ class AverageMeter:
         if self.it % print_rate == 0:
             mean_val = self._mean(num=print_rate, ignore_last=0)
             out = self.print_str + "{:15.6f} {:>25} {}".format(mean_val, "Total updates: ", self.it)
-            print(out)
+            logger.info(out)
 
     def get_mean(self, num=10):
         return self._mean(num, ignore_last=0)
@@ -138,7 +141,7 @@ def calc_abs_param_sum(model):
 
 
 def print_abs_param_sum(model, name=""):
-    print(name + " " + str(calc_abs_param_sum(model)))
+    logger.info(name + " " + str(calc_abs_param_sum(model)))
 
 
 def save_lists(mode, config, reward_list, train_steps_needed, episode_length_needed, env_reward_overview, experiment_name=None,

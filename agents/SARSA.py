@@ -8,6 +8,9 @@ import yaml
 from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SARSA(BaseAgent):
     def __init__(self, env, config, count_based=False):
@@ -65,12 +68,12 @@ class SARSA(BaseAgent):
         m = 3
         n = 4
 
-        print('----')
+        logger.info('----')
         for i in range(m):
             strng = ''
             for k in range(n):
                 strng += ' {:3f}'.format(max(self.q_table[i * n + k]))
-            print(strng)
+            logger.info(strng)
 
     def select_train_action(self, state, env, episode):
         if random.random() < self.eps:
@@ -112,5 +115,5 @@ if __name__ == "__main__":
         reward_list_train, episode_length_list_train, _ = sarsa.train(env=real_env, time_remaining=500)
         reward_list, _, replay_buffer = sarsa.test(env=real_env, time_remaining=500)
         reward_list_len.append(len(reward_list_train))
-        print(len(reward_list_train))
-        print(sum(episode_length_list_train))
+        logger.info(len(reward_list_train))
+        logger.info(sum(episode_length_list_train))

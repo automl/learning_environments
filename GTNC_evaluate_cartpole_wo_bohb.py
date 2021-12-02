@@ -12,6 +12,11 @@ from automl.bohb_optim import run_bohb_parallel
 from communicate.tcp_master_selector import start_communication_thread
 import argparse
 import os
+from experiment_helpers.exp_logging import set_logger_up
+
+import logging
+
+logger = logging.getLogger()
 
 
 def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
@@ -93,11 +98,16 @@ def get_working_dir(run_id):
 
 
 if __name__ == "__main__":
+    args = my_parse()
+
     x = datetime.datetime.now()
     run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
-    args = my_parse()
+    # LOGGING:
+    set_logger_up(logger=logger, name=f"log_MASTER_id_{args.bohb_id}")
+    logger.info(f"Starting: {run_id}")
 
+    # COMMUNICATION:
     start_communication_thread(args=args)
 
     seed_experiment(number=args.bohb_id)

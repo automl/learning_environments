@@ -3,6 +3,9 @@ import os
 
 import torch.nn as nn
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GTN_Base(nn.Module):
     def __init__(self, bohb_id):
@@ -12,7 +15,7 @@ class GTN_Base(nn.Module):
 
         sync_dir_base = os.getcwd()
         self.sync_dir = str(os.path.join(sync_dir_base, 'results/GTN_sync'))
-        print('SYNC DIR: ' + str(self.sync_dir))
+        logger.info('SYNC DIR: ' + str(self.sync_dir))
 
         os.makedirs(self.sync_dir, exist_ok=True)
 

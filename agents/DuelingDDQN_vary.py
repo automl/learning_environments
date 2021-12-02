@@ -8,6 +8,9 @@ import yaml
 from agents.DuelingDDQN import DuelingDDQN
 from envs.env_factory import EnvFactory
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DuelingDDQN_vary(DuelingDDQN):
     def __init__(self, env, config, icm=False):
@@ -58,7 +61,7 @@ class DuelingDDQN_vary(DuelingDDQN):
 
         config = cs.sample_configuration()
 
-        print(f"sampled part of config: "
+        logger.info(f"sampled part of config: "
               f"lr: {config['lr']}, "
               f"batch_size: {config['batch_size']}, "
               f"hidden_size: {config['hidden_size']}, "
@@ -70,7 +73,7 @@ class DuelingDDQN_vary(DuelingDDQN):
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 
-        print("full config: ", config_mod['agents'][self.agent_name])
+        logger.info("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 
@@ -94,8 +97,8 @@ if __name__ == "__main__":
 
         # ddqn.train(env=virt_env, time_remaining=50)
 
-        print('TRAIN')
+        logger.info('TRAIN')
         ddqn.train(env=real_env, time_remaining=500)
-        print('TEST')
+        logger.info('TEST')
         ddqn.test(env=real_env, time_remaining=500)
-#        print(sum(reward_list) / len(reward_list))
+#        logger.info(sum(reward_list) / len(reward_list))

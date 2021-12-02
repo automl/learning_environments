@@ -1,6 +1,10 @@
 import os
 import sys
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # go to parent directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 par_dir = os.path.join(script_dir, os.pardir)
@@ -22,7 +26,7 @@ from hpbandster.optimizers.config_generators.bohb import BOHB as BOHB
 class BohbWorker(Worker):
     def __init__(self, id, working_dir, experiment_wrapper, *args, **kwargs):
         super(BohbWorker, self).__init__(*args, **kwargs)
-        print(kwargs)
+        logger.info(kwargs)
 
         self.id = id
         self.working_dir = working_dir
@@ -94,16 +98,16 @@ class BohbWrapper(Master):
 def get_bohb_interface():
     addrs = psutil.net_if_addrs()
     if 'eth0' in addrs.keys():
-        print('FOUND eth0 INTERFACE')
+        logger.info('FOUND eth0 INTERFACE')
         return 'eth0'
     elif 'eno1' in addrs.keys():
-        print('FOUND eno1 INTERFACE')
+        logger.info('FOUND eno1 INTERFACE')
         return 'eno1'
     elif 'ib0' in addrs.keys():
-        print('FOUND ib0 INTERFACE')
+        logger.info('FOUND ib0 INTERFACE')
         return 'ib0'
     else:
-        print('FOUND lo INTERFACE')
+        logger.info('FOUND lo INTERFACE')
         return 'lo'
 
 
@@ -127,7 +131,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
     os.makedirs(working_dir, exist_ok=True)
 
     if int(id) % 1000 != 0:
-        print('START NEW WORKER')
+        logger.info('START NEW WORKER')
         time.sleep(10)
         w = BohbWorker(host=host,
                        id=id,
@@ -138,7 +142,7 @@ def run_bohb_parallel(id, run_id, bohb_workers, experiment_wrapper):
         w.run(background=False)
         exit(0)
 
-    print('START NEW MASTER')
+    logger.info('START NEW MASTER')
     ns = hpns.NameServer(run_id=run_id,
                          host=host,
                          port=0,

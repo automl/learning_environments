@@ -8,6 +8,10 @@ import hpbandster.core.result as hpres
 import matplotlib.pyplot as plt
 import numpy as np
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # smallest value is best -> reverse_loss = True
 # largest value is best -> reverse_loss = False
 REVERSE_LOSS = True
@@ -39,10 +43,10 @@ def analyze_bohb(log_dir, title):
     inc_config = id2conf[inc_id]['config']
     inc_info = inc_run['info']
 
-    print('Best found configuration :' + str(inc_config))
-    print('Score: ' + str(inc_valid_score))
-    print('Info: ' + str(inc_info))
-    # print('It achieved accuracies of %f (validation) and %f (test).' % (-inc_valid_score, inc_test_score))
+    logger.info('Best found configuration :' + str(inc_config))
+    logger.info('Score: ' + str(inc_valid_score))
+    logger.info('Info: ' + str(inc_info))
+    # logger.info('It achieved accuracies of %f (validation) and %f (test).' % (-inc_valid_score, inc_test_score))
 
     # # Let's plot the observed losses grouped by budget,
     # hpvis.losses_over_time(all_runs)
@@ -90,7 +94,7 @@ def print_configs_sorted_by_loss(result):
     lst.sort(key=lambda x: x[0])
 
     for elem in lst:
-        print(elem)
+        logger.info(elem)
 
 
 def print_stats_per_value(result):
@@ -111,10 +115,10 @@ def print_stats_per_value(result):
                     else:
                         config_params[config_param] = [(config_param_val, epoch, loss)]
                 except:
-                    print('Error in get_avg_per_value, continuing')
+                    logger.info('Error in get_avg_per_value, continuing')
 
     for config_param, data in (dict(sorted(config_params.items()))).items():
-        print(config_param)
+        logger.info(config_param)
 
         # get all unique possible values for each config parameter
         values = set(elem[0] for elem in data)
@@ -130,7 +134,7 @@ def print_stats_per_value(result):
                 if val == value and epoch == min_epoch:
                     losses.append(loss)
 
-            print('{}  {}  {} {}'.format(value, np.mean(losses), np.std(losses), len(losses)))
+            logger.info('{}  {}  {} {}'.format(value, np.mean(losses), np.std(losses), len(losses)))
 
 
 def remove_outliers(result):
@@ -219,7 +223,7 @@ def plot_accuracy_over_budget(result):
                 y.append(value2["loss"])
             plt.semilogx(x, y, color=color)
         except:
-            print('Error in plot_accuracy_over_budget, continuing')
+            logger.info('Error in plot_accuracy_over_budget, continuing')
 
     ax.set_title('Score for different configurations')
     ax.set_xlabel('epochs')
@@ -251,7 +255,7 @@ def plot_parallel_scatter(result):
                     else:
                         config_params[config_param] = [(config_param_val, epoch, loss)]
                 except:
-                    print('Error in plot_parallel_scatter, continuing')
+                    logger.info('Error in plot_parallel_scatter, continuing')
 
     x_dev = 0.2
     r_min = 3
@@ -283,8 +287,8 @@ def plot_parallel_scatter(result):
                     # test:
                     # loss_b = -1233125.5410615604
                     # loss_a = -5233125.5410615604 #(we minimize the negative reward)
-                    # print(loss_b, "->", map_to_zero_one_range(loss_b, loss_m, loss_M))
-                    # print(loss_a, "->", map_to_zero_one_range(loss_a, loss_m, loss_M))
+                    # logger.info(loss_b, "->", map_to_zero_one_range(loss_b, loss_m, loss_M))
+                    # logger.info(loss_a, "->", map_to_zero_one_range(loss_a, loss_m, loss_M))
 
                     rads[k] = linear_interpolation(np.log(ep), np.log(ep_m), np.log(ep_M), r_min, r_max) ** 2
                     colors[k, :] = get_color(acc)
@@ -388,18 +392,18 @@ def map_to_zero_one_range(loss, loss_m, loss_M):
 
 
 def get_color(acc):
-    # print("acc: ", acc)
+    # logger.info("acc: ", acc)
     if acc <= 0:
-        # print("color: ", np.array([[1, 0, 0]]))
+        # logger.info("color: ", np.array([[1, 0, 0]]))
         return np.array([[1, 0, 0]])
     elif acc <= 0.5:
-        # print("color: ", np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]]))
+        # logger.info("color: ", np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]]))
         return np.array([[1, 0, 0]]) + 2 * acc * np.array([[0, 1, 0]])
     elif acc <= 1:
-        # print("color: ", np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]]))
+        # logger.info("color: ", np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]]))
         return np.array([[1, 1, 0]]) + 2 * (acc - 0.5) * np.array([[-1, 0, 0]])
     else:
-        # print("color: ", np.array([[0, 1, 0]]))
+        # logger.info("color: ", np.array([[0, 1, 0]]))
         return np.array([[0, 1, 0]])
 
 

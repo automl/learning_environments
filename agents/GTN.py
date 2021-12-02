@@ -6,6 +6,10 @@ import time
 from agents.GTN_master import GTN_Master
 from agents.GTN_worker import GTN_Worker
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 """
 script to run GTN master & slave locally
 """
@@ -70,7 +74,7 @@ if __name__ == "__main__":
         run_gtn_on_single_pc(config)
     elif mode == 'multi':
         for arg in sys.argv[1:]:
-            print(arg)
+            logger.info(arg)
 
         id = int(sys.argv[1])
         run_gtn_on_multiple_pcs(config, id)

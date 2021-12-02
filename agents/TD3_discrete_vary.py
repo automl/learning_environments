@@ -13,6 +13,9 @@ from agents.base_agent import BaseAgent
 from envs.env_factory import EnvFactory
 from models.actor_critic import Actor_TD3_discrete, Critic_Q
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TD3_discrete_vary(BaseAgent):
     def __init__(self, env, min_action, max_action, config):
@@ -22,7 +25,7 @@ class TD3_discrete_vary(BaseAgent):
             config_mod = copy.deepcopy(config)
             config_mod = self.vary_hyperparameters(config_mod)
         else:
-            print("--- configs not varied ---")
+            logger.info("--- configs not varied ---")
             config_mod = config
 
         super().__init__(agent_name=self.agent_name, env=env, config=config_mod)
@@ -137,7 +140,7 @@ class TD3_discrete_vary(BaseAgent):
 
         config = cs.sample_configuration()
 
-        print(f"sampled part of config: "
+        logger.info(f"sampled part of config: "
               f"lr: {config['lr']}, "
               f"batch_size: {config['batch_size']}, "
               f"hidden_size: {config['hidden_size']}, "
@@ -149,7 +152,7 @@ class TD3_discrete_vary(BaseAgent):
         config_mod['agents'][self.agent_name]['hidden_size'] = config['hidden_size']
         config_mod['agents'][self.agent_name]['hidden_layer'] = config['hidden_layer']
 
-        print("full config: ", config_mod['agents'][self.agent_name])
+        logger.info("full config: ", config_mod['agents'][self.agent_name])
 
         return config_mod
 
@@ -177,7 +180,7 @@ if __name__ == "__main__":
     with open("../configurations/default_config_cartpole.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    # print("turning off config sampling")
+    # logger.info("turning off config sampling")
     # config['agents']['td3_discrete_vary']['vary_hp'] = False
 
     random.seed(int(time.time()))
@@ -194,5 +197,5 @@ if __name__ == "__main__":
     t1 = time.time()
     td3.train(env=real_env)
     td3.test(env=real_env)
-    print("time in s: ", time.time() - t1)
+    logger.info("time in s: ", time.time() - t1)
     # td3.train(env=virt_env, time_remaining=5)

@@ -5,6 +5,10 @@ import torch.nn as nn
 from agents.utils import AverageMeter, ReplayBuffer
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class BaseAgent(nn.Module):
     def __init__(self, agent_name, env, config):
         super().__init__()
@@ -29,7 +33,7 @@ class BaseAgent(nn.Module):
 
     def time_is_up(self, avg_meter_reward, avg_meter_episode_length, max_episodes, time_elapsed, time_remaining):
         if time_elapsed > time_remaining:
-            print("timeout")
+            logger.info("timeout")
             # fill remaining rewards with minimum reward achieved so far
             if len(avg_meter_reward.get_raw_data()) == 0:
                 avg_meter_reward.update(-1e9)
@@ -52,11 +56,11 @@ class BaseAgent(nn.Module):
         if env.is_virtual_env():
             if abs(avg_reward - avg_reward_last) / (abs(avg_reward_last) + 1e-9) < self.early_out_virtual_diff and \
                     episode >= self.init_episodes + self.early_out_num:
-                print("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                logger.info("early out on virtual env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
         else:
             if avg_reward >= env.get_solved_reward():
-                print("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
+                logger.info("early out on real env after {} episodes with an average reward of {}".format(episode + 1, avg_reward))
                 return True
 
         return False
@@ -144,7 +148,7 @@ class BaseAgent(nn.Module):
                 else:
                     break_env = env
                 if self.env_solved(env=break_env, avg_meter_reward=avg_meter_reward, episode=episode):
-                    print('early out after ' + str(episode) + ' episodes')
+                    logger.info('early out after ' + str(episode) + ' episodes')
                     break
 
         env.close()

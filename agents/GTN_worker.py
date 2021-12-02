@@ -12,6 +12,9 @@ from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
 from communicate.tcp_worker_selector import communication_list
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GTN_Worker(GTN_Base):
     def __init__(self, id, bohb_id=-1):
@@ -48,7 +51,7 @@ class GTN_Worker(GTN_Base):
         # if not os.path.exists(self.save_path):
         #     os.mkdir(self.save_path)
 
-        print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
+        logger.info('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
 
     def late_init(self, config):
         gtn_config = config["agents"]["gtn"]
@@ -112,10 +115,10 @@ class GTN_Worker(GTN_Base):
                                      time_elapsed=time.time() - time_start)
             communication_list.append("finished_iteration")
             if self.quit_flag:
-                print('QUIT FLAG')
+                logger.info('QUIT FLAG')
                 break
 
-        print('Worker ' + str(self.id) + ' quitting')
+        logger.info('Worker ' + str(self.id) + ' quitting')
 
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
@@ -193,11 +196,11 @@ class GTN_Worker(GTN_Base):
 
         agent = select_agent(config=self.config, agent_name=self.agent_name)
         real_env = self.env_factory.generate_real_env()
-        print(f"DEBUG: time_remaining: {time_remaining} - (time.time(): {time.time()} - time_start: {time_start})")
+        logger.info(f"DEBUG: time_remaining: {time_remaining} - (time.time(): {time.time()} - time_start: {time_start})")
         reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining - (time.time() - time_start))
 
         # if len(agent.trajectories) != 0:
-        #     print("trajectories should have been cleared")
+        #     logger.info("trajectories should have been cleared")
         #     agent.trajectories.clear()
 
         reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining - (time.time() - time_start))
@@ -217,20 +220,20 @@ class GTN_Worker(GTN_Base):
         else:
             # # when timeout occurs, reward_list_train is padded (with min. reward values) and episode_length_train is not
             # if len(episode_length_train) < len(reward_list_train):
-            #     print("due to timeout, reward_list_train has been padded")
-            #     print(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
+            #     logger.info("due to timeout, reward_list_train has been padded")
+            #     logger.info(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
             #     reward_list_train = reward_list_train[:len(episode_length_train)]
 
-            print("AVG REWARD: ", avg_reward_test)
+            logger.info("AVG REWARD: ", avg_reward_test)
             return avg_reward_test
 
-            # print("AUC: ", np.dot(reward_list_train, episode_length_train))
+            # logger.info("AUC: ", np.dot(reward_list_train, episode_length_train))
             # return np.dot(reward_list_train, episode_length_train)
 
             # if not real_env.can_be_solved():
             #     return avg_reward_test
             # else:
-            #     print(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
+            #     logger.info(str(sum(episode_length_train)) + ' ' + str(max(0, (real_env.get_solved_reward()-avg_reward_test))) + ' ' + str(self.unsolved_weight))
             #     # we maximize the objective
             #     # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
             #     return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
@@ -265,7 +268,7 @@ class GTN_Worker(GTN_Base):
     #     data_file = os.path.join(datasets_dir, 'data_bohb_counter_{}_id_{}_test_counter_{}.pkl.gzip'.format(bohb_next_run_counter, id, test_counter))
     #     f = gzip.open(data_file, 'wb')
     #     pickle.dump(data, f)
-    #     print(f"dumped {data_file}")
+    #     logger.info(f"dumped {data_file}")
     #
     # @staticmethod
     # def get_saved_data(mypath):

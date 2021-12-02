@@ -9,6 +9,9 @@ from envs.env_factory import EnvFactory
 from models.actor_critic import Actor_TD3, Critic_Q
 from models.icm_baseline import ICM
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TD3(BaseAgent):
     def __init__(self, env, max_action, config, icm=False):
@@ -138,7 +141,7 @@ class TD3(BaseAgent):
 if __name__ == "__main__":
     with open("../configurations/default_config_halfcheetah_td3_se_opt.yaml", "r") as stream:
         config = yaml.safe_load(stream)
-    # print(config)
+    # logger.info(config)
     # generate environment
     env_fac = EnvFactory(config)
     # virt_env = env_fac.generate_virtual_env()
@@ -150,8 +153,8 @@ if __name__ == "__main__":
               icm=False)
     t1 = time.time()
     rewards, episode_lengths, _ = td3.train(env=real_env, time_remaining=3600)
-    print(len(rewards), len(episode_lengths))
-    print(time.time() - t1)
+    logger.info(len(rewards), len(episode_lengths))
+    logger.info(time.time() - t1)
     td3.test(env=real_env, time_remaining=1200)
-    print(time.time() - t1)
+    logger.info(time.time() - t1)
     # td3.train(env=virt_env, time_remaining=5)

@@ -10,6 +10,9 @@ from models.actor_critic import Critic_DQN
 from models.icm_baseline import ICM
 from agents.utils import to_one_hot_encoding
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DDQN(BaseAgent):
     def __init__(self, env, config, icm=False):
@@ -137,7 +140,7 @@ if __name__ == "__main__":
 
         # ddqn.train(env=virt_env, time_remaining=50)
 
-        print('TRAIN')
+        logger.info('TRAIN')
         reward, episode_length, _ = ddqn.train(env=real_env, test_env=real_env)
-        print('TEST')
+        logger.info('TEST')
         ddqn.test(env=real_env, time_remaining=500)

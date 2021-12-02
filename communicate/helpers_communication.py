@@ -1,6 +1,9 @@
 import time
 from datetime import time as datetime_time, datetime, timedelta
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def time_diff(start, end):
     if isinstance(start, datetime_time):  # convert to datetime
@@ -26,8 +29,8 @@ if __name__ == "__main__":
     time.sleep(90)
     t2 = datetime.now()
     diff_ts = time_diff(start=t1, end=t2)
-    print(diff_ts)
-    print(dir(diff_ts))
+    logger.info(diff_ts)
+    logger.info(dir(diff_ts))
 
-    print(x_minutes_passed(start=t1, end=t2))
-    print(x_minutes_passed(start=t1, end=t2, minutes_passed=1))
+    logger.info(x_minutes_passed(start=t1, end=t2))
+    logger.info(x_minutes_passed(start=t1, end=t2, minutes_passed=1))

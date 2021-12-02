@@ -7,6 +7,9 @@ from agents.base_agent import BaseAgent
 from models.actor_critic import Actor_SAC, Critic_Q
 from envs.env_factory import EnvFactory
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SAC(BaseAgent):
     def __init__(self, env, max_action, config):
@@ -124,7 +127,7 @@ if __name__ == "__main__":
               config=config)
     t1 = time.time()
     td3.train(env=real_env, time_remaining=1200)
-    print(time.time() - t1)
+    logger.info(time.time() - t1)
     td3.test(env=real_env, time_remaining=1200)
-    print(time.time() - t1)
+    logger.info(time.time() - t1)
     # td3.train(env=virt_env, time_remaining=5)

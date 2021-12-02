@@ -5,6 +5,9 @@ from envs.virtual_env import VirtualEnv
 from gym.spaces import Discrete
 from agents.utils import to_one_hot_encoding, from_one_hot_encoding
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EnvWrapper(nn.Module):
     # wraps a gym/virtual/reward environment for easier handling
@@ -155,7 +158,7 @@ class EnvWrapper(nn.Module):
         if not self.is_virtual_env():
             return self.env.seed(seed)
         else:
-            print("Setting manuel seed not yet implemented, performance may decrease")
+            logger.info("Setting manuel seed not yet implemented, performance may decrease")
             return 0
 
     def is_virtual_env(self):

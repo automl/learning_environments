@@ -9,6 +9,10 @@ import os
 import pickle
 from datetime import datetime
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 mysel = selectors.DefaultSelector()
 keep_running = True
 
@@ -31,7 +35,7 @@ def get_server_file():
 
 def my_worker_thread(server_data, worker_data):
     server_address = (server_data["ip"], server_data["port"])
-    print('connecting to {} port {}'.format(*server_address))
+    logger.info('connecting to {} port {}'.format(*server_address))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     sock.connect(server_address)
@@ -46,24 +50,24 @@ def my_worker_thread(server_data, worker_data):
         for key, mask in mysel.select(timeout=1):
             connection = key.fileobj
             client_address = connection.getpeername()
-            # print('client({})'.format(client_address))
+            # logger.info('client({})'.format(client_address))
 
             if mask & selectors.EVENT_READ:
                 pass
 
             if mask & selectors.EVENT_WRITE:
-                # print('  ready to write')
+                # logger.info('  ready to write')
                 # Send the next message.
                 if communication_list:  # sending finished iteration message
                     next_msg = pickle.dumps(communication_list.pop(), -1)
                     sock.sendall(next_msg)
                 else:
                     next_msg = pickle.dumps(worker_data, -1)
-                    # print('  sending {!r}'.format(next_msg))
+                    # logger.info('  sending {!r}'.format(next_msg))
                     sock.sendall(next_msg)
         time.sleep(30)  # in seconds -> 5 minutes
 
-    print('shutting down')
+    logger.info('shutting down')
     mysel.unregister(connection)
     connection.close()
     mysel.close()
@@ -72,9 +76,9 @@ def my_worker_thread(server_data, worker_data):
 def start_communication_thread(args):
     # Get IP and PORT OF Server from FILE
     server_data = get_server_file()
-    print("server_data : ", server_data)
+    logger.info("server_data : ", server_data)
     worker_data = vars(args)
-    print("worker_data: ", worker_data)
+    logger.info("worker_data: ", worker_data)
 
     # STRAT Thread for Communication
     t_c = threading.Thread(target=my_worker_thread, args=(server_data, worker_data))

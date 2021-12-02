@@ -10,6 +10,9 @@ from models.actor_critic import Actor_PPO, Critic_V
 from models.icm_baseline import ICM
 from agents.utils import AverageMeter, ReplayBuffer
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PPO(BaseAgent):
     def __init__(self, env, config, icm=False):
@@ -120,7 +123,7 @@ class PPO(BaseAgent):
                 else:
                     break_env = env
                 if self.env_solved(env=break_env, avg_meter_reward=avg_meter_reward, episode=episode):
-                    print('early out after ' + str(episode) + ' episodes')
+                    logger.info('early out after ' + str(episode) + ' episodes')
                     break
 
         env.close()

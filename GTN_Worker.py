@@ -5,7 +5,10 @@ from agents.GTN import GTN_Worker
 from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
 from communicate.tcp_worker_selector import start_communication_thread
 import argparse
+from experiment_helpers.exp_logging import set_logger_up
+import logging
 
+logger = logging.getLogger(__name__)
 
 def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
     parser = argparse.ArgumentParser()
@@ -22,10 +25,13 @@ def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers
 
 if __name__ == "__main__":
     args = my_parse()
-    print(vars(args))
 
-    bohb_id = args.bohb_id
-    id = args.id
+    # LOGGING:
+    run_id = args.bohb_id + args.id
+    set_logger_up(logger=logger, name=f"log_WORKER_id_{run_id}")
+    logger.info(f"Starting: {args.bohb_id}")
+    logger.info(vars(args))
+
     start_communication_thread(args=args)
-    worker = GTN_Worker(bohb_id=bohb_id, id=id)
+    worker = GTN_Worker(bohb_id=args.bohb_id, id=args.id)
     worker.run()

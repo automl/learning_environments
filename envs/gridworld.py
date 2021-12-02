@@ -4,6 +4,10 @@ import random
 from gym import spaces
 from gym.utils import seeding
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # 'S': start
 # 'G': goal
 # ' ': empty cell
@@ -243,5 +247,5 @@ if __name__ == "__main__":
 
     for i in range(25):
         x, y = r._obs_to_state(i)
-        print('{} {} {} {}'.format(i, r._state_to_obs((x, y)), x, y))
-        # print(r.grid[x][y])
+        logger.info('{} {} {} {}'.format(i, r._state_to_obs((x, y)), x, y))
+        # logger.info(r.grid[x][y])
