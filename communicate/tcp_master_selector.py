@@ -28,8 +28,7 @@ def work_with_sent_data(data, ip, port):
         connections_for_later[key_for_connection]["bohb_id"] = data["bohb_id"]
         connections_for_later[key_for_connection]["id"] = data["id"]
         connections_for_later[key_for_connection]["moab_id"] = data["moab_id"]
-        logger.info("data: ", str(data))
-
+        logger.info(f"added {connections_for_later[key_for_connection]}")
 
 def read(connection, mask):
     """ Callback for read events """

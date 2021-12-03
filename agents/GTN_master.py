@@ -202,6 +202,7 @@ class GTN_Master(GTN_Base):
     def read_worker_results(self):
         checked_this_iteration = []
         delete_these_files = []
+        logger.info(f"read_worker_results -> self.available_workers {self.available_workers}")
         while len(self.available_workers) > 0:
             self.update_ids_to_check()  # check if a worker aborted since last check and adapt lists
             for id in get_ids(self.available_workers):
@@ -212,10 +213,10 @@ class GTN_Master(GTN_Base):
 
                 # wait until worker has finished calculations
                 if not os.path.isfile(check_file_name):
-                    # logger.info(f"# available workers: {len(self.available_workers)}")
+                    logger.info(f"# available workers: {len(self.available_workers)}")
                     continue
                 else:
-                    # logger.info(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
+                    logger.info(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
                     self.remove_id(id)
                     checked_this_iteration.append(id)
                     delete_these_files.append(check_file_name)
