@@ -49,21 +49,21 @@ def my_worker_thread(server_data, worker_data):
     while keep_running:
         for key, mask in mysel.select(timeout=1):
             connection = key.fileobj
-            # client_address = connection.getpeername()
-            # logger.info('client({})'.format(client_address))
+            client_address = connection.getpeername()
+            logger.info('client({})'.format(client_address))
 
             if mask & selectors.EVENT_READ:
                 pass
 
             if mask & selectors.EVENT_WRITE:
-                # logger.info('  ready to write')
+                logger.info('  ready to write')
                 # Send the next message.
                 if communication_list:  # sending finished iteration message
                     next_msg = pickle.dumps(communication_list.pop(), -1)
                     sock.sendall(next_msg)
                 else:
                     next_msg = pickle.dumps(worker_data, -1)
-                    # logger.info('  sending {!r}'.format(next_msg))
+                    logger.info('  sending {!r}'.format(next_msg))
                     sock.sendall(next_msg)
         time.sleep(30)  # in seconds -> 5 minutes
 

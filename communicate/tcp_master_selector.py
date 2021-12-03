@@ -28,6 +28,7 @@ def work_with_sent_data(data, ip, port):
         connections_for_later[key_for_connection]["bohb_id"] = data["bohb_id"]
         connections_for_later[key_for_connection]["id"] = data["id"]
         connections_for_later[key_for_connection]["moab_id"] = data["moab_id"]
+        logger.info("data: ", str(data))
 
 
 def read(connection, mask):
@@ -41,7 +42,7 @@ def read(connection, mask):
         # A readable client socket has data
         data_loaded = pickle.loads(data)
         work_with_sent_data(data=data_loaded, ip=client_address[0], port=client_address[1])
-        # logger.info('read({})  sent: {!r}'.format(client_address, data_loaded))
+        logger.info('read({})  sent: {!r}'.format(client_address, data_loaded))
     else:
         # Interpret empty result as closed connection
         logger.info('  closing for {}'.format(client_address))
@@ -51,8 +52,8 @@ def read(connection, mask):
         key_lost_connection = f"{client_address[0]}_{client_address[1]}"
         lost_con = connections_for_later.pop(key_lost_connection)
         lost_connections[key_lost_connection] = lost_con
-        # logger.info("lost_connections : ", lost_connections)
-        # logger.info("connections_for_later : ", connections_for_later)
+        logger.info("lost_connections : ", lost_connections)
+        logger.info("connections_for_later : ", connections_for_later)
 
 
 def accept(sock, mask):
