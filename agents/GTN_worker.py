@@ -10,7 +10,6 @@ import pickle
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
 from agents.agent_utils import select_agent
-from communicate.tcp_worker_selector import communication_list
 
 import logging
 
@@ -113,7 +112,7 @@ class GTN_Worker(GTN_Base):
             self.write_worker_result(score=score_best,
                                      score_orig=score_orig,
                                      time_elapsed=time.time() - time_start)
-            communication_list.append("finished_iteration")
+
             if self.quit_flag:
                 logger.info('QUIT FLAG')
                 break
