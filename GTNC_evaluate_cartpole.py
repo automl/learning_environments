@@ -9,7 +9,6 @@ import torch
 from copy import deepcopy
 from agents.GTN import GTN_Master
 from automl.bohb_optim import run_bohb_parallel
-from communicate.tcp_master_selector import start_communication_thread
 import argparse
 import os
 from experiment_helpers.exp_logging import set_logger_up
@@ -28,6 +27,7 @@ def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers
     parser.add_argument("--min_workers", type=int, default=2, help="Minimum number of workers that have to be active, before we otherwise abort")
     parser.add_argument("--number_workers", type=int, default=10000, help="Total number of workers for this experiment")
     parser.add_argument("--mode", type=str, choices=["worker", "master"], default="worker", help="either it is a worker or the one master")
+    parser.add_argument("--sh_worker_file", type=str, default="cartpole_se_nemo_WORKER.sh")
     args = parser.parse_args()
     return args
 
@@ -60,14 +60,14 @@ class ExperimentWrapper():
         config = deepcopy(default_config)
         return config
 
-    def compute(self, working_dir, bohb_id):
+    def compute(self, working_dir, bohb_id, file_dir, sh_file_workers):
         with open("configurations/default_config_cartpole_syn_env.yaml", 'r') as stream:
             default_config = yaml.safe_load(stream)
 
         config = self.get_specific_config(default_config)
 
         try:
-            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
+            gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir, file_dir=file_dir, sh_file_workers=sh_file_workers)
             _, score_list = gtn.run()
             score = len(score_list)
             error = ""
@@ -107,22 +107,16 @@ if __name__ == "__main__":
     set_logger_up(logger=logger, name=f"log_MASTER_id_{args.bohb_id}")
     logger.info(f"Starting: {run_id}")
 
-    # COMMUNICATION:
-    start_communication_thread(args=args)
-
     seed_experiment(number=args.bohb_id)
 
-    # This is the call with BOHB:
-    """
-    res = run_bohb_parallel(id=args.bohb_id,
-                            bohb_workers=1,  # this should be set to 1, otherwise the program does not execute
-                            run_id=run_id,
-                            experiment_wrapper=ExperimentWrapper())    
-    """
+    # Get complete path to run msub
+    file_working_dir = os.getcwd()
+    logger.info(f"file_working_dir: {file_working_dir}")
+    sh_file_workers = os.path.join(file_working_dir, args.sh_worker_file)
+    logger.info(f"sh_file_workers: {sh_file_workers}")
 
     # This is the call without any BOHB:
     exp = ExperimentWrapper()
-
     w_dir = get_working_dir(run_id)
-
-    exp.compute(working_dir=w_dir, bohb_id=args.bohb_id)
+    logger.info(f"w_dir (for ExperimentWrapper): {w_dir}")
+    exp.compute(working_dir=w_dir, bohb_id=args.bohb_id, file_dir=file_working_dir, sh_file_workers=sh_file_workers)

@@ -1,44 +1,27 @@
-import copy
-import os
-import random
-import statistics
-import string
-import time
-from datetime import datetime
+import subprocess
 
-import numpy as np
 import torch
 import torch.nn as nn
-
+import os
+import time
+import uuid
+import numpy as np
+import random
+import string
+import statistics
 from agents.GTN_base import GTN_Base
-from agents.utils import calc_abs_param_sum
-from communicate.helpers_communication import x_minutes_passed
-from communicate.tcp_master_selector import connections_for_later, lost_connections
 from envs.env_factory import EnvFactory
-
+from utils import calc_abs_param_sum
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def make_list_of_all_workers_available(ids_in_master: dict):
-    for key in lost_connections.keys():
-        ids_in_master.pop(key)
-
-
-def populate_ids():
-    return copy.deepcopy(connections_for_later)
-
-
-def get_ids(id_dict: dict):
-    list = [val["id"] for k, val in id_dict.items()]
-    return list
-
-
 class GTN_Master(GTN_Base):
-    def __init__(self, config, bohb_id=-1, bohb_working_dir=None, additional_arguments=None):
+    def __init__(self, config, bohb_id=-1, bohb_working_dir=None, file_dir=None, sh_file_workers=None):
         super().__init__(bohb_id)
-        self.debug = False
+        self.file_dir = file_dir  # for MSUB WORKERS POPEN
+        self.sh_file_workers = sh_file_workers  # for MSUB WORKERS POPEN
         self.config = config
         self.device = config["device"]
         self.env_name = config['env_name']
@@ -52,10 +35,7 @@ class GTN_Master(GTN_Base):
         self.weight_decay = gtn_config["weight_decay"]
         self.score_transform_type = gtn_config["score_transform_type"]
         self.time_mult = gtn_config["time_mult"]
-        self.time_max = gtn_config["time_max"]  # default is roughly 30 minutes
-        self.time_max = self.time_max
-        if self.debug:
-            self.time_max = self.time_max / 5
+        self.time_max = gtn_config["time_max"]
         self.time_sleep_master = gtn_config["time_sleep_master"]
         self.quit_when_solved = gtn_config["quit_when_solved"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
@@ -66,10 +46,10 @@ class GTN_Master(GTN_Base):
             self.time_sleep_master /= 10
 
         # to store results from workers
-        self.all_time_elapsed_list = [self.time_max] * self.num_workers  # for debugging
-        self.all_score_list = [0] * self.num_workers
-        self.all_score_orig_list = [0] * self.num_workers  # for debugging
-        self.all_score_transform_list = [0] * self.num_workers
+        self.time_elapsed_list = [None] * self.num_workers  # for debugging
+        self.score_list = [None] * self.num_workers
+        self.score_orig_list = [None] * self.num_workers  # for debugging
+        self.score_transform_list = [None] * self.num_workers
 
         # to keep track of the reference virtual env
         self.env_factory = EnvFactory(config)
@@ -102,42 +82,31 @@ class GTN_Master(GTN_Base):
 
         # self.bohb_next_run_counter = 0
 
-        self.additional_arguments = additional_arguments  # Currently not used, added for later
-
-        # For Communication Purposes
-        self.started_at_time = datetime.now()
-        self.minutes_till_reading = 30
-        if self.debug:
-            self.minutes_till_reading = 1
-        self.available_workers = None
-        self.active_ids = []
-        self.iteration_counter = 0
+    def get_model_file_name(self, file_name):
+        return os.path.join(self.model_dir, file_name)
 
     def run(self):
         mean_score_orig_list = []
+        #for it in range(self.max_iterations):
+        for it in range(1):
+            # TODO: 1. MSUB WORKER POPEN
+            logger.info(f"trying to submit worker sh file: {self.sh_file_workers}")
+            s_ret1 = subprocess.run(["ll"], capture_output=True)
+            logger.info(f"subprocess.run: ll: {s_ret1}")
+            shell_command = f"msub {self.sh_file_workers}"
+            logger.info(f"shell command: {shell_command}")
+            s_ret2 = subprocess.run([shell_command], capture_output=True)
+            logger.info(f"subprocess.run: ll: {s_ret2}")
 
-        for it in range(self.max_iterations):
-            self.available_workers = copy.deepcopy(connections_for_later)
+
             t1 = time.time()
             logger.info('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
             logger.info('-- Master: write worker inputs' + ' ' + str(time.time() - t1))
             self.write_worker_inputs(it)
-
-            while not x_minutes_passed(start=self.started_at_time, end=datetime.now(), minutes_passed=self.minutes_till_reading):
-                # wait for some minutes till wokers to come up, or all workers are up -> start reading
-                time.sleep(self.time_sleep_master)
-                if len(connections_for_later) == self.num_workers:
-                    break
-
-            # X minutes passsed -> we make a list of available workers:
-            self.available_workers = copy.deepcopy(connections_for_later)  # copy dict over to not have a thread read/write problem (connections_for_later is used in this main as well as the communication thread)
-            logger.info("self.available_ids: ", self.available_workers)
-
-            logger.info('-- Master: read worker results (tying)' + ' at elapsed time:' + str(time.time() - t1))
+            logger.info('-- Master: read worker results' + ' ' + str(time.time() - t1))
             self.read_worker_results()
 
-            active_scores_array = np.array(self.all_score_list)[self.active_ids[-1]]  # only calculate the mean score for workers that were active
-            mean_score = np.mean(active_scores_array)
+            mean_score = np.mean(self.score_orig_list)
             mean_score_orig_list.append(mean_score)
             solved_flag = self.save_good_model(mean_score)
 
@@ -153,8 +122,6 @@ class GTN_Master(GTN_Base):
             logger.info('-- Master: print statistics' + ' ' + str(time.time() - t1))
             self.print_statistics(it=it, time_elapsed=time.time() - t1)
 
-            self.iteration_counter += 1
-
         logger.info('Master quitting')
 
         self.print_statistics(it=-1, time_elapsed=-1)
@@ -165,21 +132,47 @@ class GTN_Master(GTN_Base):
         else:
             return 1e9, mean_score_orig_list, self.model_name
 
+    def save_good_model(self, mean_score):
+        if self.synthetic_env_orig.is_virtual_env():
+            if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
+                self.save_model()
+                self.best_score = mean_score
+                return True
+        else:
+            # we save all models and select the best from the log
+            # whether we can solve an environment is irrelevant for reward_env since we optimize for speed here
+            if mean_score > self.best_score:
+                self.save_model()
+                self.best_score = mean_score
+
+        return False
+
+    def save_model(self):
+        save_dict = {}
+        save_dict['model'] = self.synthetic_env_orig.state_dict()
+        save_dict['config'] = self.config
+        save_path = os.path.join(self.model_dir, self.model_name)
+        logger.info('save model: ' + str(save_path))
+        torch.save(save_dict, save_path)
+
+    def calc_worker_timeout(self):
+        if self.time_elapsed_list[0] is None:
+            return self.time_max
+        else:
+            return statistics.mean(self.time_elapsed_list) * self.time_mult
+
     def write_worker_inputs(self, it):
-        # timeout = self.calc_worker_timeout() # old. lead to sometimes no execution in worker
-        timeout = self.time_max  # new
+        timeout = self.calc_worker_timeout()
         logger.info('timeout: ' + str(timeout))
 
-        if it == 0:
-            id_list = [i + 1 for i in range(self.num_workers)]
-        else:
-            id_list = get_ids(self.available_workers)
-
-        logger.info(f"Iteration: {it}, writing files for ids: {id_list}")
-        for id in id_list:
+        for id in range(self.num_workers):
 
             file_name = self.get_input_file_name(id=id)
             check_file_name = self.get_input_check_file_name(id=id)
+
+            # wait until worker has deleted the file (i.e. acknowledged the previous input)
+            while os.path.isfile(file_name):
+                time.sleep(self.time_sleep_master)
 
             time.sleep(self.time_sleep_master)
 
@@ -200,101 +193,27 @@ class GTN_Master(GTN_Base):
             torch.save({}, check_file_name)
 
     def read_worker_results(self):
-        checked_this_iteration = []
-        delete_these_files = []
-        logger.info(f"read_worker_results -> self.available_workers {self.available_workers}")
-        while len(self.available_workers) > 0:
-            self.update_ids_to_check()  # check if a worker aborted since last check and adapt lists
-            for id in get_ids(self.available_workers):
-                if id in checked_this_iteration:
-                    continue
-                file_name = self.get_result_file_name(id)
-                check_file_name = self.get_result_check_file_name(id)
+        for id in range(self.num_workers):
+            file_name = self.get_result_file_name(id)
+            check_file_name = self.get_result_check_file_name(id)
 
-                # wait until worker has finished calculations
-                if not os.path.isfile(check_file_name):
-                    logger.info(f"# available workers: {len(self.available_workers)}")
-                    continue
-                else:
-                    logger.info(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
-                    self.remove_id(id)
-                    checked_this_iteration.append(id)
-                    delete_these_files.append(check_file_name)
-                    delete_these_files.append(file_name)
+            # wait until worker has finished calculations
+            while not os.path.isfile(check_file_name):
+                time.sleep(self.time_sleep_master)
 
-                    data = torch.load(file_name)
-                    self.all_time_elapsed_list[id] = data['time_elapsed']
-                    self.all_score_list[id] = data['score']
-                    self.eps_list[id].load_state_dict(data['eps'])
-                    self.all_score_orig_list[id] = data['score_orig']
-                    self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
+            data = torch.load(file_name)
+            self.time_elapsed_list[id] = data['time_elapsed']
+            self.score_list[id] = data['score']
+            self.eps_list[id].load_state_dict(data['eps'])
+            self.score_orig_list[id] = data['score_orig']
+            self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
 
-        logger.info("--DEBUG jumped out of while loop")
-        self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
-
-        for file_name in delete_these_files:
+            os.remove(check_file_name)
             os.remove(file_name)
-            logger.info(f"deleting: {file_name}")
-
-    def save_good_model(self, mean_score):
-        if self.synthetic_env_orig.is_virtual_env():
-            logger.info("DEBUG IF")
-            if mean_score > self.real_env.get_solved_reward() and mean_score > self.best_score:
-                self.save_model()
-                self.best_score = mean_score
-                return True
-        else:
-            # we save all models and select the best from the log
-            # whether we can solve an environment is irrelevant for reward_env since we optimize for speed here
-            if mean_score > self.best_score:
-                self.save_model()
-                self.best_score = mean_score
-
-        save_dict = {}
-        save_dict['model'] = self.synthetic_env_orig.state_dict()
-        save_dict['config'] = self.config
-        scores = np.asarray(self.all_score_list)[self.active_ids[-1]]
-        save_dict['scores'] = list(scores)
-        save_path = os.path.join(self.model_dir, f"iter_{self.iteration_counter}.pt")
-        logger.info('saving not solved model: ' + str(save_path))
-        torch.save(save_dict, save_path)
-
-        return False
-
-    def save_model(self):
-        save_dict = {}
-        save_dict['model'] = self.synthetic_env_orig.state_dict()
-        save_dict['config'] = self.config
-        save_path = os.path.join(self.model_dir, self.model_name)
-        logger.info('save model: ' + str(save_path))
-        torch.save(save_dict, save_path)
-
-    def get_model_file_name(self, file_name):
-        return os.path.join(self.model_dir, file_name)
-
-    def remove_id(self, id):
-        key_to_delete = None
-        for k, v in self.available_workers.items():
-            if v["id"] == id:
-                key_to_delete = k
-        assert key_to_delete is not None, "key_to_delete was None"
-        self.available_workers.pop(key_to_delete)
-
-    def update_ids_to_check(self):
-        for k, v in lost_connections.items():
-            if k in self.available_workers:
-                self.available_workers.pop(k)
-                logger.info("self.available_ids: ", self.available_workers)
-
-    def calc_worker_timeout(self):
-        if self.all_time_elapsed_list[0] is None:
-            return self.time_max
-        else:
-            return statistics.mean(self.all_time_elapsed_list) * self.time_mult
 
     def score_transform(self):
-        scores = np.asarray(self.all_score_list)[self.active_ids[-1]]  # only select scores from workers that were active
-        scores_orig = np.asarray(self.all_score_orig_list)[self.active_ids[-1]]  # only select scores from workers that were active
+        scores = np.asarray(self.score_list)
+        scores_orig = np.asarray(self.score_orig_list)
 
         if self.score_transform_type == 0:
             # convert [1, 0, 5] to [0.2, 0, 1]
@@ -360,13 +279,7 @@ class GTN_Master(GTN_Base):
         else:
             raise ValueError("Unknown rank transform type: " + str(self.score_transform_type))
 
-        # copy values (for active workers) over into list
-        act_idxs = self.active_ids[-1]
-        new_score_array = np.copy(self.all_score_transform_list)
-        for i, id in enumerate(act_idxs):
-            new_score_array[id] = scores[i]
-
-        self.all_score_transform_list = new_score_array.tolist()
+        self.score_transform_list = scores.tolist()
 
     def update_env(self):
         ss = self.step_size
@@ -375,9 +288,9 @@ class GTN_Master(GTN_Base):
             ss = ss / self.num_workers
 
         # logger.info('-- update env --')
-        logger.info('score_orig_list      ' + str(np.array(self.all_score_orig_list)[self.active_ids[-1]]))
-        logger.info('score_list           ' + str(np.array(self.all_score_list)[self.active_ids[-1]]))
-        logger.info('score_transform_list ' + str(np.array(self.all_score_transform_list)[self.active_ids[-1]]))
+        logger.info('score_orig_list      ' + str(self.score_orig_list))
+        logger.info('score_list           ' + str(self.score_list))
+        logger.info('score_transform_list ' + str(self.score_transform_list))
         logger.info('venv weights         ' + str([calc_abs_param_sum(elem).item() for elem in self.synthetic_env_list]))
 
         logger.info('weights before: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
@@ -391,12 +304,8 @@ class GTN_Master(GTN_Base):
 
         logger.info('weights after weight decay: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
-        # Only use active workers:
-        active_eps = list(np.array(self.eps_list)[self.active_ids[-1]])
-        active_scores = list(np.array(self.all_score_transform_list)[self.active_ids[-1]])
-
         # weight update
-        for eps, score_transform in zip(active_eps, active_scores):
+        for eps, score_transform in zip(self.eps_list, self.score_transform_list):
             for l_orig, l_eps in zip(self.synthetic_env_orig.modules(), eps.modules()):
                 if isinstance(l_orig, nn.Linear):
                     l_orig.weight = torch.nn.Parameter(l_orig.weight + ss * score_transform * l_eps.weight)
@@ -406,11 +315,10 @@ class GTN_Master(GTN_Base):
         logger.info('weights after update: ' + str(calc_abs_param_sum(self.synthetic_env_orig).item()))
 
     def print_statistics(self, it, time_elapsed):
-        orig_score = statistics.mean(self.all_score_orig_list)
-        mean_time_elapsed = statistics.mean(self.all_time_elapsed_list)
+        orig_score = statistics.mean(self.score_orig_list)
+        mean_time_elapsed = statistics.mean(self.time_elapsed_list)
         logger.info('--------------')
         logger.info('GTN iteration:    ' + str(it))
-        logger.info('GTN available workers:    ' + str(len(self.active_ids)) + ' : ' + str(self.active_ids[-1]))
         logger.info('GTN mstr t_elaps: ' + str(time_elapsed))
         logger.info('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
         logger.info('GTN avg eval score:   ' + str(orig_score))

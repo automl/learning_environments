@@ -1,9 +1,4 @@
-import yaml
-import torch
-import sys
 from agents.GTN import GTN_Worker
-from automl.bohb_optim import run_bohb_parallel, run_bohb_serial
-from communicate.tcp_worker_selector import start_communication_thread
 import argparse
 from experiment_helpers.exp_logging import set_logger_up
 import logging
@@ -32,6 +27,5 @@ if __name__ == "__main__":
     logger.info(f"Starting: {args.bohb_id}")
     logger.info(vars(args))
 
-    start_communication_thread(args=args)
     worker = GTN_Worker(bohb_id=args.bohb_id, id=args.id)
     worker.run()
