@@ -11,7 +11,7 @@ import string
 import statistics
 from agents.GTN_base import GTN_Base
 from envs.env_factory import EnvFactory
-from utils import calc_abs_param_sum
+from agents.utils import calc_abs_param_sum
 import logging
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class GTN_Master(GTN_Base):
 
     def run(self):
         mean_score_orig_list = []
-        #for it in range(self.max_iterations):
+        # for it in range(self.max_iterations):
         for it in range(1):
             # TODO: 1. MSUB WORKER POPEN
             logger.info(f"trying to submit worker sh file: {self.sh_file_workers}")
@@ -97,7 +97,6 @@ class GTN_Master(GTN_Base):
             logger.info(f"shell command: {shell_command}")
             s_ret2 = subprocess.run([shell_command], capture_output=True)
             logger.info(f"subprocess.run: ll: {s_ret2}")
-
 
             t1 = time.time()
             logger.info('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
