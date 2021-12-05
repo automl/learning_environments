@@ -100,9 +100,9 @@ class GTN_Master(GTN_Base):
             # shell: msub
             shell_command = f"msub {self.sh_file_workers}"
             logger.info(f"shell command: {shell_command}")
-            stream = os.popen('echo Returned output')
+            stream = os.popen(shell_command)
             s_ret2 = stream.read()
-            logger.info(f"subprocess.run: ll: {s_ret2}")
+            logger.info(f"subprocess.run: {shell_command}: {s_ret2}")
 
             t1 = time.time()
             logger.info('-- Master: Iteration ' + str(it) + ' ' + str(time.time() - t1))
