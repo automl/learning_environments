@@ -90,12 +90,18 @@ class GTN_Master(GTN_Base):
         # for it in range(self.max_iterations):
         for it in range(1):
             # TODO: 1. MSUB WORKER POPEN
+
+            # shell: ll (just for testing purposes)
             logger.info(f"trying to submit worker sh file: {self.sh_file_workers}")
-            s_ret1 = subprocess.run(["ll"], capture_output=True)
+            stream = os.popen('ll')
+            s_ret1 = stream.read()
             logger.info(f"subprocess.run: ll: {s_ret1}")
+
+            # shell: msub
             shell_command = f"msub {self.sh_file_workers}"
             logger.info(f"shell command: {shell_command}")
-            s_ret2 = subprocess.run([shell_command], capture_output=True)
+            stream = os.popen('echo Returned output')
+            s_ret2 = stream.read()
             logger.info(f"subprocess.run: ll: {s_ret2}")
 
             t1 = time.time()
