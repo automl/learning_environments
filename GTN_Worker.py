@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # LOGGING:
     run_id = args.bohb_id + args.id
-    set_logger_up(logger=logger, name=f"log_WORKER_id_{run_id}")
+    set_logger_up(logger=logger, name=f"log_WORKER_id_{run_id}", kind="single_file")  # kind="single_file" for file with name kind="std_out" for standard prints to console
     logger.info(f"Starting: {args.bohb_id}")
     logger.info(vars(args))
 
