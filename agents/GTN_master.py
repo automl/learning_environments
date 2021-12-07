@@ -171,7 +171,7 @@ class GTN_Master(GTN_Base):
         logger.info('timeout: ' + str(timeout))
 
         if it == 0:
-            id_list = [i + 1 for i in range(self.num_workers)]
+            id_list = [i for i in range(self.num_workers)]
         else:
             id_list = get_ids(self.available_workers)
 
