@@ -104,7 +104,7 @@ if __name__ == "__main__":
     run_id = 'GTNC_evaluate_cartpole_' + x.strftime("%Y-%m-%d-%H")
 
     # LOGGING:
-    set_logger_up(logger=logger, name=f"log_MASTER_id_{args.bohb_id}")
+    set_logger_up(logger=logger, name=f"log_MASTER_id_{args.bohb_id}", kind="single_file")  # kind="single_file" for file with name kind="std_out" for standard prints to console
     logger.info(f"Starting: {run_id}")
 
     # COMMUNICATION:

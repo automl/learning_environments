@@ -4,8 +4,6 @@ import logging
 import sys
 
 
-
-
 # http://stackoverflow.com/a/24956305/1076493
 # filter messages lower than level (exclusive)
 class MaxLevelFilter(logging.Filter):
@@ -16,8 +14,12 @@ class MaxLevelFilter(logging.Filter):
         return record.levelno < self.level
 
 
-def set_logger_up(logger, name="logging"):
-    kind_of_logs = {"std_out": False, "two_files": False, "single_file": True}
+def set_logger_up(logger, name="logging", kind="single_file"):
+    kind_of_logs = {"std_out": False, "two_files": False, "single_file": False}  # Options of the destinatíons to where we log into
+
+    assert kind in kind_of_logs.keys(), f"parameter kind must be one of these: {kind_of_logs.keys()}, but was {kind}"
+    kind_of_logs[kind] = True
+
     # redirect messages to either stdout or stderr based on loglevel
     # stdout < logging.WARNING <= stderr
     formatter = logging.Formatter('%(asctime)s %(levelname)s [%(module)s]: %(message)s')
