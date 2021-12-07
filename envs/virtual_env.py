@@ -33,7 +33,7 @@ class VirtualEnv(nn.Module):
         self.state = self.reset()
 
     def reset(self):
-        self.state = torch.tensor(self.reset_env.reset())
+        self.state = self.reset_env.reset().clone()
         if len(self.state) > self.state_dim:
             self.state = from_one_hot_encoding(self.state)
         elif len(self.state) < self.state_dim:
