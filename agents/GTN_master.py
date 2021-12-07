@@ -198,6 +198,7 @@ class GTN_Master(GTN_Base):
 
             torch.save(data, file_name)
             torch.save({}, check_file_name)
+            # TODO: MAybe remove this check file logic
 
     def read_worker_results(self):
         checked_this_iteration = []
@@ -213,6 +214,7 @@ class GTN_Master(GTN_Base):
 
                 # wait until worker has finished calculations
                 if not os.path.isfile(check_file_name):
+                    # TODO: MAybe remove this check file logic
                     logger.info(f"# available workers: {len(self.available_workers)}")
                     continue
                 else:

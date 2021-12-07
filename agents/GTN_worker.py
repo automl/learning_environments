@@ -16,6 +16,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class GTN_Worker(GTN_Base):
     def __init__(self, id, bohb_id=-1):
         """
@@ -121,12 +122,17 @@ class GTN_Worker(GTN_Base):
         logger.info('Worker ' + str(self.id) + ' quitting')
 
     def read_worker_input(self):
+        logger.info("trying to read file")
         file_name = self.get_input_file_name(id=self.id)
         check_file_name = self.get_input_check_file_name(id=self.id)
+        # TODO: MAybe remove this check file logic
 
         while not os.path.isfile(check_file_name):
+            # TODO: MAybe remove this check file logic
             time.sleep(self.time_sleep_worker)
         time.sleep(self.time_sleep_worker)
+
+        logger.info(f"reading file: {file_name}")
 
         data = torch.load(file_name)
 
@@ -150,6 +156,8 @@ class GTN_Worker(GTN_Base):
         # wait until master has deleted the file (i.e. acknowledged the previous result)
         while os.path.isfile(file_name):
             time.sleep(self.time_sleep_worker)
+            # TODO: Mybe this has to change:
+            # TODO: change so files have iteration numbers and there is no confusion and no need for the deletion
 
         data = {}
         data["eps"] = self.eps.state_dict()

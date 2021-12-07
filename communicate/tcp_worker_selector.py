@@ -49,8 +49,8 @@ def my_worker_thread(server_data, worker_data):
     while keep_running:
         for key, mask in mysel.select(timeout=1):
             connection = key.fileobj
-            client_address = connection.getpeername()
-            logger.info('client({})'.format(client_address))
+            #client_address = connection.getpeername()
+            #logger.info('client({})'.format(client_address))
 
             if mask & selectors.EVENT_READ:
                 pass

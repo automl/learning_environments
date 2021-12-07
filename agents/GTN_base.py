@@ -20,15 +20,19 @@ class GTN_Base(nn.Module):
         os.makedirs(self.sync_dir, exist_ok=True)
 
     def get_input_file_name(self, id):
+        # TODO: change for #iteration in name
         return os.path.join(self.sync_dir, str(self.bohb_id) + '_' + str(id) + '_input.pt')
 
     def get_input_check_file_name(self, id):
+        # TODO: change for #iteration in name
         return os.path.join(self.sync_dir, str(self.bohb_id) + '_' + str(id) + '_input_check.pt')
 
     def get_result_file_name(self, id):
+        # TODO: change for #iteration in name
         return os.path.join(self.sync_dir, str(self.bohb_id) + '_' + str(id) + '_result.pt')
 
     def get_result_check_file_name(self, id):
+        # TODO: change for #iteration in name
         return os.path.join(self.sync_dir, str(self.bohb_id) + '_' + str(id) + '_result_check.pt')
 
     def get_quit_file_name(self):

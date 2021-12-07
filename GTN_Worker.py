@@ -8,7 +8,7 @@ import argparse
 from experiment_helpers.exp_logging import set_logger_up
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def my_parse():  # --bohb_id AAA --id BBB --moab_id CCC --port DDD --min_workers EEE --number_workers FFF --mode DDD
     parser = argparse.ArgumentParser()
