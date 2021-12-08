@@ -35,7 +35,7 @@ def get_server_file():
 
 def my_worker_thread(server_data, worker_data):
     server_address = (server_data["ip"], server_data["port"])
-    logger.info('connecting to {} port {}'.format(*server_address))
+    #logger.info('connecting to {} port {}'.format(*server_address))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     sock.connect(server_address)
@@ -50,24 +50,24 @@ def my_worker_thread(server_data, worker_data):
         for key, mask in mysel.select(timeout=1):
             connection = key.fileobj
             #client_address = connection.getpeername()
-            #logger.info('client({})'.format(client_address))
+            ##logger.info('client({})'.format(client_address))
 
             if mask & selectors.EVENT_READ:
                 pass
 
             if mask & selectors.EVENT_WRITE:
-                logger.info('  ready to write')
+                #logger.info('  ready to write')
                 # Send the next message.
                 if communication_list:  # sending finished iteration message
                     next_msg = pickle.dumps(communication_list.pop(), -1)
                     sock.sendall(next_msg)
                 else:
                     next_msg = pickle.dumps(worker_data, -1)
-                    logger.info('  sending {!r}'.format(next_msg))
+                    #logger.info('  sending {!r}'.format(next_msg))
                     sock.sendall(next_msg)
         time.sleep(30)  # in seconds -> 5 minutes
 
-    logger.info('shutting down')
+    #logger.info('shutting down')
     mysel.unregister(connection)
     connection.close()
     mysel.close()

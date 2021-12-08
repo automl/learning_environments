@@ -28,7 +28,7 @@ def work_with_sent_data(data, ip, port):
         connections_for_later[key_for_connection]["bohb_id"] = data["bohb_id"]
         connections_for_later[key_for_connection]["id"] = data["id"]
         connections_for_later[key_for_connection]["moab_id"] = data["moab_id"]
-        logger.info(f"added {connections_for_later[key_for_connection]}")
+        #logger.info(f"added {connections_for_later[key_for_connection]}")
 
 def read(connection, mask):
     """ Callback for read events """
@@ -41,18 +41,18 @@ def read(connection, mask):
         # A readable client socket has data
         data_loaded = pickle.loads(data)
         work_with_sent_data(data=data_loaded, ip=client_address[0], port=client_address[1])
-        logger.info('read({})  sent: {!r}'.format(client_address, data_loaded))
+        #logger.info('read({})  sent: {!r}'.format(client_address, data_loaded))
     else:
         # Interpret empty result as closed connection
-        logger.info('  closing for {}'.format(client_address))
+        #logger.info('  closing for {}'.format(client_address))
         my_selector.unregister(connection)
         connection.close()
 
         key_lost_connection = f"{client_address[0]}_{client_address[1]}"
         lost_con = connections_for_later.pop(key_lost_connection)
         lost_connections[key_lost_connection] = lost_con
-        logger.info("lost_connections : ", lost_connections)
-        logger.info("connections_for_later : ", connections_for_later)
+        #logger.info("lost_connections : ", lost_connections)
+        #logger.info("connections_for_later : ", connections_for_later)
 
 
 def accept(sock, mask):
@@ -61,7 +61,7 @@ def accept(sock, mask):
     """
 
     new_connection, addr = sock.accept()  # addr := tuple of (IP , PORT)
-    logger.info('accept({})'.format(addr))
+    #logger.info('accept({})'.format(addr))
 
     key_for_connection = f"{addr[0]}_{addr[1]}"
     connections_for_later[key_for_connection] = {"ip": addr[0], "port": addr[0]}
@@ -99,7 +99,7 @@ def get_server_file():
 
 def main_communcication(num_conn, ip, port):
     server_address = (ip, port)
-    logger.info('starting up on {} port {}'.format(*server_address))
+    #logger.info('starting up on {} port {}'.format(*server_address))
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(False)
     server.bind(server_address)
@@ -120,8 +120,8 @@ def main_communcication(num_conn, ip, port):
             callback = key.data
             callback(key.fileobj, mask)
 
-    logger.info('shutting down')
-    logger.info("CONNECTION-LIST (connections_for_later): ", connections_for_later)
+    #logger.info('shutting down')
+    #logger.info("CONNECTION-LIST (connections_for_later): ", connections_for_later)
     my_selector.close()
 
 

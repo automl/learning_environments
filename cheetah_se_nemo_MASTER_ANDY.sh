@@ -1,7 +1,7 @@
 #!/bin/bash
 #MSUB -N masterSE01
 #MSUB -l nodes=1:ppn=4
-#MSUB -l walltime=03:00:00:00
+#MSUB -l walltime=01:01:00:00
 #MSUB -l pmem=6gb
 #MSUB -d /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/
 #MSUB -o /work/ws/nemo/fr_as1464-se_port_ws-0/learning_environments/out_std_${MOAB_JOBID}.out
