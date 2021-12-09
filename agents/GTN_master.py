@@ -415,7 +415,7 @@ class GTN_Master(GTN_Base):
         mean_time_elapsed = statistics.mean(self.all_time_elapsed_list)
         logger.info('--------------')
         logger.info('GTN iteration:    ' + str(it))
-        logger.info('GTN available workers:    ' + str(len(self.active_ids)) + ' : ' + str(self.active_ids[-1]))
+        logger.info('GTN available workers:    ' + str(len(self.active_ids[-1])) + ' : ' + str(self.active_ids[-1]))
         logger.info('GTN mstr t_elaps: ' + str(time_elapsed))
         logger.info('GTN avg wo t_elaps: ' + str(mean_time_elapsed))
         logger.info('GTN avg eval score:   ' + str(orig_score))
