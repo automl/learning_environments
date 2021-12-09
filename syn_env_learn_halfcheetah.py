@@ -12,7 +12,11 @@ from copy import deepcopy
 from agents.GTN import GTN_Master
 import argparse
 from communicate.tcp_master_selector import start_communication_thread
+from experiment_helpers.exp_logging import set_logger_up
 
+import logging
+
+logger = logging.getLogger()
 
 class ExperimentWrapper():
     def __init__(self, reward_env_type):
@@ -46,10 +50,10 @@ class ExperimentWrapper():
 
         config = self.get_specific_config(default_config)
 
-        print('----------------------------')
-        print("START BOHB ITERATION")
-        print('CONFIG: ' + str(config))
-        print('----------------------------')
+        logger.info('----------------------------')
+        logger.info("START BOHB ITERATION")
+        logger.info('CONFIG: ' + str(config))
+        logger.info('----------------------------')
 
         try:
             gtn = GTN_Master(config, bohb_id=bohb_id, bohb_working_dir=working_dir)
@@ -61,7 +65,7 @@ class ExperimentWrapper():
             score_list = []
             model_name = None
             error = traceback.format_exc()
-            print(error)
+            logger.info(error)
 
         info = {}
         info['error'] = str(error)
@@ -69,11 +73,11 @@ class ExperimentWrapper():
         info['score_list'] = str(score_list)
         info['model_name'] = str(model_name)
 
-        print('----------------------------')
-        print('FINAL SCORE: ' + str(score))
-        print('SCORE LIST:  ' + str(score_list))
-        print("END BOHB ITERATION")
-        print('----------------------------')
+        logger.info('----------------------------')
+        logger.info('FINAL SCORE: ' + str(score))
+        logger.info('SCORE LIST:  ' + str(score_list))
+        logger.info("END BOHB ITERATION")
+        logger.info('----------------------------')
 
         return {
             "loss": score,
@@ -114,6 +118,10 @@ if __name__ == "__main__":
     run_id = 'syn_env_learn_halfcheetah_' + x.strftime("%Y-%m-%d-%H")
 
     args = my_parse()
+    # LOGGING:
+    set_logger_up(logger=logger, name=f"log_MASTER_id_{args.bohb_id}", kind="single_file")  # kind="single_file" for file with name kind="std_out" for standard prints to console
+    logger.info(f"Starting: {run_id}")
+
 
     start_communication_thread(args=args)
 
