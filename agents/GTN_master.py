@@ -216,6 +216,7 @@ class GTN_Master(GTN_Base):
                 if not os.path.isfile(check_file_name):
                     # TODO: MAybe remove this check file logic
                     logger.info(f"# available workers: {len(self.available_workers)}")
+                    time.sleep(self.time_sleep_master)
                     continue
                 else:
                     logger.info(f"found: {check_file_name}, # available workers: {len(self.available_workers)}")
