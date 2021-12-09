@@ -233,6 +233,7 @@ class GTN_Master(GTN_Base):
                     self.eps_list[id].load_state_dict(data['eps'])
                     self.all_score_orig_list[id] = data['score_orig']
                     self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
+
         logger.info("--DEBUG jumped out of while loop")
         self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
 
