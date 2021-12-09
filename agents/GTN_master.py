@@ -206,6 +206,10 @@ class GTN_Master(GTN_Base):
         logger.info(f"read_worker_results -> self.available_workers {self.available_workers}")
         while len(self.available_workers) > 0:
             self.update_ids_to_check()  # check if a worker aborted since last check and adapt lists
+
+            logger.info(f"# available workers: {len(self.available_workers)}")
+            logger.info(f"# checked_this_iteration: {checked_this_iteration}")
+
             for id in get_ids(self.available_workers):
                 if id in checked_this_iteration:
                     continue
@@ -215,7 +219,6 @@ class GTN_Master(GTN_Base):
                 # wait until worker has finished calculations
                 if not os.path.isfile(check_file_name):
                     # TODO: MAybe remove this check file logic
-                    logger.info(f"# available workers: {len(self.available_workers)}")
                     time.sleep(self.time_sleep_master)
                     continue
                 else:
@@ -231,7 +234,6 @@ class GTN_Master(GTN_Base):
                     self.eps_list[id].load_state_dict(data['eps'])
                     self.all_score_orig_list[id] = data['score_orig']
                     self.synthetic_env_list[id].load_state_dict(data['synthetic_env'])  # for debugging
-
         logger.info("--DEBUG jumped out of while loop")
         self.active_ids.append(checked_this_iteration)  # keep log of active ids for score transformation
 
