@@ -131,7 +131,7 @@ class GTN_Master(GTN_Base):
 
             # X minutes passsed -> we make a list of available workers:
             self.available_workers = copy.deepcopy(connections_for_later)  # copy dict over to not have a thread read/write problem (connections_for_later is used in this main as well as the communication thread)
-            logger.info("self.available_ids: ", self.available_workers)
+            logger.info(f"self.available_workers: {self.available_workers}", )
 
             logger.info('-- Master: read worker results (tying)' + ' at elapsed time:' + str(time.time() - t1))
             self.read_worker_results()
@@ -207,8 +207,7 @@ class GTN_Master(GTN_Base):
         while len(self.available_workers) > 0:
             self.update_ids_to_check()  # check if a worker aborted since last check and adapt lists
 
-            logger.info(f"# available workers: {len(self.available_workers)}")
-            logger.info(f"# checked_this_iteration: {checked_this_iteration}")
+            logger.info(f"# available workers: {len(self.available_workers)}, self.available_workers: {self.available_workers}, checked_this_iteration: {checked_this_iteration}")
 
             for id in get_ids(self.available_workers):
                 if id in checked_this_iteration:
