@@ -1,0 +1,25 @@
+name: nemo_SE_GPU
+
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+
+dependencies:
+  - python==3.8.3
+  - pip
+  - cudatoolkit=10.1
+  - libgcc-ng
+  - libstdcxx-ng
+  - pytorch==1.5.0
+
+  - pip:
+    - numpy
+    - seaborn==0.11.0
+    - ConfigSpace
+    - hpbandster
+    - gym
+    - mujoco-py==2.0.2.7
+    - psutil
+    - pyyaml
+    - matplotlib
