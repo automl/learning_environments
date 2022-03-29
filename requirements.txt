@@ -48,7 +48,7 @@ gym==0.17.3
 h5py==2.10.0
 HeapDict==1.0.1
 higher==0.2.1
-horovod==0.20.0
+horovod==0.24.0
 hpbandster==0.7.4
 identify==1.4.19
 idna==2.9
