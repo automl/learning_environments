@@ -182,7 +182,7 @@ class GTN_Worker(GTN_Base):
             data['given_config'] = self.config
             sync_dir_base = os.getcwd()
             s_dir = str(os.path.join(sync_dir_base, 'results/GTN_inspect'))
-            os.mkdir(s_dir)
+            os.mkdir(s_dir, exists=True)
             file_name_add_data = os.path.join(s_dir, str(self.bohb_id) + '_' + str(self.id) + "_" + str(self.stage) + '_result.pt')
             torch.save(data, file_name_add_data)
     
