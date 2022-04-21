@@ -139,7 +139,7 @@ class BaseAgent(nn.Module):
             avg_meter_episode_length.update(episode_length, print_rate=1e9)
 
             if test_env is not None:
-                avg_reward_test_raw, _, _ = self.test(test_env)
+                avg_reward_test_raw, _, _, _ = self.test(test_env)
                 avg_meter_reward.update(statistics.mean(avg_reward_test_raw), print_rate=self.print_rate)
             else:
                 avg_meter_reward.update(episode_reward, print_rate=self.print_rate)
