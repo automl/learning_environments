@@ -124,7 +124,8 @@ class GTN_Worker(GTN_Base):
             self.write_worker_result(
                 score=score_best,
                 score_orig=score_orig,
-                time_elapsed=time.time() - time_start
+                time_elapsed=time.time() - time_start,
+                add_data=all_additional_data,
                 )
             
             self.stage += 1
