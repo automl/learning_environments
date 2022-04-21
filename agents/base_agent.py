@@ -62,6 +62,10 @@ class BaseAgent(nn.Module):
         return False
 
     def train(self, env, test_env=None, time_remaining=1e9):
+        log_dict = {
+            "num_episodes": -1,
+            "ep_lengths":   []
+            }
         time_start = time.time()
 
         discretize_action = False
@@ -87,12 +91,14 @@ class BaseAgent(nn.Module):
 
         # training loop
         for episode in range(self.train_episodes):
+            log_dict["num_episodes"] = episode
             # early out if timeout
             if self.time_is_up(avg_meter_reward=avg_meter_reward,
                                avg_meter_episode_length=avg_meter_episode_length,
                                max_episodes=self.train_episodes,
                                time_elapsed=time.time() - time_start,
                                time_remaining=time_remaining):
+                log_dict["num_episodes"] = episode-1
                 break
 
             if hasattr(self, 'update_parameters_per_episode'):
@@ -125,6 +131,7 @@ class BaseAgent(nn.Module):
                 if episode >= self.init_episodes:
                     self.learn(replay_buffer=replay_buffer, env=env, episode=episode)
 
+                log_dict["ep_lengths"].append(t)  # append individual episode lengths
                 if done > 0.5:
                     break
 
@@ -150,9 +157,14 @@ class BaseAgent(nn.Module):
         env.close()
 
         # todo: use dict to reduce confusions and bugs
-        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer, log_dict
 
     def test(self, env, time_remaining=1e9):
+        log_dict = {
+            "num_episodes": -1,
+            "ep_lengths":   []
+            }
+        
         discretize_action = False
 
         sd = 1 if env.has_discrete_state_space() else self.state_dim
@@ -178,6 +190,8 @@ class BaseAgent(nn.Module):
 
             # training loop
             for episode in range(self.test_episodes):
+                log_dict["num_episodes"] = episode
+    
                 # episode_trajectory = []
                 # early out if timeout
                 if self.time_is_up(avg_meter_reward=avg_meter_reward,
@@ -185,6 +199,7 @@ class BaseAgent(nn.Module):
                                    max_episodes=self.test_episodes,
                                    time_elapsed=time.time() - time_start,
                                    time_remaining=time_remaining):
+                    log_dict["num_episodes"] = episode - 1
                     break
 
                 state = env.reset()
@@ -211,7 +226,8 @@ class BaseAgent(nn.Module):
                     state = next_state
                     episode_reward += reward
                     episode_length += 1
-
+                    
+                    log_dict["ep_lengths"].append(t)  # append individual episode lengths
                     if done > 0.5:
                         break
 
@@ -224,4 +240,4 @@ class BaseAgent(nn.Module):
             env.close()
 
         # todo: use dict to reduce confusions and bugs
-        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer
+        return avg_meter_reward.get_raw_data(), avg_meter_episode_length.get_raw_data(), replay_buffer, log_dict

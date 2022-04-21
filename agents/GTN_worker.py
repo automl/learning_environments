@@ -20,32 +20,32 @@ class GTN_Worker(GTN_Base):
           bohb_id: identifies the different BOHB runs
         """
         super().__init__(bohb_id)
-
+        
         torch.manual_seed(id + bohb_id * id * 1000 + int(time.time()))
         torch.cuda.manual_seed_all(id + bohb_id * id * 1000 + int(time.time()))
-
+        
         # for identifying the different workers
         self.id = id
         self.test_counter = 0
-
+        
         # flag to stop worker
         self.quit_flag = False
         self.time_sleep_worker = 3
         self.timeout = None
-
+        
         # delete corresponding sync files if existent
         for file in [self.get_input_file_name(self.id), self.get_input_check_file_name(self.id),
                      self.get_result_file_name(self.id), self.get_result_check_file_name(self.id)]:
             if os.path.isfile(file):
                 os.remove(file)
-
+        self.stage = 0
         # save_dir = "mbrl_baseline"
         # self.save_path = f"./{save_dir}"
         # if not os.path.exists(self.save_path):
         #     os.mkdir(self.save_path)
-
+        
         print('Starting GTN Worker with bohb_id {} and id {}'.format(bohb_id, id))
-
+    
     def late_init(self, config):
         gtn_config = config["agents"]["gtn"]
         self.noise_std = gtn_config["noise_std"]
@@ -56,11 +56,11 @@ class GTN_Worker(GTN_Base):
         self.agent_name = gtn_config["agent_name"]
         self.synthetic_env_type = gtn_config["synthetic_env_type"]
         self.unsolved_weight = gtn_config["unsolved_weight"]
-
+        
         # make it faster on single PC
         if gtn_config["mode"] == 'single':
             self.time_sleep_worker /= 10
-
+        
         self.env_factory = EnvFactory(config)
         if self.synthetic_env_type == 0:
             generate_synthetic_env_fn = self.env_factory.generate_virtual_env
@@ -68,82 +68,103 @@ class GTN_Worker(GTN_Base):
             generate_synthetic_env_fn = self.env_factory.generate_reward_env
         else:
             raise NotImplementedError("Unknown synthetic_env_type value: " + str(self.synthetic_env_type))
-
+        
         self.synthetic_env_orig = generate_synthetic_env_fn(print_str='GTN_Base: ')
         self.synthetic_env = generate_synthetic_env_fn(print_str='GTN_Worker' + str(id) + ': ')
         self.eps = generate_synthetic_env_fn('GTN_Worker' + str(id) + ': ')
-
+    
     def run(self):
         # read data from master
         while not self.quit_flag:
             self.read_worker_input()
-
+            
             time_start = time.time()
-
+            
             # get score for network of the last outer loop iteration
-            score_orig = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout - (time.time() - time_start))
-
+            score_orig, log_dict_train_orig_se, log_dict_test_orig_se = self.calc_score(env=self.synthetic_env_orig, time_remaining=self.timeout - (time.time() - time_start))
+            
             self.get_random_noise()
-
+            
             # first mirrored noise +N
             self.add_noise_to_synthetic_env()
-
+            
+            log_dict_train_noise_add_se = []
+            log_dict_test_noise_add_se = []
             score_add = []
             for i in range(self.num_grad_evals):
-                score = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
+                score, log_dict_train, log_dict_test = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
+                log_dict_train_noise_add_se.append(log_dict_train)
+                log_dict_test_noise_add_se.append(log_dict_test)
                 score_add.append(score)
-
+            
             # # second mirrored noise -N
             self.subtract_noise_from_synthetic_env()
-
+            
+            log_dict_train_noise_sub_se = []
+            log_dict_test_noise_sub_se = []
             score_sub = []
             for i in range(self.num_grad_evals):
-                score = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
+                score, log_dict_train, log_dict_test = self.calc_score(env=self.synthetic_env, time_remaining=self.timeout - (time.time() - time_start))
+                log_dict_train_noise_sub_se.append(log_dict_train)
+                log_dict_test_noise_sub_se.append(log_dict_test)
                 score_sub.append(score)
-
+            
             score_best = self.calc_best_score(score_add=score_add, score_sub=score_sub)
-
-            self.write_worker_result(score=score_best,
-                                     score_orig=score_orig,
-                                     time_elapsed=time.time() - time_start)
-
+            
+            # All additional data in one dict:
+            all_additional_data = {
+                "log_dict_train_orig_se":   log_dict_train_orig_se,
+                "log_dict_test_orig_se":    log_dict_test_orig_se,
+                "log_dict_train_noise_add_se": log_dict_train_noise_add_se,
+                "log_dict_test_noise_add_se":  log_dict_test_noise_add_se,
+                "log_dict_train_noise_sub_se": log_dict_train_noise_sub_se,
+                "log_dict_test_noise_sub_se":  log_dict_test_noise_sub_se
+                }
+            
+            self.write_worker_result(
+                score=score_best,
+                score_orig=score_orig,
+                time_elapsed=time.time() - time_start
+                )
+            
+            self.stage += 1
             if self.quit_flag:
                 print('QUIT FLAG')
                 break
-
+            
         print('Worker ' + str(self.id) + ' quitting')
-
+        
     def read_worker_input(self):
         file_name = self.get_input_file_name(id=self.id)
         check_file_name = self.get_input_check_file_name(id=self.id)
-
+        
         while not os.path.isfile(check_file_name):
             time.sleep(self.time_sleep_worker)
         time.sleep(self.time_sleep_worker)
-
+        
         data = torch.load(file_name)
-
+        
         self.timeout = data['timeout']
         self.quit_flag = data['quit_flag']
         self.config = data['config']
         # self.bohb_next_run_counter = data['bohb_next_run_counter']
-
+        
         self.late_init(self.config)
-
+        
         self.synthetic_env_orig.load_state_dict(data['synthetic_env_orig'])
         self.synthetic_env.load_state_dict(data['synthetic_env_orig'])
-
+        
         os.remove(check_file_name)
         os.remove(file_name)
-
-    def write_worker_result(self, score, score_orig, time_elapsed):
+    
+    def write_worker_result(self, score, score_orig, time_elapsed, add_data=None):
         file_name = self.get_result_file_name(id=self.id)
         check_file_name = self.get_result_check_file_name(id=self.id)
-
+        
         # wait until master has deleted the file (i.e. acknowledged the previous result)
         while os.path.isfile(file_name):
             time.sleep(self.time_sleep_worker)
-
+        
         data = {}
         data["eps"] = self.eps.state_dict()
         data["synthetic_env"] = self.synthetic_env.state_dict()  # for debugging
@@ -152,16 +173,35 @@ class GTN_Worker(GTN_Base):
         data["score_orig"] = score_orig
         torch.save(data, file_name)
         torch.save({}, check_file_name)
-
+        
+        if add_data:
+            data["add_data"] = add_data
+            data['given_timeout'] = self.timeout
+            data['given_quit_flag'] = self.quit_flag
+            data['given_config'] = self.config
+            sync_dir_base = os.getcwd()
+            s_dir = str(os.path.join(sync_dir_base, 'results/GTN_inspect'))
+            os.mkdir(s_dir)
+            file_name_add_data = os.path.join(s_dir, str(self.bohb_id) + '_' + str(self.id) + "_" + str(self.stage) + '_result.pt')
+            torch.save(data, file_name_add_data)
+    
     def get_random_noise(self):
         for l_virt, l_eps in zip(self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
-                l_eps.weight = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.weight),
-                                                               std=torch.ones_like(l_virt.weight)) * self.noise_std)
+                l_eps.weight = torch.nn.Parameter(
+                    torch.normal(
+                        mean=torch.zeros_like(l_virt.weight),
+                        std=torch.ones_like(l_virt.weight)
+                        ) * self.noise_std
+                    )
                 if l_eps.bias != None:
-                    l_eps.bias = torch.nn.Parameter(torch.normal(mean=torch.zeros_like(l_virt.bias),
-                                                                 std=torch.ones_like(l_virt.bias)) * self.noise_std)
-
+                    l_eps.bias = torch.nn.Parameter(
+                        torch.normal(
+                            mean=torch.zeros_like(l_virt.bias),
+                            std=torch.ones_like(l_virt.bias)
+                            ) * self.noise_std
+                        )
+    
     def add_noise_to_synthetic_env(self, add=True):
         for l_orig, l_virt, l_eps in zip(self.synthetic_env_orig.modules(), self.synthetic_env.modules(), self.eps.modules()):
             if isinstance(l_virt, nn.Linear):
@@ -173,56 +213,56 @@ class GTN_Worker(GTN_Base):
                     l_virt.weight = torch.nn.Parameter(l_orig.weight - l_eps.weight)
                     if l_virt.bias != None:
                         l_virt.bias = torch.nn.Parameter(l_orig.bias - l_eps.bias)
-
+    
     def subtract_noise_from_synthetic_env(self):
         self.add_noise_to_synthetic_env(add=False)
-
+    
     def invert_eps(self):
         for l_eps in self.eps.modules():
             if isinstance(l_eps, nn.Linear):
                 l_eps.weight = torch.nn.Parameter(-l_eps.weight)
                 if l_eps.bias != None:
                     l_eps.bias = torch.nn.Parameter(-l_eps.bias)
-
+    
     def calc_score(self, env, time_remaining):
         time_start = time.time()
-
+        
         agent = select_agent(config=self.config, agent_name=self.agent_name)
         real_env = self.env_factory.generate_real_env()
-
-        reward_list_train, episode_length_train, _ = agent.train(env=env, test_env=real_env, time_remaining=time_remaining - (time.time() - time_start))
-
+        
+        reward_list_train, episode_length_train, _, log_dict_train = agent.train(env=env, test_env=real_env, time_remaining=time_remaining - (time.time() - time_start))
+        
         # if len(agent.trajectories) != 0:
         #     print("trajectories should have been cleared")
         #     agent.trajectories.clear()
-
-        reward_list_test, _, _ = agent.test(env=real_env, time_remaining=time_remaining - (time.time() - time_start))
-
+        
+        reward_list_test, _, _, log_dict_test = agent.test(env=real_env, time_remaining=time_remaining - (time.time() - time_start))
+        
         # trajectories = copy.deepcopy(agent.trajectories)
         # GTN_Worker.store_data(trajectories, datasets_dir=self.save_path, id=self.id, test_counter=self.test_counter,
         #                       bohb_next_run_counter=self.bohb_next_run_counter)
-
+        
         # self.test_counter += 1
         # agent.trajectories.clear()
         # assert len(agent.trajectories) == 0
-
+        
         avg_reward_test = statistics.mean(reward_list_test)
-
+        
         if env.is_virtual_env():
-            return avg_reward_test
+            return avg_reward_test, log_dict_train, log_dict_test
         else:
             # # when timeout occurs, reward_list_train is padded (with min. reward values) and episode_length_train is not
             # if len(episode_length_train) < len(reward_list_train):
             #     print("due to timeout, reward_list_train has been padded")
             #     print(f"shape rewards: {np.shape(reward_list_train)}, shape episode lengths: {np.shape(episode_length_train)}")
             #     reward_list_train = reward_list_train[:len(episode_length_train)]
-
+            
             print("AVG REWARD: ", avg_reward_test)
-            return avg_reward_test
-
+            return avg_reward_test, log_dict_train, log_dict_test
+            
             # print("AUC: ", np.dot(reward_list_train, episode_length_train))
             # return np.dot(reward_list_train, episode_length_train)
-
+            
             # if not real_env.can_be_solved():
             #     return avg_reward_test
             # else:
@@ -230,7 +270,7 @@ class GTN_Worker(GTN_Base):
             #     # we maximize the objective
             #     # sum(episode_length_train) + max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
             #     return -sum(episode_length_train) - max(0, (real_env.get_solved_reward()-avg_reward_test))*self.unsolved_weight
-
+    
     def calc_best_score(self, score_sub, score_add):
         if self.grad_eval_type == 'mean':
             score_sub = statistics.mean(score_sub)
@@ -240,7 +280,7 @@ class GTN_Worker(GTN_Base):
             score_add = min(score_add)
         else:
             raise NotImplementedError('Unknown parameter for grad_eval_type: ' + str(self.grad_eval_type))
-
+        
         if self.mirrored_sampling:
             score_best = max(score_add, score_sub)
             if score_sub > score_add:
@@ -250,9 +290,9 @@ class GTN_Worker(GTN_Base):
         else:
             score_best = score_add
             self.add_noise_to_synthetic_env()
-
+        
         return score_best
-
+    
     # @staticmethod
     # def store_data(data, datasets_dir, id, test_counter, bohb_next_run_counter):
     #     # save data
