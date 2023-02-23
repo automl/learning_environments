@@ -79,7 +79,7 @@ kiwisolver==1.2.0
 locket==0.2.1
 lockfile==0.12.2
 Markdown==3.2.2
-markdown-it-py==0.5.5
+markdown-it-py==2.2.0
 MarkupSafe==1.1.1
 matplotlib==3.2.1
 mistune==0.8.4
